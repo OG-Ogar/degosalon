@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Barber</title>
+</head>
+<body>
+    <h1>Add New Barber</h1>
+
+    <form action="/admin/barbers/new" method="POST">
+
+        <label>Full Name</label><br>
+        <input type="text" name="fullname"><br><br>
+
+        <label>Phone Number</label><br>
+        <input type="text" name="phone"><br><br>
+
+        <label>Email</label>
+        <input type="email" name="email"><br><br>
+
+        <label>Shop Name</label>
+        <input type="text" name="shopname"><br><br>
+
+        <label>Shop Address</label><br><br>
+        <input type="text" name="shopaddress"><br><br>
+
+        <button type="submit">
+            Save Barber
+        </button>
+        
+    </form>
+
+
+</body>
+</html>

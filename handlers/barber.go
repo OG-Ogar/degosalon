@@ -37,7 +37,7 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request) {
 			PhoneNumber: phone,
 			Email:       email,
 			ShopName:    shopName,
-			ShopAdress:  shopAddress
+			ShopAdress:  shopAddress,
 			Status:      "Active",
 		}
 
@@ -53,5 +53,5 @@ func ListBarbersHandler(w http.ResponseWriter, r *http.Request) {
 	barbers := storage.Barbers
 
 	tmpl := template.Must(template.ParseFiles("templates/barbers.html"))
-	tpml.Execute(w, barbers)
+	tmpl.Execute(w, barbers)
 }

@@ -15,6 +15,10 @@ func main() {
 
 	http.HandleFunc("/admin/barbers", handlers.ListBarbersHandler)
 
+	http.HandleFunc("/admin/barbers/2", handlers.BarberProfileHandler)
+
+	http.HandleFunc("/admin/barbers/2/edit", handlers.EditBarberHandler)
+
 	fmt.Println("Starting Barber Booking Server...")
 
 	err := http.ListenAndServe(":8080", nil)

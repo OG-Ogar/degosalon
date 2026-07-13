@@ -8,7 +8,7 @@
 <body>
     <h1>Edit Barber</h1>
 
-    <form>
+    <form method="POST" action="/admin/barbers/{{.ID}}/update">
         <label>Full Name</label><br>
         <input type="text" name="fullname" value="{{.FullName}}"><br><br>
 
@@ -19,7 +19,7 @@
         <input type="text" name="phone" value="{{.PhoneNumber}}"><br><br>
 
         <label>Shop</label><br>
-        <input type="text" name="shop" value="{{.ShopName}}"><br><br>
+        <input type="text" name="shopname" value="{{.ShopName}}"><br><br>
 
         <label>Address</label><br>
         <input type="text" name="shopaddress" value="{{.ShopAddress}}"><br><br>

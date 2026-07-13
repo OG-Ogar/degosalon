@@ -41,9 +41,5 @@ func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
 		return
-
-		// fmt.Fprintln(w, "username", username)
-		// fmt.Fprintln(w, "password", password)
-		// return
 	}
 }

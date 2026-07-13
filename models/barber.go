@@ -5,7 +5,7 @@ type Barber struct{
 	FullName     string
 	PhoneNumber  string
 	Email        string
-	ShopAdress   string
+	ShopAddress   string
 	ShopName     string
 	ProfileImage string
 	Status       string

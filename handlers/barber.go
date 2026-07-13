@@ -37,7 +37,7 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request) {
 			PhoneNumber: phone,
 			Email:       email,
 			ShopName:    shopName,
-			ShopAdress:  shopAddress,
+			ShopAddress:  shopAddress,
 			Status:      "Active",
 		}
 

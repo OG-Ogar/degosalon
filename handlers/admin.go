@@ -8,38 +8,44 @@ import (
 )
 
 func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method == http.MethodGet {
-		tmpl := template.Must(template.ParseFiles("templates/admin-login.html"))
+
+	switch r.Method {
+
+	case http.MethodGet:
+
+		tmpl, err := template.ParseFiles("templates/admin/login.html")
+		if err != nil {
+			http.Error(w, "Template Error", http.StatusInternalServerError)
+			return
+		}
 
 		tmpl.Execute(w, nil)
-		return
-	}
 
-	if r.Method == http.MethodPost {
+	case http.MethodPost:
+
 		username := strings.TrimSpace(r.FormValue("username"))
 		password := r.FormValue("password")
 
 		if username == "" {
-			fmt.Fprintln(w, "username is required.")
+			fmt.Fprintln(w, "Username is required.")
 			return
 		}
 
 		if password == "" {
-			fmt.Fprintln(w, "password is required")
-			return
-		}
-		
-		if username != "admin"{
-			fmt.Fprintln(w, "Invalid username or password")
+			fmt.Fprintln(w, "Password is required.")
 			return
 		}
 
-		if password != "password123" {
-			fmt.Fprintln(w, "Invalid username or password")
+		if username != "admin" || password != "password123" {
+			fmt.Fprintln(w, "Invalid username or password.")
 			return
 		}
 
-		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
-		return
+		http.Redirect(w, r, "/admin/barbers", http.StatusSeeOther)
+
+	default:
+
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+
 	}
 }

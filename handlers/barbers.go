@@ -14,11 +14,19 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 	path := r.URL.Path
 
 	switch {
+
 	case strings.HasSuffix(path, "/edit"):
 		EditBarberHandler(w, r)
 
 	case strings.HasSuffix(path, "/update"):
 		UpdateBarberHandler(w, r)
+
+	case strings.HasSuffix(path, "/delete"):
+		if r.Method == http.MethodPost {
+			DeleteBarberHandler(w, r)
+		} else {
+			ConfirmDeleteBarberHandler(w, r)
+		}
 
 	default:
 		BarberProfileHandler(w, r)
@@ -49,15 +57,14 @@ func BarberProfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/barber-profile.html")
+	tmpl, err := template.ParseFiles("templates/admin/barber-profile.html")
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
 	}
 
-	err = tmpl.Execute(w, barber)
-	if err != nil {
-		http.Error(w, "Temlate execution failed", http.StatusInternalServerError)
+	if err := tmpl.Execute(w, barber); err != nil {
+		http.Error(w, "Template execution failed", http.StatusInternalServerError)
 		return
 	}
 }
@@ -86,15 +93,14 @@ func EditBarberHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/edit-barber.html")
+	tmpl, err := template.ParseFiles("templates/admin/barber-form.html")
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
 	}
 
-	err = tmpl.Execute(w, barber)
-	if err != nil {
-		http.Error(w, "Temlate execution failed", http.StatusInternalServerError)
+	if err := tmpl.Execute(w, barber); err != nil {
+		http.Error(w, "Template execution failed", http.StatusInternalServerError)
 		return
 	}
 }
@@ -128,11 +134,11 @@ func UpdateBarberHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fullname := r.FormValue("fullname")
-	email := r.FormValue("email")
-	phone := r.FormValue("phone")
-	shopName := r.FormValue("shop")
-	shopAddress := r.FormValue("shopaddress")
+	fullname := strings.TrimSpace(r.FormValue("fullname"))
+	email := strings.TrimSpace(r.FormValue("email"))
+	phone := strings.TrimSpace(r.FormValue("phone"))
+	shopName := strings.TrimSpace(r.FormValue("shop"))
+	shopAddress := strings.TrimSpace(r.FormValue("shopaddress"))
 
 	barber.FullName = fullname
 	barber.Email = email
@@ -165,11 +171,14 @@ func ConfirmDeleteBarberHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/confirm-delete.html")
+	tmpl, err := template.ParseFiles("templates/admin/confirm-delete.html")
 	if err != nil {
-		http.Error(w, "Template error", http.StatusInternalServerError)
+		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
 	}
 
-	tmpl.Execute(w, barber)
+	if err := tmpl.Execute(w, barber); err != nil {
+		http.Error(w, "Template execution failed", http.StatusInternalServerError)
+		return
+	}
 }

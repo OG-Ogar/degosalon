@@ -7,15 +7,10 @@ import (
 )
 
 func main() {
+
 	http.HandleFunc("/", handlers.HomeHandler)
 
-	http.HandleFunc("/admin/login", handlers.AdminLoginHandler)
-
-	http.HandleFunc("/admin/barbers/new", handlers.NewBarberHandler)
-
-	http.HandleFunc("/admin/barbers", handlers.ListBarbersHandler)
-
-	http.HandleFunc("/admin/barbers/", handlers.BarberRouter)
+	http.HandleFunc("/admin/", handlers.AdminRouter)
 
 	fmt.Println("Starting Barber Booking Server...")
 

@@ -12,6 +12,8 @@ func main() {
 
 	http.HandleFunc("/admin/", handlers.AdminRouter)
 
+	http.HandleFunc("/barber/", handlers.BarberRouter)
+
 	fmt.Println("Starting Barber Booking Server...")
 
 	err := http.ListenAndServe(":8080", nil)

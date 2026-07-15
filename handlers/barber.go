@@ -1,3 +1,13 @@
+package handlers
+
+import (
+	"barber-booking/models"
+	"barber-booking/storage"
+	"html/template"
+	"net/http"
+	"strings"
+)
+
 func NewBarberHandler(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
@@ -31,13 +41,13 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		barber := models.Barber{
-			ID:           len(storage.Barbers) + 1,
-			FullName:     fullName,
-			PhoneNumber:  phone,
-			Email:        email,
-			ShopName:     shopName,
-			ShopAddress:  shopAddress,
-			Status:       "Active",
+			ID:          len(storage.Barbers) + 1,
+			FullName:    fullName,
+			PhoneNumber: phone,
+			Email:       email,
+			ShopName:    shopName,
+			ShopAddress: shopAddress,
+			Status:      "Active",
 		}
 
 		storage.Barbers = append(storage.Barbers, barber)

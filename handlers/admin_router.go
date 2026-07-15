@@ -14,6 +14,9 @@ func AdminRouter(w http.ResponseWriter, r *http.Request) {
 	case path == "/admin/login":
 		AdminLoginHandler(w, r)
 
+	case path == "/admin/dashboard":
+		AdminDashboardHandler(w, r)
+
 	case path == "/admin/barbers":
 		ListBarbersHandler(w, r)
 

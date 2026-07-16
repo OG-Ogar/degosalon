@@ -6,8 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"barber-booking/storage"
+	"barber-booking/models"
 	"barber-booking/session"
+	"barber-booking/storage"
 )
 
 func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -62,3 +63,4 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 	}
 }
+

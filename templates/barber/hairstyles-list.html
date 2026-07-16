@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Hairstyles</title>
+</head>
+<body>
+
+<h1>My Hairstyles</h1>
+
+<p>
+
+    <a href="/barber/hairstyles/new">
+        <button>Add New Hairstyle</button>
+    </a>
+
+    <a href="/barber/dashboard">
+        <button>Dashboard</button>
+    </a>
+
+</p>
+
+<hr>
+
+{{if .}}
+
+<table border="1" cellpadding="10">
+
+<tr>
+
+    <th>ID</th>
+
+    <th>Name</th>
+
+    <th>Category</th>
+
+    <th>Price</th>
+
+    <th>Duration</th>
+
+    <th>Status</th>
+
+    <th>Actions</th>
+
+</tr>
+
+{{range .}}
+
+<tr>
+
+    <td>{{.ID}}</td>
+
+    <td>{{.Name}}</td>
+
+    <td>{{.Category}}</td>
+
+    <td>₦{{printf "%.2f" .Price}}</td>
+
+    <td>{{.DurationMinutes}} mins</td>
+
+    <td>
+
+        {{if .IsAvailable}}
+
+            Available
+
+        {{else}}
+
+            Unavailable
+
+        {{end}}
+
+    </td>
+
+    <td>
+
+        <a href="/barber/hairstyles/{{.ID}}">
+            View
+        </a>
+
+        |
+
+        <a href="/barber/hairstyles/{{.ID}}/edit">
+            Edit
+        </a>
+
+        |
+
+        <a href="/barber/hairstyles/{{.ID}}/delete">
+            Delete
+        </a>
+
+    </td>
+
+</tr>
+
+{{end}}
+
+</table>
+
+{{else}}
+
+<h3>No hairstyles found.</h3>
+
+<p>
+
+Start by creating your first hairstyle.
+
+</p>
+
+<a href="/barber/hairstyles/new">
+
+<button>
+
+Create Hairstyle
+
+</button>
+
+</a>
+
+{{end}}
+
+</body>
+</html>

@@ -1,18 +1,43 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+	"strings"
+)
 
 func BarberRouter(w http.ResponseWriter, r *http.Request) {
 
-	switch r.URL.Path {
+	path := r.URL.Path
 
-	case "/barber/login":
+	switch {
+
+	case path == "/barber/login":
 		BarberLoginHandler(w, r)
 
-	case "/barber/dashboard":
+	case path == "/barber/dashboard":
 		BarberDashboardHandler(w, r)
 
+	case path == "/barber/hairstyles":
+		ListHairstylesHandler(w, r)
+
+	case path == "/barber/hairstyles/new":
+		NewHairstyleHandler(w, r)
+
+	case strings.HasSuffix(path, "/edit"):
+		EditHairstyleHandler(w, r)
+
+	case strings.HasSuffix(path, "/update"):
+		UpdateHairstyleHandler(w, r)
+
+	case strings.HasSuffix(path, "/delete"):
+
+		if r.Method == http.MethodPost {
+			DeleteHairstyleHandler(w, r)
+		} else {
+			ConfirmDeleteHairstyleHandler(w, r)
+		}
+
 	default:
-		http.NotFound(w, r)
+		ViewHairstyleHandler(w, r)
 	}
 }

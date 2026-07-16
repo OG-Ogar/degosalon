@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Hairstyle</title>
+</head>
+<body>
+
+<h1>Edit Hairstyle</h1>
+
+<form action="/barber/hairstyles/{{.ID}}/update" method="POST">
+
+    <p>
+        <label>Hairstyle Name</label><br>
+        <input
+            type="text"
+            name="name"
+            value="{{.Name}}"
+            required>
+    </p>
+
+    <p>
+        <label>Category</label><br>
+
+        <select name="category">
+
+            <option value="{{.Category}}">
+                {{.Category}}
+            </option>
+
+            <option value="Fade">Fade</option>
+            <option value="Braids">Braids</option>
+            <option value="Dreadlocks">Dreadlocks</option>
+            <option value="Kids">Kids</option>
+            <option value="Women">Women</option>
+            <option value="Beard">Beard</option>
+            <option value="Hair Coloring">Hair Coloring</option>
+
+        </select>
+
+    </p>
+
+    <p>
+
+        <label>Description</label><br>
+
+        <textarea
+            name="description"
+            rows="5"
+            cols="50">{{.Description}}</textarea>
+
+    </p>
+
+    <p>
+
+        <label>Price</label><br>
+
+        <input
+            type="number"
+            name="price"
+            step="0.01"
+            value="{{.Price}}"
+            required>
+
+    </p>
+
+    <p>
+
+        <label>Duration (Minutes)</label><br>
+
+        <input
+            type="number"
+            name="duration"
+            value="{{.DurationMinutes}}"
+            required>
+
+    </p>
+
+    <p>
+
+        <label>Image</label><br>
+
+        <input
+            type="text"
+            name="image"
+            value="{{.Image}}">
+
+    </p>
+
+    <p>
+
+        <label>
+
+            <input
+                type="checkbox"
+                name="available"
+                {{if .IsAvailable}}checked{{end}}>
+
+            Available
+
+        </label>
+
+    </p>
+
+    <p>
+
+        <button type="submit">
+
+            Update Hairstyle
+
+        </button>
+
+    </p>
+
+</form>
+
+<hr>
+
+<a href="/barber/hairstyles/{{.ID}}">
+
+<button>
+
+Cancel
+
+</button>
+
+</a>
+
+</body>
+</html>

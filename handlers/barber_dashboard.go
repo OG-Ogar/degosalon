@@ -13,7 +13,8 @@ func BarberDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
+	err = tmpl.Execute(w, nil)
+	if err != nil {
 		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
 		return
 	}

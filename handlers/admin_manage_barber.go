@@ -22,7 +22,10 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		tmpl.Execute(w, nil)
+		if err := tmpl.Execute(w, nil); err != nil {
+			http.Error(w, "Template Execution Error", http.StatusInternalServerError)
+			return
+		}
 
 	case http.MethodPost:
 

@@ -2,11 +2,16 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Add Barber</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        {{if .}}Edit Barber{{else}}Add Barber{{end}}
+    </title>
 </head>
 <body>
 
-<h1>Add Barber</h1>
+<h1>
+    {{if .}}Edit Barber{{else}}Add Barber{{end}}
+</h1>
 
 <p>
     <a href="/admin/barbers">
@@ -16,69 +21,67 @@
 
 <hr>
 
-<form method="POST" action="/admin/barbers/new">
+<form method="POST" action="{{if .}}/admin/barbers/{{.ID}}/update{{else}}/admin/barbers/new{{end}}">
 
 <p>
+    <label for="fullname">Full Name</label><br>
 
-<label>Full Name</label><br>
-
-<input
-type="text"
-name="fullname"
-required>
-
+    <input
+        type="text"
+        id="fullname"
+        name="fullname"
+        value="{{if .}}{{.FullName}}{{end}}"
+        required>
 </p>
 
 <p>
+    <label for="phone">Phone Number</label><br>
 
-<label>Phone Number</label><br>
-
-<input
-type="text"
-name="phone"
-required>
-
+    <input
+        type="text"
+        id="phone"
+        name="phone"
+        value="{{if .}}{{.PhoneNumber}}{{end}}"
+        required>
 </p>
 
 <p>
+    <label for="email">Email</label><br>
 
-<label>Email</label><br>
-
-<input
-type="email"
-name="email"
-required>
-
+    <input
+        type="email"
+        id="email"
+        name="email"
+        value="{{if .}}{{.Email}}{{end}}"
+        required>
 </p>
 
 <p>
+    <label for="shopname">Shop Name</label><br>
 
-<label>Shop Name</label><br>
-
-<input
-type="text"
-name="shopname"
-required>
-
+    <input
+        type="text"
+        id="shopname"
+        name="shopname"
+        value="{{if .}}{{.ShopName}}{{end}}"
+        required>
 </p>
 
 <p>
+    <label for="shopaddress">Shop Address</label><br>
 
-<label>Shop Address</label><br>
-
-<input
-type="text"
-name="shopaddress"
-required>
-
+    <input
+        type="text"
+        id="shopaddress"
+        name="shopaddress"
+        value="{{if .}}{{.ShopAddress}}{{end}}"
+        required>
 </p>
 
 <p>
-
-<button type="submit">
-Create Barber
-</button>
-
+    <button type="submit">
+        {{if .}}Update Barber{{else}}Create Barber{{end}}
+    </button>
 </p>
 
 </form>

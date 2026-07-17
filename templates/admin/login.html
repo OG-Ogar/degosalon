@@ -10,64 +10,40 @@
 <h1>Admin Login</h1>
 
 <p>
-
-<a href="/">
-
-← Back Home
-
-</a>
-
+    <a href="/">← Back Home</a>
 </p>
 
 <hr>
 
 <form method="POST" action="/admin/login">
 
-<p>
+    <p>
+        <label for="username">Username</label><br>
 
-<label for="username">
+        <input
+            type="text"
+            id="username"
+            name="username"
+            autocomplete="username"
+            required>
+    </p>
 
-Username
+    <p>
+        <label for="password">Password</label><br>
 
-</label>
+        <input
+            type="password"
+            id="password"
+            name="password"
+            autocomplete="current-password"
+            required>
+    </p>
 
-<br>
-
-<input
-type="text"
-id="username"
-name="username"
-required>
-
-</p>
-
-<p>
-
-<label for="password">
-
-Password
-
-</label>
-
-<br>
-
-<input
-type="password"
-id="password"
-name="password"
-required>
-
-</p>
-
-<p>
-
-<button type="submit">
-
-Login
-
-</button>
-
-</p>
+    <p>
+        <button type="submit">
+            Login
+        </button>
+    </p>
 
 </form>
 

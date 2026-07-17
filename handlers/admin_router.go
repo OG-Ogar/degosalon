@@ -30,6 +30,7 @@ func AdminRouter(w http.ResponseWriter, r *http.Request) {
 		UpdateBarberHandler(w, r)
 
 	case strings.HasSuffix(path, "/delete"):
+
 		if r.Method == http.MethodPost {
 			DeleteBarberHandler(w, r)
 		} else {
@@ -37,6 +38,7 @@ func AdminRouter(w http.ResponseWriter, r *http.Request) {
 		}
 
 	default:
-		BarberRouter(w, r)
+		http.NotFound(w, r)
+
 	}
 }

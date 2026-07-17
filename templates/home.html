@@ -4,37 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barber Booking</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 8px 0;
+            border: 1px solid #444;
+            border-radius: 5px;
+            text-decoration: none;
+            color: black;
+        }
+
+        .button:hover {
+            background-color: #f2f2f2;
+        }
+
+    </style>
+
 </head>
 <body>
 
-    <h1>Welcome to Barber Booking</h1>
+<h1>Welcome to Barber Booking</h1>
 
-    <p>
-        Manage your barbers, receive bookings, and connect
-        barbers with customers from one platform.
-    </p>
+<p>
 
-    <hr>
+Manage your barbers, receive bookings, and connect
+barbers with customers from one platform.
 
-    <h2>Choose how you want to continue</h2>
+</p>
 
-    <p>
-        <a href="/admin/login">
-            <button>Login as Admin</button>
-        </a>
-    </p>
+<hr>
 
-    <p>
-        <a href="/barber/login">
-            <button>Login as Barber</button>
-        </a>
-    </p>
+<h2>Choose how you want to continue</h2>
 
-    <p>
-        <a href="/customer/login">
-            <button>Login as Customer</button>
-        </a>
-    </p>
+<p>
+
+<a class="button" href="/admin/login">
+
+Login as Admin
+
+</a>
+
+</p>
+
+<p>
+
+<a class="button" href="/barber/login">
+
+Login as Barber
+
+</a>
+
+</p>
+
+<p>
+
+<a class="button" href="/customer/login">
+
+Login as Customer
+
+</a>
+
+</p>
 
 </body>
 </html>

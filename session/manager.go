@@ -16,7 +16,9 @@ func NewSession(barberID int) Session {
 
 	bytes := make([]byte, 16)
 
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		panic("unable to generate session ID")
+	}
 
 	id := hex.EncodeToString(bytes)
 

@@ -14,10 +14,10 @@ func main() {
 
 	http.HandleFunc("/barber/", handlers.BarberRouter)
 
-	fmt.Println("Starting Barber Booking Server...")
+	fmt.Println("Starting Barber Booking Server on http://localhost:8080")
 
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
+	if err := http.ListenAndServe(":8080", nil); err != nil {
 		fmt.Println(err)
 	}
+
 }

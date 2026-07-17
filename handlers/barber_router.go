@@ -43,9 +43,11 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 			ConfirmDeleteHairstyleHandler(w, r)
 		}
 
-	default:
+	case strings.HasPrefix(path, "/barber/hairstyles/"):
 		ViewHairstyleHandler(w, r)
 
-	}
+	default:
+		http.NotFound(w, r)
 
+	}
 }

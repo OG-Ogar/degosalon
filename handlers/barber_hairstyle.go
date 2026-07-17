@@ -87,6 +87,7 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+
 func ListHairstylesHandler(w http.ResponseWriter, r *http.Request) {
 
 	barber, found := CurrentBarber(r)

@@ -87,7 +87,6 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func ListHairstylesHandler(w http.ResponseWriter, r *http.Request) {
 
 	barber, found := CurrentBarber(r)
@@ -292,5 +291,85 @@ func UpdateHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Sprintf("/barber/hairstyles/%d", hairstyle.ID),
 		http.StatusSeeOther,
 	)
+
+}
+
+func ConfirmDeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
+
+	barber, found := CurrentBarber(r)
+	if !found {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/")
+
+	if len(parts) != 5 {
+		http.NotFound(w, r)
+		return
+	}
+
+	id, err := strconv.Atoi(parts[3])
+	if err != nil {
+		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
+		return
+	}
+
+	hairstyle, found := storage.FindHairstyleByID(id)
+	if !found || hairstyle.BarberID != barber.ID {
+		http.NotFound(w, r)
+		return
+	}
+
+	tmpl, err := template.ParseFiles("templates/barber/confirm-delete-hairstyle.html")
+	if err != nil {
+		http.Error(w, "Template Error", http.StatusInternalServerError)
+		return
+	}
+
+	if err := tmpl.Execute(w, hairstyle); err != nil {
+		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
+		return
+	}
+
+}
+
+func DeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
+
+	barber, found := CurrentBarber(r)
+	if !found {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
+		return
+	}
+
+	parts := strings.Split(r.URL.Path, "/")
+
+	if len(parts) != 5 {
+		http.NotFound(w, r)
+		return
+	}
+
+	id, err := strconv.Atoi(parts[3])
+	if err != nil {
+		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
+		return
+	}
+
+	for i, hairstyle := range storage.Hairstyles {
+
+		if hairstyle.ID == id && hairstyle.BarberID == barber.ID {
+
+			storage.Hairstyles = append(
+				storage.Hairstyles[:i],
+				storage.Hairstyles[i+1:]...,
+			)
+
+			http.Redirect(w, r, "/barber/hairstyles", http.StatusSeeOther)
+			return
+		}
+
+	}
+
+	http.NotFound(w, r)
 
 }

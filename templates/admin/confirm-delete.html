@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Delete Barber</title>
+</head>
+<body>
+
+<h1>Delete Barber</h1>
+
+<hr>
+
+<p>
+
+Are you sure you want to delete
+
+<strong>{{.FullName}}</strong>?
+
+</p>
+
+<p>
+
+This action cannot be undone.
+
+</p>
+
+<form method="POST" action="/admin/barbers/{{.ID}}/delete">
+
+<button type="submit">
+
+Yes, Delete Barber
+
+</button>
+
+</form>
+
+<br>
+
+<a href="/admin/barbers/{{.ID}}">
+
+Cancel
+
+</a>
+
+</body>
+</html>

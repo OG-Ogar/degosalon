@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Barber Profile</title>
+
+    <style>
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1>Barber Profile</h1>
+
+<p>
+
+<a href="/admin/barbers">
+
+← Back to Barber List
+
+</a>
+
+</p>
+
+<hr>
+
+<table>
+
+<tr>
+    <th>ID</th>
+    <td>{{.ID}}</td>
+</tr>
+
+<tr>
+    <th>Full Name</th>
+    <td>{{.FullName}}</td>
+</tr>
+
+<tr>
+    <th>Phone Number</th>
+    <td>{{.PhoneNumber}}</td>
+</tr>
+
+<tr>
+    <th>Email</th>
+    <td>{{.Email}}</td>
+</tr>
+
+<tr>
+    <th>Shop Name</th>
+    <td>{{.ShopName}}</td>
+</tr>
+
+<tr>
+    <th>Shop Address</th>
+    <td>{{.ShopAddress}}</td>
+</tr>
+
+<tr>
+    <th>Status</th>
+    <td>{{.Status}}</td>
+</tr>
+
+</table>
+
+<br>
+
+<p>
+
+<a href="/admin/barbers/{{.ID}}/edit">
+
+Edit Barber
+
+</a>
+
+|
+
+<a href="/admin/barbers/{{.ID}}/delete">
+
+Delete Barber
+
+</a>
+
+</p>
+
+</body>
+</html>

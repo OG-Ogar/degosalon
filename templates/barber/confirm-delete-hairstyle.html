@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delete Hairstyle</title>
+</head>
+<body>
+
+<h1>Delete Hairstyle</h1>
+
+<p>
+
+<a href="/barber/hairstyles">
+
+← Back to Hairstyles
+
+</a>
+
+</p>
+
+<hr>
+
+<h2>{{.Name}}</h2>
+
+<p>
+
+<strong>Category:</strong>
+
+{{.Category}}
+
+</p>
+
+<p>
+
+<strong>Price:</strong>
+
+₦{{printf "%.2f" .Price}}
+
+</p>
+
+<p>
+
+<strong>Duration:</strong>
+
+{{.DurationMinutes}} Minutes
+
+</p>
+
+<p>
+
+<strong>Description:</strong>
+
+{{.Description}}
+
+</p>
+
+<p>
+
+<strong>Image:</strong>
+
+{{.Image}}
+
+</p>
+
+<hr>
+
+<p>
+
+Are you sure you want to permanently delete this hairstyle?
+
+</p>
+
+<form method="POST" action="/barber/hairstyles/{{.ID}}/delete">
+
+<button type="submit">
+
+Yes, Delete Hairstyle
+
+</button>
+
+</form>
+
+<br>
+
+<a href="/barber/hairstyles">
+
+Cancel
+
+</a>
+
+</body>
+</html>

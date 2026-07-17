@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Manage Barbers</title>
+
+    <style>
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        th,
+        td {
+            padding: 8px;
+            text-align: left;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1>Manage Barbers</h1>
+
+<p>
+    <a href="/admin/dashboard">Dashboard</a>
+    |
+    <a href="/admin/barbers/new">Add Barber</a>
+</p>
+
+<hr>
+
+{{if .}}
+
+<table>
+
+<tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>Phone</th>
+    <th>Status</th>
+    <th>Actions</th>
+</tr>
+
+{{range .}}
+
+<tr>
+
+<td>{{.ID}}</td>
+
+<td>{{.FullName}}</td>
+
+<td>{{.PhoneNumber}}</td>
+
+<td>{{.Status}}</td>
+
+<td>
+
+<a href="/admin/barbers/{{.ID}}">
+View
+</a>
+
+|
+
+<a href="/admin/barbers/{{.ID}}/edit">
+Edit
+</a>
+
+|
+
+<a href="/admin/barbers/{{.ID}}/delete">
+Delete
+</a>
+
+</td>
+
+</tr>
+
+{{end}}
+
+</table>
+
+{{else}}
+
+<p>No barbers found.</p>
+
+{{end}}
+
+</body>
+</html>

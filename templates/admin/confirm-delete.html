@@ -2,11 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Delete Barber</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Delete Barber</title>
 </head>
 <body>
 
 <h1>Delete Barber</h1>
+
+<p>
+
+<a href="/">Home</a>
+
+|
+
+<a href="/admin/dashboard">Dashboard</a>
+
+|
+
+<a href="/admin/barbers">
+
+Barber List
+
+</a>
+
+</p>
 
 <hr>
 
@@ -20,7 +39,9 @@ Are you sure you want to delete
 
 <p>
 
-This action cannot be undone.
+<strong>Warning:</strong>
+
+This action permanently removes the barber from the system.
 
 </p>
 
@@ -36,11 +57,15 @@ Yes, Delete Barber
 
 <br>
 
+<p>
+
 <a href="/admin/barbers/{{.ID}}">
 
 Cancel
 
 </a>
+
+</p>
 
 </body>
 </html>

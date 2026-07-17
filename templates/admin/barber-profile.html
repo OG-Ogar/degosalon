@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Barber Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Barber Profile</title>
 
     <style>
 
@@ -31,6 +32,14 @@
 
 <p>
 
+<a href="/">Home</a>
+
+|
+
+<a href="/admin/dashboard">Dashboard</a>
+
+|
+
 <a href="/admin/barbers">
 
 ← Back to Barber List
@@ -42,6 +51,8 @@
 <hr>
 
 <table>
+
+<tbody>
 
 <tr>
     <th>ID</th>
@@ -78,6 +89,8 @@
     <td>{{.Status}}</td>
 </tr>
 
+</tbody>
+
 </table>
 
 <br>
@@ -85,17 +98,13 @@
 <p>
 
 <a href="/admin/barbers/{{.ID}}/edit">
-
-Edit Barber
-
+    Edit Barber
 </a>
 
-|
+&nbsp;|&nbsp;
 
 <a href="/admin/barbers/{{.ID}}/delete">
-
-Delete Barber
-
+    Delete Barber
 </a>
 
 </p>

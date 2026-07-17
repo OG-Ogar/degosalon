@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Manage Barbers</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Manage Barbers</title>
 
     <style>
 
@@ -30,6 +31,8 @@
 <h1>Manage Barbers</h1>
 
 <p>
+    <a href="/">Home</a>
+    |
     <a href="/admin/dashboard">Dashboard</a>
     |
     <a href="/admin/barbers/new">Add Barber</a>
@@ -41,6 +44,8 @@
 
 <table>
 
+<thead>
+
 <tr>
     <th>ID</th>
     <th>Name</th>
@@ -48,6 +53,10 @@
     <th>Status</th>
     <th>Actions</th>
 </tr>
+
+</thead>
+
+<tbody>
 
 {{range .}}
 
@@ -63,27 +72,23 @@
 
 <td>
 
-<a href="/admin/barbers/{{.ID}}">
-View
-</a>
+<a href="/admin/barbers/{{.ID}}">View</a>
 
-|
+&nbsp;|&nbsp;
 
-<a href="/admin/barbers/{{.ID}}/edit">
-Edit
-</a>
+<a href="/admin/barbers/{{.ID}}/edit">Edit</a>
 
-|
+&nbsp;|&nbsp;
 
-<a href="/admin/barbers/{{.ID}}/delete">
-Delete
-</a>
+<a href="/admin/barbers/{{.ID}}/delete">Delete</a>
 
 </td>
 
 </tr>
 
 {{end}}
+
+</tbody>
 
 </table>
 

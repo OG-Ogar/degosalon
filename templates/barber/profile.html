@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+
+    <style>
+
+        body{
+            font-family: Arial, sans-serif;
+            margin:40px;
+        }
+
+        table{
+            border-collapse: collapse;
+            width:700px;
+        }
+
+        table,
+        th,
+        td{
+            border:1px solid #ccc;
+        }
+
+        th,
+        td{
+            padding:12px;
+            text-align:left;
+        }
+
+        th{
+            background:#f2f2f2;
+            width:220px;
+        }
+
+        a{
+            text-decoration:none;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1>My Profile</h1>
+
+<p>
+
+<a href="/barber/dashboard">
+
+← Back to Dashboard
+
+</a>
+
+</p>
+
+<hr>
+
+<table>
+
+<tr>
+
+<th>Full Name</th>
+
+<td>{{.FullName}}</td>
+
+</tr>
+
+<tr>
+
+<th>Email</th>
+
+<td>{{.Email}}</td>
+
+</tr>
+
+<tr>
+
+<th>Phone Number</th>
+
+<td>{{.PhoneNumber}}</td>
+
+</tr>
+
+<tr>
+
+<th>Shop Name</th>
+
+<td>{{.ShopName}}</td>
+
+</tr>
+
+<tr>
+
+<th>Shop Address</th>
+
+<td>{{.ShopAddress}}</td>
+
+</tr>
+
+<tr>
+
+<th>Status</th>
+
+<td>{{.Status}}</td>
+
+</tr>
+
+</table>
+
+<br>
+
+<p>
+
+<a href="/barber/profile/edit">
+
+Edit Profile
+
+</a>
+
+</p>
+
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barber Dashboard</title>
+
+    <style>
+
+        body{
+            font-family: Arial, sans-serif;
+            margin:40px;
+        }
+
+        ul{
+            list-style:none;
+            padding:0;
+        }
+
+        li{
+            margin:15px 0;
+        }
+
+        a{
+            text-decoration:none;
+            font-size:18px;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h1>Barber Dashboard</h1>
+
+<p>
+
+Welcome,
+
+<strong>{{.FullName}}</strong>
+
+</p>
+
+<hr>
+
+<ul>
+
+<li>
+
+<a href="/barber/hairstyles">
+
+Manage Hairstyles
+
+</a>
+
+</li>
+
+<li>
+
+<a href="/barber/bookings">
+
+Bookings
+
+</a>
+
+</li>
+
+<li>
+
+<a href="/barber/profile">
+
+My Profile
+
+</a>
+
+</li>
+
+<li>
+
+<a href="/barber/logout">
+
+Logout
+
+</a>
+
+</li>
+
+</ul>
+
+</body>
+</html>

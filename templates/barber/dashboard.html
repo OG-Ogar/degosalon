@@ -2,33 +2,89 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barber Dashboard</title>
+
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+
+        h1 {
+            margin-bottom: 10px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin: 15px 0;
+        }
+
+        a {
+            text-decoration: none;
+            color: #0066cc;
+            font-size: 18px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+    </style>
+
 </head>
 <body>
 
 <h1>Barber Dashboard</h1>
 
-<p>Welcome Barber</p>
+<p>
+
+Welcome,
+
+<strong>{{.FullName}}</strong>
+
+</p>
 
 <hr>
 
-<p>
-    <button disabled>Manage Hairstyles (Coming Soon)</button>
-</p>
+<ul>
 
-<p>
-    <button disabled>View Bookings (Coming Soon)</button>
-</p>
+<li>
 
-<p>
-    <button disabled>Customer Chats (Coming Soon)</button>
-</p>
+<a href="/barber/hairstyles">
 
-<p>
-    <a href="/">
-        <button>Logout</button>
-    </a>
-</p>
+Manage Hairstyles
+
+</a>
+
+</li>
+
+<li>
+
+<a href="/barber/hairstyles/new">
+
+Add New Hairstyle
+
+</a>
+
+</li>
+
+<li>
+
+<a href="/barber/logout">
+
+Logout
+
+</a>
+
+</li>
+
+</ul>
 
 </body>
 </html>

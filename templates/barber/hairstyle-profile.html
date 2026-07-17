@@ -15,47 +15,28 @@
 
 <p><strong>Price:</strong> ₦{{printf "%.2f" .Price}}</p>
 
-<p><strong>Duration:</strong> {{.DurationMinutes}} minutes</p>
+<p><strong>Duration:</strong> {{.Duration}} Minutes </p>
 
 <p><strong>Image:</strong> {{.Image}}</p>
 
 <p>
-<strong>Status:</strong>
+    <strong>Status:</strong>
 
-{{if .IsAvailable}}
-
-Available
-
-{{else}}
-
-Unavailable
-
-{{end}}
-
+    {{if .IsAvailable}}
+        Available
+    {{else}}
+        Unavailable
+    {{end}}
 </p>
 
 <hr>
 
 <p>
-
-<a href="/barber/hairstyles/{{.ID}}/edit">
-
-<button>Edit</button>
-
-</a>
-
-<a href="/barber/hairstyles/{{.ID}}/delete">
-
-<button>Delete</button>
-
-</a>
-
-<a href="/barber/hairstyles">
-
-<button>Back</button>
-
-</a>
-
+    <a href="/barber/hairstyles/{{.ID}}/edit">Edit</a>
+    |
+    <a href="/barber/hairstyles/{{.ID}}/delete">Delete</a>
+    |
+    <a href="/barber/hairstyles">Back to Hairstyles</a>
 </p>
 
 </body>

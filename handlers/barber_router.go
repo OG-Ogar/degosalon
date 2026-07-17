@@ -17,6 +17,12 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 	case path == "/barber/dashboard":
 		BarberDashboardHandler(w, r)
 
+	case path == "/barber/profile":
+		MyProfileHandler(w, r)
+
+	case path == "/barber/logout":
+		LogoutHandler(w, r)
+
 	case path == "/barber/hairstyles":
 		ListHairstylesHandler(w, r)
 
@@ -39,5 +45,7 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 
 	default:
 		ViewHairstyleHandler(w, r)
+
 	}
+
 }

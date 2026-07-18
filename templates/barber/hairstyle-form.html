@@ -4,121 +4,217 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Hairstyle</title>
+
+    <style>
+
+        body{
+            font-family: Arial, sans-serif;
+            margin:40px;
+        }
+
+        form{
+            max-width:700px;
+        }
+
+        label{
+            font-weight:bold;
+        }
+
+        input,
+        select,
+        textarea{
+            width:100%;
+            padding:8px;
+            margin-top:5px;
+            margin-bottom:15px;
+            box-sizing:border-box;
+        }
+
+        textarea{
+            resize:vertical;
+        }
+
+        button{
+            padding:10px 20px;
+            cursor:pointer;
+        }
+
+        a{
+            text-decoration:none;
+        }
+
+    </style>
+
 </head>
 <body>
 
 <h1>Add New Hairstyle</h1>
 
+<p>
+
+<a href="/barber/dashboard">
+
+Dashboard
+
+</a>
+
+|
+
+<a href="/barber/hairstyles">
+
+Manage Hairstyles
+
+</a>
+
+</p>
+
+<hr>
+
 <form action="/barber/hairstyles/new" method="POST">
 
-    <p>
-        <label>Hairstyle Name</label><br>
-        <input
-            type="text"
-            name="name"
-            placeholder="Skin Fade"
-            required>
-    </p>
+<p>
 
-    <p>
-        <label>Category</label><br>
+<label for="name">
 
-        <select name="category" required>
+Hairstyle Name
 
-            <option value="">Select Category</option>
+</label>
 
-            <option value="Fade">Fade</option>
+<input
+id="name"
+type="text"
+name="name"
+placeholder="Skin Fade"
+required>
 
-            <option value="Braids">Braids</option>
+</p>
 
-            <option value="Dreadlocks">Dreadlocks</option>
+<p>
 
-            <option value="Kids">Kids</option>
+<label for="category">
 
-            <option value="Women">Women</option>
+Category
 
-            <option value="Beard">Beard</option>
+</label>
 
-            <option value="Hair Coloring">Hair Coloring</option>
+<select
+id="category"
+name="category"
+required>
 
-        </select>
+<option value="">Select Category</option>
 
-    </p>
+<option value="Fade">Fade</option>
 
-    <p>
+<option value="Braids">Braids</option>
 
-        <label>Description</label><br>
+<option value="Dreadlocks">Dreadlocks</option>
 
-        <textarea
-            name="description"
-            rows="5"
-            cols="50"
-            placeholder="Describe this hairstyle..."
-            required></textarea>
+<option value="Kids">Kids</option>
 
-    </p>
+<option value="Women">Women</option>
 
-    <p>
+<option value="Beard">Beard</option>
 
-        <label>Price (₦)</label><br>
+<option value="Hair Coloring">Hair Coloring</option>
 
-        <input
-            type="number"
-            name="price"
-            min="0"
-            step="0.01"
-            placeholder="2500"
-            required>
+</select>
 
-    </p>
+</p>
 
-    <p>
+<p>
 
-        <label>Duration (Minutes)</label><br>
+<label for="description">
 
-        <input
-            type="number"
-            name="duration"
-            min="1"
-            placeholder="30"
-            required>
+Description
 
-    </p>
+</label>
 
-    <p>
+<textarea
+id="description"
+name="description"
+rows="5"
+placeholder="Describe this hairstyle..."
+required></textarea>
 
-        <label>Image Path</label><br>
+</p>
 
-        <input
-            type="text"
-            name="image"
-            placeholder="/images/fade.jpg">
+<p>
 
-    </p>
+<label for="price">
 
-    <p>
+Price (₦)
 
-        <button type="submit">
+</label>
 
-            Save Hairstyle
+<input
+id="price"
+type="number"
+name="price"
+min="0"
+step="0.01"
+placeholder="2500"
+required>
 
-        </button>
+</p>
 
-    </p>
+<p>
+
+<label for="duration">
+
+Duration (Minutes)
+
+</label>
+
+<input
+id="duration"
+type="number"
+name="duration"
+min="1"
+placeholder="30"
+required>
+
+</p>
+
+<p>
+
+<label for="image">
+
+Image Path
+
+</label>
+
+<input
+id="image"
+type="text"
+name="image"
+placeholder="/images/fade.jpg">
+
+</p>
+
+<p>
+
+<button type="submit">
+
+Save Hairstyle
+
+</button>
+
+</p>
 
 </form>
 
 <hr>
 
+<p>
+
 <a href="/barber/dashboard">
 
-    <button>
-
-        Back to Dashboard
-
-    </button>
+← Back to Dashboard
 
 </a>
+
+</p>
 
 </body>
 </html>

@@ -7,6 +7,11 @@ import (
 
 func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	cookie, err := r.Cookie("barber_session")
 	if err == nil {
 
@@ -18,10 +23,9 @@ func LogoutHandler(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 			MaxAge:   -1,
 			HttpOnly: true,
+			SameSite: http.SameSiteLaxMode,
 		})
-
 	}
 
 	http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-
 }

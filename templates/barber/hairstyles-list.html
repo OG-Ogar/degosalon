@@ -1,9 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Hairstyles</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Hairstyles</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    margin:40px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+table,
+th,
+td{
+    border:1px solid #ccc;
+}
+
+th,
+td{
+    padding:10px;
+    text-align:left;
+}
+
+th{
+    background:#f2f2f2;
+}
+
+a{
+    text-decoration:none;
+}
+
+</style>
+
 </head>
 <body>
 
@@ -11,13 +46,19 @@
 
 <p>
 
-    <a href="/barber/hairstyles/new">
-        <button>Add New Hairstyle</button>
-    </a>
+<a href="/barber/dashboard">
 
-    <a href="/barber/dashboard">
-        <button>Dashboard</button>
-    </a>
+Dashboard
+
+</a>
+
+|
+
+<a href="/barber/hairstyles/new">
+
+Add New Hairstyle
+
+</a>
 
 </p>
 
@@ -25,23 +66,23 @@
 
 {{if .}}
 
-<table border="1" cellpadding="10">
+<table>
 
 <tr>
 
-    <th>ID</th>
+<th>ID</th>
 
-    <th>Name</th>
+<th>Name</th>
 
-    <th>Category</th>
+<th>Category</th>
 
-    <th>Price</th>
+<th>Price</th>
 
-    <th>Duration</th>
+<th>Duration</th>
 
-    <th>Status</th>
+<th>Status</th>
 
-    <th>Actions</th>
+<th>Actions</th>
 
 </tr>
 
@@ -49,49 +90,55 @@
 
 <tr>
 
-    <td>{{.ID}}</td>
+<td>{{.ID}}</td>
 
-    <td>{{.Name}}</td>
+<td>{{.Name}}</td>
 
-    <td>{{.Category}}</td>
+<td>{{.Category}}</td>
 
-    <td>₦{{printf "%.2f" .Price}}</td>
+<td>₦{{printf "%.2f" .Price}}</td>
 
-    <td>{{.Duration}} Minutes</td>
+<td>{{.Duration}} Minutes</td>
 
-    <td>
+<td>
 
-        {{if .IsAvailable}}
+{{if .IsAvailable}}
 
-            Available
+Available
 
-        {{else}}
+{{else}}
 
-            Unavailable
+Unavailable
 
-        {{end}}
+{{end}}
 
-    </td>
+</td>
 
-    <td>
+<td>
 
-        <a href="/barber/hairstyles/{{.ID}}">
-            View
-        </a>
+<a href="/barber/hairstyles/{{.ID}}">
 
-        |
+View
 
-        <a href="/barber/hairstyles/{{.ID}}/edit">
-            Edit
-        </a>
+</a>
 
-        |
+|
 
-        <a href="/barber/hairstyles/{{.ID}}/delete">
-            Delete
-        </a>
+<a href="/barber/hairstyles/{{.ID}}/edit">
 
-    </td>
+Edit
+
+</a>
+
+|
+
+<a href="/barber/hairstyles/{{.ID}}/delete">
+
+Delete
+
+</a>
+
+</td>
 
 </tr>
 
@@ -109,15 +156,15 @@ Start by creating your first hairstyle.
 
 </p>
 
+<p>
+
 <a href="/barber/hairstyles/new">
 
-<button>
-
-Create Hairstyle
-
-</button>
+Create Your First Hairstyle
 
 </a>
+
+</p>
 
 {{end}}
 

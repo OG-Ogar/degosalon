@@ -13,6 +13,11 @@ import (
 
 func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 
+	if r.URL.Path != "/barber/hairstyles/new" {
+		http.NotFound(w, r)
+		return
+	}
+
 	switch r.Method {
 
 	case http.MethodGet:
@@ -59,9 +64,19 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		if price < 0 {
+			http.Error(w, "Price must be greater than or equal to zero", http.StatusBadRequest)
+			return
+		}
+
 		duration, err := strconv.Atoi(durationText)
 		if err != nil {
 			http.Error(w, "Invalid duration", http.StatusBadRequest)
+			return
+		}
+
+		if duration <= 0 {
+			http.Error(w, "Duration must be greater than zero", http.StatusBadRequest)
 			return
 		}
 
@@ -89,6 +104,16 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 
 func ListHairstylesHandler(w http.ResponseWriter, r *http.Request) {
 
+	if r.URL.Path != "/barber/hairstyles" {
+		http.NotFound(w, r)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	barber, found := CurrentBarber(r)
 	if !found {
 		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
@@ -98,13 +123,9 @@ func ListHairstylesHandler(w http.ResponseWriter, r *http.Request) {
 	var hairstyles []models.Hairstyle
 
 	for _, hairstyle := range storage.Hairstyles {
-
 		if hairstyle.BarberID == barber.ID {
-
 			hairstyles = append(hairstyles, hairstyle)
-
 		}
-
 	}
 
 	tmpl, err := template.ParseFiles("templates/barber/hairstyle-list.html")
@@ -117,10 +138,14 @@ func ListHairstylesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func ViewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
 	barber, found := CurrentBarber(r)
 	if !found {
@@ -162,10 +187,14 @@ func ViewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func EditHairstyleHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
 	barber, found := CurrentBarber(r)
 	if !found {
@@ -207,7 +236,6 @@ func EditHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func UpdateHairstyleHandler(w http.ResponseWriter, r *http.Request) {
@@ -270,9 +298,19 @@ func UpdateHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if price <= 0 {
+		http.Error(w, "Price must be greater than zero", http.StatusBadRequest)
+		return
+	}
+
 	duration, err := strconv.Atoi(durationText)
 	if err != nil {
 		http.Error(w, "Invalid Duration", http.StatusBadRequest)
+		return
+	}
+
+	if duration <= 0 {
+		http.Error(w, "Duration must be greater than zero", http.StatusBadRequest)
 		return
 	}
 
@@ -282,7 +320,6 @@ func UpdateHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	hairstyle.Price = price
 	hairstyle.Duration = duration
 	hairstyle.Image = image
-
 	hairstyle.IsAvailable = r.FormValue("available") == "on"
 
 	http.Redirect(
@@ -291,10 +328,14 @@ func UpdateHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Sprintf("/barber/hairstyles/%d", hairstyle.ID),
 		http.StatusSeeOther,
 	)
-
 }
 
 func ConfirmDeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
 	barber, found := CurrentBarber(r)
 	if !found {
@@ -316,8 +357,13 @@ func ConfirmDeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	hairstyle, found := storage.FindHairstyleByID(id)
-	if !found || hairstyle.BarberID != barber.ID {
+	if !found {
 		http.NotFound(w, r)
+		return
+	}
+
+	if hairstyle.BarberID != barber.ID {
+		http.Error(w, "Forbidden", http.StatusForbidden)
 		return
 	}
 
@@ -331,10 +377,14 @@ func ConfirmDeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 func DeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
 	barber, found := CurrentBarber(r)
 	if !found {
@@ -367,9 +417,7 @@ func DeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 			http.Redirect(w, r, "/barber/hairstyles", http.StatusSeeOther)
 			return
 		}
-
 	}
 
 	http.NotFound(w, r)
-
 }

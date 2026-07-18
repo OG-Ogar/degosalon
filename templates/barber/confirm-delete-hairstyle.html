@@ -1,9 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete Hairstyle</title>
+<meta charset="UTF-8">
+<title>Delete Hairstyle</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    margin:40px;
+}
+
+button{
+    padding:10px 20px;
+}
+
+a{
+    text-decoration:none;
+}
+
+</style>
+
 </head>
 <body>
 
@@ -23,51 +40,41 @@
 
 <h2>{{.Name}}</h2>
 
-<p>
+<p><strong>Category:</strong> {{.Category}}</p>
 
-<strong>Category:</strong>
+<p><strong>Price:</strong> ₦{{printf "%.2f" .Price}}</p>
 
-{{.Category}}
+<p><strong>Duration:</strong> {{.Duration}} Minutes</p>
 
-</p>
+<p><strong>Description:</strong> {{.Description}}</p>
 
-<p>
-
-<strong>Price:</strong>
-
-₦{{printf "%.2f" .Price}}
-
-</p>
+<p><strong>Image:</strong> {{.Image}}</p>
 
 <p>
 
-<strong>Duration:</strong>
+<strong>Status:</strong>
 
-{{.Duration}} Minutes
+{{if .IsAvailable}}
 
-</p>
+Available
 
-<p>
+{{else}}
 
-<strong>Description:</strong>
+Unavailable
 
-{{.Description}}
-
-</p>
-
-<p>
-
-<strong>Image:</strong>
-
-{{.Image}}
+{{end}}
 
 </p>
 
 <hr>
 
+<h3>This action cannot be undone.</h3>
+
 <p>
 
-Are you sure you want to permanently delete this hairstyle?
+Are you sure you want to permanently delete
+
+<strong>{{.Name}}</strong>?
 
 </p>
 

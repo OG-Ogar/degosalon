@@ -1,131 +1,193 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Hairstyle</title>
+<meta charset="UTF-8">
+<title>Edit Hairstyle</title>
+
+<style>
+
+body{
+    font-family:Arial,sans-serif;
+    margin:40px;
+}
+
+form{
+    max-width:700px;
+}
+
+label{
+    font-weight:bold;
+}
+
+input,
+select,
+textarea{
+    width:100%;
+    padding:8px;
+    margin-top:5px;
+    margin-bottom:15px;
+    box-sizing:border-box;
+}
+
+textarea{
+    resize:vertical;
+}
+
+.checkbox{
+    width:auto;
+}
+
+button{
+    padding:10px 20px;
+}
+
+a{
+    text-decoration:none;
+}
+
+</style>
+
 </head>
 <body>
 
 <h1>Edit Hairstyle</h1>
 
+<p>
+
+<a href="/barber/dashboard">Dashboard</a>
+
+|
+
+<a href="/barber/hairstyles">My Hairstyles</a>
+
+</p>
+
+<hr>
+
 <form action="/barber/hairstyles/{{.ID}}/update" method="POST">
 
-    <p>
-        <label>Hairstyle Name</label><br>
-        <input
-            type="text"
-            name="name"
-            value="{{.Name}}"
-            required>
-    </p>
+<p>
 
-    <p>
-        <label>Category</label><br>
+<label for="name">Hairstyle Name</label>
 
-        <select name="category">
+<input
+id="name"
+type="text"
+name="name"
+value="{{.Name}}"
+required>
 
-            <option value="{{.Category}}">
-                {{.Category}}
-            </option>
+</p>
 
-            <option value="Fade">Men</option>
-            <option value="Braids">Braids</option>
-            <option value="Dreadlocks">Dreadlocks</option>
-            <option value="Kids">Kids</option>
-            <option value="Women">Women</option>
-            <option value="Beard">Beard</option>
-            <option value="Hair Coloring">Hair Coloring</option>
+<p>
 
-        </select>
+<label for="category">Category</label>
 
-    </p>
+<select id="category" name="category">
 
-    <p>
+<option value="Fade" {{if eq .Category "Fade"}}selected{{end}}>Fade</option>
+<option value="Braids" {{if eq .Category "Braids"}}selected{{end}}>Braids</option>
+<option value="Dreadlocks" {{if eq .Category "Dreadlocks"}}selected{{end}}>Dreadlocks</option>
+<option value="Kids" {{if eq .Category "Kids"}}selected{{end}}>Kids</option>
+<option value="Women" {{if eq .Category "Women"}}selected{{end}}>Women</option>
+<option value="Beard" {{if eq .Category "Beard"}}selected{{end}}>Beard</option>
+<option value="Hair Coloring" {{if eq .Category "Hair Coloring"}}selected{{end}}>Hair Coloring</option>
 
-        <label>Description</label><br>
+</select>
 
-        <textarea
-            name="description"
-            rows="5"
-            cols="50">{{.Description}}</textarea>
+</p>
 
-    </p>
+<p>
 
-    <p>
+<label for="description">Description</label>
 
-        <label>Price</label><br>
+<textarea
+id="description"
+name="description"
+rows="5">{{.Description}}</textarea>
 
-        <input
-            type="number"
-            name="price"
-            step="0.01"
-            value="{{.Price}}"
-            required>
+</p>
 
-    </p>
+<p>
 
-    <p>
+<label for="price">Price (₦)</label>
 
-        <label>Duration (Minutes)</label><br>
+<input
+id="price"
+type="number"
+name="price"
+step="0.01"
+min="0"
+value="{{.Price}}"
+required>
 
-        <input
-            type="number"
-            name="duration"
-            value="{{.Duration}}"
-            required>
+</p>
 
-    </p>
+<p>
 
-    <p>
+<label for="duration">Duration (Minutes)</label>
 
-        <label>Image</label><br>
+<input
+id="duration"
+type="number"
+name="duration"
+min="1"
+value="{{.Duration}}"
+required>
 
-        <input
-            type="text"
-            name="image"
-            value="{{.Image}}">
+</p>
 
-    </p>
+<p>
 
-    <p>
+<label for="image">Image Path</label>
 
-        <label>
+<input
+id="image"
+type="text"
+name="image"
+value="{{.Image}}">
 
-            <input
-                type="checkbox"
-                name="available"
-                {{if .IsAvailable}}checked{{end}}>
+</p>
 
-            Available
+<p>
 
-        </label>
+<label>
 
-    </p>
+<input
+class="checkbox"
+type="checkbox"
+name="available"
+{{if .IsAvailable}}checked{{end}}>
 
-    <p>
+Available
 
-        <button type="submit">
+</label>
 
-            Update Hairstyle
+</p>
 
-        </button>
+<p>
 
-    </p>
+<button type="submit">
+
+Update Hairstyle
+
+</button>
+
+</p>
 
 </form>
 
 <hr>
 
-<a href="/barber/hairstyles/{{.ID}}">
+<p>
 
-<button>
+<a href="/barber/hairstyles/{{.ID}}">
 
 Cancel
 
-</button>
-
 </a>
+
+</p>
 
 </body>
 </html>

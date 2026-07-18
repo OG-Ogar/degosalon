@@ -7,6 +7,16 @@ import (
 
 func BarberDashboardHandler(w http.ResponseWriter, r *http.Request) {
 
+	if r.URL.Path != "/barber/dashboard" {
+		http.NotFound(w, r)
+		return
+	}
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	barber, found := CurrentBarber(r)
 	if !found {
 		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
@@ -23,5 +33,4 @@ func BarberDashboardHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
 		return
 	}
-
 }

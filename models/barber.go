@@ -6,10 +6,11 @@ type Barber struct {
 	FullName    string
 	PhoneNumber string
 	Email       string
-	Password    string
+	PassWord    string
 
-	ShopName     string
-	ShopAddress  string
+	ShopName    string
+	ShopAddress string
+
 	ProfileImage string
 
 	Status string

@@ -14,6 +14,9 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 	case path == "/barber/login":
 		BarberLoginHandler(w, r)
 
+	case path == "/barber/register":
+		BarberRegisterHandler(w, r)
+
 	case path == "/barber/dashboard":
 		BarberDashboardHandler(w, r)
 

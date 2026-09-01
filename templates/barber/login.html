@@ -2,30 +2,73 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barber Login</title>
 </head>
 <body>
 
 <h1>Barber Login</h1>
 
-<form method="POST">
+<p>
+    Login to your barber account.
+</p>
+
+<hr>
+
+<form method="POST" action="/barber/login">
 
     <p>
-        <label>Email</label><br>
-        <input type="email" name="email">
+        <label for="email">
+            Email
+        </label>
+
+        <br>
+
+        <input
+            type="email"
+            id="email"
+            name="email"
+            required>
     </p>
 
     <p>
-        <label>Password</label><br>
-        <input type="password" name="password">
+        <label for="password">
+            Password
+        </label>
+
+        <br>
+
+        <input
+            type="password"
+            id="password"
+            name="password"
+            required>
     </p>
 
-    <button type="submit">Login</button>
+    <p>
+        <button type="submit">
+            Login
+        </button>
+    </p>
 
 </form>
 
+<hr>
+
 <p>
-    <a href="/">Back Home</a>
+    Don't have a barber account?
+</p>
+
+<p>
+    <a href="/barber/register">
+        Create New Account
+    </a>
+</p>
+
+<p>
+    <a href="/">
+        ← Back Home
+    </a>
 </p>
 
 </body>

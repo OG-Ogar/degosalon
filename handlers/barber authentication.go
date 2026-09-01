@@ -1,13 +1,11 @@
 package handlers
 
 import (
-	"fmt"
+	"barber-booking/session"
+	"barber-booking/storage"
 	"html/template"
 	"net/http"
 	"strings"
-
-	"barber-booking/session"
-	"barber-booking/storage"
 )
 
 func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -30,16 +28,21 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 
 		email := strings.TrimSpace(r.FormValue("email"))
-		password := strings.TrimSpace(r.FormValue("password"))
+		password := r.FormValue("password")
 
 		if email == "" || password == "" {
-			http.Error(w, "Email and Password are required", http.StatusBadRequest)
+			http.Error(
+				w,
+				"Email and Password are required",
+				http.StatusBadRequest,
+			)
 			return
 		}
 
 		for _, barber := range storage.Barbers {
 
-			if barber.Email == email {
+			if strings.EqualFold(barber.Email, email) &&
+				barber.PassWord == password {
 
 				s := session.NewSession(barber.ID)
 
@@ -50,15 +53,29 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 					HttpOnly: true,
 				})
 
-				http.Redirect(w, r, "/barber/dashboard", http.StatusSeeOther)
+				http.Redirect(
+					w,
+					r,
+					"/barber/dashboard",
+					http.StatusSeeOther,
+				)
+
 				return
 			}
 		}
 
-		fmt.Fprintln(w, "Invalid email or password")
+		http.Error(
+			w,
+			"Invalid email or password",
+			http.StatusUnauthorized,
+		)
 
 	default:
 
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		http.Error(
+			w,
+			"Method Not Allowed",
+			http.StatusMethodNotAllowed,
+		)
 	}
 }

@@ -18,6 +18,12 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	barber, found := CurrentBarber(r)
+	if !found {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
+		return
+	}
+
 	switch r.Method {
 
 	case http.MethodGet:
@@ -34,12 +40,6 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	case http.MethodPost:
-
-		barber, found := CurrentBarber(r)
-		if !found {
-			http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-			return
-		}
 
 		name := strings.TrimSpace(r.FormValue("name"))
 		category := strings.TrimSpace(r.FormValue("category"))
@@ -80,8 +80,16 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		nextID := 1
+
+		for _, hairstyle := range storage.Hairstyles {
+			if hairstyle.ID >= nextID {
+				nextID = hairstyle.ID + 1
+			}
+		}
+
 		hairstyle := models.Hairstyle{
-			ID:          len(storage.Hairstyles) + 1,
+			ID:          nextID,
 			BarberID:    barber.ID,
 			Name:        name,
 			Category:    category,
@@ -94,11 +102,20 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 
 		storage.Hairstyles = append(storage.Hairstyles, hairstyle)
 
-		http.Redirect(w, r, "/barber/hairstyles", http.StatusSeeOther)
+		http.Redirect(
+			w,
+			r,
+			"/barber/hairstyles",
+			http.StatusSeeOther,
+		)
 
 	default:
 
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		http.Error(
+			w,
+			"Method Not Allowed",
+			http.StatusMethodNotAllowed,
+		)
 	}
 }
 
@@ -123,12 +140,15 @@ func ListHairstylesHandler(w http.ResponseWriter, r *http.Request) {
 	var hairstyles []models.Hairstyle
 
 	for _, hairstyle := range storage.Hairstyles {
+
 		if hairstyle.BarberID == barber.ID {
 			hairstyles = append(hairstyles, hairstyle)
 		}
 	}
 
-	tmpl, err := template.ParseFiles("templates/barber/hairstyle-list.html")
+	tmpl, err := template.ParseFiles(
+		"templates/barber/hairstyle-list.html",
+	)
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return

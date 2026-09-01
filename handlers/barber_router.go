@@ -23,6 +23,9 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 	case path == "/barber/profile":
 		MyProfileHandler(w, r)
 
+	case path == "/barber/profile/edit":
+		EditProfileHandler(w, r)
+
 	case path == "/barber/logout":
 		LogoutHandler(w, r)
 

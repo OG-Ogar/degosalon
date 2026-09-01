@@ -20,9 +20,6 @@ func AdminRouter(w http.ResponseWriter, r *http.Request) {
 	case path == "/admin/barbers":
 		ListBarbersHandler(w, r)
 
-	case path == "/admin/barbers/new":
-		NewBarberHandler(w, r)
-
 	case strings.HasSuffix(path, "/edit"):
 		EditBarberHandler(w, r)
 

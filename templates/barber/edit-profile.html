@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Profile</title>
+</head>
+
+<body>
+
+<h1>Edit My Profile</h1>
+
+<p>
+
+    <a href="/barber/profile">
+        ← Back to Profile
+    </a>
+
+</p>
+
+<hr>
+
+<form method="POST" action="/barber/profile/edit">
+
+    <p>
+
+        <label for="fullname">
+            Full Name
+        </label>
+
+        <br>
+
+        <input
+            type="text"
+            id="fullname"
+            name="fullname"
+            value="{{.FullName}}"
+            required>
+
+    </p>
+
+    <p>
+
+        <label for="phone">
+            Phone Number
+        </label>
+
+        <br>
+
+        <input
+            type="text"
+            id="phone"
+            name="phone"
+            value="{{.PhoneNumber}}"
+            required>
+
+    </p>
+
+    <p>
+
+        <label for="email">
+            Email
+        </label>
+
+        <br>
+
+        <input
+            type="email"
+            id="email"
+            name="email"
+            value="{{.Email}}"
+            required>
+
+    </p>
+
+    <p>
+
+        <label for="shopname">
+            Shop Name
+        </label>
+
+        <br>
+
+        <input
+            type="text"
+            id="shopname"
+            name="shopname"
+            value="{{.ShopName}}"
+            required>
+
+    </p>
+
+    <p>
+
+        <label for="shopaddress">
+            Shop Address
+        </label>
+
+        <br>
+
+        <input
+            type="text"
+            id="shopaddress"
+            name="shopaddress"
+            value="{{.ShopAddress}}"
+            required>
+
+    </p>
+
+    <p>
+
+        <button type="submit">
+            Save Changes
+        </button>
+
+    </p>
+
+</form>
+
+<hr>
+
+<p>
+
+    <a href="/barber/dashboard">
+        Back to Dashboard
+    </a>
+
+</p>
+
+</body>
+</html>

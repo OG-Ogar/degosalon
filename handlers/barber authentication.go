@@ -1,11 +1,14 @@
 package handlers
 
 import (
-	"barber-booking/session"
-	"barber-booking/storage"
+	"crypto/sha256"
+	"encoding/hex"
 	"html/template"
 	"net/http"
 	"strings"
+
+	"barber-booking/session"
+	"barber-booking/storage"
 )
 
 func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
@@ -78,4 +81,10 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 			http.StatusMethodNotAllowed,
 		)
 	}
+}
+func hashPassword(password string) string {
+
+	hash := sha256.Sum256([]byte(password))
+
+	return hex.EncodeToString(hash[:])
 }

@@ -29,7 +29,7 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 		fullName := strings.TrimSpace(r.FormValue("fullname"))
 		phone := strings.TrimSpace(r.FormValue("phone"))
-		email := strings.TrimSpace(r.FormValue("email"))
+		email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
 		shopName := strings.TrimSpace(r.FormValue("shopname"))
 		shopAddress := strings.TrimSpace(r.FormValue("shopaddress"))
 		password := r.FormValue("password")
@@ -43,19 +43,31 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			password == "" ||
 			confirmPassword == "" {
 
-			http.Error(w, "All fields are required", http.StatusBadRequest)
+			http.Error(
+				w,
+				"All fields are required",
+				http.StatusBadRequest,
+			)
 			return
 		}
 
 		if password != confirmPassword {
-			http.Error(w, "Passwords do not match", http.StatusBadRequest)
+			http.Error(
+				w,
+				"Passwords do not match",
+				http.StatusBadRequest,
+			)
 			return
 		}
 
 		for _, barber := range storage.Barbers {
 
 			if strings.EqualFold(barber.Email, email) {
-				http.Error(w, "Email is already registered", http.StatusConflict)
+				http.Error(
+					w,
+					"Email is already registered",
+					http.StatusConflict,
+				)
 				return
 			}
 		}
@@ -65,7 +77,7 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			FullName:    fullName,
 			PhoneNumber: phone,
 			Email:       email,
-			PassWord:    password,
+			PassWord:    hashPassword(password),
 			ShopName:    shopName,
 			ShopAddress: shopAddress,
 			Status:      "Active",
@@ -82,6 +94,10 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 	default:
 
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		http.Error(
+			w,
+			"Method Not Allowed",
+			http.StatusMethodNotAllowed,
+		)
 	}
 }

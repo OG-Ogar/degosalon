@@ -30,7 +30,7 @@ func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 
 		tmpl, err := template.ParseFiles("templates/barber/hairstyle-form.html")
 		if err != nil {
-			http.Error(w, "Template Error", http.StatusInternalServerError)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -150,7 +150,7 @@ func ListHairstylesHandler(w http.ResponseWriter, r *http.Request) {
 		"templates/barber/hairstyle-list.html",
 	)
 	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 

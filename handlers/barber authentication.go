@@ -45,7 +45,7 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 		for _, barber := range storage.Barbers {
 
 			if strings.EqualFold(barber.Email, email) &&
-				barber.PassWord == password {
+				barber.PassWord == hashPassword(password) {
 
 				s := session.NewSession(barber.ID)
 

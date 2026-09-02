@@ -2,52 +2,68 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Edit Hairstyle</title>
 
 <style>
 
-body{
-    font-family:Arial,sans-serif;
-    margin:40px;
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
 }
 
-form{
-    max-width:700px;
+form {
+    max-width: 700px;
 }
 
-label{
-    font-weight:bold;
+label {
+    font-weight: bold;
 }
 
 input,
 select,
-textarea{
-    width:100%;
-    padding:8px;
-    margin-top:5px;
-    margin-bottom:15px;
-    box-sizing:border-box;
+textarea {
+    width: 100%;
+    padding: 8px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    box-sizing: border-box;
 }
 
-textarea{
-    resize:vertical;
+textarea {
+    resize: vertical;
 }
 
-.checkbox{
-    width:auto;
+.checkbox {
+    width: auto;
+    margin: 0 5px 0 0;
 }
 
-button{
-    padding:10px 20px;
+button {
+    padding: 10px 20px;
+    cursor: pointer;
 }
 
-a{
-    text-decoration:none;
+a {
+    text-decoration: none;
+}
+
+.image-preview {
+    margin-bottom: 15px;
+}
+
+.image-preview img {
+    display: block;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    padding: 4px;
+    max-width: 250px;
 }
 
 </style>
 
 </head>
+
 <body>
 
 <h1>Edit Hairstyle</h1>
@@ -64,116 +80,182 @@ a{
 
 <hr>
 
-<form action="/barber/hairstyles/{{.ID}}/update" method="POST">
+<form
+    action="/barber/hairstyles/{{.ID}}/update"
+    method="POST">
 
-<p>
+    <p>
 
-<label for="name">Hairstyle Name</label>
+        <label for="name">
+            Hairstyle Name
+        </label>
 
-<input
-id="name"
-type="text"
-name="name"
-value="{{.Name}}"
-required>
+        <input
+            id="name"
+            type="text"
+            name="name"
+            value="{{.Name}}"
+            required>
 
-</p>
+    </p>
 
-<p>
+    <p>
 
-<label for="category">Category</label>
+        <label for="category">
+            Category
+        </label>
 
-<select id="category" name="category">
+        <select
+            id="category"
+            name="category"
+            required>
 
-<option value="Fade" {{if eq .Category "Fade"}}selected{{end}}>Fade</option>
-<option value="Braids" {{if eq .Category "Braids"}}selected{{end}}>Braids</option>
-<option value="Dreadlocks" {{if eq .Category "Dreadlocks"}}selected{{end}}>Dreadlocks</option>
-<option value="Kids" {{if eq .Category "Kids"}}selected{{end}}>Kids</option>
-<option value="Women" {{if eq .Category "Women"}}selected{{end}}>Women</option>
-<option value="Beard" {{if eq .Category "Beard"}}selected{{end}}>Beard</option>
-<option value="Hair Coloring" {{if eq .Category "Hair Coloring"}}selected{{end}}>Hair Coloring</option>
+            <option
+                value="Fade"
+                {{if eq .Category "Fade"}}selected{{end}}>
+                Fade
+            </option>
 
-</select>
+            <option
+                value="Braids"
+                {{if eq .Category "Braids"}}selected{{end}}>
+                Braids
+            </option>
 
-</p>
+            <option
+                value="Dreadlocks"
+                {{if eq .Category "Dreadlocks"}}selected{{end}}>
+                Dreadlocks
+            </option>
 
-<p>
+            <option
+                value="Kids"
+                {{if eq .Category "Kids"}}selected{{end}}>
+                Kids
+            </option>
 
-<label for="description">Description</label>
+            <option
+                value="Women"
+                {{if eq .Category "Women"}}selected{{end}}>
+                Women
+            </option>
 
-<textarea
-id="description"
-name="description"
-rows="5">{{.Description}}</textarea>
+            <option
+                value="Beard"
+                {{if eq .Category "Beard"}}selected{{end}}>
+                Beard
+            </option>
 
-</p>
+            <option
+                value="Hair Coloring"
+                {{if eq .Category "Hair Coloring"}}selected{{end}}>
+                Hair Coloring
+            </option>
 
-<p>
+        </select>
 
-<label for="price">Price (₦)</label>
+    </p>
 
-<input
-id="price"
-type="number"
-name="price"
-step="0.01"
-min="0"
-value="{{.Price}}"
-required>
+    <p>
 
-</p>
+        <label for="description">
+            Description
+        </label>
 
-<p>
+        <textarea
+            id="description"
+            name="description"
+            rows="5"
+            required>{{.Description}}</textarea>
 
-<label for="duration">Duration (Minutes)</label>
+    </p>
 
-<input
-id="duration"
-type="number"
-name="duration"
-min="1"
-value="{{.Duration}}"
-required>
+    <p>
 
-</p>
+        <label for="price">
+            Price (₦)
+        </label>
 
-<p>
+        <input
+            id="price"
+            type="number"
+            name="price"
+            step="0.01"
+            min="0"
+            value="{{.Price}}"
+            required>
 
-<label for="image">Image Path</label>
+    </p>
 
-<input
-id="image"
-type="text"
-name="image"
-value="{{.Image}}">
+    <p>
 
-</p>
+        <label for="duration">
+            Duration (Minutes)
+        </label>
 
-<p>
+        <input
+            id="duration"
+            type="number"
+            name="duration"
+            min="1"
+            value="{{.Duration}}"
+            required>
 
-<label>
+    </p>
 
-<input
-class="checkbox"
-type="checkbox"
-name="available"
-{{if .IsAvailable}}checked{{end}}>
+    <p>
 
-Available
+        <label for="image">
+            Image Path
+        </label>
 
-</label>
+        <input
+            id="image"
+            type="text"
+            name="image"
+            value="{{.Image}}"
+            placeholder="/images/fade.jpg">
 
-</p>
+    </p>
 
-<p>
+    {{if .Image}}
 
-<button type="submit">
+    <div class="image-preview">
 
-Update Hairstyle
+        <strong>Current Image:</strong>
 
-</button>
+        <img
+            src="{{.Image}}"
+            alt="{{.Name}}">
 
-</p>
+    </div>
+
+    {{end}}
+
+    <p>
+
+        <label>
+
+            <input
+                class="checkbox"
+                type="checkbox"
+                name="available"
+                value="on"
+                {{if .IsAvailable}}checked{{end}}>
+
+            Available
+
+        </label>
+
+    </p>
+
+    <p>
+
+        <button type="submit">
+            Update Hairstyle
+        </button>
+
+    </p>
 
 </form>
 
@@ -182,9 +264,7 @@ Update Hairstyle
 <p>
 
 <a href="/barber/hairstyles/{{.ID}}">
-
-Cancel
-
+    Cancel
 </a>
 
 </p>

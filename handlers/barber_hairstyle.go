@@ -167,15 +167,13 @@ func ViewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
 	parts := strings.Split(r.URL.Path, "/")
 
-	if len(parts) != 4 {
+	if len(parts) != 4 ||
+		parts[1] != "barber" ||
+		parts[2] != "hairstyles" ||
+		parts[3] == "" {
+
 		http.NotFound(w, r)
 		return
 	}
@@ -183,6 +181,12 @@ func ViewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(parts[3])
 	if err != nil {
 		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
+		return
+	}
+
+	barber, found := CurrentBarber(r)
+	if !found {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 		return
 	}
 
@@ -197,7 +201,9 @@ func ViewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/barber/hairstyle-profile.html")
+	tmpl, err := template.ParseFiles(
+		"templates/barber/hairstyle-profile.html",
+	)
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
@@ -216,15 +222,14 @@ func EditHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
 	parts := strings.Split(r.URL.Path, "/")
 
-	if len(parts) != 5 {
+	if len(parts) != 5 ||
+		parts[1] != "barber" ||
+		parts[2] != "hairstyles" ||
+		parts[3] == "" ||
+		parts[4] != "edit" {
+
 		http.NotFound(w, r)
 		return
 	}
@@ -232,6 +237,12 @@ func EditHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(parts[3])
 	if err != nil {
 		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
+		return
+	}
+
+	barber, found := CurrentBarber(r)
+	if !found {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 		return
 	}
 
@@ -246,7 +257,9 @@ func EditHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/barber/edit-hairstyle.html")
+	tmpl, err := template.ParseFiles(
+		"templates/barber/edit-hairstyle.html",
+	)
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
@@ -265,15 +278,14 @@ func UpdateHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
 	parts := strings.Split(r.URL.Path, "/")
 
-	if len(parts) != 5 {
+	if len(parts) != 5 ||
+		parts[1] != "barber" ||
+		parts[2] != "hairstyles" ||
+		parts[3] == "" ||
+		parts[4] != "update" {
+
 		http.NotFound(w, r)
 		return
 	}
@@ -281,6 +293,12 @@ func UpdateHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(parts[3])
 	if err != nil {
 		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
+		return
+	}
+
+	barber, found := CurrentBarber(r)
+	if !found {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 		return
 	}
 
@@ -357,15 +375,14 @@ func ConfirmDeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
 	parts := strings.Split(r.URL.Path, "/")
 
-	if len(parts) != 5 {
+	if len(parts) != 5 ||
+		parts[1] != "barber" ||
+		parts[2] != "hairstyles" ||
+		parts[3] == "" ||
+		parts[4] != "delete" {
+
 		http.NotFound(w, r)
 		return
 	}
@@ -373,6 +390,12 @@ func ConfirmDeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(parts[3])
 	if err != nil {
 		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
+		return
+	}
+
+	barber, found := CurrentBarber(r)
+	if !found {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 		return
 	}
 
@@ -387,7 +410,9 @@ func ConfirmDeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/barber/confirm-delete-hairstyle.html")
+	tmpl, err := template.ParseFiles(
+		"templates/barber/confirm-delete-hairstyle.html",
+	)
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
@@ -406,15 +431,14 @@ func DeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
 	parts := strings.Split(r.URL.Path, "/")
 
-	if len(parts) != 5 {
+	if len(parts) != 5 ||
+		parts[1] != "barber" ||
+		parts[2] != "hairstyles" ||
+		parts[3] == "" ||
+		parts[4] != "delete" {
+
 		http.NotFound(w, r)
 		return
 	}
@@ -422,6 +446,12 @@ func DeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := strconv.Atoi(parts[3])
 	if err != nil {
 		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
+		return
+	}
+
+	barber, found := CurrentBarber(r)
+	if !found {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 		return
 	}
 
@@ -434,7 +464,13 @@ func DeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
 				storage.Hairstyles[i+1:]...,
 			)
 
-			http.Redirect(w, r, "/barber/hairstyles", http.StatusSeeOther)
+			http.Redirect(
+				w,
+				r,
+				"/barber/hairstyles",
+				http.StatusSeeOther,
+			)
+
 			return
 		}
 	}

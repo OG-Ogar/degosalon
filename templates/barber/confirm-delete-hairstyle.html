@@ -1,37 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Delete Hairstyle</title>
 
 <style>
 
-body{
-    font-family:Arial,sans-serif;
-    margin:40px;
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
 }
 
-button{
-    padding:10px 20px;
+.container {
+    max-width: 700px;
 }
 
-a{
-    text-decoration:none;
+.details {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.details th,
+.details td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: left;
+}
+
+.details th {
+    width: 180px;
+    background: #f2f2f2;
+}
+
+.warning {
+    padding: 15px;
+    border: 1px solid #ccc;
+    margin-top: 20px;
+}
+
+button {
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+.delete-button {
+    font-weight: bold;
+}
+
+a {
+    text-decoration: none;
+}
+
+.image-preview {
+    max-width: 250px;
+    border: 1px solid #ccc;
+    padding: 4px;
+}
+
+.actions {
+    margin-top: 20px;
 }
 
 </style>
 
 </head>
+
 <body>
+
+<div class="container">
 
 <h1>Delete Hairstyle</h1>
 
 <p>
 
 <a href="/barber/hairstyles">
-
-← Back to Hairstyles
-
+    ← Back to Hairstyles
 </a>
 
 </p>
@@ -40,19 +88,45 @@ a{
 
 <h2>{{.Name}}</h2>
 
-<p><strong>Category:</strong> {{.Category}}</p>
+<table class="details">
 
-<p><strong>Price:</strong> ₦{{printf "%.2f" .Price}}</p>
+<tr>
 
-<p><strong>Duration:</strong> {{.Duration}} Minutes</p>
+<th>Category</th>
 
-<p><strong>Description:</strong> {{.Description}}</p>
+<td>{{.Category}}</td>
 
-<p><strong>Image:</strong> {{.Image}}</p>
+</tr>
 
-<p>
+<tr>
 
-<strong>Status:</strong>
+<th>Price</th>
+
+<td>₦{{printf "%.2f" .Price}}</td>
+
+</tr>
+
+<tr>
+
+<th>Duration</th>
+
+<td>{{.Duration}} Minutes</td>
+
+</tr>
+
+<tr>
+
+<th>Description</th>
+
+<td>{{.Description}}</td>
+
+</tr>
+
+<tr>
+
+<th>Status</th>
+
+<td>
 
 {{if .IsAvailable}}
 
@@ -64,23 +138,55 @@ Unavailable
 
 {{end}}
 
-</p>
+</td>
 
-<hr>
+</tr>
+
+<tr>
+
+<th>Image</th>
+
+<td>
+
+{{if .Image}}
+
+<img
+    class="image-preview"
+    src="{{.Image}}"
+    alt="{{.Name}}">
+
+{{else}}
+
+No image uploaded.
+
+{{end}}
+
+</td>
+
+</tr>
+
+</table>
+
+<div class="warning">
 
 <h3>This action cannot be undone.</h3>
 
 <p>
-
 Are you sure you want to permanently delete
-
 <strong>{{.Name}}</strong>?
-
 </p>
 
-<form method="POST" action="/barber/hairstyles/{{.ID}}/delete">
+</div>
 
-<button type="submit">
+<div class="actions">
+
+<form
+    method="POST"
+    action="/barber/hairstyles/{{.ID}}/delete">
+
+<button
+    class="delete-button"
+    type="submit">
 
 Yes, Delete Hairstyle
 
@@ -88,13 +194,18 @@ Yes, Delete Hairstyle
 
 </form>
 
-<br>
+<p>
 
 <a href="/barber/hairstyles">
-
-Cancel
-
+    Cancel
 </a>
 
+</p>
+
+</div>
+
+</div>
+
 </body>
+
 </html>

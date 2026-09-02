@@ -1,47 +1,46 @@
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Hairstyle</title>
+    <title>My Hairstyles</title>
 
     <style>
 
         body{
-            font-family: Arial, sans-serif;
+            font-family:Arial,sans-serif;
             margin:40px;
         }
 
-        form{
-            max-width:700px;
-        }
-
-        label{
-            font-weight:bold;
-        }
-
-        input,
-        select,
-        textarea{
+        table{
             width:100%;
-            padding:8px;
-            margin-top:5px;
-            margin-bottom:15px;
-            box-sizing:border-box;
+            border-collapse:collapse;
         }
 
-        textarea{
-            resize:vertical;
+        table,
+        th,
+        td{
+            border:1px solid #ccc;
         }
 
-        button{
-            padding:10px 20px;
-            cursor:pointer;
+        th,
+        td{
+            padding:10px;
+            text-align:left;
+        }
+
+        th{
+            background:#f2f2f2;
         }
 
         a{
             text-decoration:none;
+        }
+
+        .hairstyle-image{
+            width:100px;
+            height:100px;
+            object-fit:cover;
         }
 
     </style>
@@ -49,177 +48,148 @@
 </head>
 <body>
 
-<h1>Add New Hairstyle</h1>
+<h1>My Hairstyles</h1>
 
 <p>
 
 <a href="/barber/dashboard">
-
 Dashboard
-
 </a>
 
 |
 
-<a href="/barber/hairstyles">
-
-Manage Hairstyles
-
+<a href="/barber/hairstyles/new">
+Add New Hairstyle
 </a>
 
 </p>
 
 <hr>
 
-<form
-    action="/barber/hairstyles/new"
-    method="POST"
-    enctype="multipart/form-data">
+{{if .}}
+
+<table>
+
+<tr>
+
+<th>ID</th>
+
+<th>Image</th>
+
+<th>Name</th>
+
+<th>Category</th>
+
+<th>Price</th>
+
+<th>Duration</th>
+
+<th>Status</th>
+
+<th>Actions</th>
+
+</tr>
+
+{{range .}}
+
+<tr>
+
+<td>
+{{.ID}}
+</td>
+
+<td>
+
+{{if .Image}}
+
+<img
+    class="hairstyle-image"
+    src="{{.Image}}"
+    alt="{{.Name}}">
+
+{{else}}
+
+No Image
+
+{{end}}
+
+</td>
+
+<td>
+{{.Name}}
+</td>
+
+<td>
+{{.Category}}
+</td>
+
+<td>
+₦{{printf "%.2f" .Price}}
+</td>
+
+<td>
+{{.Duration}} Minutes
+</td>
+
+<td>
+
+{{if .IsAvailable}}
+
+Available
+
+{{else}}
+
+Unavailable
+
+{{end}}
+
+</td>
+
+<td>
+
+<a href="/barber/hairstyles/{{.ID}}">
+View
+</a>
+
+|
+
+<a href="/barber/hairstyles/{{.ID}}/edit">
+Edit
+</a>
+
+|
+
+<a href="/barber/hairstyles/{{.ID}}/delete">
+Delete
+</a>
+
+</td>
+
+</tr>
+
+{{end}}
+
+</table>
+
+{{else}}
+
+<h3>
+No hairstyles found.
+</h3>
 
 <p>
-
-<label for="name">
-
-Hairstyle Name
-
-</label>
-
-<input
-    id="name"
-    type="text"
-    name="name"
-    placeholder="Skin Fade"
-    required>
-
+Start by creating your first hairstyle.
 </p>
 
 <p>
 
-<label for="category">
-
-Category
-
-</label>
-
-<select
-    id="category"
-    name="category"
-    required>
-
-<option value="">Select Category</option>
-
-<option value="Fade">Fade</option>
-
-<option value="Braids">Braids</option>
-
-<option value="Dreadlocks">Dreadlocks</option>
-
-<option value="Kids">Kids</option>
-
-<option value="Women">Women</option>
-
-<option value="Beard">Beard</option>
-
-<option value="Hair Coloring">Hair Coloring</option>
-
-</select>
-
-</p>
-
-<p>
-
-<label for="description">
-
-Description
-
-</label>
-
-<textarea
-    id="description"
-    name="description"
-    rows="5"
-    placeholder="Describe this hairstyle..."
-    required></textarea>
-
-</p>
-
-<p>
-
-<label for="price">
-
-Price (₦)
-
-</label>
-
-<input
-    id="price"
-    type="number"
-    name="price"
-    min="0"
-    step="0.01"
-    placeholder="2500"
-    required>
-
-</p>
-
-<p>
-
-<label for="duration">
-
-Duration (Minutes)
-
-</label>
-
-<input
-    id="duration"
-    type="number"
-    name="duration"
-    min="1"
-    placeholder="30"
-    required>
-
-</p>
-
-<p>
-
-<label for="image">
-
-Hairstyle Image
-
-</label>
-
-<input
-    id="image"
-    type="file"
-    name="image"
-    accept="image/*">
-
-</p>
-
-<p>
-
-<button type="submit">
-
-Save Hairstyle
-
-</button>
-
-</p>
-
-</form>
-
-<hr>
-
-<p>
-
-<a href="/barber/dashboard">
-
-← Back to Dashboard
-
+<a href="/barber/hairstyles/new">
+Create Your First Hairstyle
 </a>
 
 </p>
+
+{{end}}
 
 </body>
 </html>
-```

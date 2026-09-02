@@ -70,7 +70,10 @@ Manage Hairstyles
 
 <hr>
 
-<form action="/barber/hairstyles/new" method="POST">
+<form
+    action="/barber/hairstyles/new"
+    method="POST"
+    enctype="multipart/form-data">
 
 <p>
 
@@ -180,15 +183,15 @@ required>
 
 <label for="image">
 
-Image Path
+Hairstyle Image
 
 </label>
 
 <input
 id="image"
-type="text"
+type="file"
 name="image"
-placeholder="/images/fade.jpg">
+accept="image/*">
 
 </p>
 

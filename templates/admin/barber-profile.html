@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Admin - Barber Profile</title>
 
     <style>
@@ -23,9 +24,28 @@
             text-align: left;
         }
 
+        .hairstyles {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .hairstyle {
+            border: 1px solid black;
+            padding: 15px;
+            width: 220px;
+        }
+
+        .hairstyle-image {
+            width: 200px;
+            height: 200px;
+            object-fit: cover;
+        }
+
     </style>
 
 </head>
+
 <body>
 
 <h1>Barber Profile</h1>
@@ -41,14 +61,14 @@
 |
 
 <a href="/admin/barbers">
-
-← Back to Barber List
-
+    ← Back to Barber List
 </a>
 
 </p>
 
 <hr>
+
+<h2>Barber Information</h2>
 
 <table>
 
@@ -56,37 +76,37 @@
 
 <tr>
     <th>ID</th>
-    <td>{{.ID}}</td>
+    <td>{{.Barber.ID}}</td>
 </tr>
 
 <tr>
     <th>Full Name</th>
-    <td>{{.FullName}}</td>
+    <td>{{.Barber.FullName}}</td>
 </tr>
 
 <tr>
     <th>Phone Number</th>
-    <td>{{.PhoneNumber}}</td>
+    <td>{{.Barber.PhoneNumber}}</td>
 </tr>
 
 <tr>
     <th>Email</th>
-    <td>{{.Email}}</td>
+    <td>{{.Barber.Email}}</td>
 </tr>
 
 <tr>
     <th>Shop Name</th>
-    <td>{{.ShopName}}</td>
+    <td>{{.Barber.ShopName}}</td>
 </tr>
 
 <tr>
     <th>Shop Address</th>
-    <td>{{.ShopAddress}}</td>
+    <td>{{.Barber.ShopAddress}}</td>
 </tr>
 
 <tr>
     <th>Status</th>
-    <td>{{.Status}}</td>
+    <td>{{.Barber.Status}}</td>
 </tr>
 
 </tbody>
@@ -95,19 +115,76 @@
 
 <br>
 
-<p>
-
-<a href="/admin/barbers/{{.ID}}/edit">
+<a href="/admin/barbers/{{.Barber.ID}}/edit">
     Edit Barber
 </a>
 
 &nbsp;|&nbsp;
 
-<a href="/admin/barbers/{{.ID}}/delete">
+<a href="/admin/barbers/{{.Barber.ID}}/delete">
     Delete Barber
 </a>
 
+<hr>
+
+<h2>Hairstyles</h2>
+
+{{if .Hairstyles}}
+
+<div class="hairstyles">
+
+{{range .Hairstyles}}
+
+<div class="hairstyle">
+
+{{if .Image}}
+
+<img
+    class="hairstyle-image"
+    src="{{.Image}}"
+    alt="{{.Name}}">
+
+{{else}}
+
+<p>No image uploaded.</p>
+
+{{end}}
+
+<h3>{{.Name}}</h3>
+
+<p>
+    <strong>Category:</strong>
+    {{.Category}}
 </p>
+
+<p>
+    <strong>Description:</strong>
+    {{.Description}}
+</p>
+
+<p>
+    <strong>Price:</strong>
+    ₦{{printf "%.2f" .Price}}
+</p>
+
+<p>
+    <strong>Duration:</strong>
+    {{.Duration}} minutes
+</p>
+
+</div>
+
+{{end}}
+
+</div>
+
+{{else}}
+
+<p>
+    This barber has not uploaded any hairstyles yet.
+</p>
+
+{{end}}
 
 </body>
 </html>

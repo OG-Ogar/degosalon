@@ -1,14 +1,14 @@
 package handlers
 
 import (
-	"barber-booking/storage"
 	"fmt"
-	"html/template"
-	"net/http"
-	"strconv"
-	"strings"
+    "barber-booking/models"
+    "barber-booking/storage"
+    "html/template"
+    "net/http"
+    "strconv"
+    "strings"
 )
-
 func ListBarbersHandler(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, err := template.ParseFiles("templates/admin/barber-list.html")
@@ -24,19 +24,23 @@ func ListBarbersHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
+type AdminBarberProfile struct {
+	Barber    *models.Barber
+	Hairstyles []models.Hairstyle
+}
+
 func BarberProfileHandler(w http.ResponseWriter, r *http.Request) {
+
 	path := r.URL.Path
 
 	parts := strings.Split(path, "/")
 
-	if len(parts) < 4 {
+	if len(parts) != 4 {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
 
-	idText := parts[3]
-
-	id, err := strconv.Atoi(idText)
+	id, err := strconv.Atoi(parts[3])
 	if err != nil {
 		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
 		return
@@ -48,13 +52,29 @@ func BarberProfileHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/admin/barber-profile.html")
+	var hairstyles []models.Hairstyle
+
+	for _, hairstyle := range storage.Hairstyles {
+
+		if hairstyle.BarberID == barber.ID {
+			hairstyles = append(hairstyles, hairstyle)
+		}
+	}
+
+	data := AdminBarberProfile{
+		Barber:     barber,
+		Hairstyles: hairstyles,
+	}
+
+	tmpl, err := template.ParseFiles(
+		"templates/admin/barber-profile.html",
+	)
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
 	}
 
-	if err := tmpl.Execute(w, barber); err != nil {
+	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, "Template execution failed", http.StatusInternalServerError)
 		return
 	}

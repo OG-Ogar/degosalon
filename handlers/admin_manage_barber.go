@@ -1,17 +1,21 @@
 package handlers
 
 import (
+	"barber-booking/models"
+	"barber-booking/storage"
 	"fmt"
-    "barber-booking/models"
-    "barber-booking/storage"
-    "html/template"
-    "net/http"
-    "strconv"
-    "strings"
+	"html/template"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
 )
+
 func ListBarbersHandler(w http.ResponseWriter, r *http.Request) {
 
-	tmpl, err := template.ParseFiles("templates/admin/barber-list.html")
+	tmpl, err := template.ParseFiles(
+		"templates/admin/barber-list.html",
+	)
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
@@ -21,11 +25,10 @@ func ListBarbersHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
 		return
 	}
-
 }
 
 type AdminBarberProfile struct {
-	Barber    *models.Barber
+	Barber     *models.Barber
 	Hairstyles []models.Hairstyle
 }
 
@@ -81,18 +84,22 @@ func BarberProfileHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func EditBarberHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	path := r.URL.Path
 
 	parts := strings.Split(path, "/")
 
-	if len(parts) < 4 {
+	if len(parts) != 5 {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
 
-	idText := parts[3]
-
-	id, err := strconv.Atoi(idText)
+	id, err := strconv.Atoi(parts[3])
 	if err != nil {
 		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
 		return
@@ -104,7 +111,9 @@ func EditBarberHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/admin/barber-form.html")
+	tmpl, err := template.ParseFiles(
+		"templates/admin/barber-form.html",
+	)
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
@@ -117,6 +126,7 @@ func EditBarberHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateBarberHandler(w http.ResponseWriter, r *http.Request) {
+
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 		return
@@ -126,14 +136,12 @@ func UpdateBarberHandler(w http.ResponseWriter, r *http.Request) {
 
 	parts := strings.Split(path, "/")
 
-	if len(parts) < 4 {
+	if len(parts) != 5 {
 		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
 
-	idText := parts[3]
-
-	id, err := strconv.Atoi(idText)
+	id, err := strconv.Atoi(parts[3])
 	if err != nil {
 		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
 		return
@@ -145,22 +153,61 @@ func UpdateBarberHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fullname := strings.TrimSpace(r.FormValue("fullname"))
-	email := strings.TrimSpace(r.FormValue("email"))
+	fullName := strings.TrimSpace(r.FormValue("fullname"))
 	phone := strings.TrimSpace(r.FormValue("phone"))
-	shopName := strings.TrimSpace(r.FormValue("shop"))
+	email := strings.TrimSpace(r.FormValue("email"))
+	shopName := strings.TrimSpace(r.FormValue("shopname"))
 	shopAddress := strings.TrimSpace(r.FormValue("shopaddress"))
 
-	barber.FullName = fullname
-	barber.Email = email
+	if fullName == "" ||
+		phone == "" ||
+		email == "" ||
+		shopName == "" ||
+		shopAddress == "" {
+
+		http.Error(
+			w,
+			"All fields are required",
+			http.StatusBadRequest,
+		)
+		return
+	}
+
+	for _, existingBarber := range storage.Barbers {
+
+		if existingBarber.ID != barber.ID &&
+			strings.EqualFold(existingBarber.Email, email) {
+
+			http.Error(
+				w,
+				"Email is already registered",
+				http.StatusConflict,
+			)
+			return
+		}
+	}
+
+	barber.FullName = fullName
 	barber.PhoneNumber = phone
+	barber.Email = email
 	barber.ShopName = shopName
 	barber.ShopAddress = shopAddress
 
-	http.Redirect(w, r, fmt.Sprintf("/admin/barbers/%d", barber.ID), http.StatusSeeOther)
+	http.Redirect(
+		w,
+		r,
+		fmt.Sprintf("/admin/barbers/%d", barber.ID),
+		http.StatusSeeOther,
+	)
 }
 
 func ConfirmDeleteBarberHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
 	path := r.URL.Path
 
 	parts := strings.Split(path, "/")
@@ -182,7 +229,9 @@ func ConfirmDeleteBarberHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/admin/confirm-delete.html")
+	tmpl, err := template.ParseFiles(
+		"templates/admin/confirm-delete.html",
+	)
 	if err != nil {
 		http.Error(w, "Template Error", http.StatusInternalServerError)
 		return
@@ -195,6 +244,11 @@ func ConfirmDeleteBarberHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func DeleteBarberHandler(w http.ResponseWriter, r *http.Request) {
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		return
+	}
 
 	parts := strings.Split(r.URL.Path, "/")
 
@@ -209,20 +263,67 @@ func DeleteBarberHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	for i, barber := range storage.Barbers {
+	barber, found := storage.FindBarberByID(id)
+	if !found {
+		http.NotFound(w, r)
+		return
+	}
 
-		if barber.ID == id {
+	for _, hairstyle := range storage.Hairstyles {
+
+		if hairstyle.BarberID == barber.ID && hairstyle.Image != "" {
+
+			imagePath := strings.TrimPrefix(
+				hairstyle.Image,
+				"/",
+			)
+
+			if err := os.Remove(imagePath); err != nil &&
+				!os.IsNotExist(err) {
+
+				http.Error(
+					w,
+					"Could not delete hairstyle image",
+					http.StatusInternalServerError,
+				)
+				return
+			}
+		}
+	}
+
+	var remainingHairstyles []models.Hairstyle
+
+	for _, hairstyle := range storage.Hairstyles {
+
+		if hairstyle.BarberID != barber.ID {
+			remainingHairstyles = append(
+				remainingHairstyles,
+				hairstyle,
+			)
+		}
+	}
+
+	storage.Hairstyles = remainingHairstyles
+
+	for i, existingBarber := range storage.Barbers {
+
+		if existingBarber.ID == barber.ID {
 
 			storage.Barbers = append(
 				storage.Barbers[:i],
 				storage.Barbers[i+1:]...,
 			)
 
-			http.Redirect(w, r, "/admin/barbers", http.StatusSeeOther)
+			http.Redirect(
+				w,
+				r,
+				"/admin/barbers",
+				http.StatusSeeOther,
+			)
+
 			return
 		}
 	}
 
 	http.NotFound(w, r)
-
 }

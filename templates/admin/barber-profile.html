@@ -42,6 +42,14 @@
             object-fit: cover;
         }
 
+        .book-button {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 15px;
+            text-decoration: none;
+            border: 1px solid black;
+        }
+
     </style>
 
 </head>
@@ -171,6 +179,12 @@
     <strong>Duration:</strong>
     {{.Duration}} minutes
 </p>
+
+<a
+    class="book-button"
+    href="/booking/{{.ID}}">
+    Book Now
+</a>
 
 </div>
 

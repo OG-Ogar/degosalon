@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customers - Barber Booking admin</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/admin/barbers">Barbers</a>
+            <a href="/admin/customers">Customers</a>
+            <a href="/admin/bookings">Bookings</a>
+            <form class="inline" method="post" action="/admin/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs"><a href="/admin/dashboard">Dashboard</a> / Customers</p>
+
+    <h1>Customers</h1>
+    <p class="lede">Registered customer accounts and how many bookings each has made.</p>
+
+    {{if .Items}}
+        <table>
+            <caption>Customers register themselves from the customer login page.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Bookings</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Items}}
+                    <tr>
+                        <td>{{.ID}}</td>
+                        <td>{{.FullName}}</td>
+                        <td>{{.Email}}</td>
+                        <td>{{.PhoneNumber}}</td>
+                        <td>{{.Bookings}}</td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{else}}
+        <p class="empty">No customers have registered yet.</p>
+    {{end}}
+
+</main>
+
+</body>
+</html>

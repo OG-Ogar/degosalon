@@ -1,161 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Hairstyle Details</title>
-
-<style>
-
-body{
-    font-family:Arial,sans-serif;
-    margin:40px;
-}
-
-table{
-    border-collapse:collapse;
-    width:700px;
-}
-
-table,
-th,
-td{
-    border:1px solid #ccc;
-}
-
-th,
-td{
-    padding:10px;
-    text-align:left;
-}
-
-th{
-    background:#f2f2f2;
-    width:220px;
-}
-
-a{
-    text-decoration:none;
-}
-
-img{
-    border:1px solid #ccc;
-    padding:4px;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Name}} - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>{{.Name}}</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/barber/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/hairstyles">My hairstyles</a>
+            <a href="/barber/bookings">Bookings</a>
+            <a href="/barber/chats">Messages</a>
+            <a href="/barber/profile">My profile</a>
+            <form class="inline" method="post" action="/barber/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-<a href="/barber/dashboard">
+    <p class="crumbs">
+        <a href="/barber/dashboard">Dashboard</a> /
+        <a href="/barber/hairstyles">My hairstyles</a> /
+        {{.Name}}
+    </p>
 
-Dashboard
+    <h1>{{.Name}}</h1>
+    <p class="lede">{{.Category}}</p>
 
-</a>
+    <div class="panel">
 
-|
+        {{if .Image}}
+            <img class="thumb" src="{{.Image}}" alt="Photo of {{.Name}}">
+        {{end}}
 
-<a href="/barber/hairstyles">
+        <table>
+            <tbody>
+                <tr><th scope="row">Price</th>
+                    <td class="price">&#8358;{{printf "%.2f" .Price}}</td></tr>
+                <tr><th scope="row">Duration</th><td>{{.Duration}} minutes</td></tr>
+                <tr><th scope="row">Category</th><td>{{.Category}}</td></tr>
+                <tr><th scope="row">Description</th><td>{{.Description}}</td></tr>
+                <tr><th scope="row">Status</th>
+                    <td>
+                        {{if .IsAvailable}}
+                            <span class="badge Active">Available</span>
+                        {{else}}
+                            <span class="badge Suspended">Hidden from customers</span>
+                        {{end}}
+                    </td></tr>
+            </tbody>
+        </table>
 
-My Hairstyles
+        <div class="actions">
+            <a class="button primary" href="/barber/hairstyles/{{.ID}}/edit">Edit</a>
+            <a class="button danger" href="/barber/hairstyles/{{.ID}}/delete">Delete</a>
+            <a class="button" href="/barber/hairstyles">Back to list</a>
+        </div>
 
-</a>
+    </div>
 
-</p>
-
-<hr>
-
-<table>
-
-<tr>
-<th>Name</th>
-<td>{{.Name}}</td>
-</tr>
-
-<tr>
-<th>Category</th>
-<td>{{.Category}}</td>
-</tr>
-
-<tr>
-<th>Description</th>
-<td>{{.Description}}</td>
-</tr>
-
-<tr>
-<th>Price</th>
-<td>₦{{printf "%.2f" .Price}}</td>
-</tr>
-
-<tr>
-<th>Duration</th>
-<td>{{.Duration}} Minutes</td>
-</tr>
-
-<tr>
-<th>Status</th>
-<td>
-
-{{if .IsAvailable}}
-
-Available
-
-{{else}}
-
-Unavailable
-
-{{end}}
-
-</td>
-</tr>
-
-<tr>
-
-<th>Image</th>
-
-<td>
-
-{{if .Image}}
-
-<img
-src="{{.Image}}"
-alt="{{.Name}}"
-width="250">
-
-{{else}}
-
-No image uploaded.
-
-{{end}}
-
-</td>
-
-</tr>
-
-</table>
-
-<br>
-
-<p>
-
-<a href="/barber/hairstyles/{{.ID}}/edit">
-
-Edit
-
-</a>
-
-|
-
-<a href="/barber/hairstyles/{{.ID}}/delete">
-
-Delete
-
-</a>
-
-</p>
+</main>
 
 </body>
+</html>

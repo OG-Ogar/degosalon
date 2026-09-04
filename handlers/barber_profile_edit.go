@@ -1,91 +1,95 @@
 package handlers
 
 import (
-	"barber-booking/storage"
-	"html/template"
+	"errors"
 	"net/http"
-	"strings"
+
+	"barber-booking/models"
+	"barber-booking/storage"
 )
 
-func EditProfileHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.URL.Path != "/barber/profile/edit" {
-		http.NotFound(w, r)
-		return
-	}
-
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
+// EditProfileHandler lets a barber change their own details.
+//
+// The write now goes through storage.UpdateBarber. Previously it
+// assigned through a pointer into the barbers slice, which silently lost
+// the edit whenever a concurrent append had moved that slice.
+func EditProfileHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	barber models.Barber,
+	s sessionData,
+) {
 	switch r.Method {
 
 	case http.MethodGet:
-
-		tmpl, err := template.ParseFiles("templates/barber/edit-profile.html")
-		if err != nil {
-			http.Error(w, "Template Error", http.StatusInternalServerError)
-			return
-		}
-
-		if err := tmpl.Execute(w, barber); err != nil {
-			http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-			return
-		}
+		renderProfileForm(w, s, formFromBarber(barber), "")
 
 	case http.MethodPost:
-
-		fullName := strings.TrimSpace(r.FormValue("fullname"))
-		phone := strings.TrimSpace(r.FormValue("phone"))
-		email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
-		shopName := strings.TrimSpace(r.FormValue("shopname"))
-		shopAddress := strings.TrimSpace(r.FormValue("shopaddress"))
-
-		if fullName == "" ||
-			phone == "" ||
-			email == "" ||
-			shopName == "" ||
-			shopAddress == "" {
-
-			http.Error(w, "All fields are required", http.StatusBadRequest)
+		if !requireCSRF(w, r, s) {
 			return
 		}
 
-		for _, existingBarber := range storage.Barbers {
+		form, problem := readBarberForm(r)
+		if problem != "" {
+			renderProfileForm(w, s, form, problem)
 
-			if existingBarber.ID != barber.ID &&
-				strings.EqualFold(existingBarber.Email, email) {
-
-				http.Error(
-					w,
-					"Email is already registered",
-					http.StatusConflict,
-				)
-				return
-			}
+			return
 		}
 
-		barber.FullName = fullName
-		barber.PhoneNumber = phone
-		barber.Email = email
-		barber.ShopName = shopName
-		barber.ShopAddress = shopAddress
+		barber.FullName = form.FullName
+		barber.PhoneNumber = form.Phone
+		barber.Email = form.Email
+		barber.ShopName = form.ShopName
+		barber.ShopAddress = form.ShopAddress
 
-		http.Redirect(
-			w,
-			r,
-			"/barber/profile",
-			http.StatusSeeOther,
-		)
+		err := storage.UpdateBarber(barber)
+
+		if errors.Is(err, storage.ErrEmailTaken) {
+			renderProfileForm(w, s, form, "That email belongs to another barber.")
+
+			return
+		}
+
+		if err != nil {
+			serverError(w, "update barber profile", err)
+
+			return
+		}
+
+		http.Redirect(w, r, "/barber/profile", http.StatusSeeOther)
 
 	default:
-
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
+		methodNotAllowed(w, http.MethodGet, http.MethodPost)
 	}
+}
+
+// formFromBarber pre-fills the edit form with the stored values.
+func formFromBarber(barber models.Barber) barberForm {
+	return barberForm{
+		FullName:    barber.FullName,
+		Phone:       barber.PhoneNumber,
+		Email:       barber.Email,
+		ShopName:    barber.ShopName,
+		ShopAddress: barber.ShopAddress,
+	}
+}
+
+// renderProfileForm shows the barber's own edit form.
+func renderProfileForm(
+	w http.ResponseWriter,
+	s sessionData,
+	form barberForm,
+	problem string,
+) {
+	status := http.StatusOK
+
+	if problem != "" {
+		status = http.StatusBadRequest
+	}
+
+	renderStatus(w, status, "barber/edit-profile.html", formView{
+		CSRF:   s.CSRFToken,
+		Error:  problem,
+		Values: form.values(),
+	})
 }

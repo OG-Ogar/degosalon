@@ -3,39 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <title>Admin dashboard - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Admin Dashboard</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/admin/barbers">Barbers</a>
+            <a href="/admin/customers">Customers</a>
+            <a href="/admin/bookings">Bookings</a>
+            <form class="inline" method="post" action="/admin/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
-    Welcome, Administrator.
-</p>
+<main class="wrap">
 
-<p>
-    <a href="/">← Home</a>
-</p>
+    <h1>Administrator dashboard</h1>
+    <p class="lede">Everything on the platform at a glance.</p>
 
-<hr>
+    <div class="grid">
 
-<h2>Management</h2>
+        <div class="card">
+            <span class="stat">{{.Barbers}}</span>
+            Barber accounts
+            <p class="muted">{{.ActiveBarbers}} active</p>
+            <p>
+                <a class="button small" href="/admin/barbers">Manage barbers</a>
+                <a class="button small primary" href="/admin/barbers/new">Add barber</a>
+            </p>
+        </div>
 
-<p>
-    <a href="/admin/barbers">
-        Manage Barbers
-    </a>
-</p>
+        <div class="card">
+            <span class="stat">{{.Customers}}</span>
+            Registered customers
+            <p><a class="button small" href="/admin/customers">View customers</a></p>
+        </div>
 
-<hr>
+        <div class="card">
+            <span class="stat">{{.Bookings}}</span>
+            Bookings all time
+            <p><a class="button small" href="/admin/bookings">View bookings</a></p>
+        </div>
 
-<h2>Coming Soon</h2>
+        <div class="card">
+            <span class="stat">{{.PendingBookings}}</span>
+            Awaiting a barber's decision
+        </div>
 
-<p>Bookings</p>
+    </div>
 
-<p>Customers</p>
-
-<p>Logout</p>
+</main>
 
 </body>
 </html>

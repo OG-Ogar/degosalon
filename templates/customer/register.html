@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create a customer account - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/customer/login">Already registered?</a>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <h1>Create your account</h1>
+    <p class="lede">One account lets you book with any barber on the app.</p>
+
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
+
+    <form class="stack panel" method="post" action="/customer/register">
+
+        <label for="fullname">Full name</label>
+        <input id="fullname" type="text" name="fullname" value="{{index .Values "fullname"}}"
+               autocomplete="name" required>
+
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" name="phone" value="{{index .Values "phone"}}"
+               autocomplete="tel" required>
+
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email" value="{{index .Values "email"}}"
+               autocomplete="email" required>
+
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password"
+               autocomplete="new-password" minlength="8" required
+               aria-describedby="password-hint">
+        <p class="hint" id="password-hint">At least 8 characters.</p>
+
+        <label for="confirm_password">Confirm password</label>
+        <input id="confirm_password" type="password" name="confirm_password"
+               autocomplete="new-password" minlength="8" required>
+
+        <div class="actions">
+            <button class="primary" type="submit">Create account</button>
+            <a class="button" href="/customer/login">Sign in instead</a>
+        </div>
+
+    </form>
+
+</main>
+
+</body>
+</html>

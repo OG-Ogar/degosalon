@@ -3,221 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Hairstyle</title>
-
-    <style>
-
-        body{
-            font-family: Arial, sans-serif;
-            margin:40px;
-        }
-
-        form{
-            max-width:700px;
-        }
-
-        label{
-            font-weight:bold;
-        }
-
-        input,
-        select,
-        textarea{
-            width:100%;
-            padding:8px;
-            margin-top:5px;
-            margin-bottom:15px;
-            box-sizing:border-box;
-        }
-
-        textarea{
-            resize:vertical;
-        }
-
-        button{
-            padding:10px 20px;
-            cursor:pointer;
-        }
-
-        a{
-            text-decoration:none;
-        }
-
-    </style>
-
+    <title>Add a hairstyle - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Add New Hairstyle</h1>
-
-<p>
-
-<a href="/barber/dashboard">
-
-Dashboard
-
-</a>
-
-|
-
-<a href="/barber/hairstyles">
-
-Manage Hairstyles
-
-</a>
-
-</p>
-
-<hr>
-
-<form
-    action="/barber/hairstyles/new"
-    method="POST"
-    enctype="multipart/form-data">
-
-<p>
-
-<label for="name">
-
-Hairstyle Name
-
-</label>
-
-<input
-id="name"
-type="text"
-name="name"
-placeholder="Skin Fade"
-required>
-
-</p>
-
-<p>
-
-<label for="category">
-
-Category
-
-</label>
-
-<select
-id="category"
-name="category"
-required>
-
-<option value="">Select Category</option>
-
-<option value="Fade">Fade</option>
-
-<option value="Braids">Braids</option>
-
-<option value="Dreadlocks">Dreadlocks</option>
-
-<option value="Kids">Kids</option>
-
-<option value="Women">Women</option>
-
-<option value="Beard">Beard</option>
-
-<option value="Hair Coloring">Hair Coloring</option>
-
-</select>
-
-</p>
-
-<p>
-
-<label for="description">
-
-Description
-
-</label>
-
-<textarea
-id="description"
-name="description"
-rows="5"
-placeholder="Describe this hairstyle..."
-required></textarea>
-
-</p>
-
-<p>
-
-<label for="price">
-
-Price (₦)
-
-</label>
-
-<input
-id="price"
-type="number"
-name="price"
-min="0"
-step="0.01"
-placeholder="2500"
-required>
-
-</p>
-
-<p>
-
-<label for="duration">
-
-Duration (Minutes)
-
-</label>
-
-<input
-id="duration"
-type="number"
-name="duration"
-min="1"
-placeholder="30"
-required>
-
-</p>
-
-<p>
-
-<label for="image">
-
-Hairstyle Image
-
-</label>
-
-<input
-id="image"
-type="file"
-name="image"
-accept="image/*">
-
-</p>
-
-<p>
-
-<button type="submit">
-
-Save Hairstyle
-
-</button>
-
-</p>
-
-</form>
-
-<hr>
-
-<p>
-
-<a href="/barber/dashboard">
-
-← Back to Dashboard
-
-</a>
-
-</p>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/barber/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/hairstyles">My hairstyles</a>
+            <a href="/barber/bookings">Bookings</a>
+            <a href="/barber/chats">Messages</a>
+            <a href="/barber/profile">My profile</a>
+            <form class="inline" method="post" action="/barber/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs">
+        <a href="/barber/dashboard">Dashboard</a> /
+        <a href="/barber/hairstyles">My hairstyles</a> /
+        Add
+    </p>
+
+    <h1>Add a hairstyle</h1>
+    <p class="lede">Customers see this on your shop page and book it by name.</p>
+
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
+
+    <form class="stack panel" method="post" action="/barber/hairstyles/new"
+          enctype="multipart/form-data">
+
+        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+
+        <label for="name">Style name</label>
+        <input id="name" type="text" name="name" value="{{index .Values "name"}}" required>
+
+        <label for="category">Category</label>
+        <input id="category" type="text" name="category"
+               value="{{index .Values "category"}}" required
+               aria-describedby="category-hint">
+        <p class="hint" id="category-hint">For example: Fade, Braids, Beard trim.</p>
+
+        <label for="description">Description</label>
+        <textarea id="description" name="description" required>{{index .Values "description"}}</textarea>
+
+        <label for="price">Price (&#8358;)</label>
+        <input id="price" type="number" name="price" step="0.01" min="0"
+               value="{{index .Values "price"}}" required>
+
+        <label for="duration">Duration (minutes)</label>
+        <input id="duration" type="number" name="duration" step="1" min="1" max="1440"
+               value="{{index .Values "duration"}}" required>
+
+        <label for="image">Photo (optional)</label>
+        <input id="image" type="file" name="image"
+               accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="image-hint">
+        <p class="hint" id="image-hint">JPG, PNG, GIF or WEBP, up to 5 MB.</p>
+
+        <div class="check">
+            <input id="available" type="checkbox" name="available"
+                   {{if .Available}}checked{{end}}>
+            <label for="available">Available for booking</label>
+        </div>
+
+        <div class="actions">
+            <button class="primary" type="submit">Save hairstyle</button>
+            <a class="button" href="/barber/hairstyles">Cancel</a>
+        </div>
+
+    </form>
+
+</main>
 
 </body>
 </html>

@@ -1,577 +1,181 @@
 package handlers
 
 import (
-	"fmt"
-	"html/template"
-	"io"
+	"errors"
+	"math"
 	"net/http"
-	"os"
-	"path/filepath"
 	"strconv"
-	"strings"
-	"time"
 
 	"barber-booking/models"
 	"barber-booking/storage"
 )
 
-func NewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
+// maxDurationMinutes is a full day, an upper bound that catches typos.
+const maxDurationMinutes = 24 * 60
 
-	if r.URL.Path != "/barber/hairstyles/new" {
-		http.NotFound(w, r)
-		return
-	}
+// hairstyleForm is the validated content of the add/edit hairstyle form.
+type hairstyleForm struct {
+	Name        string
+	Category    string
+	Description string
+	Price       float64
+	Duration    int
+	Available   bool
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
-	switch r.Method {
-
-	case http.MethodGet:
-
-		tmpl, err := template.ParseFiles(
-			"templates/barber/hairstyle-form.html",
-		)
-		if err != nil {
-			http.Error(w, "Template Error", http.StatusInternalServerError)
-			return
-		}
-
-		if err := tmpl.Execute(w, nil); err != nil {
-			http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-			return
-		}
-
-	case http.MethodPost:
-
-		name := strings.TrimSpace(r.FormValue("name"))
-		category := strings.TrimSpace(r.FormValue("category"))
-		description := strings.TrimSpace(r.FormValue("description"))
-		priceText := strings.TrimSpace(r.FormValue("price"))
-		durationText := strings.TrimSpace(r.FormValue("duration"))
-
-		if name == "" ||
-			category == "" ||
-			description == "" ||
-			priceText == "" ||
-			durationText == "" {
-
-			http.Error(w, "All fields are required", http.StatusBadRequest)
-			return
-		}
-
-		price, err := strconv.ParseFloat(priceText, 64)
-		if err != nil {
-			http.Error(w, "Invalid price", http.StatusBadRequest)
-			return
-		}
-
-		if price < 0 {
-			http.Error(
-				w,
-				"Price must be greater than or equal to zero",
-				http.StatusBadRequest,
-			)
-			return
-		}
-
-		duration, err := strconv.Atoi(durationText)
-		if err != nil {
-			http.Error(w, "Invalid duration", http.StatusBadRequest)
-			return
-		}
-
-		if duration <= 0 {
-			http.Error(
-				w,
-				"Duration must be greater than zero",
-				http.StatusBadRequest,
-			)
-			return
-		}
-
-		file, header, err := r.FormFile("image")
-		if err != nil {
-			http.Error(
-				w,
-				"Image upload failed: "+err.Error(),
-				http.StatusBadRequest,
-			)
-			return
-		}
-
-		defer file.Close()
-
-		extension := strings.ToLower(
-			filepath.Ext(header.Filename),
-		)
-
-		if extension != ".jpg" &&
-			extension != ".jpeg" &&
-			extension != ".png" &&
-			extension != ".gif" &&
-			extension != ".webp" {
-
-			http.Error(
-				w,
-				"Invalid image type",
-				http.StatusBadRequest,
-			)
-			return
-		}
-
-		err = os.MkdirAll(
-			"uploads/hairstyles",
-			0755,
-		)
-		if err != nil {
-			http.Error(
-				w,
-				"Could not create upload directory",
-				http.StatusInternalServerError,
-			)
-			return
-		}
-
-		filename := fmt.Sprintf(
-			"%d%s",
-			time.Now().UnixNano(),
-			extension,
-		)
-
-		filePath := filepath.Join(
-			"uploads",
-			"hairstyles",
-			filename,
-		)
-
-		dst, err := os.Create(filePath)
-		if err != nil {
-			http.Error(
-				w,
-				"Could not create image file: "+err.Error(),
-				http.StatusInternalServerError,
-			)
-			return
-		}
-
-		_, err = io.Copy(dst, file)
-		dst.Close()
-
-		if err != nil {
-			os.Remove(filePath)
-
-			http.Error(
-				w,
-				"Could not save image: "+err.Error(),
-				http.StatusInternalServerError,
-			)
-			return
-		}
-
-		imagePath := "/uploads/hairstyles/" + filename
-
-		nextID := 1
-
-		for _, hairstyle := range storage.Hairstyles {
-
-			if hairstyle.ID >= nextID {
-				nextID = hairstyle.ID + 1
-			}
-		}
-
-		hairstyle := models.Hairstyle{
-			ID:          nextID,
-			BarberID:    barber.ID,
-			Name:        name,
-			Category:    category,
-			Description: description,
-			Price:       price,
-			Duration:    duration,
-			Image:       imagePath,
-			IsAvailable: true,
-		}
-
-		storage.Hairstyles = append(
-			storage.Hairstyles,
-			hairstyle,
-		)
-
-		http.Redirect(
-			w,
-			r,
-			"/barber/hairstyles",
-			http.StatusSeeOther,
-		)
-
-	default:
-
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
-	}
+	values map[string]string
 }
 
-func ListHairstylesHandler(w http.ResponseWriter, r *http.Request) {
+// readHairstyleForm parses and validates the submitted fields, returning
+// a message when something is wrong.
+func readHairstyleForm(r *http.Request) (hairstyleForm, string) {
+	priceText := trimmedField(r.PostFormValue("price"))
+	durationText := trimmedField(r.PostFormValue("duration"))
 
-	if r.URL.Path != "/barber/hairstyles" {
-		http.NotFound(w, r)
-		return
+	form := hairstyleForm{
+		Name:        trimmedField(r.PostFormValue("name")),
+		Category:    trimmedField(r.PostFormValue("category")),
+		Description: truncateText(r.PostFormValue("description")),
+		Available:   r.PostFormValue("available") == "on",
 	}
 
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
+	form.values = map[string]string{
+		"name":        form.Name,
+		"category":    form.Category,
+		"description": form.Description,
+		"price":       priceText,
+		"duration":    durationText,
 	}
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
-	var hairstyles []models.Hairstyle
-
-	for _, hairstyle := range storage.Hairstyles {
-
-		if hairstyle.BarberID == barber.ID {
-			hairstyles = append(hairstyles, hairstyle)
-		}
-	}
-
-	tmpl, err := template.ParseFiles(
-		"templates/barber/hairstyle-list.html",
-	)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	if err := tmpl.Execute(w, hairstyles); err != nil {
-		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func ViewHairstyleHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	parts := strings.Split(r.URL.Path, "/")
-
-	if len(parts) != 4 ||
-		parts[1] != "barber" ||
-		parts[2] != "hairstyles" ||
-		parts[3] == "" {
-
-		http.NotFound(w, r)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
-		return
-	}
-
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
-	hairstyle, found := storage.FindHairstyleByID(id)
-	if !found {
-		http.NotFound(w, r)
-		return
-	}
-
-	if hairstyle.BarberID != barber.ID {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	tmpl, err := template.ParseFiles(
-		"templates/barber/hairstyle-profile.html",
-	)
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-		return
-	}
-
-	if err := tmpl.Execute(w, hairstyle); err != nil {
-		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func EditHairstyleHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	parts := strings.Split(r.URL.Path, "/")
-
-	if len(parts) != 5 ||
-		parts[1] != "barber" ||
-		parts[2] != "hairstyles" ||
-		parts[3] == "" ||
-		parts[4] != "edit" {
-
-		http.NotFound(w, r)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
-		return
-	}
-
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
-	hairstyle, found := storage.FindHairstyleByID(id)
-	if !found {
-		http.NotFound(w, r)
-		return
-	}
-
-	if hairstyle.BarberID != barber.ID {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	tmpl, err := template.ParseFiles(
-		"templates/barber/edit-hairstyle.html",
-	)
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-		return
-	}
-
-	if err := tmpl.Execute(w, hairstyle); err != nil {
-		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-		return
-	}
-}
-
-func UpdateHairstyleHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	parts := strings.Split(r.URL.Path, "/")
-
-	if len(parts) != 5 ||
-		parts[1] != "barber" ||
-		parts[2] != "hairstyles" ||
-		parts[3] == "" ||
-		parts[4] != "update" {
-
-		http.NotFound(w, r)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
-		return
-	}
-
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
-	hairstyle, found := storage.FindHairstyleByID(id)
-	if !found {
-		http.NotFound(w, r)
-		return
-	}
-
-	if hairstyle.BarberID != barber.ID {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	name := strings.TrimSpace(r.FormValue("name"))
-	category := strings.TrimSpace(r.FormValue("category"))
-	description := strings.TrimSpace(r.FormValue("description"))
-	priceText := strings.TrimSpace(r.FormValue("price"))
-	durationText := strings.TrimSpace(r.FormValue("duration"))
-	image := strings.TrimSpace(r.FormValue("image"))
-
-	if name == "" ||
-		category == "" ||
-		description == "" ||
+	if form.Name == "" ||
+		form.Category == "" ||
+		form.Description == "" ||
 		priceText == "" ||
 		durationText == "" {
 
-		http.Error(w, "All fields are required", http.StatusBadRequest)
-		return
+		return form, "Every field except the image is required."
 	}
 
 	price, err := strconv.ParseFloat(priceText, 64)
-	if err != nil {
-		http.Error(w, "Invalid Price", http.StatusBadRequest)
-		return
+
+	// ParseFloat happily accepts "NaN" and "Inf", so check the value too.
+	if err != nil || math.IsNaN(price) || math.IsInf(price, 0) || price < 0 {
+		return form, "Enter a price of zero or more."
 	}
 
-	if price <= 0 {
-		http.Error(w, "Price must be greater than zero", http.StatusBadRequest)
-		return
-	}
+	form.Price = price
 
 	duration, err := strconv.Atoi(durationText)
-	if err != nil {
-		http.Error(w, "Invalid Duration", http.StatusBadRequest)
-		return
+	if err != nil || duration <= 0 || duration > maxDurationMinutes {
+		return form, "Enter a duration in whole minutes, between 1 and 1440."
 	}
 
-	if duration <= 0 {
-		http.Error(w, "Duration must be greater than zero", http.StatusBadRequest)
-		return
-	}
+	form.Duration = duration
 
-	hairstyle.Name = name
-	hairstyle.Category = category
-	hairstyle.Description = description
-	hairstyle.Price = price
-	hairstyle.Duration = duration
-	hairstyle.Image = image
-	hairstyle.IsAvailable = r.FormValue("available") == "on"
-
-	http.Redirect(
-		w,
-		r,
-		fmt.Sprintf("/barber/hairstyles/%d", hairstyle.ID),
-		http.StatusSeeOther,
-	)
+	return form, ""
 }
 
-func ConfirmDeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
+// hairstyleFormView backs both the add and the edit hairstyle form.
+type hairstyleFormView struct {
+	Editing   bool
+	ID        int
+	Image     string
+	Available bool
 
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	parts := strings.Split(r.URL.Path, "/")
-
-	if len(parts) != 5 ||
-		parts[1] != "barber" ||
-		parts[2] != "hairstyles" ||
-		parts[3] == "" ||
-		parts[4] != "delete" {
-
-		http.NotFound(w, r)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
-		return
-	}
-
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
-
-	hairstyle, found := storage.FindHairstyleByID(id)
-	if !found {
-		http.NotFound(w, r)
-		return
-	}
-
-	if hairstyle.BarberID != barber.ID {
-		http.Error(w, "Forbidden", http.StatusForbidden)
-		return
-	}
-
-	tmpl, err := template.ParseFiles(
-		"templates/barber/confirm-delete-hairstyle.html",
-	)
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-		return
-	}
-
-	if err := tmpl.Execute(w, hairstyle); err != nil {
-		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-		return
-	}
+	Values map[string]string
+	CSRF   string
+	Error  string
 }
 
-func DeleteHairstyleHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
+// renderHairstyleForm shows the add or edit form.
+func renderHairstyleForm(
+	w http.ResponseWriter,
+	s sessionData,
+	form hairstyleForm,
+	id int,
+	image string,
+	problem string,
+) {
+	name := "barber/hairstyle-form.html"
+	if id > 0 {
+		name = "barber/edit-hairstyle.html"
 	}
 
-	parts := strings.Split(r.URL.Path, "/")
-
-	if len(parts) != 5 ||
-		parts[1] != "barber" ||
-		parts[2] != "hairstyles" ||
-		parts[3] == "" ||
-		parts[4] != "delete" {
-
-		http.NotFound(w, r)
-		return
+	status := http.StatusOK
+	if problem != "" {
+		status = http.StatusBadRequest
 	}
 
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid Hairstyle ID", http.StatusBadRequest)
-		return
+	values := form.values
+	if values == nil {
+		values = map[string]string{}
 	}
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
-		return
-	}
+	renderStatus(w, status, name, hairstyleFormView{
+		Editing:   id > 0,
+		ID:        id,
+		Image:     image,
+		Available: form.Available,
+		Values:    values,
+		CSRF:      s.CSRFToken,
+		Error:     problem,
+	})
+}
 
-	for i, hairstyle := range storage.Hairstyles {
+// NewHairstyleHandler adds a hairstyle to the signed-in barber's list.
+func NewHairstyleHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	barber models.Barber,
+	s sessionData,
+) {
+	switch r.Method {
 
-		if hairstyle.ID == id && hairstyle.BarberID == barber.ID {
+	case http.MethodGet:
+		renderHairstyleForm(w, s, hairstyleForm{Available: true}, 0, "", "")
 
-			storage.Hairstyles = append(
-				storage.Hairstyles[:i],
-				storage.Hairstyles[i+1:]...,
-			)
+	case http.MethodPost:
+		limitRequestBody(w, r)
 
-			http.Redirect(
-				w,
-				r,
-				"/barber/hairstyles",
-				http.StatusSeeOther,
-			)
+		if !requireCSRF(w, r, s) {
+			return
+		}
+
+		form, problem := readHairstyleForm(r)
+		if problem != "" {
+			renderHairstyleForm(w, s, form, 0, "", problem)
 
 			return
 		}
-	}
 
-	http.NotFound(w, r)
+		image, err := saveUploadedImage(r, "image")
+
+		if err != nil && !errors.Is(err, errNoUpload) {
+			renderHairstyleForm(w, s, form, 0, "", err.Error())
+
+			return
+		}
+
+		_, err = storage.CreateHairstyle(models.Hairstyle{
+			BarberID:    barber.ID,
+			Name:        form.Name,
+			Category:    form.Category,
+			Description: form.Description,
+			Price:       form.Price,
+			Duration:    form.Duration,
+			Image:       image,
+			IsAvailable: form.Available,
+		})
+
+		if err != nil {
+			removeImageIgnoringError(image)
+			serverError(w, "create hairstyle", err)
+
+			return
+		}
+
+		http.Redirect(w, r, "/barber/hairstyles", http.StatusSeeOther)
+
+	default:
+		methodNotAllowed(w, http.MethodGet, http.MethodPost)
+	}
 }

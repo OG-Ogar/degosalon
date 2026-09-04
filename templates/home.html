@@ -4,75 +4,83 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barber Booking</title>
-
-    <style>
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-
-        .button {
-            display: inline-block;
-            padding: 10px 20px;
-            margin: 8px 0;
-            border: 1px solid #444;
-            border-radius: 5px;
-            text-decoration: none;
-            color: black;
-        }
-
-        .button:hover {
-            background-color: #f2f2f2;
-        }
-
-    </style>
-
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Welcome to Barber Booking</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            {{if .CustomerSignedIn}}<a href="/customer/dashboard">My page</a>{{end}}
+            {{if .BarberSignedIn}}<a href="/barber/dashboard">Barber dashboard</a>{{end}}
+            {{if .AdminSignedIn}}<a href="/admin/dashboard">Admin</a>{{end}}
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-Manage your barbers, receive bookings, and connect
-barbers with customers from one platform.
+    <h1>Book your next haircut</h1>
+    <p class="lede">
+        Browse the barbers on the app, pick a style and a time, and message
+        your barber directly. Barbers manage their own styles and schedule.
+    </p>
 
-</p>
+    <div class="grid">
 
-<hr>
+        <article class="card">
+            <h3>I am a customer</h3>
+            <p>See every barber, book a haircut and chat with your barber.</p>
+            <div class="actions">
+                {{if .CustomerSignedIn}}
+                    <a class="button primary" href="/customer/dashboard">Go to my page</a>
+                {{else}}
+                    <a class="button primary" href="/customer/login">Customer login</a>
+                    <a class="button" href="/customer/register">Register</a>
+                {{end}}
+            </div>
+        </article>
 
-<h2>Choose how you want to continue</h2>
+        <article class="card">
+            <h3>I am a barber</h3>
+            <p>List your styles, accept bookings and reply to customers.</p>
+            <div class="actions">
+                {{if .BarberSignedIn}}
+                    <a class="button primary" href="/barber/dashboard">Go to my dashboard</a>
+                {{else}}
+                    <a class="button primary" href="/barber/login">Barber login</a>
+                    <a class="button" href="/barber/register">Register your shop</a>
+                {{end}}
+            </div>
+        </article>
 
-<p>
+        <article class="card">
+            <h3>Administrator</h3>
+            <p>Manage barber accounts and review every booking.</p>
+            <div class="actions">
+                {{if .AdminSignedIn}}
+                    <a class="button primary" href="/admin/dashboard">Admin dashboard</a>
+                {{else}}
+                    <a class="button" href="/admin/login">Admin login</a>
+                {{end}}
+            </div>
+        </article>
 
-<a class="button" href="/admin/login">
+    </div>
 
-Login as Admin
+    <h2>How booking works</h2>
 
-</a>
+    <ol>
+        <li>Register as a customer and sign in.</li>
+        <li>Open <strong>Find a barber</strong> to see every barber taking bookings.</li>
+        <li>Pick a style, choose a date and time, and send the request.</li>
+        <li>The barber accepts or declines it, and you see the result under
+            <strong>My bookings</strong>.</li>
+        <li>Message the barber at any point from <strong>Messages</strong>.</li>
+    </ol>
 
-</p>
-
-<p>
-
-<a class="button" href="/barber/login">
-
-Login as Barber
-
-</a>
-
-</p>
-
-<p>
-
-<a class="button" href="/customer/login">
-
-Login as Customer
-
-</a>
-
-</p>
+</main>
 
 </body>
 </html>

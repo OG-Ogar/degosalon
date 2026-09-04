@@ -3,100 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Manage Barbers</title>
-
-    <style>
-
-        table {
-            border-collapse: collapse;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid black;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-        }
-
-    </style>
-
+    <title>Barbers - Barber Booking admin</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Manage Barbers</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/admin/barbers">Barbers</a>
+            <a href="/admin/customers">Customers</a>
+            <a href="/admin/bookings">Bookings</a>
+            <form class="inline" method="post" action="/admin/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
-    <a href="/">Home</a>
-    |
-    <a href="/admin/dashboard">Dashboard</a>
-    |
-    <a href="/admin/barbers/new">Add Barber</a>
-</p>
+<main class="wrap">
 
-<hr>
+    <p class="crumbs"><a href="/admin/dashboard">Dashboard</a> / Barbers</p>
 
-{{if .}}
+    <h1>Barbers</h1>
+    <p class="lede">Suspending a barber signs them out and hides them from customers.</p>
 
-<table>
+    <div class="actions">
+        <a class="button primary" href="/admin/barbers/new">Add a barber</a>
+    </div>
 
-<thead>
+    {{if .Items}}
+        {{$view := .}}
+        <table>
+            <caption>Every barber account on the platform.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Barber</th>
+                    <th scope="col">Shop</th>
+                    <th scope="col">Contact</th>
+                    <th scope="col">Styles</th>
+                    <th scope="col">Bookings</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Items}}
+                    <tr>
+                        <td><a href="/admin/barbers/{{.ID}}">{{.FullName}}</a></td>
+                        <td>{{.ShopName}}</td>
+                        <td>
+                            {{.Email}}
+                            <br><span class="muted">{{.PhoneNumber}}</span>
+                        </td>
+                        <td>{{.Hairstyles}}</td>
+                        <td>{{.Bookings}}</td>
+                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
+                        <td>
+                            <a class="button small" href="/admin/barbers/{{.ID}}/edit">Edit</a>
 
-<tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Phone</th>
-    <th>Status</th>
-    <th>Actions</th>
-</tr>
+                            {{if .Active}}
+                                <form class="inline" method="post"
+                                      action="/admin/barbers/{{.ID}}/suspend">
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{$view.CSRF}}">
+                                    <button class="small" type="submit">Suspend</button>
+                                </form>
+                            {{else}}
+                                <form class="inline" method="post"
+                                      action="/admin/barbers/{{.ID}}/activate">
+                                    <input type="hidden" name="csrf_token"
+                                           value="{{$view.CSRF}}">
+                                    <button class="small" type="submit">Activate</button>
+                                </form>
+                            {{end}}
 
-</thead>
+                            <a class="button small danger"
+                               href="/admin/barbers/{{.ID}}/delete">Delete</a>
+                        </td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{else}}
+        <p class="empty">
+            No barbers registered yet.
+            <a href="/admin/barbers/new">Add the first one</a>.
+        </p>
+    {{end}}
 
-<tbody>
-
-{{range .}}
-
-<tr>
-
-<td>{{.ID}}</td>
-
-<td>{{.FullName}}</td>
-
-<td>{{.PhoneNumber}}</td>
-
-<td>{{.Status}}</td>
-
-<td>
-
-<a href="/admin/barbers/{{.ID}}">View</a>
-
-&nbsp;|&nbsp;
-
-<a href="/admin/barbers/{{.ID}}/edit">Edit</a>
-
-&nbsp;|&nbsp;
-
-<a href="/admin/barbers/{{.ID}}/delete">Delete</a>
-
-</td>
-
-</tr>
-
-{{end}}
-
-</tbody>
-
-</table>
-
-{{else}}
-
-<p>No barbers found.</p>
-
-{{end}}
+</main>
 
 </body>
 </html>

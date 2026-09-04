@@ -3,92 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barber Dashboard</title>
-
-    <style>
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-
-        h1 {
-            margin-bottom: 10px;
-        }
-
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-
-        li {
-            margin: 15px 0;
-        }
-
-        a {
-            text-decoration: none;
-            color: #0066cc;
-            font-size: 18px;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-
-    </style>
-
+    <title>Barber dashboard - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Barber Dashboard</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/barber/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/hairstyles">My hairstyles</a>
+            <a href="/barber/bookings">Bookings</a>
+            <a href="/barber/chats">Messages</a>
+            <a href="/barber/profile">My profile</a>
+            <form class="inline" method="post" action="/barber/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
-Welcome,
+<main class="wrap">
 
-<strong>{{.FullName}}</strong>
-</p>
+    <h1>Welcome, {{.FullName}}</h1>
+    <p class="lede">{{.ShopName}} &middot; {{.ShopAddress}}</p>
 
-<hr>
+    <div class="grid">
 
-<ul>
+        <div class="card">
+            <span class="stat">{{.PendingBookings}}</span>
+            Requests waiting for you
+            <p><a class="button small primary" href="/barber/bookings">Review requests</a></p>
+        </div>
 
-<li>
-    <a href="/barber/profile">
-        My Profile
-    </a>
-</li>
+        <div class="card">
+            <span class="stat">{{.UpcomingBookings}}</span>
+            Confirmed appointments
+            <p><a class="button small" href="/barber/bookings">See schedule</a></p>
+        </div>
 
-<li>
-    <a href="/barber/hairstyles">
-        Manage Hairstyles
-    </a>
-</li>
+        <div class="card">
+            <span class="stat">{{.Hairstyles}}</span>
+            Hairstyles listed
+            <p>
+                <a class="button small" href="/barber/hairstyles">Manage</a>
+                <a class="button small" href="/barber/hairstyles/new">Add new</a>
+            </p>
+        </div>
 
-<li>
-    <a href="/barber/hairstyles/new">
-        Add New Hairstyle
-    </a>
-</li>
+        <div class="card">
+            <span class="stat">{{.Conversations}}</span>
+            Customer conversations
+            <p><a class="button small" href="/barber/chats">Open messages</a></p>
+        </div>
 
-<li>
-    <a href="#">
-        My Bookings (Coming Soon)
-    </a>
-</li>
+    </div>
 
-<li>
-    <a href="#">
-        Customer Chats (Coming Soon)
-    </a>
-</li>
+    <h2>Your shop</h2>
 
-<li>
-    <a href="/barber/logout">
-        Logout
-    </a>
-</li>
+    <div class="panel">
+        <p>
+            <strong>Name:</strong> {{.FullName}}<br>
+            <strong>Phone:</strong> {{.PhoneNumber}}<br>
+            <strong>Email:</strong> {{.Email}}<br>
+            <strong>Status:</strong> <span class="badge {{.Status}}">{{.Status}}</span>
+        </p>
 
-</ul>
+        <div class="actions">
+            <a class="button" href="/barber/profile/edit">Edit my details</a>
+        </div>
+    </div>
+
+</main>
 
 </body>
 </html>

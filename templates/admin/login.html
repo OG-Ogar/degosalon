@@ -3,49 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
+    <title>Administrator login - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Admin Login</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/login">Barber login</a>
+            <a href="/customer/login">Customer login</a>
+        </nav>
+    </div>
+</header>
 
-<p>
-    <a href="/">← Back Home</a>
-</p>
+<main class="wrap">
 
-<hr>
+    <h1>Administrator login</h1>
+    <p class="lede">Manage barbers, customers and every booking on the platform.</p>
 
-<form method="POST" action="/admin/login">
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
 
-    <p>
-        <label for="username">Username</label><br>
+    <form class="stack panel" method="post" action="/admin/login">
 
-        <input
-            type="text"
-            id="username"
-            name="username"
-            autocomplete="username"
-            required>
-    </p>
+        <label for="username">Username</label>
+        <input id="username" type="text" name="username"
+               value="{{index .Values "username"}}"
+               autocomplete="username" required>
 
-    <p>
-        <label for="password">Password</label><br>
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password"
+               autocomplete="current-password" required>
 
-        <input
-            type="password"
-            id="password"
-            name="password"
-            autocomplete="current-password"
-            required>
-    </p>
+        <div class="actions">
+            <button class="primary" type="submit">Sign in</button>
+        </div>
 
-    <p>
-        <button type="submit">
-            Login
-        </button>
-    </p>
+        <p class="hint">
+            The credentials come from the ADMIN_USERNAME and ADMIN_PASSWORD
+            environment variables. If neither is set, the server prints a
+            generated password to its log at startup.
+        </p>
 
-</form>
+    </form>
+
+</main>
 
 </body>
 </html>

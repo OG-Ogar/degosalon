@@ -3,88 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        {{if .}}Edit Barber{{else}}Add Barber{{end}}
-    </title>
+    <title>{{if .Editing}}Edit barber{{else}}Add barber{{end}} - Barber Booking admin</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>
-    {{if .}}Edit Barber{{else}}Add Barber{{end}}
-</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/admin/barbers">Barbers</a>
+            <a href="/admin/customers">Customers</a>
+            <a href="/admin/bookings">Bookings</a>
+            <form class="inline" method="post" action="/admin/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
-    <a href="/admin/barbers">
-        ← Back to Barbers
-    </a>
-</p>
+<main class="wrap">
 
-<hr>
+    <p class="crumbs">
+        <a href="/admin/dashboard">Dashboard</a> /
+        <a href="/admin/barbers">Barbers</a> /
+        {{if .Editing}}Edit{{else}}Add{{end}}
+    </p>
 
-<form method="POST" action="{{if .}}/admin/barbers/{{.ID}}/update{{else}}/admin/barbers/new{{end}}">
+    <h1>{{if .Editing}}Edit barber{{else}}Add a barber{{end}}</h1>
 
-<p>
-    <label for="fullname">Full Name</label><br>
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
 
-    <input
-        type="text"
-        id="fullname"
-        name="fullname"
-        value="{{if .}}{{.FullName}}{{end}}"
-        required>
-</p>
+    <form class="stack panel" method="post"
+          action="{{if .Editing}}/admin/barbers/{{.ID}}/update{{else}}/admin/barbers/new{{end}}">
 
-<p>
-    <label for="phone">Phone Number</label><br>
+        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
 
-    <input
-        type="text"
-        id="phone"
-        name="phone"
-        value="{{if .}}{{.PhoneNumber}}{{end}}"
-        required>
-</p>
+        <label for="fullname">Full name</label>
+        <input id="fullname" type="text" name="fullname"
+               value="{{index .Values "fullname"}}" required>
 
-<p>
-    <label for="email">Email</label><br>
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" name="phone"
+               value="{{index .Values "phone"}}" required>
 
-    <input
-        type="email"
-        id="email"
-        name="email"
-        value="{{if .}}{{.Email}}{{end}}"
-        required>
-</p>
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email"
+               value="{{index .Values "email"}}" required>
 
-<p>
-    <label for="shopname">Shop Name</label><br>
+        <label for="shopname">Shop name</label>
+        <input id="shopname" type="text" name="shopname"
+               value="{{index .Values "shopname"}}" required>
 
-    <input
-        type="text"
-        id="shopname"
-        name="shopname"
-        value="{{if .}}{{.ShopName}}{{end}}"
-        required>
-</p>
+        <label for="shopaddress">Shop address</label>
+        <input id="shopaddress" type="text" name="shopaddress"
+               value="{{index .Values "shopaddress"}}" required>
 
-<p>
-    <label for="shopaddress">Shop Address</label><br>
+        {{if not .Editing}}
+            <label for="password">Initial password</label>
+            <input id="password" type="password" name="password"
+                   autocomplete="new-password" minlength="8" required
+                   aria-describedby="password-hint">
+            <p class="hint" id="password-hint">
+                At least 8 characters. Give it to the barber and ask them to
+                change it after their first sign-in.
+            </p>
+        {{else}}
+            <p class="hint">
+                Passwords are stored as salted hashes and cannot be read back.
+                A barber changes their own password from their profile page.
+            </p>
+        {{end}}
 
-    <input
-        type="text"
-        id="shopaddress"
-        name="shopaddress"
-        value="{{if .}}{{.ShopAddress}}{{end}}"
-        required>
-</p>
+        <div class="actions">
+            <button class="primary" type="submit">
+                {{if .Editing}}Save changes{{else}}Create barber{{end}}
+            </button>
+            <a class="button" href="/admin/barbers">Cancel</a>
+        </div>
 
-<p>
-    <button type="submit">
-        {{if .}}Update Barber{{else}}Create Barber{{end}}
-    </button>
-</p>
+    </form>
 
-</form>
+</main>
 
 </body>
 </html>

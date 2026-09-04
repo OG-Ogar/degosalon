@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookings - Barber Booking admin</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/admin/barbers">Barbers</a>
+            <a href="/admin/customers">Customers</a>
+            <a href="/admin/bookings">Bookings</a>
+            <form class="inline" method="post" action="/admin/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs"><a href="/admin/dashboard">Dashboard</a> / Bookings</p>
+
+    <h1>All bookings</h1>
+    <p class="lede">Every appointment on the platform, earliest first.</p>
+
+    {{if .Items}}
+        <table>
+            <caption>Read-only: barbers accept or decline their own bookings.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Barber</th>
+                    <th scope="col">Hairstyle</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Items}}
+                    <tr>
+                        <td>{{.Date}}</td>
+                        <td>{{.Time}}</td>
+                        <td>
+                            {{.CustomerName}}
+                            <br><span class="muted">{{.CustomerPhone}}</span>
+                        </td>
+                        <td>
+                            {{.BarberName}}
+                            <br><span class="muted">{{.ShopName}}</span>
+                        </td>
+                        <td>{{.HairstyleName}}</td>
+                        <td class="price">&#8358;{{printf "%.2f" .Price}}</td>
+                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{else}}
+        <p class="empty">No bookings have been made yet.</p>
+    {{end}}
+
+</main>
+
+</body>
+</html>

@@ -1,17 +1,17 @@
 package models
 
 type Hairstyle struct {
-	ID              int
-	BarberID        int
+	ID       int
+	BarberID int
 
-	Name            string
-	Category        string
-	Description     string
+	Name        string
+	Category    string
+	Description string
 
-	Price           float64
-	Duration        int
+	Price    float64
+	Duration int
 
-	Image           string
+	Image string
 
-	IsAvailable     bool
+	IsAvailable bool
 }

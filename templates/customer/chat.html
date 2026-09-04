@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with {{.Title}} - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/customer/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/customer/barbers">Find a barber</a>
+            <a href="/customer/bookings">My bookings</a>
+            <a href="/customer/chats">Messages</a>
+            <a href="/customer/profile">My profile</a>
+            <form class="inline" method="post" action="/customer/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs">
+        <a href="/customer/dashboard">My dashboard</a> /
+        <a href="{{.BackLink}}">Messages</a> /
+        {{.Title}}
+    </p>
+
+    <h1>{{.Title}}</h1>
+    {{if .Subtitle}}<p class="lede">{{.Subtitle}}</p>{{end}}
+
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
+
+    <section class="thread" aria-label="Conversation">
+        {{if .Messages}}
+            {{range .Messages}}
+                <div class="bubble {{if not .FromBarber}}mine{{end}}">
+                    <span class="who">{{.SenderName}}</span>
+                    <p class="text">{{.Text}}</p>
+                    <span class="when">{{.SentAt.Format "2 Jan 2006, 15:04"}}</span>
+                </div>
+            {{end}}
+        {{else}}
+            <p class="muted">No messages yet. Say hello.</p>
+        {{end}}
+    </section>
+
+    <form class="send" method="post" action="{{.Action}}">
+        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+        <label class="visually-hidden" for="text">Your message</label>
+        <textarea id="text" name="text" maxlength="1000"
+                  placeholder="Write a message" required></textarea>
+        <button class="primary" type="submit">Send</button>
+    </form>
+
+</main>
+
+</body>
+</html>

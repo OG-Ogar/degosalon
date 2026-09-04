@@ -3,160 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Barber Account</title>
-
-    <style>
-
-        body {
-            font-family: Arial, sans-serif;
-            margin: 40px;
-        }
-
-        form {
-            max-width: 500px;
-        }
-
-        p {
-            margin-bottom: 15px;
-        }
-
-        input {
-            width: 100%;
-            padding: 8px;
-            box-sizing: border-box;
-        }
-
-        button {
-            padding: 10px 20px;
-        }
-
-        a {
-            text-decoration: none;
-        }
-
-    </style>
-
+    <title>Register your shop - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Create Barber Account</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/login">Already registered?</a>
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-Already have an account?
+    <h1>Register your shop</h1>
+    <p class="lede">Create a barber account so customers can find you and book.</p>
 
-<a href="/barber/login">
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
 
-Login here
+    <form class="stack panel" method="post" action="/barber/register">
 
-</a>
+        <label for="fullname">Your full name</label>
+        <input id="fullname" type="text" name="fullname"
+               value="{{index .Values "fullname"}}" autocomplete="name" required>
 
-</p>
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" name="phone"
+               value="{{index .Values "phone"}}" autocomplete="tel" required>
 
-<hr>
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email"
+               value="{{index .Values "email"}}" autocomplete="email" required>
 
-<form method="POST" action="/barber/register">
+        <label for="shopname">Shop name</label>
+        <input id="shopname" type="text" name="shopname"
+               value="{{index .Values "shopname"}}" required>
 
-<p>
+        <label for="shopaddress">Shop address</label>
+        <input id="shopaddress" type="text" name="shopaddress"
+               value="{{index .Values "shopaddress"}}" required>
 
-<label>Full Name</label><br>
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password"
+               autocomplete="new-password" minlength="8" required
+               aria-describedby="password-hint">
+        <p class="hint" id="password-hint">At least 8 characters.</p>
 
-<input
-type="text"
-name="fullname"
-required>
+        <label for="confirm_password">Confirm password</label>
+        <input id="confirm_password" type="password" name="confirm_password"
+               autocomplete="new-password" minlength="8" required>
 
-</p>
+        <div class="actions">
+            <button class="primary" type="submit">Create account</button>
+            <a class="button" href="/barber/login">Sign in instead</a>
+        </div>
 
-<p>
+    </form>
 
-<label>Phone Number</label><br>
-
-<input
-type="text"
-name="phone"
-required>
-
-</p>
-
-<p>
-
-<label>Email</label><br>
-
-<input
-type="email"
-name="email"
-required>
-
-</p>
-
-<p>
-
-<label>Shop Name</label><br>
-
-<input
-type="text"
-name="shopname"
-required>
-
-</p>
-
-<p>
-
-<label>Shop Address</label><br>
-
-<input
-type="text"
-name="shopaddress"
-required>
-
-</p>
-
-<p>
-
-<label>Password</label><br>
-
-<input
-type="password"
-name="password"
-required>
-
-</p>
-
-<p>
-
-<label>Confirm Password</label><br>
-
-<input
-type="password"
-name="confirm_password"
-required>
-
-</p>
-
-<p>
-
-<button type="submit">
-
-Create Account
-
-</button>
-
-</p>
-
-</form>
-
-<hr>
-
-<p>
-
-<a href="/">
-
-← Back Home
-
-</a>
-
-</p>
+</main>
 
 </body>
 </html>

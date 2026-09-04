@@ -1,211 +1,50 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-<title>Delete Hairstyle</title>
-
-<style>
-
-body {
-    font-family: Arial, sans-serif;
-    margin: 40px;
-}
-
-.container {
-    max-width: 700px;
-}
-
-.details {
-    border-collapse: collapse;
-    width: 100%;
-}
-
-.details th,
-.details td {
-    border: 1px solid #ccc;
-    padding: 10px;
-    text-align: left;
-}
-
-.details th {
-    width: 180px;
-    background: #f2f2f2;
-}
-
-.warning {
-    padding: 15px;
-    border: 1px solid #ccc;
-    margin-top: 20px;
-}
-
-button {
-    padding: 10px 20px;
-    cursor: pointer;
-}
-
-.delete-button {
-    font-weight: bold;
-}
-
-a {
-    text-decoration: none;
-}
-
-.image-preview {
-    max-width: 250px;
-    border: 1px solid #ccc;
-    padding: 4px;
-}
-
-.actions {
-    margin-top: 20px;
-}
-
-</style>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
-
 <body>
 
-<div class="container">
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/barber/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/hairstyles">My hairstyles</a>
+            <a href="/barber/bookings">Bookings</a>
+            <a href="/barber/chats">Messages</a>
+            <a href="/barber/profile">My profile</a>
+        </nav>
+    </div>
+</header>
 
-<h1>Delete Hairstyle</h1>
+<main class="wrap">
 
-<p>
+    <h1>{{.Title}}</h1>
 
-<a href="/barber/hairstyles">
-    ← Back to Hairstyles
-</a>
+    <div class="panel">
 
-</p>
+        <p>{{.Message}}</p>
 
-<hr>
+        <div class="actions">
 
-<h2>{{.Name}}</h2>
+            <!-- The delete itself is a POST carrying the session's CSRF
+                 token, so it cannot be triggered by a link or an image
+                 embedded on another site. -->
+            <form class="inline" method="post" action="{{.Action}}">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="danger" type="submit">Yes, delete it</button>
+            </form>
 
-<table class="details">
+            <a class="button" href="{{.Cancel}}">No, keep it</a>
 
-<tr>
+        </div>
 
-<th>Category</th>
+    </div>
 
-<td>{{.Category}}</td>
-
-</tr>
-
-<tr>
-
-<th>Price</th>
-
-<td>₦{{printf "%.2f" .Price}}</td>
-
-</tr>
-
-<tr>
-
-<th>Duration</th>
-
-<td>{{.Duration}} Minutes</td>
-
-</tr>
-
-<tr>
-
-<th>Description</th>
-
-<td>{{.Description}}</td>
-
-</tr>
-
-<tr>
-
-<th>Status</th>
-
-<td>
-
-{{if .IsAvailable}}
-
-Available
-
-{{else}}
-
-Unavailable
-
-{{end}}
-
-</td>
-
-</tr>
-
-<tr>
-
-<th>Image</th>
-
-<td>
-
-{{if .Image}}
-
-<img
-    class="image-preview"
-    src="{{.Image}}"
-    alt="{{.Name}}">
-
-{{else}}
-
-No image uploaded.
-
-{{end}}
-
-</td>
-
-</tr>
-
-</table>
-
-<div class="warning">
-
-<h3>This action cannot be undone.</h3>
-
-<p>
-Are you sure you want to permanently delete
-<strong>{{.Name}}</strong>?
-</p>
-
-</div>
-
-<div class="actions">
-
-<form
-    method="POST"
-    action="/barber/hairstyles/{{.ID}}/delete">
-
-<button
-    class="delete-button"
-    type="submit">
-
-Yes, Delete Hairstyle
-
-</button>
-
-</form>
-
-<p>
-
-<a href="/barber/hairstyles">
-    Cancel
-</a>
-
-</p>
-
-</div>
-
-</div>
+</main>
 
 </body>
-
 </html>

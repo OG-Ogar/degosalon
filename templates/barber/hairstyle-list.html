@@ -3,193 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Hairstyles</title>
-
-    <style>
-
-        body{
-            font-family:Arial,sans-serif;
-            margin:40px;
-        }
-
-        table{
-            width:100%;
-            border-collapse:collapse;
-        }
-
-        table,
-        th,
-        td{
-            border:1px solid #ccc;
-        }
-
-        th,
-        td{
-            padding:10px;
-            text-align:left;
-        }
-
-        th{
-            background:#f2f2f2;
-        }
-
-        a{
-            text-decoration:none;
-        }
-
-        .hairstyle-image{
-            width:100px;
-            height:100px;
-            object-fit:cover;
-        }
-
-    </style>
-
+    <title>My hairstyles - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>My Hairstyles</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/barber/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/hairstyles">My hairstyles</a>
+            <a href="/barber/bookings">Bookings</a>
+            <a href="/barber/chats">Messages</a>
+            <a href="/barber/profile">My profile</a>
+            <form class="inline" method="post" action="/barber/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-<a href="/barber/dashboard">
-Dashboard
-</a>
+    <p class="crumbs"><a href="/barber/dashboard">Dashboard</a> / My hairstyles</p>
 
-|
+    <h1>My hairstyles</h1>
+    <p class="lede">Only styles marked available can be booked by customers.</p>
 
-<a href="/barber/hairstyles/new">
-Add New Hairstyle
-</a>
+    <div class="actions">
+        <a class="button primary" href="/barber/hairstyles/new">Add a hairstyle</a>
+    </div>
 
-</p>
+    {{if .Items}}
+        <div class="grid">
+            {{range .Items}}
+                <article class="card">
 
-<hr>
+                    {{if .Image}}
+                        <img src="{{.Image}}" alt="{{.Name}}">
+                    {{else}}
+                        <span class="thumb" aria-hidden="true"></span>
+                    {{end}}
 
-{{if .}}
+                    <h3><a href="/barber/hairstyles/{{.ID}}">{{.Name}}</a></h3>
 
-<table>
+                    <p class="muted">{{.Category}}</p>
 
-<tr>
+                    <p>
+                        <span class="price">&#8358;{{printf "%.2f" .Price}}</span>
+                        <span class="muted">&middot; {{.Duration}} minutes</span>
+                    </p>
 
-<th>ID</th>
+                    <p>
+                        {{if .IsAvailable}}
+                            <span class="badge Active">Available</span>
+                        {{else}}
+                            <span class="badge Suspended">Hidden</span>
+                        {{end}}
+                    </p>
 
-<th>Image</th>
+                    <div class="actions">
+                        <a class="button small" href="/barber/hairstyles/{{.ID}}">View</a>
+                        <a class="button small" href="/barber/hairstyles/{{.ID}}/edit">Edit</a>
+                        <a class="button small danger"
+                           href="/barber/hairstyles/{{.ID}}/delete">Delete</a>
+                    </div>
 
-<th>Name</th>
+                </article>
+            {{end}}
+        </div>
+    {{else}}
+        <p class="empty">
+            You have not listed any hairstyles yet.
+            <a href="/barber/hairstyles/new">Add your first one</a> so customers can book.
+        </p>
+    {{end}}
 
-<th>Category</th>
-
-<th>Price</th>
-
-<th>Duration</th>
-
-<th>Status</th>
-
-<th>Actions</th>
-
-</tr>
-
-{{range .}}
-
-<tr>
-
-<td>
-{{.ID}}
-</td>
-
-<td>
-
-{{if .Image}}
-
-<img
-    class="hairstyle-image"
-    src="{{.Image}}"
-    alt="{{.Name}}">
-
-{{else}}
-
-No Image
-
-{{end}}
-
-</td>
-
-<td>
-{{.Name}}
-</td>
-
-<td>
-{{.Category}}
-</td>
-
-<td>
-₦{{printf "%.2f" .Price}}
-</td>
-
-<td>
-{{.Duration}} Minutes
-</td>
-
-<td>
-
-{{if .IsAvailable}}
-
-Available
-
-{{else}}
-
-Unavailable
-
-{{end}}
-
-</td>
-
-<td>
-
-<a href="/barber/hairstyles/{{.ID}}">
-View
-</a>
-
-|
-
-<a href="/barber/hairstyles/{{.ID}}/edit">
-Edit
-</a>
-
-|
-
-<a href="/barber/hairstyles/{{.ID}}/delete">
-Delete
-</a>
-
-</td>
-
-</tr>
-
-{{end}}
-
-</table>
-
-{{else}}
-
-<h3>
-No hairstyles found.
-</h3>
-
-<p>
-Start by creating your first hairstyle.
-</p>
-
-<p>
-
-<a href="/barber/hairstyles/new">
-Create Your First Hairstyle
-</a>
-
-</p>
-
-{{end}}
+</main>
 
 </body>
 </html>

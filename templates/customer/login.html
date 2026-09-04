@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer login - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/customer/register">Create an account</a>
+            <a href="/barber/login">I am a barber</a>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <h1>Customer login</h1>
+    <p class="lede">Sign in to browse barbers, book a haircut and message your barber.</p>
+
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
+
+    <form class="stack panel" method="post" action="/customer/login">
+
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email" value="{{index .Values "email"}}"
+               autocomplete="email" required>
+
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password"
+               autocomplete="current-password" required>
+
+        <div class="actions">
+            <button class="primary" type="submit">Sign in</button>
+            <a class="button" href="/customer/register">Create an account</a>
+        </div>
+
+    </form>
+
+</main>
+
+</body>
+</html>

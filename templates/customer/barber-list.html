@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Find a barber - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/customer/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/customer/barbers">Find a barber</a>
+            <a href="/customer/bookings">My bookings</a>
+            <a href="/customer/chats">Messages</a>
+            <a href="/customer/profile">My profile</a>
+            <form class="inline" method="post" action="/customer/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs"><a href="/customer/dashboard">My dashboard</a> / Barbers</p>
+
+    <h1>Barbers on the app</h1>
+    <p class="lede">Every barber currently taking bookings. Open one to see their styles and prices.</p>
+
+    {{if .Items}}
+        <div class="grid">
+            {{range .Items}}
+                <article class="card">
+
+                    <h3>
+                        <a href="/customer/barbers/{{.ID}}">{{.ShopName}}</a>
+                    </h3>
+
+                    <p class="muted">{{.FullName}}</p>
+
+                    <p>
+                        {{.ShopAddress}}<br>
+                        <span class="muted">{{.PhoneNumber}}</span>
+                    </p>
+
+                    <p>
+                        {{if .Hairstyles}}
+                            {{.Hairstyles}} style{{if ne .Hairstyles 1}}s{{end}} available,
+                            from <span class="price">{{printf "%.2f" .FromPrice}}</span>
+                        {{else}}
+                            <span class="muted">No styles listed yet</span>
+                        {{end}}
+                    </p>
+
+                    <div class="actions">
+                        <a class="button primary" href="/customer/barbers/{{.ID}}">Book a haircut</a>
+                        <a class="button small" href="/customer/chats/{{.ID}}">Message</a>
+                    </div>
+
+                </article>
+            {{end}}
+        </div>
+    {{else}}
+        <p class="empty">No barbers are taking bookings at the moment. Please check back soon.</p>
+    {{end}}
+
+</main>
+
+</body>
+</html>

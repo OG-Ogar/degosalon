@@ -3,73 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barber Login</title>
+    <title>Barber login - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Barber Login</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/register">Register your shop</a>
+            <a href="/customer/login">I am a customer</a>
+        </nav>
+    </div>
+</header>
 
-<p>
-    Login to your barber account.
-</p>
+<main class="wrap">
 
-<hr>
+    <h1>Barber login</h1>
+    <p class="lede">Sign in to manage your styles, bookings and messages.</p>
 
-<form method="POST" action="/barber/login">
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
 
-    <p>
-        <label for="email">
-            Email
-        </label>
+    <form class="stack panel" method="post" action="/barber/login">
 
-        <br>
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email" value="{{index .Values "email"}}"
+               autocomplete="email" required>
 
-        <input
-            type="email"
-            id="email"
-            name="email"
-            required>
-    </p>
+        <label for="password">Password</label>
+        <input id="password" type="password" name="password"
+               autocomplete="current-password" required>
 
-    <p>
-        <label for="password">
-            Password
-        </label>
+        <div class="actions">
+            <button class="primary" type="submit">Sign in</button>
+            <a class="button" href="/barber/register">Register your shop</a>
+        </div>
 
-        <br>
+    </form>
 
-        <input
-            type="password"
-            id="password"
-            name="password"
-            required>
-    </p>
-
-    <p>
-        <button type="submit">
-            Login
-        </button>
-    </p>
-
-</form>
-
-<hr>
-
-<p>
-    Don't have a barber account?
-</p>
-
-<p>
-    <a href="/barber/register">
-        Create New Account
-    </a>
-</p>
-
-<p>
-    <a href="/">
-        ← Back Home
-    </a>
-</p>
+</main>
 
 </body>
 </html>

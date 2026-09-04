@@ -1,0 +1,128 @@
+package handlers
+
+import (
+	"barber-booking/models"
+	"barber-booking/storage"
+)
+
+// formView backs every page that renders a form. Values holds what the
+// visitor typed so a rejected submission comes back filled in instead
+// of blank, and Error carries the reason.
+type formView struct {
+	CSRF   string
+	Error  string
+	Values map[string]string
+}
+
+// newFormView starts an empty form.
+func newFormView(csrf string) formView {
+	return formView{CSRF: csrf, Values: map[string]string{}}
+}
+
+// barberView renders one barber plus the CSRF token. The embedded
+// struct keeps templates written as {{.FullName}} working unchanged.
+type barberView struct {
+	models.Barber
+
+	CSRF  string
+	Error string
+}
+
+// customerView renders one customer plus the CSRF token.
+type customerView struct {
+	models.Customer
+
+	CSRF  string
+	Error string
+}
+
+// hairstyleView renders one hairstyle plus the CSRF token.
+type hairstyleView struct {
+	models.Hairstyle
+
+	CSRF  string
+	Error string
+}
+
+// listView renders a table or card grid of anything.
+type listView[T any] struct {
+	Items []T
+	CSRF  string
+	Error string
+}
+
+// bookingRow is one line in a bookings table, with the names the
+// booking itself only stores as IDs already resolved.
+//
+// The customer's name and phone are not resolved here: Booking copies
+// them at creation time so the barber keeps the details that were given
+// when the appointment was made.
+type bookingRow struct {
+	models.Booking
+
+	BarberName    string
+	ShopName      string
+	HairstyleName string
+	Price         float64
+	Duration      int
+}
+
+// describeBooking fills in the barber and hairstyle details for display.
+func describeBooking(booking models.Booking) bookingRow {
+	row := bookingRow{Booking: booking}
+
+	if barber, found := storage.FindBarberByID(booking.BarberID); found {
+		row.BarberName = barber.FullName
+		row.ShopName = barber.ShopName
+	}
+
+	if hairstyle, found := storage.FindHairstyleByID(booking.HairstyleID); found {
+		row.HairstyleName = hairstyle.Name
+		row.Price = hairstyle.Price
+		row.Duration = hairstyle.Duration
+	}
+
+	return row
+}
+
+// describeBookings maps describeBooking over a slice.
+func describeBookings(bookings []models.Booking) []bookingRow {
+	rows := make([]bookingRow, 0, len(bookings))
+
+	for _, booking := range bookings {
+		rows = append(rows, describeBooking(booking))
+	}
+
+	return rows
+}
+
+// chatRow is one entry in a list of conversations. Name is the person on
+// the other side and Detail is whatever identifies them best: the shop
+// name when a customer looks at barbers, the phone number when a barber
+// looks at customers.
+type chatRow struct {
+	BarberID   int
+	CustomerID int
+
+	Name     string
+	Detail   string
+	LastText string
+	LastAt   string
+	Count    int
+}
+
+// chatView is one open conversation thread.
+type chatView struct {
+	Messages []models.Message
+
+	// Title names the person on the other side of the chat.
+	Title    string
+	Subtitle string
+
+	// BackLink returns to the dashboard of whichever role is viewing.
+	BackLink string
+	Action   string
+
+	CSRF  string
+	Error string
+}

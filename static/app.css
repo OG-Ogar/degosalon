@@ -1,0 +1,464 @@
+/* Shared stylesheet for the barber booking app.
+   The pages are plain server-rendered HTML, so everything here is
+   layout and colour only - no page depends on JavaScript. */
+
+:root {
+    --ink: #1c1a17;
+    --muted: #5d574f;
+    --line: #d9d2c7;
+    --paper: #fdfbf7;
+    --panel: #ffffff;
+    --accent: #7a4a1e;
+    --accent-ink: #ffffff;
+    --good: #1f6b3a;
+    --warn: #8a5a00;
+    --bad: #97231f;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0 0 48px;
+    font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.55;
+    color: var(--ink);
+    background: var(--paper);
+}
+
+.wrap {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ---- header and navigation ---- */
+
+.topbar {
+    background: var(--ink);
+    color: #f6f1e8;
+    padding: 14px 0;
+    margin-bottom: 28px;
+}
+
+.topbar .wrap {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
+    align-items: baseline;
+    justify-content: space-between;
+}
+
+.brand {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #fff;
+    text-decoration: none;
+}
+
+.nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    align-items: baseline;
+}
+
+.nav a {
+    color: #f0e8da;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+}
+
+.nav a:hover,
+.nav a:focus {
+    border-bottom-color: currentColor;
+}
+
+/* ---- headings and text ---- */
+
+h1 {
+    font-size: 1.7rem;
+    margin: 0 0 6px;
+}
+
+h2 {
+    font-size: 1.25rem;
+    margin: 32px 0 12px;
+}
+
+h3 {
+    font-size: 1.05rem;
+    margin: 0 0 6px;
+}
+
+.lede {
+    color: var(--muted);
+    margin: 0 0 24px;
+}
+
+.muted {
+    color: var(--muted);
+}
+
+.empty {
+    padding: 20px;
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    color: var(--muted);
+    background: var(--panel);
+}
+
+/* ---- cards and panels ---- */
+
+.grid {
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+}
+
+.card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 16px 18px;
+}
+
+.card h3 a {
+    color: inherit;
+}
+
+.card img,
+.thumb {
+    display: block;
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: #efe9de;
+}
+
+.stat {
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.1;
+    display: block;
+}
+
+.panel {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+/* ---- tables ---- */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+}
+
+caption {
+    text-align: left;
+    padding: 0 0 8px;
+    color: var(--muted);
+}
+
+th,
+td {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    vertical-align: top;
+}
+
+th {
+    background: #f4efe6;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* ---- forms ---- */
+
+form.stack {
+    max-width: 520px;
+}
+
+label {
+    display: block;
+    margin: 14px 0 4px;
+    font-weight: 600;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="tel"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+input[type="time"],
+input[type="file"],
+select,
+textarea {
+    width: 100%;
+    padding: 9px 10px;
+    font: inherit;
+    color: var(--ink);
+    background: #fff;
+    border: 1px solid #b9b0a2;
+    border-radius: 6px;
+}
+
+textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+a:focus,
+button:focus {
+    outline: 3px solid #b07a3f;
+    outline-offset: 1px;
+}
+
+.check {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin: 16px 0;
+}
+
+.check input {
+    width: auto;
+}
+
+.check label {
+    margin: 0;
+    font-weight: 400;
+}
+
+.hint {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 4px 0 0;
+}
+
+fieldset {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 4px 16px 16px;
+    margin: 0 0 20px;
+}
+
+legend {
+    font-weight: 600;
+    padding: 0 6px;
+}
+
+/* ---- buttons ---- */
+
+.button,
+button {
+    display: inline-block;
+    padding: 9px 16px;
+    font: inherit;
+    font-weight: 600;
+    color: var(--ink);
+    background: #f0e9dd;
+    border: 1px solid #b9b0a2;
+    border-radius: 6px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button:hover,
+button:hover {
+    background: #e6dccb;
+}
+
+.button.primary,
+button.primary {
+    color: var(--accent-ink);
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.button.primary:hover,
+button.primary:hover {
+    background: #5f3915;
+}
+
+.button.danger,
+button.danger {
+    color: #fff;
+    background: var(--bad);
+    border-color: var(--bad);
+}
+
+.button.danger:hover,
+button.danger:hover {
+    background: #7a1c19;
+}
+
+.button.small,
+button.small {
+    padding: 5px 10px;
+    font-size: 0.85rem;
+}
+
+.actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+    margin-top: 18px;
+}
+
+.inline {
+    display: inline;
+    margin: 0;
+}
+
+/* ---- messages and badges ---- */
+
+.error {
+    padding: 12px 14px;
+    margin: 0 0 18px;
+    color: #5d1512;
+    background: #fbe9e7;
+    border: 1px solid #e2b3ae;
+    border-left: 4px solid var(--bad);
+    border-radius: 6px;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 9px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    border-radius: 99px;
+    background: #ece5d9;
+    color: var(--muted);
+    white-space: nowrap;
+}
+
+.badge.Pending {
+    background: #fdf0d5;
+    color: var(--warn);
+}
+
+.badge.Accepted {
+    background: #e2f2e7;
+    color: var(--good);
+}
+
+.badge.Completed {
+    background: #e4ecf6;
+    color: #1d4e7a;
+}
+
+.badge.Rejected,
+.badge.Cancelled,
+.badge.Suspended {
+    background: #fbe4e2;
+    color: var(--bad);
+}
+
+.badge.Active {
+    background: #e2f2e7;
+    color: var(--good);
+}
+
+/* ---- chat ---- */
+
+.thread {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 16px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 18px;
+}
+
+.bubble {
+    max-width: 78%;
+    padding: 9px 13px;
+    border-radius: 12px;
+    background: #f1ebe0;
+}
+
+.bubble.mine {
+    align-self: flex-end;
+    background: var(--accent);
+    color: var(--accent-ink);
+}
+
+.bubble .who {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 700;
+    opacity: 0.8;
+}
+
+.bubble .text {
+    margin: 2px 0 0;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.bubble .when {
+    display: block;
+    font-size: 0.72rem;
+    opacity: 0.75;
+    margin-top: 3px;
+}
+
+.send {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+}
+
+.send textarea {
+    min-height: 52px;
+}
+
+/* ---- misc ---- */
+
+.crumbs {
+    margin: 0 0 18px;
+    font-size: 0.9rem;
+}
+
+.price {
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}

@@ -1,0 +1,104 @@
+package handlers
+
+import (
+	"crypto/subtle"
+	"net/http"
+
+	"barber-booking/models"
+	"barber-booking/session"
+	"barber-booking/storage"
+)
+
+// sessionData is the signed-in user for the current request. Handlers
+// take it as a parameter so the type system shows which ones require
+// authentication, and so they can hand the CSRF token to templates.
+type sessionData = session.Session
+
+// requireBarber resolves the signed-in barber or sends the visitor to
+// the login page. A barber whose account was deleted or suspended while
+// they were signed in is logged straight out.
+func requireBarber(w http.ResponseWriter, r *http.Request) (models.Barber, session.Session, bool) {
+	s, ok := session.FromRequest(r, session.RoleBarber)
+	if !ok {
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
+
+		return models.Barber{}, session.Session{}, false
+	}
+
+	barber, found := storage.FindBarberByID(s.UserID)
+	if !found || !barber.IsActive() {
+		session.Clear(w, r, session.RoleBarber)
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
+
+		return models.Barber{}, session.Session{}, false
+	}
+
+	return barber, s, true
+}
+
+// requireCustomer resolves the signed-in customer or sends the visitor
+// to the customer login page.
+func requireCustomer(w http.ResponseWriter, r *http.Request) (models.Customer, session.Session, bool) {
+	s, ok := session.FromRequest(r, session.RoleCustomer)
+	if !ok {
+		http.Redirect(w, r, "/customer/login", http.StatusSeeOther)
+
+		return models.Customer{}, session.Session{}, false
+	}
+
+	customer, found := storage.FindCustomerByID(s.UserID)
+	if !found {
+		session.Clear(w, r, session.RoleCustomer)
+		http.Redirect(w, r, "/customer/login", http.StatusSeeOther)
+
+		return models.Customer{}, session.Session{}, false
+	}
+
+	return customer, s, true
+}
+
+// requireAdmin gates the whole admin area. Previously the admin login
+// only redirected on success without creating any session, which left
+// every /admin/ URL reachable by anyone.
+func requireAdmin(w http.ResponseWriter, r *http.Request) (session.Session, bool) {
+	s, ok := session.FromRequest(r, session.RoleAdmin)
+	if !ok {
+		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
+
+		return session.Session{}, false
+	}
+
+	return s, true
+}
+
+// requireCSRF checks that a state-changing request carries the token
+// belonging to the caller's session, blocking another site from
+// submitting forms on the visitor's behalf.
+func requireCSRF(w http.ResponseWriter, r *http.Request, s session.Session) bool {
+	submitted := r.PostFormValue("csrf_token")
+
+	if len(submitted) > 0 &&
+		subtle.ConstantTimeCompare([]byte(submitted), []byte(s.CSRFToken)) == 1 {
+
+		return true
+	}
+
+	http.Error(
+		w,
+		"This form has expired. Please reload the page and try again.",
+		http.StatusForbidden,
+	)
+
+	return false
+}
+
+// loginError re-renders a login form with the reason it was rejected.
+// The message never distinguishes an unknown account from a wrong
+// password, so it cannot be used to enumerate registered emails.
+func loginError(w http.ResponseWriter, template, email, message string) {
+	view := newFormView("")
+	view.Error = message
+	view.Values["email"] = email
+
+	renderStatus(w, http.StatusUnauthorized, template, view)
+}

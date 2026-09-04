@@ -3,69 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Delete Barber</title>
+    <title>Delete barber - Barber Booking admin</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Delete Barber</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/admin/barbers">Barbers</a>
+            <a href="/admin/customers">Customers</a>
+            <a href="/admin/bookings">Bookings</a>
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-<a href="/">Home</a>
+    <p class="crumbs">
+        <a href="/admin/dashboard">Dashboard</a> /
+        <a href="/admin/barbers">Barbers</a> /
+        Delete
+    </p>
 
-|
+    <h1>Delete this barber?</h1>
 
-<a href="/admin/dashboard">Dashboard</a>
+    <div class="panel">
 
-|
+        <p>
+            You are about to delete <strong>{{.FullName}}</strong>
+            ({{.ShopName}}).
+        </p>
 
-<a href="/admin/barbers">
+        <p>
+            Their hairstyles, bookings and messages are deleted with them,
+            and any session they have open is ended. This cannot be undone.
+        </p>
 
-Barber List
+        <p class="hint">
+            If you only want to stop them taking bookings, suspend the
+            account from the barber list instead.
+        </p>
 
-</a>
+        <div class="actions">
 
-</p>
+            <!-- POST plus the session CSRF token: a delete cannot be
+                 triggered by a link, an image, or another site's form. -->
+            <form class="inline" method="post" action="/admin/barbers/{{.ID}}/delete">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="danger" type="submit">Yes, delete this barber</button>
+            </form>
 
-<hr>
+            <a class="button" href="/admin/barbers/{{.ID}}">No, go back</a>
 
-<p>
+        </div>
 
-Are you sure you want to delete
+    </div>
 
-<strong>{{.FullName}}</strong>?
-
-</p>
-
-<p>
-
-<strong>Warning:</strong>
-
-This action permanently removes the barber from the system.
-
-</p>
-
-<form method="POST" action="/admin/barbers/{{.ID}}/delete">
-
-<button type="submit">
-
-Yes, Delete Barber
-
-</button>
-
-</form>
-
-<br>
-
-<p>
-
-<a href="/admin/barbers/{{.ID}}">
-
-Cancel
-
-</a>
-
-</p>
+</main>
 
 </body>
 </html>

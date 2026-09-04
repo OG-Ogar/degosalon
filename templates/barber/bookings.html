@@ -3,89 +3,157 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barber Dashboard</title>
-
-    <style>
-
-        body{
-            font-family: Arial, sans-serif;
-            margin:40px;
-        }
-
-        ul{
-            list-style:none;
-            padding:0;
-        }
-
-        li{
-            margin:15px 0;
-        }
-
-        a{
-            text-decoration:none;
-            font-size:18px;
-        }
-
-    </style>
-
+    <title>Bookings - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>Barber Dashboard</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/barber/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/hairstyles">My hairstyles</a>
+            <a href="/barber/bookings">Bookings</a>
+            <a href="/barber/chats">Messages</a>
+            <a href="/barber/profile">My profile</a>
+            <form class="inline" method="post" action="/barber/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-Welcome,
+    <p class="crumbs"><a href="/barber/dashboard">Dashboard</a> / Bookings</p>
 
-<strong>{{.FullName}}</strong>
+    <h1>Bookings</h1>
+    <p class="lede">Accept or decline new requests, then mark an appointment complete once it is done.</p>
 
-</p>
+    {{$view := .}}
 
-<hr>
+    <h2>Requests waiting</h2>
 
-<ul>
+    {{if .Pending}}
+        <table>
+            <caption>New requests from customers.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Hairstyle</th>
+                    <th scope="col">Notes</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Pending}}
+                    <tr>
+                        <td>{{.Date}}</td>
+                        <td>{{.Time}}</td>
+                        <td>
+                            {{.CustomerName}}
+                            <br><span class="muted">{{.CustomerPhone}}</span>
+                        </td>
+                        <td>
+                            {{.HairstyleName}}
+                            <br><span class="muted">{{.Duration}} min,
+                            <span class="price">{{printf "%.2f" .Price}}</span></span>
+                        </td>
+                        <td>{{.Notes}}</td>
+                        <td>
+                            <form class="inline" method="post"
+                                  action="{{$view.ActionURL}}{{.ID}}/accept">
+                                <input type="hidden" name="csrf_token" value="{{$view.CSRF}}">
+                                <button class="primary small" type="submit">Accept</button>
+                            </form>
+                            <form class="inline" method="post"
+                                  action="{{$view.ActionURL}}{{.ID}}/reject">
+                                <input type="hidden" name="csrf_token" value="{{$view.CSRF}}">
+                                <button class="danger small" type="submit">Decline</button>
+                            </form>
+                            <a class="button small"
+                               href="/barber/chats/{{.CustomerID}}">Message</a>
+                        </td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{else}}
+        <p class="empty">No requests waiting. Anything new will appear here.</p>
+    {{end}}
 
-<li>
+    <h2>Confirmed schedule</h2>
 
-<a href="/barber/hairstyles">
+    {{if .Upcoming}}
+        <table>
+            <caption>Appointments you have accepted.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Hairstyle</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Upcoming}}
+                    <tr>
+                        <td>{{.Date}}</td>
+                        <td>{{.Time}}</td>
+                        <td>
+                            {{.CustomerName}}
+                            <br><span class="muted">{{.CustomerPhone}}</span>
+                        </td>
+                        <td>{{.HairstyleName}}</td>
+                        <td>
+                            <form class="inline" method="post"
+                                  action="{{$view.ActionURL}}{{.ID}}/complete">
+                                <input type="hidden" name="csrf_token" value="{{$view.CSRF}}">
+                                <button class="primary small" type="submit">Mark complete</button>
+                            </form>
+                            <a class="button small"
+                               href="/barber/chats/{{.CustomerID}}">Message</a>
+                        </td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{else}}
+        <p class="empty">Nothing confirmed yet.</p>
+    {{end}}
 
-Manage Hairstyles
+    {{if .Finished}}
+        <h2>Finished</h2>
+        <table>
+            <caption>Completed, declined and cancelled bookings.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Hairstyle</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Finished}}
+                    <tr>
+                        <td>{{.Date}}</td>
+                        <td>{{.Time}}</td>
+                        <td>{{.CustomerName}}</td>
+                        <td>{{.HairstyleName}}</td>
+                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{end}}
 
-</a>
-
-</li>
-
-<li>
-
-<a href="/barber/bookings">
-
-Bookings
-
-</a>
-
-</li>
-
-<li>
-
-<a href="/barber/profile">
-
-My Profile
-
-</a>
-
-</li>
-
-<li>
-
-<a href="/barber/logout">
-
-Logout
-
-</a>
-
-</li>
-
-</ul>
+</main>
 
 </body>
 </html>

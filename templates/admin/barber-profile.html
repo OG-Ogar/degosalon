@@ -3,202 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Admin - Barber Profile</title>
-
-    <style>
-
-        table {
-            border-collapse: collapse;
-        }
-
-        table,
-        th,
-        td {
-            border: 1px solid black;
-        }
-
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-        }
-
-        .hairstyles {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-
-        .hairstyle {
-            border: 1px solid black;
-            padding: 15px;
-            width: 220px;
-        }
-
-        .hairstyle-image {
-            width: 200px;
-            height: 200px;
-            object-fit: cover;
-        }
-
-        .book-button {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 8px 15px;
-            text-decoration: none;
-            border: 1px solid black;
-        }
-
-    </style>
-
+    <title>{{.Barber.FullName}} - Barber Booking admin</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
-
 <body>
 
-<h1>Barber Profile</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/admin/barbers">Barbers</a>
+            <a href="/admin/customers">Customers</a>
+            <a href="/admin/bookings">Bookings</a>
+            <form class="inline" method="post" action="/admin/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-<a href="/">Home</a>
+    <p class="crumbs">
+        <a href="/admin/dashboard">Dashboard</a> /
+        <a href="/admin/barbers">Barbers</a> /
+        {{.Barber.FullName}}
+    </p>
 
-|
+    <h1>{{.Barber.FullName}}</h1>
+    <p class="lede">{{.Barber.ShopName}} &middot; {{.Barber.ShopAddress}}</p>
 
-<a href="/admin/dashboard">Dashboard</a>
+    <div class="panel">
+        <table>
+            <tbody>
+                <tr><th scope="row">Barber ID</th><td>{{.Barber.ID}}</td></tr>
+                <tr><th scope="row">Email</th><td>{{.Barber.Email}}</td></tr>
+                <tr><th scope="row">Phone</th><td>{{.Barber.PhoneNumber}}</td></tr>
+                <tr><th scope="row">Status</th>
+                    <td><span class="badge {{.Barber.Status}}">{{.Barber.Status}}</span></td></tr>
+            </tbody>
+        </table>
 
-|
+        <div class="actions">
+            <a class="button primary" href="/admin/barbers/{{.Barber.ID}}/edit">Edit</a>
+            <a class="button danger" href="/admin/barbers/{{.Barber.ID}}/delete">Delete</a>
+            <a class="button" href="/admin/barbers">Back to list</a>
+        </div>
+    </div>
 
-<a href="/admin/barbers">
-    ← Back to Barber List
-</a>
+    <h2>Hairstyles</h2>
 
-</p>
+    {{if .Hairstyles}}
+        <div class="grid">
+            {{range .Hairstyles}}
+                <article class="card">
+                    {{if .Image}}
+                        <img src="{{.Image}}" alt="{{.Name}}">
+                    {{end}}
+                    <h3>{{.Name}}</h3>
+                    <p class="muted">{{.Category}}</p>
+                    <p>{{.Description}}</p>
+                    <p>
+                        <span class="price">&#8358;{{printf "%.2f" .Price}}</span>
+                        <span class="muted">&middot; {{.Duration}} minutes</span>
+                    </p>
+                    <p>
+                        {{if .IsAvailable}}
+                            <span class="badge Active">Available</span>
+                        {{else}}
+                            <span class="badge Suspended">Hidden</span>
+                        {{end}}
+                    </p>
+                </article>
+            {{end}}
+        </div>
+    {{else}}
+        <p class="empty">This barber has not listed any hairstyles.</p>
+    {{end}}
 
-<hr>
+    <h2>Bookings</h2>
 
-<h2>Barber Information</h2>
+    {{if .Bookings}}
+        <table>
+            <caption>Every booking made with this barber.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Customer</th>
+                    <th scope="col">Hairstyle</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Bookings}}
+                    <tr>
+                        <td>{{.Date}}</td>
+                        <td>{{.Time}}</td>
+                        <td>
+                            {{.CustomerName}}
+                            <br><span class="muted">{{.CustomerPhone}}</span>
+                        </td>
+                        <td>{{.HairstyleName}}</td>
+                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{else}}
+        <p class="empty">No bookings yet.</p>
+    {{end}}
 
-<table>
-
-<tbody>
-
-<tr>
-    <th>ID</th>
-    <td>{{.Barber.ID}}</td>
-</tr>
-
-<tr>
-    <th>Full Name</th>
-    <td>{{.Barber.FullName}}</td>
-</tr>
-
-<tr>
-    <th>Phone Number</th>
-    <td>{{.Barber.PhoneNumber}}</td>
-</tr>
-
-<tr>
-    <th>Email</th>
-    <td>{{.Barber.Email}}</td>
-</tr>
-
-<tr>
-    <th>Shop Name</th>
-    <td>{{.Barber.ShopName}}</td>
-</tr>
-
-<tr>
-    <th>Shop Address</th>
-    <td>{{.Barber.ShopAddress}}</td>
-</tr>
-
-<tr>
-    <th>Status</th>
-    <td>{{.Barber.Status}}</td>
-</tr>
-
-</tbody>
-
-</table>
-
-<br>
-
-<a href="/admin/barbers/{{.Barber.ID}}/edit">
-    Edit Barber
-</a>
-
-&nbsp;|&nbsp;
-
-<a href="/admin/barbers/{{.Barber.ID}}/delete">
-    Delete Barber
-</a>
-
-<hr>
-
-<h2>Hairstyles</h2>
-
-{{if .Hairstyles}}
-
-<div class="hairstyles">
-
-{{range .Hairstyles}}
-
-<div class="hairstyle">
-
-{{if .Image}}
-
-<img
-    class="hairstyle-image"
-    src="{{.Image}}"
-    alt="{{.Name}}">
-
-{{else}}
-
-<p>No image uploaded.</p>
-
-{{end}}
-
-<h3>{{.Name}}</h3>
-
-<p>
-    <strong>Category:</strong>
-    {{.Category}}
-</p>
-
-<p>
-    <strong>Description:</strong>
-    {{.Description}}
-</p>
-
-<p>
-    <strong>Price:</strong>
-    ₦{{printf "%.2f" .Price}}
-</p>
-
-<p>
-    <strong>Duration:</strong>
-    {{.Duration}} minutes
-</p>
-
-<a
-    class="book-button"
-    href="/booking/{{.ID}}">
-    Book Now
-</a>
-
-</div>
-
-{{end}}
-
-</div>
-
-{{else}}
-
-<p>
-    This barber has not uploaded any hairstyles yet.
-</p>
-
-{{end}}
+</main>
 
 </body>
 </html>

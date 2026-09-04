@@ -3,113 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
-
-    <style>
-
-        body{
-            font-family: Arial, sans-serif;
-            margin:40px;
-        }
-
-        table{
-            border-collapse: collapse;
-            width:700px;
-        }
-
-        table,
-        th,
-        td{
-            border:1px solid #ccc;
-        }
-
-        th,
-        td{
-            padding:12px;
-            text-align:left;
-        }
-
-        th{
-            background:#f2f2f2;
-            width:220px;
-        }
-
-        a{
-            text-decoration:none;
-        }
-
-    </style>
-
+    <title>My profile - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
 
-<h1>My Profile</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/barber/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/hairstyles">My hairstyles</a>
+            <a href="/barber/bookings">Bookings</a>
+            <a href="/barber/chats">Messages</a>
+            <a href="/barber/profile">My profile</a>
+            <form class="inline" method="post" action="/barber/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-<a href="/">Home</a>
+    <p class="crumbs"><a href="/barber/dashboard">Dashboard</a> / My profile</p>
 
-|
+    <h1>My profile</h1>
+    <p class="lede">This is what customers see on your shop page.</p>
 
-<a href="/barber/dashboard">
+    <div class="panel">
 
-← Dashboard
+        <table>
+            <tbody>
+                <tr><th scope="row">Full name</th><td>{{.FullName}}</td></tr>
+                <tr><th scope="row">Email</th><td>{{.Email}}</td></tr>
+                <tr><th scope="row">Phone</th><td>{{.PhoneNumber}}</td></tr>
+                <tr><th scope="row">Shop name</th><td>{{.ShopName}}</td></tr>
+                <tr><th scope="row">Shop address</th><td>{{.ShopAddress}}</td></tr>
+                <tr><th scope="row">Account status</th>
+                    <td><span class="badge {{.Status}}">{{.Status}}</span></td></tr>
+            </tbody>
+        </table>
 
-</a>
+        <div class="actions">
+            <a class="button primary" href="/barber/profile/edit">Edit my details</a>
+            <a class="button" href="/barber/dashboard">Back to dashboard</a>
+        </div>
 
-</p>
+    </div>
 
-<hr>
-
-<table>
-
-<tbody>
-
-<tr>
-<th>Full Name</th>
-<td>{{.FullName}}</td>
-</tr>
-
-<tr>
-<th>Email</th>
-<td>{{.Email}}</td>
-</tr>
-
-<tr>
-<th>Phone Number</th>
-<td>{{.PhoneNumber}}</td>
-</tr>
-
-<tr>
-<th>Shop Name</th>
-<td>{{.ShopName}}</td>
-</tr>
-
-<tr>
-<th>Shop Address</th>
-<td>{{.ShopAddress}}</td>
-</tr>
-
-<tr>
-<th>Status</th>
-<td>{{.Status}}</td>
-</tr>
-
-</tbody>
-
-</table>
-
-<br>
-
-<p>
-
-<a href="/barber/profile/edit">
-
-Edit Profile
-
-</a>
-
-</p>
+</main>
 
 </body>
 </html>

@@ -2,44 +2,94 @@ package handlers
 
 import (
 	"net/http"
-	"strings"
 )
 
+// AdminRouter dispatches every /admin/ URL.
+//
+// Only the login page is public. Everything below it goes through
+// requireAdmin first, which is the fix for the admin area previously
+// having no access control at all.
 func AdminRouter(w http.ResponseWriter, r *http.Request) {
+	parts := pathParts(r.URL.Path)
 
-	path := r.URL.Path
+	if len(parts) == 1 {
+		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+
+		return
+	}
+
+	if len(parts) == 2 && parts[1] == "login" {
+		AdminLoginHandler(w, r)
+
+		return
+	}
+
+	s, ok := requireAdmin(w, r)
+	if !ok {
+		return
+	}
 
 	switch {
 
-	case path == "/admin/login":
-		AdminLoginHandler(w, r)
+	case len(parts) == 2 && parts[1] == "logout":
+		AdminLogoutHandler(w, r, s)
 
-	case path == "/admin/dashboard":
-		AdminDashboardHandler(w, r)
+	case len(parts) == 2 && parts[1] == "dashboard":
+		AdminDashboardHandler(w, r, s)
 
-	case path == "/admin/barbers":
-		ListBarbersHandler(w, r)
+	case len(parts) == 2 && parts[1] == "bookings":
+		AdminBookingsHandler(w, r, s)
 
-	case strings.HasPrefix(path, "/admin/barbers/") &&
-		len(strings.Split(path, "/")) == 4:
-		BarberProfileHandler(w, r)
+	case len(parts) == 2 && parts[1] == "customers":
+		AdminCustomersHandler(w, r, s)
 
-	case strings.HasSuffix(path, "/edit"):
-		EditBarberHandler(w, r)
+	case len(parts) == 2 && parts[1] == "barbers":
+		ListBarbersHandler(w, r, s)
 
-	case strings.HasSuffix(path, "/update"):
-		UpdateBarberHandler(w, r)
+	case len(parts) == 3 && parts[1] == "barbers" && parts[2] == "new":
+		NewBarberHandler(w, r, s)
 
-	case strings.HasSuffix(path, "/delete"):
+	case len(parts) == 3 && parts[1] == "barbers":
+		BarberProfileHandler(w, r, s, parts[2])
 
-		if r.Method == http.MethodPost {
-			DeleteBarberHandler(w, r)
-		} else {
-			ConfirmDeleteBarberHandler(w, r)
-		}
+	case len(parts) == 4 && parts[1] == "barbers":
+		adminBarberAction(w, r, s, parts[2], parts[3])
 
 	default:
 		http.NotFound(w, r)
+	}
+}
 
+// adminBarberAction handles /admin/barbers/{id}/{action}.
+func adminBarberAction(
+	w http.ResponseWriter,
+	r *http.Request,
+	s sessionData,
+	idSegment string,
+	action string,
+) {
+	switch action {
+
+	case "edit":
+		EditBarberHandler(w, r, s, idSegment)
+
+	case "update":
+		UpdateBarberHandler(w, r, s, idSegment)
+
+	case "delete":
+		if r.Method == http.MethodPost {
+			DeleteBarberHandler(w, r, s, idSegment)
+		} else {
+			ConfirmDeleteBarberHandler(w, r, s, idSegment)
+		}
+
+	case "suspend":
+		SetBarberStatusHandler(w, r, s, idSegment, false)
+
+	case "activate":
+		SetBarberStatusHandler(w, r, s, idSegment, true)
+
+	default:
+		http.NotFound(w, r)
 	}
 }

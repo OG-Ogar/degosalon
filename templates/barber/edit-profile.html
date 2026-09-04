@@ -3,130 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Edit Profile</title>
+    <title>Edit my profile - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
 </head>
-
 <body>
 
-<h1>Edit My Profile</h1>
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/barber/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/barber/hairstyles">My hairstyles</a>
+            <a href="/barber/bookings">Bookings</a>
+            <a href="/barber/chats">Messages</a>
+            <a href="/barber/profile">My profile</a>
+            <form class="inline" method="post" action="/barber/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
 
-<p>
+<main class="wrap">
 
-    <a href="/barber/profile">
-        ← Back to Profile
-    </a>
-
-</p>
-
-<hr>
-
-<form method="POST" action="/barber/profile/edit">
-
-    <p>
-
-        <label for="fullname">
-            Full Name
-        </label>
-
-        <br>
-
-        <input
-            type="text"
-            id="fullname"
-            name="fullname"
-            value="{{.FullName}}"
-            required>
-
+    <p class="crumbs">
+        <a href="/barber/dashboard">Dashboard</a> /
+        <a href="/barber/profile">My profile</a> /
+        Edit
     </p>
 
-    <p>
+    <h1>Edit my details</h1>
 
-        <label for="phone">
-            Phone Number
-        </label>
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
 
-        <br>
+    <form class="stack panel" method="post" action="/barber/profile/edit">
 
-        <input
-            type="text"
-            id="phone"
-            name="phone"
-            value="{{.PhoneNumber}}"
-            required>
+        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
 
-    </p>
+        <label for="fullname">Full name</label>
+        <input id="fullname" type="text" name="fullname"
+               value="{{index .Values "fullname"}}" autocomplete="name" required>
 
-    <p>
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" name="phone"
+               value="{{index .Values "phone"}}" autocomplete="tel" required>
 
-        <label for="email">
-            Email
-        </label>
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email"
+               value="{{index .Values "email"}}" autocomplete="email" required>
 
-        <br>
+        <label for="shopname">Shop name</label>
+        <input id="shopname" type="text" name="shopname"
+               value="{{index .Values "shopname"}}" required>
 
-        <input
-            type="email"
-            id="email"
-            name="email"
-            value="{{.Email}}"
-            required>
+        <label for="shopaddress">Shop address</label>
+        <input id="shopaddress" type="text" name="shopaddress"
+               value="{{index .Values "shopaddress"}}" required>
 
-    </p>
+        <div class="actions">
+            <button class="primary" type="submit">Save changes</button>
+            <a class="button" href="/barber/profile">Cancel</a>
+        </div>
 
-    <p>
+    </form>
 
-        <label for="shopname">
-            Shop Name
-        </label>
-
-        <br>
-
-        <input
-            type="text"
-            id="shopname"
-            name="shopname"
-            value="{{.ShopName}}"
-            required>
-
-    </p>
-
-    <p>
-
-        <label for="shopaddress">
-            Shop Address
-        </label>
-
-        <br>
-
-        <input
-            type="text"
-            id="shopaddress"
-            name="shopaddress"
-            value="{{.ShopAddress}}"
-            required>
-
-    </p>
-
-    <p>
-
-        <button type="submit">
-            Save Changes
-        </button>
-
-    </p>
-
-</form>
-
-<hr>
-
-<p>
-
-    <a href="/barber/dashboard">
-        Back to Dashboard
-    </a>
-
-</p>
+</main>
 
 </body>
 </html>

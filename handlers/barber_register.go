@@ -1,103 +1,81 @@
 package handlers
 
 import (
-	"barber-booking/models"
-	"barber-booking/storage"
-	"html/template"
+	"errors"
 	"net/http"
-	"strings"
+
+	"barber-booking/models"
+	"barber-booking/security"
+	"barber-booking/storage"
 )
 
+// BarberRegisterHandler lets a barber create their own account.
 func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 
 	case http.MethodGet:
-
-		tmpl, err := template.ParseFiles("templates/barber/register.html")
-		if err != nil {
-			http.Error(w, "Template Error", http.StatusInternalServerError)
-			return
-		}
-
-		if err := tmpl.Execute(w, nil); err != nil {
-			http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-			return
-		}
+		render(w, "barber/register.html", newFormView(""))
 
 	case http.MethodPost:
+		form, problem := readBarberForm(r)
+		password := r.PostFormValue("password")
+		confirm := r.PostFormValue("confirm_password")
 
-		fullName := strings.TrimSpace(r.FormValue("fullname"))
-		phone := strings.TrimSpace(r.FormValue("phone"))
-		email := strings.ToLower(strings.TrimSpace(r.FormValue("email")))
-		shopName := strings.TrimSpace(r.FormValue("shopname"))
-		shopAddress := strings.TrimSpace(r.FormValue("shopaddress"))
-		password := r.FormValue("password")
-		confirmPassword := r.FormValue("confirm_password")
+		switch {
+		case problem != "":
+			// Keep the message readBarberForm produced.
+		case len(password) < minPasswordLength:
+			problem = passwordTooShortMessage
+		case password != confirm:
+			problem = "The two passwords do not match."
+		}
 
-		if fullName == "" ||
-			phone == "" ||
-			email == "" ||
-			shopName == "" ||
-			shopAddress == "" ||
-			password == "" ||
-			confirmPassword == "" {
+		if problem != "" {
+			barberRegisterError(w, form, problem)
 
-			http.Error(
-				w,
-				"All fields are required",
-				http.StatusBadRequest,
-			)
 			return
 		}
 
-		if password != confirmPassword {
-			http.Error(
-				w,
-				"Passwords do not match",
-				http.StatusBadRequest,
-			)
+		hash, err := security.HashPassword(password)
+		if err != nil {
+			serverError(w, "hash barber password", err)
+
 			return
 		}
 
-		for _, barber := range storage.Barbers {
+		_, err = storage.CreateBarber(models.Barber{
+			FullName:     form.FullName,
+			PhoneNumber:  form.Phone,
+			Email:        form.Email,
+			PasswordHash: hash,
+			ShopName:     form.ShopName,
+			ShopAddress:  form.ShopAddress,
+			Status:       models.BarberActive,
+		})
 
-			if strings.EqualFold(barber.Email, email) {
-				http.Error(
-					w,
-					"Email is already registered",
-					http.StatusConflict,
-				)
-				return
-			}
+		if errors.Is(err, storage.ErrEmailTaken) {
+			barberRegisterError(w, form, "That email is already registered.")
+
+			return
 		}
 
-		barber := models.Barber{
-			ID:          len(storage.Barbers) + 1,
-			FullName:    fullName,
-			PhoneNumber: phone,
-			Email:       email,
-			PassWord:    hashPassword(password),
-			ShopName:    shopName,
-			ShopAddress: shopAddress,
-			Status:      "Active",
+		if err != nil {
+			serverError(w, "create barber", err)
+
+			return
 		}
 
-		storage.Barbers = append(storage.Barbers, barber)
-
-		http.Redirect(
-			w,
-			r,
-			"/barber/login",
-			http.StatusSeeOther,
-		)
+		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 
 	default:
-
-		http.Error(
-			w,
-			"Method Not Allowed",
-			http.StatusMethodNotAllowed,
-		)
+		methodNotAllowed(w, http.MethodGet, http.MethodPost)
 	}
+}
+
+// barberRegisterError re-shows the signup form with what was typed.
+func barberRegisterError(w http.ResponseWriter, form barberForm, problem string) {
+	renderStatus(w, http.StatusBadRequest, "barber/register.html", formView{
+		Error:  problem,
+		Values: form.values(),
+	})
 }

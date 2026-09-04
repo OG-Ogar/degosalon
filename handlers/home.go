@@ -1,25 +1,42 @@
 package handlers
 
 import (
-	"html/template"
 	"net/http"
+
+	"barber-booking/session"
 )
 
-func HomeHandler(w http.ResponseWriter, r *http.Request) {
+// homeView tells the landing page which "continue as" links to show.
+type homeView struct {
+	BarberSignedIn   bool
+	CustomerSignedIn bool
+	AdminSignedIn    bool
+}
 
+// HomeHandler serves the landing page.
+//
+// It is registered on "/" and therefore receives every path that the
+// other routers do not claim, so anything other than "/" is a 404.
+func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
+
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/home.html")
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+
 		return
 	}
 
-	if err := tmpl.Execute(w, nil); err != nil {
-		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-		return
-	}
+	_, barberIn := session.FromRequest(r, session.RoleBarber)
+	_, customerIn := session.FromRequest(r, session.RoleCustomer)
+	_, adminIn := session.FromRequest(r, session.RoleAdmin)
+
+	render(w, "home.html", homeView{
+		BarberSignedIn:   barberIn,
+		CustomerSignedIn: customerIn,
+		AdminSignedIn:    adminIn,
+	})
 }

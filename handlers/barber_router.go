@@ -2,57 +2,108 @@ package handlers
 
 import (
 	"net/http"
-	"strings"
+
+	"barber-booking/models"
 )
 
+// BarberRouter dispatches every /barber/ URL.
+//
+// Routing is done on whole path segments. The previous version matched
+// with strings.HasSuffix, so any path ending in "/edit" reached the
+// hairstyle editor regardless of what came before it.
 func BarberRouter(w http.ResponseWriter, r *http.Request) {
+	parts := pathParts(r.URL.Path)
 
-	path := r.URL.Path
+	if len(parts) == 1 {
+		http.Redirect(w, r, "/barber/dashboard", http.StatusSeeOther)
+
+		return
+	}
+
+	// The only two pages a signed-out barber may reach.
+	if len(parts) == 2 && parts[1] == "login" {
+		BarberLoginHandler(w, r)
+
+		return
+	}
+
+	if len(parts) == 2 && parts[1] == "register" {
+		BarberRegisterHandler(w, r)
+
+		return
+	}
+
+	barber, s, ok := requireBarber(w, r)
+	if !ok {
+		return
+	}
 
 	switch {
 
-	case path == "/barber/login":
-		BarberLoginHandler(w, r)
+	case len(parts) == 2 && parts[1] == "logout":
+		BarberLogoutHandler(w, r, s)
 
-	case path == "/barber/register":
-		BarberRegisterHandler(w, r)
+	case len(parts) == 2 && parts[1] == "dashboard":
+		BarberDashboardHandler(w, r, barber, s)
 
-	case path == "/barber/dashboard":
-		BarberDashboardHandler(w, r)
+	case len(parts) == 2 && parts[1] == "profile":
+		MyProfileHandler(w, r, barber, s)
 
-	case path == "/barber/profile":
-		MyProfileHandler(w, r)
+	case len(parts) == 3 && parts[1] == "profile" && parts[2] == "edit":
+		EditProfileHandler(w, r, barber, s)
 
-	case path == "/barber/profile/edit":
-		EditProfileHandler(w, r)
+	case len(parts) == 2 && parts[1] == "hairstyles":
+		ListHairstylesHandler(w, r, barber, s)
 
-	case path == "/barber/logout":
-		LogoutHandler(w, r)
+	case len(parts) == 3 && parts[1] == "hairstyles" && parts[2] == "new":
+		NewHairstyleHandler(w, r, barber, s)
 
-	case path == "/barber/hairstyles":
-		ListHairstylesHandler(w, r)
+	case len(parts) == 3 && parts[1] == "hairstyles":
+		ViewHairstyleHandler(w, r, barber, s, parts[2])
 
-	case path == "/barber/hairstyles/new":
-		NewHairstyleHandler(w, r)
+	case len(parts) == 4 && parts[1] == "hairstyles":
+		hairstyleAction(w, r, barber, s, parts[2], parts[3])
 
-	case strings.HasSuffix(path, "/edit"):
-		EditHairstyleHandler(w, r)
+	case len(parts) == 2 && parts[1] == "bookings":
+		BarberBookingsHandler(w, r, barber, s)
 
-	case strings.HasSuffix(path, "/update"):
-		UpdateHairstyleHandler(w, r)
+	case len(parts) == 4 && parts[1] == "bookings":
+		BarberBookingActionHandler(w, r, barber, s, parts[2], parts[3])
 
-	case strings.HasSuffix(path, "/delete"):
+	case len(parts) == 2 && parts[1] == "chats":
+		BarberChatsHandler(w, r, barber, s)
 
+	case len(parts) == 3 && parts[1] == "chats":
+		BarberChatHandler(w, r, barber, s, parts[2])
+
+	default:
+		http.NotFound(w, r)
+	}
+}
+
+// hairstyleAction handles /barber/hairstyles/{id}/{action}.
+func hairstyleAction(
+	w http.ResponseWriter,
+	r *http.Request,
+	barber models.Barber,
+	s sessionData,
+	idSegment string,
+	action string,
+) {
+	switch action {
+
+	case "edit":
+		EditHairstyleHandler(w, r, barber, s, idSegment)
+
+	case "update":
+		UpdateHairstyleHandler(w, r, barber, s, idSegment)
+
+	case "delete":
 		if r.Method == http.MethodPost {
-			DeleteHairstyleHandler(w, r)
+			DeleteHairstyleHandler(w, r, barber, s, idSegment)
 		} else {
-			ConfirmDeleteHairstyleHandler(w, r)
+			ConfirmDeleteHairstyleHandler(w, r, barber, s, idSegment)
 		}
-
-	case strings.HasPrefix(path, "/barber/hairstyles/") &&
-		len(strings.Split(path, "/")) == 4:
-
-		ViewHairstyleHandler(w, r)
 
 	default:
 		http.NotFound(w, r)

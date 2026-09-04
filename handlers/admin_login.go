@@ -1,54 +1,74 @@
 package handlers
 
 import (
-	"fmt"
-	"html/template"
 	"net/http"
-	"strings"
+
+	"barber-booking/session"
 )
 
+// AdminLoginHandler shows and processes the administrator login.
+//
+// A successful login now creates a real session and sets a cookie. The
+// previous version only redirected, which meant every /admin/ page was
+// reachable without logging in at all.
 func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
-
 	switch r.Method {
 
 	case http.MethodGet:
-
-		tmpl, err := template.ParseFiles("templates/admin/login.html")
-		if err != nil {
-			http.Error(w, "Template Error", http.StatusInternalServerError)
-			return
-		}
-
-		if err := tmpl.Execute(w, nil); err != nil {
-			http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-			return
-		}
+		render(w, "admin/login.html", newFormView(""))
 
 	case http.MethodPost:
+		username := trimmedField(r.PostFormValue("username"))
+		password := r.PostFormValue("password")
 
-		username := strings.TrimSpace(r.FormValue("username"))
-		password := r.FormValue("password")
+		if username == "" || password == "" {
+			adminLoginError(w, username, "Username and password are both required.")
 
-		if username == "" {
-			fmt.Fprintln(w, "Username is required.")
 			return
 		}
 
-		if password == "" {
-			fmt.Fprintln(w, "Password is required.")
+		if !validAdminCredentials(username, password) {
+			adminLoginError(w, username, "Invalid username or password.")
+
 			return
 		}
 
-		if username != "admin" || password != "password123" {
-			fmt.Fprintln(w, "Invalid username or password.")
+		if _, err := session.Start(w, session.RoleAdmin, 0); err != nil {
+			serverError(w, "start admin session", err)
+
 			return
 		}
 
-		http.Redirect(w, r, "/admin/barbers", http.StatusSeeOther)
+		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
 
 	default:
-
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-
+		methodNotAllowed(w, http.MethodGet, http.MethodPost)
 	}
+}
+
+// adminLoginError re-renders the login form with the reason it failed.
+// The message never says which of the two fields was wrong.
+func adminLoginError(w http.ResponseWriter, username, message string) {
+	view := newFormView("")
+	view.Error = message
+	view.Values["username"] = username
+
+	renderStatus(w, http.StatusUnauthorized, "admin/login.html", view)
+}
+
+// AdminLogoutHandler ends the administrator session.
+func AdminLogoutHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
+	if r.Method != http.MethodPost {
+		methodNotAllowed(w, http.MethodPost)
+
+		return
+	}
+
+	if !requireCSRF(w, r, s) {
+		return
+	}
+
+	session.Clear(w, r, session.RoleAdmin)
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

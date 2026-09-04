@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My profile - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/customer/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/customer/barbers">Find a barber</a>
+            <a href="/customer/bookings">My bookings</a>
+            <a href="/customer/chats">Messages</a>
+            <a href="/customer/profile">My profile</a>
+            <form class="inline" method="post" action="/customer/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs"><a href="/customer/dashboard">My dashboard</a> / My profile</p>
+
+    <h1>My profile</h1>
+    <p class="lede">These are the details your barber sees when you book.</p>
+
+    <div class="panel">
+        <p>
+            <strong>Name:</strong> {{.FullName}}<br>
+            <strong>Phone:</strong> {{.PhoneNumber}}<br>
+            <strong>Email:</strong> {{.Email}}
+        </p>
+
+        <div class="actions">
+            <a class="button primary" href="/customer/profile/edit">Edit my details</a>
+            <a class="button" href="/customer/dashboard">Back to dashboard</a>
+        </div>
+    </div>
+
+</main>
+
+</body>
+</html>

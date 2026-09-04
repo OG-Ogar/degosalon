@@ -1,329 +1,213 @@
 package handlers
 
 import (
-	"barber-booking/models"
-	"barber-booking/storage"
-	"fmt"
-	"html/template"
+	"errors"
 	"net/http"
-	"os"
-	"strconv"
-	"strings"
+
+	"barber-booking/models"
+	"barber-booking/security"
+	"barber-booking/storage"
 )
 
-func ListBarbersHandler(w http.ResponseWriter, r *http.Request) {
+// barberForm is the profile data the admin add/edit form submits.
+type barberForm struct {
+	FullName    string
+	Phone       string
+	Email       string
+	ShopName    string
+	ShopAddress string
+}
 
-	tmpl, err := template.ParseFiles(
-		"templates/admin/barber-list.html",
-	)
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-		return
+// readBarberForm pulls the fields out of a request and returns a
+// validation message when something is missing.
+func readBarberForm(r *http.Request) (barberForm, string) {
+	form := barberForm{
+		FullName:    trimmedField(r.PostFormValue("fullname")),
+		Phone:       trimmedField(r.PostFormValue("phone")),
+		Email:       normalisedEmail(r.PostFormValue("email")),
+		ShopName:    trimmedField(r.PostFormValue("shopname")),
+		ShopAddress: trimmedField(r.PostFormValue("shopaddress")),
 	}
 
-	if err := tmpl.Execute(w, storage.Barbers); err != nil {
-		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-		return
+	if form.FullName == "" ||
+		form.Phone == "" ||
+		form.Email == "" ||
+		form.ShopName == "" ||
+		form.ShopAddress == "" {
+
+		return form, "All fields are required."
+	}
+
+	return form, ""
+}
+
+// values renders the form back into the map the template reads.
+func (f barberForm) values() map[string]string {
+	return map[string]string{
+		"fullname":    f.FullName,
+		"phone":       f.Phone,
+		"email":       f.Email,
+		"shopname":    f.ShopName,
+		"shopaddress": f.ShopAddress,
 	}
 }
 
-type AdminBarberProfile struct {
-	Barber     *models.Barber
+// ListBarbersHandler shows the barber table.
+//
+// It builds rows without the password hash rather than handing the
+// stored records straight to the template.
+func ListBarbersHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+
+		return
+	}
+
+	barbers := storage.ListBarbers()
+	rows := make([]adminBarberRow, 0, len(barbers))
+
+	for _, barber := range barbers {
+		rows = append(rows, adminBarberRow{
+			ID:          barber.ID,
+			FullName:    barber.FullName,
+			PhoneNumber: barber.PhoneNumber,
+			Email:       barber.Email,
+			ShopName:    barber.ShopName,
+			Status:      barber.Status,
+			Active:      barber.IsActive(),
+			Hairstyles:  len(storage.ListHairstylesByBarber(barber.ID)),
+			Bookings:    len(storage.ListBookingsByBarber(barber.ID)),
+		})
+	}
+
+	render(w, "admin/barber-list.html", listView[adminBarberRow]{
+		Items: rows,
+		CSRF:  s.CSRFToken,
+	})
+}
+
+// adminBarberRow is one line of the barber table. It deliberately has no
+// password field.
+type adminBarberRow struct {
+	ID          int
+	FullName    string
+	PhoneNumber string
+	Email       string
+	ShopName    string
+	Status      string
+	Active      bool
+	Hairstyles  int
+	Bookings    int
+}
+
+// adminBarberProfileView is one barber with their hairstyles and
+// bookings, for the admin detail page.
+type adminBarberProfileView struct {
+	Barber     models.Barber
 	Hairstyles []models.Hairstyle
+	Bookings   []bookingRow
+
+	CSRF string
 }
 
-func BarberProfileHandler(w http.ResponseWriter, r *http.Request) {
+// BarberProfileHandler shows one barber in full.
+func BarberProfileHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	s sessionData,
+	idSegment string,
+) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
 
-	path := r.URL.Path
-
-	parts := strings.Split(path, "/")
-
-	if len(parts) != 4 {
-		http.Error(w, "Invalid URL", http.StatusBadRequest)
 		return
 	}
 
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
+	id, ok := parseID(idSegment)
+	if !ok {
 		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
+
 		return
 	}
 
 	barber, found := storage.FindBarberByID(id)
 	if !found {
-		http.Error(w, "Barber not found", http.StatusNotFound)
+		http.NotFound(w, r)
+
 		return
 	}
 
-	var hairstyles []models.Hairstyle
+	barber.PasswordHash = ""
 
-	for _, hairstyle := range storage.Hairstyles {
-
-		if hairstyle.BarberID == barber.ID {
-			hairstyles = append(hairstyles, hairstyle)
-		}
-	}
-
-	data := AdminBarberProfile{
+	render(w, "admin/barber-profile.html", adminBarberProfileView{
 		Barber:     barber,
-		Hairstyles: hairstyles,
-	}
-
-	tmpl, err := template.ParseFiles(
-		"templates/admin/barber-profile.html",
-	)
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-		return
-	}
-
-	if err := tmpl.Execute(w, data); err != nil {
-		http.Error(w, "Template execution failed", http.StatusInternalServerError)
-		return
-	}
+		Hairstyles: storage.ListHairstylesByBarber(id),
+		Bookings:   describeBookings(storage.ListBookingsByBarber(id)),
+		CSRF:       s.CSRFToken,
+	})
 }
 
-func EditBarberHandler(w http.ResponseWriter, r *http.Request) {
+// NewBarberHandler lets the admin create a barber account, the flow the
+// README describes but which had no route.
+func NewBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
+	switch r.Method {
 
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
+	case http.MethodGet:
+		render(w, "admin/edit-barber.html", barberFormView{
+			CSRF:   s.CSRFToken,
+			Values: map[string]string{},
+		})
 
-	path := r.URL.Path
-
-	parts := strings.Split(path, "/")
-
-	if len(parts) != 5 {
-		http.Error(w, "Invalid URL", http.StatusBadRequest)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
-		return
-	}
-
-	barber, found := storage.FindBarberByID(id)
-	if !found {
-		http.Error(w, "Barber not found", http.StatusNotFound)
-		return
-	}
-
-	tmpl, err := template.ParseFiles(
-		"templates/admin/barber-form.html",
-	)
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-		return
-	}
-
-	if err := tmpl.Execute(w, barber); err != nil {
-		http.Error(w, "Template execution failed", http.StatusInternalServerError)
-		return
-	}
-}
-
-func UpdateBarberHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	path := r.URL.Path
-
-	parts := strings.Split(path, "/")
-
-	if len(parts) != 5 {
-		http.Error(w, "Invalid URL", http.StatusBadRequest)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
-		return
-	}
-
-	barber, found := storage.FindBarberByID(id)
-	if !found {
-		http.Error(w, "Barber not found", http.StatusNotFound)
-		return
-	}
-
-	fullName := strings.TrimSpace(r.FormValue("fullname"))
-	phone := strings.TrimSpace(r.FormValue("phone"))
-	email := strings.TrimSpace(r.FormValue("email"))
-	shopName := strings.TrimSpace(r.FormValue("shopname"))
-	shopAddress := strings.TrimSpace(r.FormValue("shopaddress"))
-
-	if fullName == "" ||
-		phone == "" ||
-		email == "" ||
-		shopName == "" ||
-		shopAddress == "" {
-
-		http.Error(
-			w,
-			"All fields are required",
-			http.StatusBadRequest,
-		)
-		return
-	}
-
-	for _, existingBarber := range storage.Barbers {
-
-		if existingBarber.ID != barber.ID &&
-			strings.EqualFold(existingBarber.Email, email) {
-
-			http.Error(
-				w,
-				"Email is already registered",
-				http.StatusConflict,
-			)
+	case http.MethodPost:
+		if !requireCSRF(w, r, s) {
 			return
 		}
-	}
 
-	barber.FullName = fullName
-	barber.PhoneNumber = phone
-	barber.Email = email
-	barber.ShopName = shopName
-	barber.ShopAddress = shopAddress
+		form, problem := readBarberForm(r)
+		password := r.PostFormValue("password")
 
-	http.Redirect(
-		w,
-		r,
-		fmt.Sprintf("/admin/barbers/%d", barber.ID),
-		http.StatusSeeOther,
-	)
-}
-
-func ConfirmDeleteBarberHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	path := r.URL.Path
-
-	parts := strings.Split(path, "/")
-
-	if len(parts) != 5 {
-		http.NotFound(w, r)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
-		return
-	}
-
-	barber, found := storage.FindBarberByID(id)
-	if !found {
-		http.NotFound(w, r)
-		return
-	}
-
-	tmpl, err := template.ParseFiles(
-		"templates/admin/confirm-delete.html",
-	)
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-		return
-	}
-
-	if err := tmpl.Execute(w, barber); err != nil {
-		http.Error(w, "Template execution failed", http.StatusInternalServerError)
-		return
-	}
-}
-
-func DeleteBarberHandler(w http.ResponseWriter, r *http.Request) {
-
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	parts := strings.Split(r.URL.Path, "/")
-
-	if len(parts) != 5 {
-		http.NotFound(w, r)
-		return
-	}
-
-	id, err := strconv.Atoi(parts[3])
-	if err != nil {
-		http.Error(w, "Invalid Barber ID", http.StatusBadRequest)
-		return
-	}
-
-	barber, found := storage.FindBarberByID(id)
-	if !found {
-		http.NotFound(w, r)
-		return
-	}
-
-	for _, hairstyle := range storage.Hairstyles {
-
-		if hairstyle.BarberID == barber.ID && hairstyle.Image != "" {
-
-			imagePath := strings.TrimPrefix(
-				hairstyle.Image,
-				"/",
-			)
-
-			if err := os.Remove(imagePath); err != nil &&
-				!os.IsNotExist(err) {
-
-				http.Error(
-					w,
-					"Could not delete hairstyle image",
-					http.StatusInternalServerError,
-				)
-				return
-			}
+		if problem == "" && len(password) < minPasswordLength {
+			problem = passwordTooShortMessage
 		}
-	}
 
-	var remainingHairstyles []models.Hairstyle
-
-	for _, hairstyle := range storage.Hairstyles {
-
-		if hairstyle.BarberID != barber.ID {
-			remainingHairstyles = append(
-				remainingHairstyles,
-				hairstyle,
-			)
-		}
-	}
-
-	storage.Hairstyles = remainingHairstyles
-
-	for i, existingBarber := range storage.Barbers {
-
-		if existingBarber.ID == barber.ID {
-
-			storage.Barbers = append(
-				storage.Barbers[:i],
-				storage.Barbers[i+1:]...,
-			)
-
-			http.Redirect(
-				w,
-				r,
-				"/admin/barbers",
-				http.StatusSeeOther,
-			)
+		if problem != "" {
+			renderBarberForm(w, s, form, 0, problem)
 
 			return
 		}
-	}
 
-	http.NotFound(w, r)
+		hash, err := security.HashPassword(password)
+		if err != nil {
+			serverError(w, "hash barber password", err)
+
+			return
+		}
+
+		_, err = storage.CreateBarber(models.Barber{
+			FullName:     form.FullName,
+			PhoneNumber:  form.Phone,
+			Email:        form.Email,
+			PasswordHash: hash,
+			ShopName:     form.ShopName,
+			ShopAddress:  form.ShopAddress,
+			Status:       models.BarberActive,
+		})
+
+		if errors.Is(err, storage.ErrEmailTaken) {
+			renderBarberForm(w, s, form, 0, "That email is already registered.")
+
+			return
+		}
+
+		if err != nil {
+			serverError(w, "create barber", err)
+
+			return
+		}
+
+		http.Redirect(w, r, "/admin/barbers", http.StatusSeeOther)
+
+	default:
+		methodNotAllowed(w, http.MethodGet, http.MethodPost)
+	}
 }

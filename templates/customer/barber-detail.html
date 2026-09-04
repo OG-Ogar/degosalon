@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Barber.ShopName}} - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/customer/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/customer/barbers">Find a barber</a>
+            <a href="/customer/bookings">My bookings</a>
+            <a href="/customer/chats">Messages</a>
+            <a href="/customer/profile">My profile</a>
+            <form class="inline" method="post" action="/customer/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs">
+        <a href="/customer/dashboard">My dashboard</a> /
+        <a href="/customer/barbers">Barbers</a> /
+        {{.Barber.ShopName}}
+    </p>
+
+    <h1>{{.Barber.ShopName}}</h1>
+    <p class="lede">{{.Barber.FullName}} &middot; {{.Barber.ShopAddress}}</p>
+
+    <div class="panel">
+        <p>
+            <strong>Phone:</strong> {{.Barber.PhoneNumber}}<br>
+            <strong>Email:</strong> {{.Barber.Email}}
+        </p>
+        <div class="actions">
+            <a class="button" href="{{.ChatLink}}">Message this barber</a>
+        </div>
+    </div>
+
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
+
+    <h2>Book a haircut</h2>
+
+    {{if .Hairstyles}}
+
+        <form class="panel" method="post" action="/customer/book">
+
+            <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+            <input type="hidden" name="barber_id" value="{{.Barber.ID}}">
+
+            <fieldset>
+                <legend>Choose a style</legend>
+
+                {{$view := .}}
+                {{range .Hairstyles}}
+                    <div class="check">
+                        <input type="radio" id="style-{{.ID}}" name="hairstyle_id"
+                               value="{{.ID}}"
+                               {{if eq $view.Selected .ID}}checked{{end}} required>
+                        <label for="style-{{.ID}}">
+                            <strong>{{.Name}}</strong>
+                            &mdash; <span class="price">{{printf "%.2f" .Price}}</span>
+                            <span class="muted">({{.Duration}} min, {{.Category}})</span><br>
+                            <span class="muted">{{.Description}}</span>
+                        </label>
+                    </div>
+                {{end}}
+            </fieldset>
+
+            <label for="date">Date</label>
+            <input id="date" type="date" name="date" min="{{.Today}}"
+                   value="{{index .Values "date"}}" required>
+
+            <label for="time">Time</label>
+            <input id="time" type="time" name="time" min="{{.Opening}}" max="{{.Closing}}"
+                   value="{{index .Values "time"}}" required aria-describedby="time-hint">
+            <p class="hint" id="time-hint">
+                Bookings are taken between {{.Opening}} and {{.Closing}}.
+            </p>
+
+            <label for="notes">Notes for the barber (optional)</label>
+            <textarea id="notes" name="notes">{{index .Values "notes"}}</textarea>
+
+            <div class="actions">
+                <button class="primary" type="submit">Request this appointment</button>
+                <a class="button" href="/customer/barbers">Back to barbers</a>
+            </div>
+
+            <p class="hint">
+                Your request is sent to the barber, who confirms or declines it.
+                You can see the outcome under My bookings.
+            </p>
+
+        </form>
+
+    {{else}}
+        <p class="empty">
+            This barber has not listed any styles yet, so there is nothing to book.
+            You can still <a href="{{.ChatLink}}">send them a message</a>.
+        </p>
+    {{end}}
+
+</main>
+
+</body>
+</html>

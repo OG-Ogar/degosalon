@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit my profile - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/customer/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/customer/barbers">Find a barber</a>
+            <a href="/customer/bookings">My bookings</a>
+            <a href="/customer/chats">Messages</a>
+            <a href="/customer/profile">My profile</a>
+            <form class="inline" method="post" action="/customer/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs">
+        <a href="/customer/dashboard">My dashboard</a> /
+        <a href="/customer/profile">My profile</a> /
+        Edit
+    </p>
+
+    <h1>Edit my details</h1>
+
+    {{if .Error}}
+        <p class="error" role="alert">{{.Error}}</p>
+    {{end}}
+
+    <form class="stack panel" method="post" action="/customer/profile/edit">
+
+        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+
+        <label for="fullname">Full name</label>
+        <input id="fullname" type="text" name="fullname"
+               value="{{index .Values "fullname"}}" autocomplete="name" required>
+
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" name="phone"
+               value="{{index .Values "phone"}}" autocomplete="tel" required>
+
+        <label for="email">Email address</label>
+        <input id="email" type="email" name="email"
+               value="{{index .Values "email"}}" autocomplete="email" required>
+
+        <div class="actions">
+            <button class="primary" type="submit">Save changes</button>
+            <a class="button" href="/customer/profile">Cancel</a>
+        </div>
+
+    </form>
+
+</main>
+
+</body>
+</html>

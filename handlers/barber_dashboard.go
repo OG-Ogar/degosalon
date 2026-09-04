@@ -1,36 +1,81 @@
 package handlers
 
 import (
-	"html/template"
 	"net/http"
+
+	"barber-booking/models"
+	"barber-booking/storage"
 )
 
-func BarberDashboardHandler(w http.ResponseWriter, r *http.Request) {
+// barberDashboardView is the barber's landing page: their name plus the
+// counts that tell them whether anything needs attention.
+type barberDashboardView struct {
+	models.Barber
 
-	if r.URL.Path != "/barber/dashboard" {
-		http.NotFound(w, r)
-		return
-	}
+	CSRF string
 
+	Hairstyles       int
+	PendingBookings  int
+	UpcomingBookings int
+	Conversations    int
+}
+
+// BarberDashboardHandler shows the barber's own overview.
+func BarberDashboardHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	barber models.Barber,
+	s sessionData,
+) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+		methodNotAllowed(w, http.MethodGet)
+
 		return
 	}
 
-	barber, found := CurrentBarber(r)
-	if !found {
-		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
+	bookings := storage.ListBookingsByBarber(barber.ID)
+
+	pending := 0
+	upcoming := 0
+
+	for _, booking := range bookings {
+		switch booking.Status {
+		case models.StatusPending:
+			pending++
+		case models.StatusAccepted:
+			upcoming++
+		}
+	}
+
+	barber.PasswordHash = ""
+
+	render(w, "barber/dashboard.html", barberDashboardView{
+		Barber:           barber,
+		CSRF:             s.CSRFToken,
+		Hairstyles:       len(storage.ListHairstylesByBarber(barber.ID)),
+		PendingBookings:  pending,
+		UpcomingBookings: upcoming,
+		Conversations:    len(storage.ConversationsForBarber(barber.ID)),
+	})
+}
+
+// MyProfileHandler shows the barber their own details.
+func MyProfileHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	barber models.Barber,
+	s sessionData,
+) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+
 		return
 	}
 
-	tmpl, err := template.ParseFiles("templates/barber/dashboard.html")
-	if err != nil {
-		http.Error(w, "Template Error", http.StatusInternalServerError)
-		return
-	}
+	barber.PasswordHash = ""
 
-	if err := tmpl.Execute(w, barber); err != nil {
-		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
-		return
-	}
+	render(w, "barber/profile.html", barberView{
+		Barber: barber,
+		CSRF:   s.CSRFToken,
+	})
 }

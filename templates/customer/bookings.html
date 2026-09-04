@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My bookings - Barber Booking</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+
+<header class="topbar">
+    <div class="wrap">
+        <a class="brand" href="/customer/dashboard">Barber Booking</a>
+        <nav class="nav" aria-label="Main">
+            <a href="/customer/barbers">Find a barber</a>
+            <a href="/customer/bookings">My bookings</a>
+            <a href="/customer/chats">Messages</a>
+            <a href="/customer/profile">My profile</a>
+            <form class="inline" method="post" action="/customer/logout">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <button class="small" type="submit">Log out</button>
+            </form>
+        </nav>
+    </div>
+</header>
+
+<main class="wrap">
+
+    <p class="crumbs"><a href="/customer/dashboard">My dashboard</a> / My bookings</p>
+
+    <h1>My bookings</h1>
+    <p class="lede">Pending requests and confirmed appointments first, then everything finished.</p>
+
+    <h2>Upcoming</h2>
+
+    {{if .Upcoming}}
+        {{$view := .}}
+        <table>
+            <caption>Bookings you can still cancel.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Hairstyle</th>
+                    <th scope="col">Barber</th>
+                    <th scope="col">Price</th>
+                    <th scope="col">Status</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Upcoming}}
+                    <tr>
+                        <td>{{.Date}}</td>
+                        <td>{{.Time}}</td>
+                        <td>
+                            {{.HairstyleName}}
+                            <br><span class="muted">{{.Duration}} min</span>
+                        </td>
+                        <td>
+                            {{.BarberName}}
+                            <br><span class="muted">{{.ShopName}}</span>
+                        </td>
+                        <td class="price">{{printf "%.2f" .Price}}</td>
+                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
+                        <td>
+                            <form method="post"
+                                  action="{{$view.ActionURL}}{{.ID}}/cancel">
+                                <input type="hidden" name="csrf_token" value="{{$view.CSRF}}">
+                                <button class="danger small" type="submit">Cancel</button>
+                            </form>
+                            <a class="button small" href="/customer/chats/{{.BarberID}}">Message</a>
+                        </td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{else}}
+        <p class="empty">
+            Nothing booked right now.
+            <a href="/customer/barbers">Find a barber</a> to make an appointment.
+        </p>
+    {{end}}
+
+    {{if .Past}}
+        <h2>Finished</h2>
+        <table>
+            <caption>Completed, declined and cancelled bookings.</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Hairstyle</th>
+                    <th scope="col">Barber</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Past}}
+                    <tr>
+                        <td>{{.Date}}</td>
+                        <td>{{.Time}}</td>
+                        <td>{{.HairstyleName}}</td>
+                        <td>{{.BarberName}}</td>
+                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
+                    </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{end}}
+
+</main>
+
+</body>
+</html>

@@ -20,7 +20,7 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// The only two pages a signed-out barber may reach.
+	// The only pages a signed-out barber may reach.
 	if len(parts) == 2 && parts[1] == "login" {
 		BarberLoginHandler(w, r)
 
@@ -29,6 +29,18 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 
 	if len(parts) == 2 && parts[1] == "register" {
 		BarberRegisterHandler(w, r)
+
+		return
+	}
+
+	if len(parts) == 2 && parts[1] == "forgot-password" {
+		BarberForgotPasswordHandler(w, r)
+
+		return
+	}
+
+	if len(parts) == 2 && parts[1] == "reset-password" {
+		BarberResetPasswordHandler(w, r)
 
 		return
 	}

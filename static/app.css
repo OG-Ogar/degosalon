@@ -1,6 +1,11 @@
 /* Shared stylesheet for the barber booking app.
-   The pages are plain server-rendered HTML, so everything here is
-   layout and colour only - no page depends on JavaScript. */
+
+   The pages are plain server-rendered HTML. static/app.js adds a few
+   conveniences on top and this file styles what it creates, but no page
+   needs either one to work.
+
+   Every colour is a variable on :root, and the dark theme near the bottom
+   changes nothing else. */
 
 :root {
     --ink: #1c1a17;
@@ -8,15 +13,48 @@
     --line: #d9d2c7;
     --paper: #fdfbf7;
     --panel: #ffffff;
+
+    /* The top bar is dark in both themes, so it does not follow --ink. */
+    --top: #1c1a17;
+    --top-ink: #f6f1e8;
+
     --accent: #7a4a1e;
+    --accent-hover: #5f3915;
     --accent-ink: #ffffff;
+
+    /* Surfaces that sit slightly above the panel: buttons, table headings,
+       chat bubbles, image placeholders. */
+    --raise: #f0e9dd;
+    --raise-soft: #f4efe6;
+    --raise-hover: #e6dccb;
+
+    --field: #ffffff;
+    --field-line: #b9b0a2;
+    --focus: #b07a3f;
+
     --good: #1f6b3a;
+    --good-bg: #e9f4ed;
+    --good-line: #b8dcc5;
+    --good-ink: #17532c;
+
     --warn: #8a5a00;
+
     --bad: #97231f;
+    --bad-hover: #7a1c19;
+    --bad-bg: #fbe9e7;
+    --bad-line: #e2b3ae;
+    --bad-ink: #5d1512;
 }
 
 * {
     box-sizing: border-box;
+}
+
+/* No uploaded photo may be wider than the box it sits in, whatever its
+   own pixel size is. Without this, viewing a picture straight off a phone
+   pushes the rest of the page sideways. */
+img {
+    max-width: 100%;
 }
 
 body {
@@ -38,8 +76,11 @@ body {
 /* ---- header and navigation ---- */
 
 .topbar {
-    background: var(--ink);
-    color: #f6f1e8;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--top);
+    color: var(--top-ink);
     padding: 14px 0;
     margin-bottom: 28px;
 }
@@ -130,6 +171,9 @@ h3 {
     color: inherit;
 }
 
+/* A photo used as a card tile: every card in a grid gets the same shape
+   whatever the picture behind it, and .thumb on its own is the empty
+   placeholder that keeps a photoless card the same height. */
 .card img,
 .thumb {
     display: block;
@@ -138,7 +182,32 @@ h3 {
     object-fit: cover;
     border-radius: 8px;
     margin-bottom: 12px;
-    background: #efe9de;
+    background: var(--raise-soft);
+}
+
+/* A photo shown on its own rather than as a tile. Bounded on both axes
+   and never stretched past its natural size, so opening an upload shows
+   the picture instead of blowing it up to the width of the page. */
+.photo {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: min(360px, 100%);
+    max-height: 360px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    background: var(--raise-soft);
+}
+
+/* The small square beside one choice in a list, such as a hairstyle on
+   the booking form. */
+.pick {
+    flex: none;
+    width: 64px;
+    height: 64px;
+    object-fit: cover;
+    border-radius: 8px;
+    background: var(--raise-soft);
 }
 
 .stat {
@@ -181,7 +250,7 @@ td {
 }
 
 th {
-    background: #f4efe6;
+    background: var(--raise-soft);
     font-size: 0.85rem;
     text-transform: uppercase;
     letter-spacing: 0.04em;
@@ -217,8 +286,8 @@ textarea {
     padding: 9px 10px;
     font: inherit;
     color: var(--ink);
-    background: #fff;
-    border: 1px solid #b9b0a2;
+    background: var(--field);
+    border: 1px solid var(--field-line);
     border-radius: 6px;
 }
 
@@ -227,12 +296,14 @@ textarea {
     resize: vertical;
 }
 
-input:focus,
-select:focus,
-textarea:focus,
-a:focus,
-button:focus {
-    outline: 3px solid #b07a3f;
+/* :focus-visible rather than :focus, so the ring appears for anyone
+   moving by keyboard without also framing every mouse click. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+button:focus-visible {
+    outline: 3px solid var(--focus);
     outline-offset: 1px;
 }
 
@@ -250,6 +321,14 @@ button:focus {
 .check label {
     margin: 0;
     font-weight: 400;
+}
+
+/* A row whose label leads with a thumbnail. Scoped to .media so the
+   plain checkbox rows elsewhere keep their simple layout. */
+.check.media label {
+    display: flex;
+    gap: 10px;
+    align-items: center;
 }
 
 .hint {
@@ -279,8 +358,8 @@ button {
     font: inherit;
     font-weight: 600;
     color: var(--ink);
-    background: #f0e9dd;
-    border: 1px solid #b9b0a2;
+    background: var(--raise);
+    border: 1px solid var(--field-line);
     border-radius: 6px;
     text-decoration: none;
     cursor: pointer;
@@ -288,7 +367,7 @@ button {
 
 .button:hover,
 button:hover {
-    background: #e6dccb;
+    background: var(--raise-hover);
 }
 
 .button.primary,
@@ -300,19 +379,21 @@ button.primary {
 
 .button.primary:hover,
 button.primary:hover {
-    background: #5f3915;
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 .button.danger,
 button.danger {
-    color: #fff;
+    color: var(--paper);
     background: var(--bad);
     border-color: var(--bad);
 }
 
 .button.danger:hover,
 button.danger:hover {
-    background: #7a1c19;
+    background: var(--bad-hover);
+    border-color: var(--bad-hover);
 }
 
 .button.small,
@@ -339,13 +420,15 @@ button.small {
 .error {
     padding: 12px 14px;
     margin: 0 0 18px;
-    color: #5d1512;
-    background: #fbe9e7;
-    border: 1px solid #e2b3ae;
+    color: var(--bad-ink);
+    background: var(--bad-bg);
+    border: 1px solid var(--bad-line);
     border-left: 4px solid var(--bad);
     border-radius: 6px;
 }
 
+/* Badges are pale chips with dark text in both themes, so their colours
+   are written out rather than taken from the variables above. */
 .badge {
     display: inline-block;
     padding: 2px 9px;
@@ -353,18 +436,18 @@ button.small {
     font-weight: 700;
     border-radius: 99px;
     background: #ece5d9;
-    color: var(--muted);
+    color: #4f4a42;
     white-space: nowrap;
 }
 
 .badge.Pending {
     background: #fdf0d5;
-    color: var(--warn);
+    color: #7a4f00;
 }
 
 .badge.Accepted {
     background: #e2f2e7;
-    color: var(--good);
+    color: #1a5c31;
 }
 
 .badge.Completed {
@@ -376,12 +459,12 @@ button.small {
 .badge.Cancelled,
 .badge.Suspended {
     background: #fbe4e2;
-    color: var(--bad);
+    color: #8a201c;
 }
 
 .badge.Active {
     background: #e2f2e7;
-    color: var(--good);
+    color: #1a5c31;
 }
 
 /* ---- chat ---- */
@@ -403,7 +486,7 @@ button.small {
     max-width: 78%;
     padding: 9px 13px;
     border-radius: 12px;
-    background: #f1ebe0;
+    background: var(--raise);
 }
 
 .bubble.mine {
@@ -461,4 +544,177 @@ button.small {
     overflow: hidden;
     clip: rect(0 0 0 0);
     white-space: nowrap;
+}
+
+/* ---- notices ---- */
+
+/* The counterpart of .error: something that went right, or a detail worth
+   reading before the page is used. */
+.notice {
+    padding: 12px 14px;
+    margin: 0 0 18px;
+    color: var(--good-ink);
+    background: var(--good-bg);
+    border: 1px solid var(--good-line);
+    border-left: 4px solid var(--good);
+    border-radius: 6px;
+}
+
+/* ---- fields app.js adds to ---- */
+
+/* Wrapper the reveal button is dropped into, beside its password box. */
+.pw {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.pw input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.pw .reveal {
+    flex: 0 0 auto;
+}
+
+/* One line of feedback under a field, filled in while it is typed. */
+.field-note {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.field-note.ok {
+    color: var(--good);
+    font-weight: 600;
+}
+
+.field-note.warn {
+    color: var(--warn);
+    font-weight: 600;
+}
+
+.counter {
+    margin: 4px 0 0;
+    font-size: 0.8rem;
+    color: var(--muted);
+}
+
+/* ---- filter bar above a list ---- */
+
+.toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: flex-end;
+    margin: 0 0 16px;
+}
+
+.toolbar .field {
+    flex: 1 1 260px;
+}
+
+.toolbar label {
+    margin: 0 0 4px;
+}
+
+/* app.js hides filtered rows with the hidden attribute, which a table row
+   would otherwise ignore: its display: table-row wins on specificity. */
+[hidden] {
+    display: none !important;
+}
+
+/* A form that has been submitted, while the answer is on its way. */
+button:disabled,
+.button:disabled {
+    opacity: 0.55;
+    cursor: progress;
+}
+
+/* ---- dark mode ---- */
+
+/* Only the variables change. Every rule above is written against them, so
+   the layout is shared and there is one set of colours to keep honest.
+   The top bar keeps its own pair because it is dark in both themes. */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --ink: #f2ede4;
+        --muted: #b2a999;
+        --line: #3a352e;
+        --paper: #16140f;
+        --panel: #201d18;
+
+        --top: #100e0b;
+
+        --accent: #c98a4b;
+        --accent-hover: #dda061;
+        --accent-ink: #1c1a17;
+
+        --raise: #2b2721;
+        --raise-soft: #262218;
+        --raise-hover: #363029;
+
+        --field: #1b1813;
+        --field-line: #4c463c;
+        --focus: #e0a866;
+
+        --good: #6bcb8b;
+        --good-bg: #17301f;
+        --good-line: #2f5c3d;
+        --good-ink: #b9e7c6;
+
+        --warn: #e0ac4a;
+
+        --bad: #ef8079;
+        --bad-hover: #f5978f;
+        --bad-bg: #341c1a;
+        --bad-line: #63302c;
+        --bad-ink: #f3c4c0;
+    }
+}
+
+/* ---- narrow screens ---- */
+
+@media (max-width: 620px) {
+    .wrap {
+        padding: 0 14px;
+    }
+
+    h1 {
+        font-size: 1.45rem;
+    }
+
+    /* Tables are the one thing that cannot shrink gracefully, so they are
+       allowed to scroll sideways inside their own box instead of pushing
+       the whole page wider. */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    th,
+    td {
+        padding: 8px 10px;
+    }
+
+    .bubble {
+        max-width: 90%;
+    }
+
+    /* A full-width button is easier to hit than one sized to its label. */
+    .actions .button,
+    .actions button {
+        flex: 1 1 auto;
+        text-align: center;
+    }
+}
+
+/* Anyone who has asked their system for less movement gets none. */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        transition: none !important;
+        scroll-behavior: auto !important;
+    }
 }

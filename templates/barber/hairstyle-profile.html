@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Name}} - Barber Booking</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -38,7 +39,7 @@
     <div class="panel">
 
         {{if .Image}}
-            <img class="thumb" src="{{.Image}}" alt="Photo of {{.Name}}">
+            <img class="photo" src="{{.Image}}" alt="Photo of {{.Name}}">
         {{end}}
 
         <table>

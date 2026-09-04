@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barbers - Barber Booking admin</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -36,6 +37,15 @@
 
     {{if .Items}}
         {{$view := .}}
+
+        <div class="toolbar">
+            <div class="field">
+                <label for="filter">Search barbers</label>
+                <input id="filter" type="search" data-filter="table tbody tr"
+                       placeholder="Name, shop, email or status" autocomplete="off">
+            </div>
+        </div>
+
         <table>
             <caption>Every barber account on the platform.</caption>
             <thead>

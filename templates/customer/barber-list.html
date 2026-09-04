@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find a barber - Barber Booking</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -32,9 +33,24 @@
     <p class="lede">Every barber currently taking bookings. Open one to see their styles and prices.</p>
 
     {{if .Items}}
+        <div class="toolbar">
+            <div class="field">
+                <label for="filter">Search by shop, name or area</label>
+                <input id="filter" type="search" data-filter=".grid .card"
+                       placeholder="Start typing to narrow the list"
+                       autocomplete="off">
+            </div>
+        </div>
+
         <div class="grid">
             {{range .Items}}
                 <article class="card">
+
+                    {{if .ProfileImage}}
+                        <img src="{{.ProfileImage}}" alt="{{.ShopName}}">
+                    {{else}}
+                        <span class="thumb" aria-hidden="true"></span>
+                    {{end}}
 
                     <h3>
                         <a href="/customer/barbers/{{.ID}}">{{.ShopName}}</a>

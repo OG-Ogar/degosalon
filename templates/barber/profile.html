@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My profile - Barber Booking</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -32,6 +33,16 @@
     <p class="lede">This is what customers see on your shop page.</p>
 
     <div class="panel">
+
+        {{if .ProfileImage}}
+            <img class="photo" src="{{.ProfileImage}}"
+                 alt="Your shop photo, as customers see it">
+        {{else}}
+            <p class="muted">
+                You have no shop photo yet. Customers see one on your page
+                as soon as you add it.
+            </p>
+        {{end}}
 
         <table>
             <tbody>

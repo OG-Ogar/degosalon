@@ -88,6 +88,23 @@ func CreateBarber(barber models.Barber) (models.Barber, error) {
 	return barber, nil
 }
 
+// SetBarberPassword replaces one barber's stored password hash, in place
+// and under a single lock, for the same reason SetCustomerPassword does.
+func SetBarberPassword(id int, hash string) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	for i := range barbers {
+		if barbers[i].ID == id {
+			barbers[i].PasswordHash = hash
+
+			return nil
+		}
+	}
+
+	return ErrNotFound
+}
+
 // UpdateBarber overwrites the stored barber that shares its ID. The
 // password hash is preserved when the incoming copy leaves it empty, so
 // profile edits cannot accidentally blank out a password.
@@ -157,6 +174,10 @@ func DeleteBarber(id int) ([]string, error) {
 
 	var images []string
 	var keptHairstyles []models.Hairstyle
+
+	if barbers[index].ProfileImage != "" {
+		images = append(images, barbers[index].ProfileImage)
+	}
 
 	for _, hairstyle := range hairstyles {
 		if hairstyle.BarberID != id {

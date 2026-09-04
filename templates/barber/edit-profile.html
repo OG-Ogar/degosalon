@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit my profile - Barber Booking</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -38,7 +39,8 @@
         <p class="error" role="alert">{{.Error}}</p>
     {{end}}
 
-    <form class="stack panel" method="post" action="/barber/profile/edit">
+    <form class="stack panel" method="post" action="/barber/profile/edit"
+          enctype="multipart/form-data">
 
         <input type="hidden" name="csrf_token" value="{{.CSRF}}">
 
@@ -61,6 +63,21 @@
         <label for="shopaddress">Shop address</label>
         <input id="shopaddress" type="text" name="shopaddress"
                value="{{index .Values "shopaddress"}}" required>
+
+        {{if index .Values "profile_image"}}
+            <p>Current shop photo:</p>
+            <img class="photo" src="{{index .Values "profile_image"}}"
+                 alt="Your current shop photo">
+        {{end}}
+
+        <label for="profile_image">Shop photo (optional)</label>
+        <input id="profile_image" type="file" name="profile_image"
+               accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="photo-hint">
+        <p class="hint" id="photo-hint">
+            Customers see this on your shop page. Leave it empty to keep the
+            photo you already have. JPG, PNG, GIF or WEBP, up to 5 MB; large
+            pictures are resized for you.
+        </p>
 
         <div class="actions">
             <button class="primary" type="submit">Save changes</button>

@@ -13,13 +13,6 @@ import (
 )
 
 const (
-	// uploadDir is where hairstyle images live on disk, relative to the
-	// working directory the server was started from.
-	uploadDir = "uploads/hairstyles"
-
-	// uploadURLPath is the public prefix those files are served under.
-	uploadURLPath = "/uploads/hairstyles/"
-
 	// maxUploadBytes caps a single image. Without a cap, one request
 	// could buffer an unbounded amount of data.
 	maxUploadBytes = 5 << 20
@@ -28,6 +21,32 @@ const (
 	// before the rest spills to a temporary file.
 	maxFormMemory = 1 << 20
 )
+
+// imageStore is a directory of uploaded images together with the URL
+// prefix it is served under. The two kinds of photo are kept apart so
+// that deleting one can never reach a file belonging to the other.
+type imageStore struct {
+	dir     string
+	urlPath string
+}
+
+var (
+	// hairstyleImages holds the photo attached to one hairstyle.
+	hairstyleImages = imageStore{
+		dir:     "uploads/hairstyles",
+		urlPath: "/uploads/hairstyles/",
+	}
+
+	// barberImages holds the photo a barber puts on their shop page.
+	barberImages = imageStore{
+		dir:     "uploads/barbers",
+		urlPath: "/uploads/barbers/",
+	}
+)
+
+// imageStores is every store there is, used to match a stored path back
+// to the directory that owns it.
+var imageStores = []imageStore{hairstyleImages, barberImages}
 
 // allowedImageExtensions is the set of extensions accepted for uploads.
 var allowedImageExtensions = map[string]bool{
@@ -48,13 +67,13 @@ func limitRequestBody(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxUploadBytes+maxFormMemory)
 }
 
-// saveUploadedImage stores the image in the named form field and returns
-// the public path to it.
+// save stores the image in the named form field and returns the public
+// path to it.
 //
 // The extension is checked against a whitelist and the first bytes are
 // sniffed, so a script renamed to .png is rejected rather than saved
 // into a directory the server hands straight back to browsers.
-func saveUploadedImage(r *http.Request, field string) (string, error) {
+func (store imageStore) save(r *http.Request, field string) (string, error) {
 	file, header, err := r.FormFile(field)
 	if err != nil {
 		if errors.Is(err, http.ErrMissingFile) {
@@ -91,12 +110,12 @@ func saveUploadedImage(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("rewind upload: %w", err)
 	}
 
-	if err := os.MkdirAll(uploadDir, 0o755); err != nil {
+	if err := os.MkdirAll(store.dir, 0o755); err != nil {
 		return "", fmt.Errorf("create upload directory: %w", err)
 	}
 
 	name := fmt.Sprintf("%d%s", time.Now().UnixNano(), extension)
-	path := filepath.Join(uploadDir, name)
+	path := filepath.Join(store.dir, name)
 
 	destination, err := os.Create(path)
 	if err != nil {
@@ -116,37 +135,50 @@ func saveUploadedImage(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("close image file: %w", err)
 	}
 
-	return uploadURLPath + name, nil
+	// A photo that could not be shrunk is still a usable photo, so this
+	// is logged rather than failing an upload that has already succeeded.
+	// replaceImageFile writes beside the original, so what stays on disk
+	// either way is a complete image.
+	if err := normalizeStoredImage(path); err != nil {
+		log.Printf("resize %s: %v", name, err)
+	}
+
+	return store.urlPath + name, nil
 }
 
-// removeUploadedImage deletes a stored image from disk.
+// removeStoredImage deletes an uploaded image from whichever store owns
+// it.
 //
-// It refuses any path that is not a plain file name directly under the
-// upload directory. The image path is attacker-influenced (a barber
+// It refuses any path that is not a plain file name directly under one of
+// the upload directories. The path is attacker-influenced (a barber
 // submits it when editing a hairstyle), so passing it to os.Remove
 // unchecked would let a crafted value delete unrelated files.
-func removeUploadedImage(webPath string) error {
+func removeStoredImage(webPath string) error {
 	if webPath == "" {
 		return nil
 	}
 
-	if !strings.HasPrefix(webPath, uploadURLPath) {
-		return fmt.Errorf("refusing to delete %q: outside %s", webPath, uploadURLPath)
+	for _, store := range imageStores {
+		if !strings.HasPrefix(webPath, store.urlPath) {
+			continue
+		}
+
+		name := strings.TrimPrefix(webPath, store.urlPath)
+
+		if name == "" || name != filepath.Base(name) {
+			return fmt.Errorf("refusing to delete %q: not a plain file name", webPath)
+		}
+
+		if err := os.Remove(filepath.Join(store.dir, name)); err != nil &&
+			!os.IsNotExist(err) {
+
+			return fmt.Errorf("delete %s: %w", name, err)
+		}
+
+		return nil
 	}
 
-	name := strings.TrimPrefix(webPath, uploadURLPath)
-
-	if name == "" || name != filepath.Base(name) {
-		return fmt.Errorf("refusing to delete %q: not a plain file name", webPath)
-	}
-
-	if err := os.Remove(filepath.Join(uploadDir, name)); err != nil &&
-		!os.IsNotExist(err) {
-
-		return fmt.Errorf("delete %s: %w", name, err)
-	}
-
-	return nil
+	return fmt.Errorf("refusing to delete %q: outside the upload directories", webPath)
 }
 
 // removeImageIgnoringError deletes a stored image when the caller is
@@ -154,7 +186,7 @@ func removeUploadedImage(webPath string) error {
 // abandoned write does not become a leak. The delete itself is logged
 // rather than returned, because the original error is the useful one.
 func removeImageIgnoringError(webPath string) {
-	if err := removeUploadedImage(webPath); err != nil {
+	if err := removeStoredImage(webPath); err != nil {
 		log.Printf("clean up unused image: %v", err)
 	}
 }

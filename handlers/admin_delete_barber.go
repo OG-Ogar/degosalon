@@ -88,7 +88,7 @@ func DeleteBarberHandler(
 	}
 
 	for _, image := range images {
-		if err := removeUploadedImage(image); err != nil {
+		if err := removeStoredImage(image); err != nil {
 			log.Printf("delete barber %d image: %v", id, err)
 		}
 	}

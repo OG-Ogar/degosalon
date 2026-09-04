@@ -147,7 +147,7 @@ func NewHairstyleHandler(
 			return
 		}
 
-		image, err := saveUploadedImage(r, "image")
+		image, err := hairstyleImages.save(r, "image")
 
 		if err != nil && !errors.Is(err, errNoUpload) {
 			renderHairstyleForm(w, s, form, 0, "", err.Error())

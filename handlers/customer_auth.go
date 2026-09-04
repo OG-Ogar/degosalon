@@ -13,7 +13,15 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 
 	case http.MethodGet:
-		render(w, "customer/login.html", newFormView(""))
+		view := newFormView("")
+
+		// Set by the last step of a password reset, so the visitor is
+		// told the change worked instead of landing on a bare form.
+		if r.URL.Query().Get("reset") == "1" {
+			view.Notice = "Your password has been changed. Sign in with it now."
+		}
+
+		render(w, "customer/login.html", view)
 
 	case http.MethodPost:
 		email := normalisedEmail(r.PostFormValue("email"))

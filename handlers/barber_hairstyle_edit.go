@@ -99,7 +99,7 @@ func UpdateHairstyleHandler(
 		return
 	}
 
-	image, err := saveUploadedImage(r, "image")
+	image, err := hairstyleImages.save(r, "image")
 
 	switch {
 	case errors.Is(err, errNoUpload):

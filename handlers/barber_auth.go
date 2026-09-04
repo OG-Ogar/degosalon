@@ -13,7 +13,13 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 
 	case http.MethodGet:
-		render(w, "barber/login.html", newFormView(""))
+		view := newFormView("")
+
+		if r.URL.Query().Get("reset") == "1" {
+			view.Notice = "Your password has been changed. Sign in with it now."
+		}
+
+		render(w, "barber/login.html", view)
 
 	case http.MethodPost:
 		email := normalisedEmail(r.PostFormValue("email"))

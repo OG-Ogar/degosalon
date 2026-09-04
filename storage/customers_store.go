@@ -66,6 +66,26 @@ func CreateCustomer(customer models.Customer) (models.Customer, error) {
 	return customer, nil
 }
 
+// SetCustomerPassword replaces one customer's stored password hash.
+//
+// It exists so a password reset does not have to read the customer out,
+// change one field and write the whole record back: that pair of calls
+// would let a profile edit in between be silently overwritten.
+func SetCustomerPassword(id int, hash string) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	for i := range customers {
+		if customers[i].ID == id {
+			customers[i].PasswordHash = hash
+
+			return nil
+		}
+	}
+
+	return ErrNotFound
+}
+
 // UpdateCustomer overwrites the stored customer that shares its ID,
 // keeping the existing password hash when the incoming copy omits it.
 func UpdateCustomer(customer models.Customer) error {

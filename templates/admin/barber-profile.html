@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Barber.FullName}} - Barber Booking admin</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -35,6 +36,10 @@
     <p class="lede">{{.Barber.ShopName}} &middot; {{.Barber.ShopAddress}}</p>
 
     <div class="panel">
+        {{if .Barber.ProfileImage}}
+            <img class="photo" src="{{.Barber.ProfileImage}}"
+                 alt="Shop photo for {{.Barber.ShopName}}">
+        {{end}}
         <table>
             <tbody>
                 <tr><th scope="row">Barber ID</th><td>{{.Barber.ID}}</td></tr>

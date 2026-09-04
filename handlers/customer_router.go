@@ -31,6 +31,20 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// A visitor who cannot log in has to be able to reach these two
+	// without a session, since not knowing the password is the point.
+	if len(parts) == 2 && parts[1] == "forgot-password" {
+		CustomerForgotPasswordHandler(w, r)
+
+		return
+	}
+
+	if len(parts) == 2 && parts[1] == "reset-password" {
+		CustomerResetPasswordHandler(w, r)
+
+		return
+	}
+
 	customer, s, ok := requireCustomer(w, r)
 	if !ok {
 		return

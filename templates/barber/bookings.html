@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookings - Barber Booking</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -70,7 +71,8 @@
                                 <button class="primary small" type="submit">Accept</button>
                             </form>
                             <form class="inline" method="post"
-                                  action="{{$view.ActionURL}}{{.ID}}/reject">
+                                  action="{{$view.ActionURL}}{{.ID}}/reject"
+                                  data-confirm="Decline {{.CustomerName}}'s request for {{.Date}} at {{.Time}}?">
                                 <input type="hidden" name="csrf_token" value="{{$view.CSRF}}">
                                 <button class="danger small" type="submit">Decline</button>
                             </form>

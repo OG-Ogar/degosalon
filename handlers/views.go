@@ -8,9 +8,13 @@ import (
 // formView backs every page that renders a form. Values holds what the
 // visitor typed so a rejected submission comes back filled in instead
 // of blank, and Error carries the reason.
+//
+// Notice is the opposite: something that went right elsewhere and is
+// worth saying on arrival, such as a password that has just been reset.
 type formView struct {
 	CSRF   string
 	Error  string
+	Notice string
 	Values map[string]string
 }
 

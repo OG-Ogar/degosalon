@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit hairstyle - Barber Booking</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -64,14 +65,15 @@
 
         {{if .Image}}
             <p>Current photo:</p>
-            <img class="thumb" src="{{.Image}}" alt="Current photo of this hairstyle">
+            <img class="photo" src="{{.Image}}" alt="Current photo of this hairstyle">
         {{end}}
 
         <label for="image">Replace photo (optional)</label>
         <input id="image" type="file" name="image"
                accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="image-hint">
         <p class="hint" id="image-hint">
-            Leave this empty to keep the current photo. JPG, PNG, GIF or WEBP, up to 5 MB.
+            Leave this empty to keep the current photo. JPG, PNG, GIF or WEBP,
+            up to 5 MB; large pictures are resized for you.
         </p>
 
         <div class="check">

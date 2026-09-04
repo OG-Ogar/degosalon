@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add a hairstyle - Barber Booking</title>
     <link rel="stylesheet" href="/static/app.css">
+    <script src="/static/app.js" defer></script>
 </head>
 <body>
 
@@ -67,7 +68,10 @@
         <label for="image">Photo (optional)</label>
         <input id="image" type="file" name="image"
                accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="image-hint">
-        <p class="hint" id="image-hint">JPG, PNG, GIF or WEBP, up to 5 MB.</p>
+        <p class="hint" id="image-hint">
+            Customers see this on your shop page. JPG, PNG, GIF or WEBP, up to
+            5 MB; large pictures are resized for you.
+        </p>
 
         <div class="check">
             <input id="available" type="checkbox" name="available"

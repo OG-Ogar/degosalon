@@ -188,11 +188,13 @@
 
     /* Shows the picture a file input is holding, at the size the finished
        page will show it, and says what the server is going to do with an
-       oversized one. The upload works the same without any of this. */
+       oversized one. An input carrying data-preview names the class to
+       show it under, so a round picture is previewed round. The upload
+       works the same without any of this. */
     function previewChosenPhoto(input) {
         var preview = document.createElement("img");
 
-        preview.className = "photo";
+        preview.className = input.getAttribute("data-preview") || "photo";
         preview.alt = "The photo you just chose";
         preview.hidden = true;
 

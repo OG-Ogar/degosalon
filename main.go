@@ -48,6 +48,12 @@ func main() {
 		)
 	}
 
+	// The bookable part of the day comes from the environment as well, so
+	// a shop with different hours does not need a code change.
+	if err := handlers.InitBookingHours(); err != nil {
+		log.Fatalf("booking hours: %v", err)
+	}
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/", handlers.HomeHandler)
@@ -82,6 +88,9 @@ func main() {
 	}
 
 	log.Printf("barber booking server listening on http://localhost%s", server.Addr)
+
+	opening, closing := handlers.BookingHours()
+	log.Printf("bookings are taken between %s and %s", opening, closing)
 
 	// A failed bind used to be printed and then ignored, so the process
 	// exited 0 and looked healthy while serving nothing.

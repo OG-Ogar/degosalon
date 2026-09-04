@@ -14,8 +14,13 @@ const (
 	// maxTextLength caps free text so one request cannot store an
 	// unbounded amount of data in memory.
 	maxTextLength = 2000
+)
 
-	// openingHour and closingHour bound the bookable part of the day.
+// openingHour and closingHour bound the bookable part of the day. They
+// are the defaults for a shop that works 08:00 to 20:00; InitBookingHours
+// replaces them from the environment at startup, and both the booking
+// form and the check below read them, so the two can never disagree.
+var (
 	openingHour = 8
 	closingHour = 20
 )
@@ -57,17 +62,24 @@ func validBookingDate(value string) (string, string) {
 }
 
 // validBookingTime accepts an HH:MM time inside opening hours.
+//
+// The closing time itself is the last slot that can be asked for, which
+// is what the form's max attribute already offers the customer. Rejecting
+// it here as well used to make 20:00 the one time the browser accepted and
+// the server refused.
 func validBookingTime(value string) (string, string) {
 	at, err := time.Parse("15:04", strings.TrimSpace(value))
 	if err != nil {
 		return "", "Choose a valid time in HH:MM form."
 	}
 
-	if at.Hour() < openingHour || at.Hour() >= closingHour {
+	minute := at.Hour()*60 + at.Minute()
+
+	if minute < openingHour*60 || minute > closingHour*60 {
 		return "", fmt.Sprintf(
-			"Bookings are only taken between %02d:00 and %02d:00.",
-			openingHour,
-			closingHour,
+			"Bookings are only taken between %s and %s.",
+			formatHour(openingHour),
+			formatHour(closingHour),
 		)
 	}
 

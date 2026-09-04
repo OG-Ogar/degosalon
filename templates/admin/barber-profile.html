@@ -33,7 +33,14 @@
     </p>
 
     <h1>{{.Barber.FullName}}</h1>
-    <p class="lede">{{.Barber.ShopName}} &middot; {{.Barber.ShopAddress}}</p>
+
+    <div class="who">
+        {{if .Barber.PersonalImage}}
+            <img class="avatar" src="{{.Barber.PersonalImage}}"
+                 alt="{{.Barber.FullName}}">
+        {{end}}
+        <p class="lede">{{.Barber.ShopName}} &middot; {{.Barber.ShopAddress}}</p>
+    </div>
 
     <div class="panel">
         {{if .Barber.ProfileImage}}

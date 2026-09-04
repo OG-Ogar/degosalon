@@ -175,8 +175,13 @@ func DeleteBarber(id int) ([]string, error) {
 	var images []string
 	var keptHairstyles []models.Hairstyle
 
-	if barbers[index].ProfileImage != "" {
-		images = append(images, barbers[index].ProfileImage)
+	for _, image := range []string{
+		barbers[index].ProfileImage,
+		barbers[index].PersonalImage,
+	} {
+		if image != "" {
+			images = append(images, image)
+		}
 	}
 
 	for _, hairstyle := range hairstyles {

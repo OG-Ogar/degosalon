@@ -6,6 +6,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"barber-booking/security"
@@ -58,6 +59,56 @@ func InitAdmin() (generated string, err error) {
 // startup banner.
 func AdminUsername() string {
 	return adminUsername
+}
+
+// InitBookingHours applies BOOKING_OPEN and BOOKING_CLOSE, each a whole
+// hour of the day. Bookings are taken from the first to the second
+// inclusive, so a shop that works until 22:00 sets BOOKING_CLOSE=22
+// rather than editing the source.
+func InitBookingHours() error {
+	from, err := hourFromEnv("BOOKING_OPEN", openingHour)
+	if err != nil {
+		return err
+	}
+
+	until, err := hourFromEnv("BOOKING_CLOSE", closingHour)
+	if err != nil {
+		return err
+	}
+
+	if from >= until {
+		return fmt.Errorf(
+			"BOOKING_OPEN %s is not before BOOKING_CLOSE %s",
+			formatHour(from),
+			formatHour(until),
+		)
+	}
+
+	openingHour, closingHour = from, until
+
+	return nil
+}
+
+// BookingHours reports the bookable window, for the startup banner.
+func BookingHours() (string, string) {
+	return formatHour(openingHour), formatHour(closingHour)
+}
+
+// hourFromEnv reads one hour of the day, keeping the fallback when the
+// variable is unset.
+func hourFromEnv(name string, fallback int) (int, error) {
+	text := strings.TrimSpace(os.Getenv(name))
+
+	if text == "" {
+		return fallback, nil
+	}
+
+	hour, err := strconv.Atoi(text)
+	if err != nil || hour < 0 || hour > 24 {
+		return 0, fmt.Errorf("%s must be an hour from 0 to 24, not %q", name, text)
+	}
+
+	return hour, nil
 }
 
 // validAdminCredentials checks a login attempt. Both comparisons run

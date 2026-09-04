@@ -37,7 +37,8 @@ var (
 		urlPath: "/uploads/hairstyles/",
 	}
 
-	// barberImages holds the photo a barber puts on their shop page.
+	// barberImages holds both photos on a barber's profile: the shop and
+	// the barber themselves.
 	barberImages = imageStore{
 		dir:     "uploads/barbers",
 		urlPath: "/uploads/barbers/",
@@ -64,7 +65,18 @@ var errNoUpload = errors.New("no file uploaded")
 // limitRequestBody caps the size of a request before any form parsing
 // happens. Call it first in handlers that accept uploads.
 func limitRequestBody(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(w, r.Body, maxUploadBytes+maxFormMemory)
+	limitRequestBodyFor(w, r, 1)
+}
+
+// limitRequestBodyFor is the same cap for a form carrying more than one
+// file input. A single body has to hold every photo the form offers, or
+// filling all of them in at once is rejected as too large.
+func limitRequestBodyFor(w http.ResponseWriter, r *http.Request, photos int) {
+	r.Body = http.MaxBytesReader(
+		w,
+		r.Body,
+		maxUploadBytes*int64(photos)+maxFormMemory,
+	)
 }
 
 // save stores the image in the named form field and returns the public

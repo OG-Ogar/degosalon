@@ -44,6 +44,20 @@
             </p>
         {{end}}
 
+        <div class="who">
+            {{if .PersonalImage}}
+                <img class="avatar" src="{{.PersonalImage}}"
+                     alt="Your picture, as customers see it">
+            {{end}}
+            <p{{if not .PersonalImage}} class="muted"{{end}}>
+                {{if .PersonalImage}}
+                    This is the picture customers see beside your name.
+                {{else}}
+                    You have not added a picture of yourself yet.
+                {{end}}
+            </p>
+        </div>
+
         <table>
             <tbody>
                 <tr><th scope="row">Full name</th><td>{{.FullName}}</td></tr>

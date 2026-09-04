@@ -29,17 +29,22 @@ func photoBytes(t *testing.T, width, height int) []byte {
 	return buffer.Bytes()
 }
 
-// uploadForm submits a multipart form with one file attached, which is
-// what the photo forms post. It returns the status and body so a rejected
-// upload can be checked as well as an accepted one.
+// photoFile is one file attached to a multipart form.
+type photoFile struct {
+	field    string
+	filename string
+	content  []byte
+}
+
+// uploadForm submits a multipart form with any number of files attached,
+// which is what the photo forms post. It returns the status and body so a
+// rejected upload can be checked as well as an accepted one.
 func uploadForm(
 	t *testing.T,
 	browser *http.Client,
 	target string,
 	fields map[string]string,
-	field string,
-	filename string,
-	content []byte,
+	files ...photoFile,
 ) (int, string) {
 	t.Helper()
 
@@ -53,13 +58,13 @@ func uploadForm(
 		}
 	}
 
-	if filename != "" {
-		part, err := form.CreateFormFile(field, filename)
+	for _, file := range files {
+		part, err := form.CreateFormFile(file.field, file.filename)
 		if err != nil {
 			t.Fatalf("create file part: %v", err)
 		}
 
-		if _, err := part.Write(content); err != nil {
+		if _, err := part.Write(file.content); err != nil {
 			t.Fatalf("write file part: %v", err)
 		}
 	}
@@ -158,6 +163,9 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 	// Both test photos are over the edge limit in one direction only.
 	// That is all it takes to exercise the resize, and it keeps the test
 	// spending its time on the flow rather than on averaging pixels.
+	//
+	// The shop photo and the barber's own picture go up in one submission,
+	// the way the form offers them.
 	status, _ := uploadForm(t, barber, server.URL+"/barber/profile/edit",
 		map[string]string{
 			"csrf_token":  csrfToken(t, "profile form", profileForm),
@@ -167,7 +175,8 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 			"shopname":    "Bob's Chair",
 			"shopaddress": "12 High Street",
 		},
-		"profile_image", "shop.png", photoBytes(t, 1900, 300))
+		photoFile{"profile_image", "shop.png", photoBytes(t, 1900, 300)},
+		photoFile{"personal_image", "bob.png", photoBytes(t, 300, 1900)})
 
 	if status != http.StatusOK {
 		t.Fatalf("uploading the shop photo: status %d, want 200", status)
@@ -185,7 +194,7 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 			"duration":    "45",
 			"available":   "on",
 		},
-		"image", "fade.png", photoBytes(t, 400, 2000))
+		photoFile{"image", "fade.png", photoBytes(t, 400, 2000)})
 
 	if status != http.StatusOK {
 		t.Fatalf("uploading the style photo: status %d, want 200", status)
@@ -196,14 +205,24 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 		t.Fatalf("the shop photo was not stored on the barber: %+v", shop.ProfileImage)
 	}
 
+	if shop.PersonalImage == "" {
+		t.Fatal("the barber's own picture was not stored")
+	}
+
+	if shop.PersonalImage == shop.ProfileImage {
+		t.Fatalf("both photos were stored as the same file: %s", shop.ProfileImage)
+	}
+
 	styles := storage.ListAvailableHairstylesByBarber(id)
 	if len(styles) != 1 || styles[0].Image == "" {
 		t.Fatalf("the style photo was not stored: %+v", styles)
 	}
 
-	// Both files must have been shrunk on the way in, or the customer
+	// Every file must have been shrunk on the way in, or the customer
 	// downloads a phone camera photo to look at a 64 pixel square.
-	for _, image := range []string{shop.ProfileImage, styles[0].Image} {
+	stored := []string{shop.ProfileImage, shop.PersonalImage, styles[0].Image}
+
+	for _, image := range stored {
 		width, height := storedSize(t, storedPath(t, image))
 
 		if width > maxImageEdge || height > maxImageEdge {
@@ -217,15 +236,44 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 
 	page := get(t, customer, server.URL+"/customer/barbers/"+strconv.Itoa(id))
 
-	mustContain(t, "the barber's page", page, shop.ProfileImage)
-	mustContain(t, "the barber's page", page, styles[0].Image)
+	for _, image := range stored {
+		mustContain(t, "the barber's page", page, image)
+	}
 
-	// The shop photo is bounded rather than stretched, and the style
-	// photo is the small square beside its radio button.
+	// The shop photo is bounded rather than stretched, the barber's own
+	// picture sits beside their name, and the style photo is the small
+	// square beside its radio button.
 	mustContain(t, "the barber's page", page, `class="photo"`)
+	mustContain(t, "the barber's page", page, `class="avatar"`)
 	mustContain(t, "the barber's page", page, `class="pick"`)
 
 	// The list customers arrive from carries the photo too.
 	mustContain(t, "the barber list",
 		get(t, customer, server.URL+"/customer/barbers"), shop.ProfileImage)
+
+	// A second edit that fills in neither file input has to keep both
+	// photos rather than clearing the profile.
+	kept := get(t, barber, server.URL+"/barber/profile/edit")
+
+	status, _ = uploadForm(t, barber, server.URL+"/barber/profile/edit",
+		map[string]string{
+			"csrf_token":  csrfToken(t, "profile form", kept),
+			"fullname":    "Bob Barber",
+			"phone":       "0700000000",
+			"email":       "bob@example.com",
+			"shopname":    "Bob's Barbers",
+			"shopaddress": "12 High Street",
+		})
+
+	if status != http.StatusOK {
+		t.Fatalf("saving the profile without photos: status %d, want 200", status)
+	}
+
+	again, _ := storage.FindBarberByEmail("bob@example.com")
+
+	if again.ProfileImage != shop.ProfileImage ||
+		again.PersonalImage != shop.PersonalImage {
+
+		t.Errorf("an edit with empty file inputs changed the photos: %+v", again)
+	}
 }

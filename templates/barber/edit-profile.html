@@ -72,11 +72,26 @@
 
         <label for="profile_image">Shop photo (optional)</label>
         <input id="profile_image" type="file" name="profile_image"
-               accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="photo-hint">
-        <p class="hint" id="photo-hint">
-            Customers see this on your shop page. Leave it empty to keep the
-            photo you already have. JPG, PNG, GIF or WEBP, up to 5 MB; large
-            pictures are resized for you.
+               accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="shop-photo-hint">
+        <p class="hint" id="shop-photo-hint">
+            The shop itself, shown across the top of your page. Leave it empty
+            to keep the photo you already have. JPG, PNG, GIF or WEBP, up to
+            5 MB; large pictures are resized for you.
+        </p>
+
+        {{if index .Values "personal_image"}}
+            <p>Your picture:</p>
+            <img class="avatar" src="{{index .Values "personal_image"}}"
+                 alt="Your current picture">
+        {{end}}
+
+        <label for="personal_image">Your own picture (optional)</label>
+        <input id="personal_image" type="file" name="personal_image"
+               accept=".jpg,.jpeg,.png,.gif,.webp" data-preview="avatar"
+               aria-describedby="personal-photo-hint">
+        <p class="hint" id="personal-photo-hint">
+            A picture of you, shown beside your name so customers know who
+            will be cutting their hair. Same formats and limit as above.
         </p>
 
         <div class="actions">

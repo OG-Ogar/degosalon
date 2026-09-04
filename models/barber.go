@@ -22,7 +22,12 @@ type Barber struct {
 	ShopName    string
 	ShopAddress string
 
-	ProfileImage string
+	// The two photos are separate on purpose. ProfileImage is the shop
+	// itself, shown wide at the top of the page; PersonalImage is the
+	// barber, shown beside their name so a customer knows who will be
+	// cutting their hair. Either may be empty.
+	ProfileImage  string
+	PersonalImage string
 
 	Status string
 }

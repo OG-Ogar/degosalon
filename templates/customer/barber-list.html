@@ -48,6 +48,8 @@
 
                     {{if .ProfileImage}}
                         <img src="{{.ProfileImage}}" alt="{{.ShopName}}">
+                    {{else if .PersonalImage}}
+                        <img src="{{.PersonalImage}}" alt="{{.FullName}}">
                     {{else}}
                         <span class="thumb" aria-hidden="true"></span>
                     {{end}}

@@ -1,28 +1,50 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer login - Barber Booking</title>
-    <link rel="stylesheet" href="/static/app.css">
-    <script src="/static/app.js" defer></script>
+
+```
+<title>Customer Login - Barber Booking</title>
+
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/app.js" defer></script>
+```
+
 </head>
+
 <body>
 
 <header class="topbar">
     <div class="wrap">
         <a class="brand" href="/">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/customer/register">Create an account</a>
-            <a href="/barber/login">I am a barber</a>
-        </nav>
-    </div>
+
+```
+    <nav class="nav">
+        <a href="/customer/register">Create an account</a>
+        <a href="/barber/login">I am a barber</a>
+    </nav>
+</div>
+```
+
 </header>
 
 <main class="wrap">
 
-    <h1>Customer login</h1>
-    <p class="lede">Sign in to browse barbers, book a haircut and message your barber.</p>
+```
+<div class="login-card">
+
+    <div class="login-intro">
+        <span class="login-label">CUSTOMER PORTAL</span>
+
+        <h1>Welcome back.</h1>
+
+        <p>
+            Find your barber, book your next haircut
+            and stay connected.
+        </p>
+    </div>
 
     {{if .Notice}}
         <p class="notice" role="status">{{.Notice}}</p>
@@ -32,24 +54,48 @@
         <p class="error" role="alert">{{.Error}}</p>
     {{end}}
 
-    <form class="stack panel" method="post" action="/customer/login">
+    <form class="stack" method="post" action="/customer/login">
 
         <label for="email">Email address</label>
-        <input id="email" type="email" name="email" value="{{index .Values "email"}}"
-               autocomplete="email" required>
+        <input
+            id="email"
+            type="email"
+            name="email"
+            value="{{index .Values "email"}}"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+        >
 
         <label for="password">Password</label>
-        <input id="password" type="password" name="password"
-               autocomplete="current-password" required>
+        <input
+            id="password"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            placeholder="Enter your password"
+            required
+        >
 
-        <p class="hint"><a href="/customer/forgot-password">Forgotten your password?</a></p>
+        <p class="hint">
+            <a href="/customer/forgot-password">
+                Forgot your password?
+            </a>
+        </p>
 
-        <div class="actions">
-            <button class="primary" type="submit">Sign in</button>
-            <a class="button" href="/customer/register">Create an account</a>
-        </div>
+        <button class="primary login-button" type="submit">
+            Find my barber →
+        </button>
 
     </form>
+
+    <div class="login-bottom">
+        <span>New customer?</span>
+        <a href="/customer/register">Create an account</a>
+    </div>
+
+</div>
+```
 
 </main>
 

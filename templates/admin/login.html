@@ -1,55 +1,79 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Administrator login - Barber Booking</title>
-    <link rel="stylesheet" href="/static/app.css">
-    <script src="/static/app.js" defer></script>
+
+```
+<title>Admin Login - Barber Booking</title>
+
+<link rel="stylesheet" href="/static/app.css">
+<script src="/static/app.js" defer></script>
+```
+
 </head>
+
 <body>
 
 <header class="topbar">
     <div class="wrap">
         <a class="brand" href="/">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/login">Barber login</a>
-            <a href="/customer/login">Customer login</a>
-        </nav>
-    </div>
+
+```
+    <nav class="nav">
+        <a href="/barber/login">Barber Login</a>
+        <a href="/customer/login">Customer Login</a>
+    </nav>
+</div>
+```
+
 </header>
 
 <main class="wrap">
 
-    <h1>Administrator login</h1>
-    <p class="lede">Manage barbers, customers and every booking on the platform.</p>
+```
+<div class="panel">
+
+    <h1>Admin Login</h1>
+
+    <p class="lede">
+        Sign in to manage the Barber Booking platform.
+    </p>
 
     {{if .Error}}
         <p class="error" role="alert">{{.Error}}</p>
     {{end}}
 
-    <form class="stack panel" method="post" action="/admin/login">
+    <form class="stack" method="post" action="/admin/login">
 
         <label for="username">Username</label>
-        <input id="username" type="text" name="username"
-               value="{{index .Values "username"}}"
-               autocomplete="username" required>
+        <input
+            id="username"
+            type="text"
+            name="username"
+            value="{{index .Values "username"}}"
+            autocomplete="username"
+            required
+        >
 
         <label for="password">Password</label>
-        <input id="password" type="password" name="password"
-               autocomplete="current-password" required>
+        <input
+            id="password"
+            type="password"
+            name="password"
+            autocomplete="current-password"
+            required
+        >
 
-        <div class="actions">
-            <button class="primary" type="submit">Sign in</button>
-        </div>
-
-        <p class="hint">
-            The credentials come from the ADMIN_USERNAME and ADMIN_PASSWORD
-            environment variables. If neither is set, the server prints a
-            generated password to its log at startup.
-        </p>
+        <button class="primary" type="submit">
+            Sign in
+        </button>
 
     </form>
+
+</div>
+```
 
 </main>
 

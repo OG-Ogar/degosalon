@@ -1,13 +1,4 @@
-{
-  "claudeCode.environmentVariables": [
-    { "name": "ANTHROPIC_AUTH_TOKEN", "value": "sk-oe6q9B0lWB2t9qyAKe5n7HjwN7XToQEUyNe5Ong9NvEdod6D" },
-    { "name": "ANTHROPIC_BASE_URL", "value": "https://tabitoken.com" },
-    { "name": "CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY", "value": "1" },
-    { "name": "ANTHROPIC_MODEL", "value": "claude-opus-5" }
-  ],
-  "claudeCode.disableLoginPrompt": true,
-  "claudeCode.initialPermissionMode": "acceptEdits"
-}
+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
 
 
 # barber-booking

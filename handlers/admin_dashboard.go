@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"barber-booking/models"
@@ -16,6 +17,8 @@ type adminDashboardView struct {
 	Customers       int
 	Bookings        int
 	PendingBookings int
+
+	LandingImage string
 }
 
 // AdminDashboardHandler shows counts and the management links.
@@ -43,7 +46,71 @@ func AdminDashboardHandler(w http.ResponseWriter, r *http.Request, s sessionData
 		Customers:       len(storage.ListCustomers()),
 		Bookings:        len(bookings),
 		PendingBookings: pending,
+		LandingImage:    currentLandingImage(),
 	})
+}
+
+// AdminLandingImageHandler lets the administrator change the image
+// displayed behind the landing page.
+func AdminLandingImageHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	s sessionData,
+) {
+	if r.Method != http.MethodPost {
+		methodNotAllowed(w, http.MethodPost)
+
+		return
+	}
+
+	limitRequestBody(w, r)
+
+	if !requireCSRF(w, r, s) {
+		return
+	}
+
+	_, err := saveLandingImage(r)
+
+	if errors.Is(err, errNoUpload) {
+		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+
+		return
+	}
+
+	if err != nil {
+		renderStatus(
+			w,
+			http.StatusBadRequest,
+			"admin/dashboard.html",
+			adminDashboardView{
+				CSRF:            s.CSRFToken,
+				Barbers:         len(storage.ListBarbers()),
+				ActiveBarbers:   len(storage.ListActiveBarbers()),
+				Customers:       len(storage.ListCustomers()),
+				Bookings:        len(storage.ListBookings()),
+				PendingBookings: countPendingBookings(),
+				LandingImage:    currentLandingImage(),
+			},
+		)
+
+		return
+	}
+
+	http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+}
+
+// countPendingBookings returns the number of bookings waiting for
+// a barber's decision.
+func countPendingBookings() int {
+	pending := 0
+
+	for _, booking := range storage.ListBookings() {
+		if booking.Status == models.StatusPending {
+			pending++
+		}
+	}
+
+	return pending
 }
 
 // AdminBookingsHandler lists every booking in the system.

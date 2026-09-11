@@ -11,6 +11,8 @@ type homeView struct {
 	BarberSignedIn   bool
 	CustomerSignedIn bool
 	AdminSignedIn    bool
+
+	LandingImage string
 }
 
 // HomeHandler serves the landing page.
@@ -38,5 +40,6 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		BarberSignedIn:   barberIn,
 		CustomerSignedIn: customerIn,
 		AdminSignedIn:    adminIn,
+		LandingImage:     currentLandingImage(),
 	})
 }

@@ -3,70 +3,189 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>{{.Name}} - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/barber/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/hairstyles">My hairstyles</a>
-            <a href="/barber/bookings">Bookings</a>
-            <a href="/barber/chats">Messages</a>
-            <a href="/barber/profile">My profile</a>
-            <form class="inline" method="post" action="/barber/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
+<body class="barber-page">
+
+<header class="barber-header">
+    <div class="barber-header-inner">
+
+        <a class="barber-brand" href="/barber/dashboard">
+            Barber Booking
+        </a>
+
+        <nav class="barber-nav" aria-label="Barber navigation">
+
+            <a href="/barber/dashboard">
+                1. Dashboard
+            </a>
+
+            <a class="active" href="/barber/hairstyles">
+                2. Hairstyles
+            </a>
+
+            <a href="/barber/bookings">
+                3. Bookings
+            </a>
+
+            <a href="/barber/chats">
+                4. Messages
+            </a>
+
+            <a href="/barber/profile">
+                5. Profile
+            </a>
+
         </nav>
+
     </div>
 </header>
 
-<main class="wrap">
+<main class="barber-main">
 
-    <p class="crumbs">
-        <a href="/barber/dashboard">Dashboard</a> /
-        <a href="/barber/hairstyles">My hairstyles</a> /
+    <p class="barber-breadcrumb">
+
+        <a href="/barber/dashboard">
+            Dashboard
+        </a>
+
+        /
+
+        <a href="/barber/hairstyles">
+            Hairstyles
+        </a>
+
+        /
+
         {{.Name}}
+
     </p>
 
-    <h1>{{.Name}}</h1>
-    <p class="lede">{{.Category}}</p>
 
-    <div class="panel">
+    <h1 class="barber-title">
+        {{.Name}}
+    </h1>
+
+    <p class="barber-lede">
+        {{.Category}}
+    </p>
+
+
+    <section class="barber-profile-card">
 
         {{if .Image}}
-            <img class="photo" src="{{.Image}}" alt="Photo of {{.Name}}">
+
+            <img class="barber-shop-photo"
+                 src="{{.Image}}"
+                 alt="Photo of {{.Name}}">
+
         {{end}}
 
-        <table>
+
+        <table class="barber-profile-table">
+
             <tbody>
-                <tr><th scope="row">Price</th>
-                    <td class="price">&#8358;{{printf "%.2f" .Price}}</td></tr>
-                <tr><th scope="row">Duration</th><td>{{.Duration}} minutes</td></tr>
-                <tr><th scope="row">Category</th><td>{{.Category}}</td></tr>
-                <tr><th scope="row">Description</th><td>{{.Description}}</td></tr>
-                <tr><th scope="row">Status</th>
+
+                <tr>
+                    <th scope="row">
+                        Price
+                    </th>
+
+                    <td class="barber-price">
+                        &#8358;{{printf "%.2f" .Price}}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Duration
+                    </th>
+
                     <td>
+                        {{.Duration}} minutes
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Category
+                    </th>
+
+                    <td>
+                        {{.Category}}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Description
+                    </th>
+
+                    <td>
+                        {{.Description}}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Status
+                    </th>
+
+                    <td>
+
                         {{if .IsAvailable}}
-                            <span class="badge Active">Available</span>
+
+                            <span class="barber-badge Active">
+                                Available
+                            </span>
+
                         {{else}}
-                            <span class="badge Suspended">Hidden from customers</span>
+
+                            <span class="barber-badge Suspended">
+                                Hidden from customers
+                            </span>
+
                         {{end}}
-                    </td></tr>
+
+                    </td>
+                </tr>
+
             </tbody>
+
         </table>
 
-        <div class="actions">
-            <a class="button primary" href="/barber/hairstyles/{{.ID}}/edit">Edit</a>
-            <a class="button danger" href="/barber/hairstyles/{{.ID}}/delete">Delete</a>
-            <a class="button" href="/barber/hairstyles">Back to list</a>
+
+        <div class="barber-actions">
+
+            <a class="barber-button primary"
+               href="/barber/hairstyles/{{.ID}}/edit">
+                Edit
+            </a>
+
+            <a class="barber-button danger"
+               href="/barber/hairstyles/{{.ID}}/delete">
+                Delete
+            </a>
+
+            <a class="barber-button"
+               href="/barber/hairstyles">
+                Back to Hairstyles
+            </a>
+
         </div>
 
-    </div>
+    </section>
 
 </main>
 

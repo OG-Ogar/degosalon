@@ -3,89 +3,235 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit hairstyle - Barber Booking</title>
+
+    <title>Edit Hairstyle - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/barber/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/hairstyles">My hairstyles</a>
-            <a href="/barber/bookings">Bookings</a>
-            <a href="/barber/chats">Messages</a>
-            <a href="/barber/profile">My profile</a>
-            <form class="inline" method="post" action="/barber/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
+<body class="barber-page">
+
+<header class="barber-header">
+    <div class="barber-header-inner">
+
+        <a class="barber-brand" href="/barber/dashboard">
+            Barber Booking
+        </a>
+
+        <nav class="barber-nav" aria-label="Barber navigation">
+
+            <a href="/barber/dashboard">
+                1. Dashboard
+            </a>
+
+            <a class="active" href="/barber/hairstyles">
+                2. Hairstyles
+            </a>
+
+            <a href="/barber/bookings">
+                3. Bookings
+            </a>
+
+            <a href="/barber/chats">
+                4. Messages
+            </a>
+
+            <a href="/barber/profile">
+                5. Profile
+            </a>
+
         </nav>
+
     </div>
 </header>
 
-<main class="wrap">
+<main class="barber-main">
 
-    <p class="crumbs">
-        <a href="/barber/dashboard">Dashboard</a> /
-        <a href="/barber/hairstyles">My hairstyles</a> /
+    <p class="barber-breadcrumb">
+        <a href="/barber/dashboard">Dashboard</a>
+        /
+        <a href="/barber/hairstyles">Hairstyles</a>
+        /
         Edit
     </p>
 
-    <h1>Edit hairstyle</h1>
+    <h1 class="barber-title">
+        Edit Hairstyle
+    </h1>
+
+    <p class="barber-lede">
+        Update the information customers see for this hairstyle.
+    </p>
+
 
     {{if .Error}}
-        <p class="error" role="alert">{{.Error}}</p>
+
+        <p class="barber-error" role="alert">
+            {{.Error}}
+        </p>
+
     {{end}}
 
-    <form class="stack panel" method="post"
+
+    <form class="barber-form"
+          method="post"
           action="/barber/hairstyles/{{.ID}}/update"
           enctype="multipart/form-data">
 
-        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+        <input type="hidden"
+               name="csrf_token"
+               value="{{.CSRF}}">
 
-        <label for="name">Style name</label>
-        <input id="name" type="text" name="name" value="{{index .Values "name"}}" required>
 
-        <label for="category">Category</label>
-        <input id="category" type="text" name="category"
-               value="{{index .Values "category"}}" required>
+        <div class="barber-field">
 
-        <label for="description">Description</label>
-        <textarea id="description" name="description" required>{{index .Values "description"}}</textarea>
+            <label for="name">
+                Style Name
+            </label>
 
-        <label for="price">Price (&#8358;)</label>
-        <input id="price" type="number" name="price" step="0.01" min="0"
-               value="{{index .Values "price"}}" required>
+            <input id="name"
+                   type="text"
+                   name="name"
+                   value="{{index .Values "name"}}"
+                   required>
 
-        <label for="duration">Duration (minutes)</label>
-        <input id="duration" type="number" name="duration" step="1" min="1" max="1440"
-               value="{{index .Values "duration"}}" required>
-
-        {{if .Image}}
-            <p>Current photo:</p>
-            <img class="photo" src="{{.Image}}" alt="Current photo of this hairstyle">
-        {{end}}
-
-        <label for="image">Replace photo (optional)</label>
-        <input id="image" type="file" name="image"
-               accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="image-hint">
-        <p class="hint" id="image-hint">
-            Leave this empty to keep the current photo. JPG, PNG, GIF or WEBP,
-            up to 5 MB; large pictures are resized for you.
-        </p>
-
-        <div class="check">
-            <input id="available" type="checkbox" name="available"
-                   {{if .Available}}checked{{end}}>
-            <label for="available">Available for booking</label>
         </div>
 
-        <div class="actions">
-            <button class="primary" type="submit">Save changes</button>
-            <a class="button" href="/barber/hairstyles/{{.ID}}">Cancel</a>
-            <a class="button danger" href="/barber/hairstyles/{{.ID}}/delete">Delete</a>
+
+        <div class="barber-field">
+
+            <label for="category">
+                Category
+            </label>
+
+            <input id="category"
+                   type="text"
+                   name="category"
+                   value="{{index .Values "category"}}"
+                   required>
+
+        </div>
+
+
+        <div class="barber-field">
+
+            <label for="description">
+                Description
+            </label>
+
+            <textarea id="description"
+                      name="description"
+                      required>{{index .Values "description"}}</textarea>
+
+        </div>
+
+
+        <div class="barber-field">
+
+            <label for="price">
+                Price (&#8358;)
+            </label>
+
+            <input id="price"
+                   type="number"
+                   name="price"
+                   step="0.01"
+                   min="0"
+                   value="{{index .Values "price"}}"
+                   required>
+
+        </div>
+
+
+        <div class="barber-field">
+
+            <label for="duration">
+                Duration (minutes)
+            </label>
+
+            <input id="duration"
+                   type="number"
+                   name="duration"
+                   step="1"
+                   min="1"
+                   max="1440"
+                   value="{{index .Values "duration"}}"
+                   required>
+
+        </div>
+
+
+        {{if .Image}}
+
+            <div class="barber-field">
+
+                <label>
+                    Current Photo
+                </label>
+
+                <img class="barber-shop-photo"
+                     src="{{.Image}}"
+                     alt="Current photo of this hairstyle">
+
+            </div>
+
+        {{end}}
+
+
+        <div class="barber-field">
+
+            <label for="image">
+                Replace Photo (optional)
+            </label>
+
+            <input id="image"
+                   type="file"
+                   name="image"
+                   accept=".jpg,.jpeg,.png,.gif,.webp"
+                   aria-describedby="image-hint">
+
+            <p class="barber-hint" id="image-hint">
+                Leave this empty to keep the current photo.
+                JPG, PNG, GIF or WEBP, up to 5 MB.
+            </p>
+
+        </div>
+
+
+        <div class="barber-check">
+
+            <input id="available"
+                   type="checkbox"
+                   name="available"
+                   {{if .Available}}checked{{end}}>
+
+            <label for="available">
+                Available for booking
+            </label>
+
+        </div>
+
+
+        <div class="barber-actions">
+
+            <button class="barber-button primary"
+                    type="submit">
+                Save Changes
+            </button>
+
+            <a class="barber-button"
+               href="/barber/hairstyles/{{.ID}}">
+                Cancel
+            </a>
+
+            <a class="barber-button danger"
+               href="/barber/hairstyles/{{.ID}}/delete">
+                Delete
+            </a>
+
         </div>
 
     </form>

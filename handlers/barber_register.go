@@ -17,6 +17,10 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		render(w, "barber/register.html", newFormView(""))
 
 	case http.MethodPost:
+		// The registration form accepts one profile photo, so limit the
+		// request before the multipart form is parsed.
+		limitRequestBodyFor(w, r, 1)
+
 		form, problem := readBarberForm(r)
 		password := r.PostFormValue("password")
 		confirm := r.PostFormValue("confirm_password")
@@ -24,8 +28,10 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case problem != "":
 			// Keep the message readBarberForm produced.
+
 		case len(password) < minPasswordLength:
 			problem = passwordTooShortMessage
+
 		case password != confirm:
 			problem = "The two passwords do not match."
 		}
@@ -43,23 +49,54 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = storage.CreateBarber(models.Barber{
-			FullName:     form.FullName,
-			PhoneNumber:  form.Phone,
-			Email:        form.Email,
-			PasswordHash: hash,
-			ShopName:     form.ShopName,
-			ShopAddress:  form.ShopAddress,
-			Status:       models.BarberActive,
-		})
+		// The registration form requires the barber's personal photo.
+		personalImage, err := barberImages.save(r, "personal_image")
 
-		if errors.Is(err, storage.ErrEmailTaken) {
-			barberRegisterError(w, form, "That email is already registered.")
+		if errors.Is(err, errNoUpload) {
+			barberRegisterError(
+				w,
+				form,
+				"Please upload your profile photo.",
+			)
 
 			return
 		}
 
 		if err != nil {
+			barberRegisterError(w, form, err.Error())
+
+			return
+		}
+
+		_, err = storage.CreateBarber(models.Barber{
+			FullName:      form.FullName,
+			PhoneNumber:   form.Phone,
+			Email:         form.Email,
+			PasswordHash:  hash,
+			ShopName:      form.ShopName,
+			ShopAddress:   form.ShopAddress,
+			PersonalImage: personalImage,
+			Status:        models.BarberActive,
+		})
+
+		if errors.Is(err, storage.ErrEmailTaken) {
+			// The account was not created, so the newly uploaded image is
+			// no longer needed.
+			removeImageIgnoringError(personalImage)
+
+			barberRegisterError(
+				w,
+				form,
+				"That email is already registered.",
+			)
+
+			return
+		}
+
+		if err != nil {
+			// The account was not created, so clean up the uploaded file.
+			removeImageIgnoringError(personalImage)
+
 			serverError(w, "create barber", err)
 
 			return
@@ -73,9 +110,18 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // barberRegisterError re-shows the signup form with what was typed.
-func barberRegisterError(w http.ResponseWriter, form barberForm, problem string) {
-	renderStatus(w, http.StatusBadRequest, "barber/register.html", formView{
-		Error:  problem,
-		Values: form.values(),
-	})
+func barberRegisterError(
+	w http.ResponseWriter,
+	form barberForm,
+	problem string,
+) {
+	renderStatus(
+		w,
+		http.StatusBadRequest,
+		"barber/register.html",
+		formView{
+			Error:  problem,
+			Values: form.values(),
+		},
+	)
 }

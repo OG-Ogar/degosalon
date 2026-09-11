@@ -3,85 +3,218 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add a hairstyle - Barber Booking</title>
+
+    <title>Add a Hairstyle - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/barber/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/hairstyles">My hairstyles</a>
-            <a href="/barber/bookings">Bookings</a>
-            <a href="/barber/chats">Messages</a>
-            <a href="/barber/profile">My profile</a>
-            <form class="inline" method="post" action="/barber/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
+<body class="barber-page">
+
+<header class="barber-header">
+    <div class="barber-header-inner">
+
+        <a class="barber-brand" href="/barber/dashboard">
+            Barber Booking
+        </a>
+
+        <nav class="barber-nav" aria-label="Barber navigation">
+
+            <a href="/barber/dashboard">
+                1. Dashboard
+            </a>
+
+            <a class="active" href="/barber/hairstyles">
+                2. Hairstyles
+            </a>
+
+            <a href="/barber/bookings">
+                3. Bookings
+            </a>
+
+            <a href="/barber/chats">
+                4. Messages
+            </a>
+
+            <a href="/barber/profile">
+                5. Profile
+            </a>
+
         </nav>
+
     </div>
 </header>
 
-<main class="wrap">
+<main class="barber-main">
 
-    <p class="crumbs">
-        <a href="/barber/dashboard">Dashboard</a> /
-        <a href="/barber/hairstyles">My hairstyles</a> /
+    <p class="barber-breadcrumb">
+        <a href="/barber/dashboard">Dashboard</a>
+        /
+        <a href="/barber/hairstyles">Hairstyles</a>
+        /
         Add
     </p>
 
-    <h1>Add a hairstyle</h1>
-    <p class="lede">Customers see this on your shop page and book it by name.</p>
+    <h1 class="barber-title">
+        Add a Hairstyle
+    </h1>
+
+    <p class="barber-lede">
+        Customers will see this hairstyle on your shop page and can book it.
+    </p>
+
 
     {{if .Error}}
-        <p class="error" role="alert">{{.Error}}</p>
-    {{end}}
 
-    <form class="stack panel" method="post" action="/barber/hairstyles/new"
-          enctype="multipart/form-data">
-
-        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-
-        <label for="name">Style name</label>
-        <input id="name" type="text" name="name" value="{{index .Values "name"}}" required>
-
-        <label for="category">Category</label>
-        <input id="category" type="text" name="category"
-               value="{{index .Values "category"}}" required
-               aria-describedby="category-hint">
-        <p class="hint" id="category-hint">For example: Fade, Braids, Beard trim.</p>
-
-        <label for="description">Description</label>
-        <textarea id="description" name="description" required>{{index .Values "description"}}</textarea>
-
-        <label for="price">Price (&#8358;)</label>
-        <input id="price" type="number" name="price" step="0.01" min="0"
-               value="{{index .Values "price"}}" required>
-
-        <label for="duration">Duration (minutes)</label>
-        <input id="duration" type="number" name="duration" step="1" min="1" max="1440"
-               value="{{index .Values "duration"}}" required>
-
-        <label for="image">Photo (optional)</label>
-        <input id="image" type="file" name="image"
-               accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="image-hint">
-        <p class="hint" id="image-hint">
-            Customers see this on your shop page. JPG, PNG, GIF or WEBP, up to
-            5 MB; large pictures are resized for you.
+        <p class="barber-error" role="alert">
+            {{.Error}}
         </p>
 
-        <div class="check">
-            <input id="available" type="checkbox" name="available"
-                   {{if .Available}}checked{{end}}>
-            <label for="available">Available for booking</label>
+    {{end}}
+
+
+    <form class="barber-form"
+          method="post"
+          action="/barber/hairstyles/new"
+          enctype="multipart/form-data">
+
+        <input type="hidden"
+               name="csrf_token"
+               value="{{.CSRF}}">
+
+
+        <div class="barber-field">
+
+            <label for="name">
+                Style Name
+            </label>
+
+            <input id="name"
+                   type="text"
+                   name="name"
+                   value="{{index .Values "name"}}"
+                   required>
+
         </div>
 
-        <div class="actions">
-            <button class="primary" type="submit">Save hairstyle</button>
-            <a class="button" href="/barber/hairstyles">Cancel</a>
+
+        <div class="barber-field">
+
+            <label for="category">
+                Category
+            </label>
+
+            <input id="category"
+                   type="text"
+                   name="category"
+                   value="{{index .Values "category"}}"
+                   required
+                   aria-describedby="category-hint">
+
+            <p class="barber-hint" id="category-hint">
+                For example: Fade, Braids or Beard trim.
+            </p>
+
+        </div>
+
+
+        <div class="barber-field">
+
+            <label for="description">
+                Description
+            </label>
+
+            <textarea id="description"
+                      name="description"
+                      required>{{index .Values "description"}}</textarea>
+
+        </div>
+
+
+        <div class="barber-field">
+
+            <label for="price">
+                Price (&#8358;)
+            </label>
+
+            <input id="price"
+                   type="number"
+                   name="price"
+                   step="0.01"
+                   min="0"
+                   value="{{index .Values "price"}}"
+                   required>
+
+        </div>
+
+
+        <div class="barber-field">
+
+            <label for="duration">
+                Duration (minutes)
+            </label>
+
+            <input id="duration"
+                   type="number"
+                   name="duration"
+                   step="1"
+                   min="1"
+                   max="1440"
+                   value="{{index .Values "duration"}}"
+                   required>
+
+        </div>
+
+
+        <div class="barber-field">
+
+            <label for="image">
+                Photo (optional)
+            </label>
+
+            <input id="image"
+                   type="file"
+                   name="image"
+                   accept=".jpg,.jpeg,.png,.gif,.webp"
+                   aria-describedby="image-hint">
+
+            <p class="barber-hint" id="image-hint">
+                JPG, PNG, GIF or WEBP, up to 5 MB.
+                Large pictures are resized automatically.
+            </p>
+
+        </div>
+
+
+        <div class="barber-check">
+
+            <input id="available"
+                   type="checkbox"
+                   name="available"
+                   {{if .Available}}checked{{end}}>
+
+            <label for="available">
+                Available for booking
+            </label>
+
+        </div>
+
+
+        <div class="barber-actions">
+
+            <button class="barber-button primary"
+                    type="submit">
+                Save Hairstyle
+            </button>
+
+            <a class="barber-button"
+               href="/barber/hairstyles">
+                Cancel
+            </a>
+
         </div>
 
     </form>

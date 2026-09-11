@@ -47,6 +47,7 @@ func BarberDashboardHandler(
 		}
 	}
 
+	// The password hash must never reach the template.
 	barber.PasswordHash = ""
 
 	render(w, "barber/dashboard.html", barberDashboardView{

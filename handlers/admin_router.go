@@ -37,6 +37,9 @@ func AdminRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 2 && parts[1] == "dashboard":
 		AdminDashboardHandler(w, r, s)
 
+	case len(parts) == 2 && parts[1] == "landing-image":
+		AdminLandingImageHandler(w, r, s)
+
 	case len(parts) == 2 && parts[1] == "bookings":
 		AdminBookingsHandler(w, r, s)
 

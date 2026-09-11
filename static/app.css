@@ -1,743 +1,313 @@
-/* Shared stylesheet for the barber booking app.
+```css
+/* =========================================================
+   FULL-SCREEN LANDING PAGE
+   ========================================================= */
 
-   The pages are plain server-rendered HTML. static/app.js adds a few
-   conveniences on top and this file styles what it creates, but no page
-   needs either one to work.
-
-   Every colour is a variable on :root, and the dark theme near the bottom
-   changes nothing else. */
-
-:root {
-    --ink: #1c1a17;
-    --muted: #5d574f;
-    --line: #d9d2c7;
-    --paper: #fdfbf7;
-    --panel: #ffffff;
-
-    /* The top bar is dark in both themes, so it does not follow --ink. */
-    --top: #1c1a17;
-    --top-ink: #f6f1e8;
-
-    --accent: #7a4a1e;
-    --accent-hover: #5f3915;
-    --accent-ink: #ffffff;
-
-    /* Surfaces that sit slightly above the panel: buttons, table headings,
-       chat bubbles, image placeholders. */
-    --raise: #f0e9dd;
-    --raise-soft: #f4efe6;
-    --raise-hover: #e6dccb;
-
-    --field: #ffffff;
-    --field-line: #b9b0a2;
-    --focus: #b07a3f;
-
-    --good: #1f6b3a;
-    --good-bg: #e9f4ed;
-    --good-line: #b8dcc5;
-    --good-ink: #17532c;
-
-    --warn: #8a5a00;
-
-    --bad: #97231f;
-    --bad-hover: #7a1c19;
-    --bad-bg: #fbe9e7;
-    --bad-line: #e2b3ae;
-    --bad-ink: #5d1512;
-}
-
-* {
-    box-sizing: border-box;
-}
-
-/* No uploaded photo may be wider than the box it sits in, whatever its
-   own pixel size is. Without this, viewing a picture straight off a phone
-   pushes the rest of the page sideways. */
-img {
-    max-width: 100%;
-}
-
-body {
+.landing-page {
     margin: 0;
-    padding: 0 0 48px;
-    font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-    font-size: 16px;
-    line-height: 1.55;
-    color: var(--ink);
-    background: var(--paper);
+    padding: 0;
+    overflow: hidden;
 }
 
-.wrap {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 20px;
-}
+/*
+   The uploaded photograph is the background.
 
-/* ---- header and navigation ---- */
+   cover = the image fills the entire screen.
+   center = keeps the important middle of the photograph visible.
+   no-repeat = prevents the image from repeating.
+*/
+.landing {
+    position: relative;
 
-.topbar {
-    position: sticky;
-    top: 0;
-    z-index: 10;
-    background: var(--top);
-    color: var(--top-ink);
-    padding: 14px 0;
-    margin-bottom: 28px;
-}
-
-.topbar .wrap {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 12px 20px;
-    align-items: baseline;
-    justify-content: space-between;
-}
-
-.brand {
-    font-size: 1.15rem;
-    font-weight: 700;
-    color: #fff;
-    text-decoration: none;
-}
-
-.nav {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 16px;
-    align-items: baseline;
-}
-
-.nav a {
-    color: #f0e8da;
-    text-decoration: none;
-    border-bottom: 1px solid transparent;
-}
-
-.nav a:hover,
-.nav a:focus {
-    border-bottom-color: currentColor;
-}
-
-/* ---- headings and text ---- */
-
-h1 {
-    font-size: 1.7rem;
-    margin: 0 0 6px;
-}
-
-h2 {
-    font-size: 1.25rem;
-    margin: 32px 0 12px;
-}
-
-h3 {
-    font-size: 1.05rem;
-    margin: 0 0 6px;
-}
-
-.lede {
-    color: var(--muted);
-    margin: 0 0 24px;
-}
-
-.muted {
-    color: var(--muted);
-}
-
-.empty {
-    padding: 20px;
-    border: 1px dashed var(--line);
-    border-radius: 8px;
-    color: var(--muted);
-    background: var(--panel);
-}
-
-/* ---- cards and panels ---- */
-
-.grid {
-    display: grid;
-    gap: 16px;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-}
-
-.card {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 16px 18px;
-}
-
-.card h3 a {
-    color: inherit;
-}
-
-/* A photo used as a card tile: every card in a grid gets the same shape
-   whatever the picture behind it, and .thumb on its own is the empty
-   placeholder that keeps a photoless card the same height. */
-.card img,
-.thumb {
-    display: block;
     width: 100%;
-    height: 160px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    background: var(--raise-soft);
+    min-height: 100vh;
+    min-height: 100svh;
+
+    background-color: #17130f;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
 }
 
-/* A photo shown on its own rather than as a tile. Bounded on both axes
-   and never stretched past its natural size, so opening an upload shows
-   the picture instead of blowing it up to the width of the page. */
-.photo {
-    display: block;
-    width: auto;
-    height: auto;
-    max-width: min(360px, 100%);
-    max-height: 360px;
-    border-radius: 8px;
-    margin-bottom: 12px;
-    background: var(--raise-soft);
+/*
+   Dark transparent layer over the photograph.
+   The photograph remains visible underneath it.
+*/
+.landing::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0.55) 0%,
+            rgba(0, 0, 0, 0.12) 45%,
+            rgba(0, 0, 0, 0.65) 100%
+        );
+
+    pointer-events: none;
 }
 
-/* The small square beside one choice in a list, such as a hairstyle on
-   the booking form. */
-.pick {
-    flex: none;
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
-    border-radius: 8px;
-    background: var(--raise-soft);
-}
+/*
+   Everything placed on top of the photograph.
+*/
+.landing-overlay {
+    position: relative;
+    z-index: 1;
 
-/* A barber's own picture. Round and small, so it reads as a person
-   rather than as a second photo of the shop. */
-.avatar {
-    flex: none;
-    width: 72px;
-    height: 72px;
-    object-fit: cover;
-    border-radius: 50%;
-    background: var(--raise-soft);
-}
-
-/* A name with that picture beside it. */
-.who {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    margin-bottom: 18px;
-}
-
-.who p {
-    margin: 0;
-}
-
-.stat {
-    font-size: 1.9rem;
-    font-weight: 700;
-    line-height: 1.1;
-    display: block;
-}
-
-.panel {
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 24px;
-}
-
-/* ---- tables ---- */
-
-table {
     width: 100%;
-    border-collapse: collapse;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 8px;
-}
+    min-height: 100vh;
+    min-height: 100svh;
 
-caption {
-    text-align: left;
-    padding: 0 0 8px;
-    color: var(--muted);
-}
-
-th,
-td {
-    text-align: left;
-    padding: 10px 12px;
-    border-bottom: 1px solid var(--line);
-    vertical-align: top;
-}
-
-th {
-    background: var(--raise-soft);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-}
-
-tbody tr:last-child td {
-    border-bottom: none;
-}
-
-/* ---- forms ---- */
-
-form.stack {
-    max-width: 520px;
-}
-
-label {
-    display: block;
-    margin: 14px 0 4px;
-    font-weight: 600;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="tel"],
-input[type="password"],
-input[type="number"],
-input[type="date"],
-input[type="time"],
-input[type="file"],
-select,
-textarea {
-    width: 100%;
-    padding: 9px 10px;
-    font: inherit;
-    color: var(--ink);
-    background: var(--field);
-    border: 1px solid var(--field-line);
-    border-radius: 6px;
-}
-
-textarea {
-    min-height: 96px;
-    resize: vertical;
-}
-
-/* :focus-visible rather than :focus, so the ring appears for anyone
-   moving by keyboard without also framing every mouse click. */
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-a:focus-visible,
-button:focus-visible {
-    outline: 3px solid var(--focus);
-    outline-offset: 1px;
-}
-
-.check {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin: 16px 0;
-}
-
-.check input {
-    width: auto;
-}
-
-.check label {
-    margin: 0;
-    font-weight: 400;
-}
-
-/* A row whose label leads with a thumbnail. Scoped to .media so the
-   plain checkbox rows elsewhere keep their simple layout. */
-.check.media label {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.hint {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin: 4px 0 0;
-}
-
-fieldset {
-    border: 1px solid var(--line);
-    border-radius: 8px;
-    padding: 4px 16px 16px;
-    margin: 0 0 20px;
-}
-
-legend {
-    font-weight: 600;
-    padding: 0 6px;
-}
-
-/* ---- buttons ---- */
-
-.button,
-button {
-    display: inline-block;
-    padding: 9px 16px;
-    font: inherit;
-    font-weight: 600;
-    color: var(--ink);
-    background: var(--raise);
-    border: 1px solid var(--field-line);
-    border-radius: 6px;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.button:hover,
-button:hover {
-    background: var(--raise-hover);
-}
-
-.button.primary,
-button.primary {
-    color: var(--accent-ink);
-    background: var(--accent);
-    border-color: var(--accent);
-}
-
-.button.primary:hover,
-button.primary:hover {
-    background: var(--accent-hover);
-    border-color: var(--accent-hover);
-}
-
-.button.danger,
-button.danger {
-    color: var(--paper);
-    background: var(--bad);
-    border-color: var(--bad);
-}
-
-.button.danger:hover,
-button.danger:hover {
-    background: var(--bad-hover);
-    border-color: var(--bad-hover);
-}
-
-.button.small,
-button.small {
-    padding: 5px 10px;
-    font-size: 0.85rem;
-}
-
-.actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    align-items: center;
-    margin-top: 18px;
-}
-
-.inline {
-    display: inline;
-    margin: 0;
-}
-
-/* ---- messages and badges ---- */
-
-.error {
-    padding: 12px 14px;
-    margin: 0 0 18px;
-    color: var(--bad-ink);
-    background: var(--bad-bg);
-    border: 1px solid var(--bad-line);
-    border-left: 4px solid var(--bad);
-    border-radius: 6px;
-}
-
-/* Badges are pale chips with dark text in both themes, so their colours
-   are written out rather than taken from the variables above. */
-.badge {
-    display: inline-block;
-    padding: 2px 9px;
-    font-size: 0.8rem;
-    font-weight: 700;
-    border-radius: 99px;
-    background: #ece5d9;
-    color: #4f4a42;
-    white-space: nowrap;
-}
-
-.badge.Pending {
-    background: #fdf0d5;
-    color: #7a4f00;
-}
-
-.badge.Accepted {
-    background: #e2f2e7;
-    color: #1a5c31;
-}
-
-.badge.Completed {
-    background: #e4ecf6;
-    color: #1d4e7a;
-}
-
-.badge.Rejected,
-.badge.Cancelled,
-.badge.Suspended {
-    background: #fbe4e2;
-    color: #8a201c;
-}
-
-.badge.Active {
-    background: #e2f2e7;
-    color: #1a5c31;
-}
-
-/* ---- chat ---- */
-
-.thread {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 16px;
-    background: var(--panel);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    margin-bottom: 18px;
 }
 
-.bubble {
-    max-width: 78%;
-    padding: 9px 13px;
-    border-radius: 12px;
-    background: var(--raise);
-}
+/* =========================================================
+   LANDING HEADER
+   ========================================================= */
 
-.bubble.mine {
-    align-self: flex-end;
-    background: var(--accent);
-    color: var(--accent-ink);
-}
+.landing-header {
+    position: relative;
 
-.bubble .who {
-    display: block;
-    font-size: 0.78rem;
-    font-weight: 700;
-    opacity: 0.8;
-}
+    width: 100%;
+    min-height: 76px;
 
-.bubble .text {
-    margin: 2px 0 0;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
-}
-
-.bubble .when {
-    display: block;
-    font-size: 0.72rem;
-    opacity: 0.75;
-    margin-top: 3px;
-}
-
-.send {
     display: flex;
-    gap: 8px;
-    align-items: flex-start;
+    align-items: center;
+    justify-content: center;
+
+    padding: 18px 28px;
 }
 
-.send textarea {
-    min-height: 52px;
+.landing-brand {
+    color: #ffffff;
+
+    font-size: 1.3rem;
+    font-weight: 800;
+
+    text-decoration: none;
+
+    text-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.75);
 }
 
-/* ---- misc ---- */
+/*
+   Barber and Admin login buttons are positioned
+   independently at the two extreme sides.
+*/
 
-.crumbs {
-    margin: 0 0 18px;
-    font-size: 0.9rem;
-}
-
-.price {
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.visually-hidden {
+.landing-login {
     position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
+    top: 50%;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 42px;
+
+    padding: 8px 17px;
+
+    color: #ffffff;
+    background: rgba(0, 0, 0, 0.38);
+
+    border: 1px solid rgba(255, 255, 255, 0.45);
+    border-radius: 7px;
+
+    text-decoration: none;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+
+    transform: translateY(-50%);
+
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+
+    transition:
+        background-color 160ms ease,
+        border-color 160ms ease,
+        transform 160ms ease;
 }
 
-/* ---- notices ---- */
+.landing-login:hover {
+    background: rgba(0, 0, 0, 0.62);
+    border-color: rgba(255, 255, 255, 0.8);
 
-/* The counterpart of .error: something that went right, or a detail worth
-   reading before the page is used. */
-.notice {
-    padding: 12px 14px;
-    margin: 0 0 18px;
-    color: var(--good-ink);
-    background: var(--good-bg);
-    border: 1px solid var(--good-line);
-    border-left: 4px solid var(--good);
-    border-radius: 6px;
+    transform: translateY(calc(-50% - 1px));
 }
 
-/* ---- fields app.js adds to ---- */
+.landing-login:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 3px;
+}
 
-/* Wrapper the reveal button is dropped into, beside its password box. */
-.pw {
+.landing-login-barber {
+    left: 28px;
+}
+
+.landing-login-admin {
+    right: 28px;
+}
+
+/* =========================================================
+   MAIN LANDING CONTENT
+   ========================================================= */
+
+.landing-content {
+    flex: 1;
+
+    width: 100%;
+
     display: flex;
-    gap: 8px;
-    align-items: stretch;
-}
-
-.pw input {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-.pw .reveal {
-    flex: 0 0 auto;
-}
-
-/* One line of feedback under a field, filled in while it is typed. */
-.field-note {
-    margin: 4px 0 0;
-    font-size: 0.85rem;
-    color: var(--muted);
-}
-
-.field-note.ok {
-    color: var(--good);
-    font-weight: 600;
-}
-
-.field-note.warn {
-    color: var(--warn);
-    font-weight: 600;
-}
-
-.counter {
-    margin: 4px 0 0;
-    font-size: 0.8rem;
-    color: var(--muted);
-}
-
-/* ---- filter bar above a list ---- */
-
-.toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px 16px;
     align-items: flex-end;
-    margin: 0 0 16px;
+    justify-content: center;
+
+    padding: 40px 24px 9vh;
+
+    text-align: center;
 }
 
-.toolbar .field {
-    flex: 1 1 260px;
+.landing-main-content {
+    width: min(720px, 100%);
 }
 
-.toolbar label {
-    margin: 0 0 4px;
+.landing-main-content h1 {
+    margin: 0;
+
+    color: #ffffff;
+
+    font-size: clamp(2.8rem, 7vw, 5.5rem);
+    line-height: 1;
+
+    letter-spacing: -0.05em;
+
+    text-shadow:
+        0 4px 20px rgba(0, 0, 0, 0.8),
+        0 2px 5px rgba(0, 0, 0, 0.9);
 }
 
-/* app.js hides filtered rows with the hidden attribute, which a table row
-   would otherwise ignore: its display: table-row wins on specificity. */
-[hidden] {
-    display: none !important;
+.landing-main-content p {
+    max-width: 600px;
+
+    margin: 20px auto 30px;
+
+    color: rgba(255, 255, 255, 0.96);
+
+    font-size: clamp(1rem, 2vw, 1.2rem);
+    line-height: 1.6;
+
+    text-shadow:
+        0 2px 12px rgba(0, 0, 0, 0.85);
 }
 
-/* A form that has been submitted, while the answer is on its way. */
-button:disabled,
-.button:disabled {
-    opacity: 0.55;
-    cursor: progress;
+/* =========================================================
+   FIND A BARBER
+   ========================================================= */
+
+.landing-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 210px;
+    min-height: 54px;
+
+    padding: 13px 28px;
+
+    color: #ffffff;
+    background: #7a4a1e;
+
+    border: 1px solid #7a4a1e;
+    border-radius: 8px;
+
+    text-decoration: none;
+
+    font-size: 1rem;
+    font-weight: 800;
+
+    box-shadow:
+        0 8px 25px rgba(0, 0, 0, 0.4);
+
+    transition:
+        background-color 160ms ease,
+        transform 160ms ease,
+        box-shadow 160ms ease;
 }
 
-/* ---- dark mode ---- */
+.landing-button:hover {
+    background: #5f3915;
+    border-color: #5f3915;
 
-/* Only the variables change. Every rule above is written against them, so
-   the layout is shared and there is one set of colours to keep honest.
-   The top bar keeps its own pair because it is dark in both themes. */
-@media (prefers-color-scheme: dark) {
-    :root {
-        --ink: #f2ede4;
-        --muted: #b2a999;
-        --line: #3a352e;
-        --paper: #16140f;
-        --panel: #201d18;
+    transform: translateY(-2px);
 
-        --top: #100e0b;
-
-        --accent: #c98a4b;
-        --accent-hover: #dda061;
-        --accent-ink: #1c1a17;
-
-        --raise: #2b2721;
-        --raise-soft: #262218;
-        --raise-hover: #363029;
-
-        --field: #1b1813;
-        --field-line: #4c463c;
-        --focus: #e0a866;
-
-        --good: #6bcb8b;
-        --good-bg: #17301f;
-        --good-line: #2f5c3d;
-        --good-ink: #b9e7c6;
-
-        --warn: #e0ac4a;
-
-        --bad: #ef8079;
-        --bad-hover: #f5978f;
-        --bad-bg: #341c1a;
-        --bad-line: #63302c;
-        --bad-ink: #f3c4c0;
-    }
+    box-shadow:
+        0 12px 30px rgba(0, 0, 0, 0.45);
 }
 
-/* ---- narrow screens ---- */
+.landing-button:focus-visible {
+    outline: 3px solid #ffffff;
+    outline-offset: 4px;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 620px) {
-    .wrap {
-        padding: 0 14px;
+
+    .landing-header {
+        min-height: 68px;
+        padding: 14px 10px;
     }
 
-    h1 {
-        font-size: 1.45rem;
-    }
+    .landing-brand {
+        font-size: 1rem;
 
-    /* Tables are the one thing that cannot shrink gracefully, so they are
-       allowed to scroll sideways inside their own box instead of pushing
-       the whole page wider. */
-    table {
-        display: block;
-        overflow-x: auto;
-        white-space: nowrap;
-    }
-
-    th,
-    td {
-        padding: 8px 10px;
-    }
-
-    .bubble {
-        max-width: 90%;
-    }
-
-    /* A full-width button is easier to hit than one sized to its label. */
-    .actions .button,
-    .actions button {
-        flex: 1 1 auto;
+        /*
+           Leave room for the two login buttons.
+        */
+        margin: 0 70px;
         text-align: center;
     }
-}
 
-/* Anyone who has asked their system for less movement gets none. */
-@media (prefers-reduced-motion: reduce) {
-    * {
-        transition: none !important;
-        scroll-behavior: auto !important;
+    .landing-login {
+        min-height: 38px;
+
+        padding: 7px 10px;
+
+        font-size: 0.76rem;
+    }
+
+    .landing-login-barber {
+        left: 10px;
+    }
+
+    .landing-login-admin {
+        right: 10px;
+    }
+
+    .landing-content {
+        padding: 40px 18px 48px;
+    }
+
+    .landing-main-content h1 {
+        font-size: clamp(2.4rem, 12vw, 3.8rem);
+    }
+
+    .landing-main-content p {
+        margin: 16px auto 24px;
+
+        font-size: 0.95rem;
+    }
+
+    .landing-button {
+        width: 100%;
+        max-width: 360px;
     }
 }
+```

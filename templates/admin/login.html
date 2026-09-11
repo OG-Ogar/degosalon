@@ -9,70 +9,79 @@
 <title>Admin Login - Barber Booking</title>
 
 <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/login.css">
+
 <script src="/static/app.js" defer></script>
 ```
 
 </head>
 
-<body>
+<body class="auth-page admin-auth">
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/">Barber Booking</a>
+<main class="auth-layout">
 
 ```
-    <nav class="nav">
-        <a href="/barber/login">Barber Login</a>
-        <a href="/customer/login">Customer Login</a>
-    </nav>
-</div>
-```
+<section class="auth-card">
 
-</header>
+    <div class="auth-brand">
+        <a href="/">Barber Booking</a>
+    </div>
 
-<main class="wrap">
-
-```
-<div class="panel">
-
-    <h1>Admin Login</h1>
-
-    <p class="lede">
-        Sign in to manage the Barber Booking platform.
-    </p>
+    <div class="auth-header">
+        <h1>Admin Login</h1>
+        <p>Welcome back. Sign in to continue.</p>
+    </div>
 
     {{if .Error}}
-        <p class="error" role="alert">{{.Error}}</p>
+        <p class="auth-message auth-error" role="alert">
+            {{.Error}}
+        </p>
     {{end}}
 
-    <form class="stack" method="post" action="/admin/login">
+    <form class="auth-form"
+          method="post"
+          action="/admin/login">
 
-        <label for="username">Username</label>
-        <input
-            id="username"
-            type="text"
-            name="username"
-            value="{{index .Values "username"}}"
-            autocomplete="username"
-            required
-        >
+        <div class="auth-field">
+            <label for="username">Username</label>
 
-        <label for="password">Password</label>
-        <input
-            id="password"
-            type="password"
-            name="password"
-            autocomplete="current-password"
-            required
-        >
+            <input
+                id="username"
+                type="text"
+                name="username"
+                value="{{index .Values "username"}}"
+                autocomplete="username"
+                placeholder="Enter your username"
+                required
+            >
+        </div>
 
-        <button class="primary" type="submit">
-            Sign in
+        <div class="auth-field">
+            <label for="password">Password</label>
+
+            <input
+                id="password"
+                type="password"
+                name="password"
+                autocomplete="current-password"
+                placeholder="Enter your password"
+                required
+            >
+        </div>
+
+        <button class="auth-submit" type="submit">
+            Sign In
         </button>
 
     </form>
 
-</div>
+    <div class="auth-footer">
+        <a href="/">
+            ← Back to Barber Booking
+        </a>
+    </div>
+
+</section>
 ```
 
 </main>

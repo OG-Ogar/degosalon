@@ -12,10 +12,12 @@
 <header class="topbar">
     <div class="wrap">
         <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+
         <nav class="nav" aria-label="Main">
             <a href="/admin/barbers">Barbers</a>
             <a href="/admin/customers">Customers</a>
             <a href="/admin/bookings">Bookings</a>
+
             <form class="inline" method="post" action="/admin/logout">
                 <input type="hidden" name="csrf_token" value="{{.CSRF}}">
                 <button class="small" type="submit">Log out</button>
@@ -27,30 +29,56 @@
 <main class="wrap">
 
     <h1>Administrator dashboard</h1>
-    <p class="lede">Everything on the platform at a glance.</p>
+
+    <p class="lede">
+        Everything on the platform at a glance.
+    </p>
 
     <div class="grid">
 
         <div class="card">
             <span class="stat">{{.Barbers}}</span>
             Barber accounts
-            <p class="muted">{{.ActiveBarbers}} active</p>
+
+            <p class="muted">
+                {{.ActiveBarbers}} active
+            </p>
+
             <p>
-                <a class="button small" href="/admin/barbers">Manage barbers</a>
-                <a class="button small primary" href="/admin/barbers/new">Add barber</a>
+                <a class="button small"
+                   href="/admin/barbers">
+                    Manage barbers
+                </a>
+
+                <a class="button small primary"
+                   href="/admin/barbers/new">
+                    Add barber
+                </a>
             </p>
         </div>
 
         <div class="card">
             <span class="stat">{{.Customers}}</span>
             Registered customers
-            <p><a class="button small" href="/admin/customers">View customers</a></p>
+
+            <p>
+                <a class="button small"
+                   href="/admin/customers">
+                    View customers
+                </a>
+            </p>
         </div>
 
         <div class="card">
             <span class="stat">{{.Bookings}}</span>
             Bookings all time
-            <p><a class="button small" href="/admin/bookings">View bookings</a></p>
+
+            <p>
+                <a class="button small"
+                   href="/admin/bookings">
+                    View bookings
+                </a>
+            </p>
         </div>
 
         <div class="card">
@@ -59,6 +87,70 @@
         </div>
 
     </div>
+
+    <section class="panel">
+
+        <h2>Landing page background</h2>
+
+        <p class="lede">
+            Upload the large photo customers see on the main landing page.
+        </p>
+
+        {{if .LandingImage}}
+
+            <img class="photo"
+                 src="{{.LandingImage}}"
+                 alt="Current landing page background">
+
+            <p class="muted">
+                This is the image currently displayed on the homepage.
+            </p>
+
+        {{else}}
+
+            <p class="muted">
+                No landing page image has been uploaded yet.
+            </p>
+
+        {{end}}
+
+        <form class="stack"
+              method="post"
+              action="/admin/landing-image"
+              enctype="multipart/form-data">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{.CSRF}}">
+
+            <label for="landing_image">
+                Choose landing page photo
+            </label>
+
+            <input id="landing_image"
+                   type="file"
+                   name="landing_image"
+                   accept=".jpg,.jpeg,.png,.gif,.webp"
+                   required>
+
+            <p class="hint">
+                Use a large, clear photo of a barber cutting a customer's
+                hair. JPG, PNG, GIF or WEBP, up to 5 MB.
+            </p>
+
+            <div class="actions">
+                <button class="primary" type="submit">
+                    Upload background
+                </button>
+
+                <a class="button" href="/">
+                    View landing page
+                </a>
+            </div>
+
+        </form>
+
+    </section>
 
 </main>
 

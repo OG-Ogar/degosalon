@@ -3,83 +3,195 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My hairstyles - Barber Booking</title>
+
+    <title>Manage Hairstyles - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/barber/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/hairstyles">My hairstyles</a>
-            <a href="/barber/bookings">Bookings</a>
-            <a href="/barber/chats">Messages</a>
-            <a href="/barber/profile">My profile</a>
-            <form class="inline" method="post" action="/barber/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
+<body class="barber-page">
+
+<header class="barber-header">
+    <div class="barber-header-inner">
+
+        <a class="barber-brand" href="/barber/dashboard">
+            Barber Booking
+        </a>
+
+        <nav class="barber-nav" aria-label="Barber navigation">
+
+            <a href="/barber/dashboard">
+                1. Dashboard
+            </a>
+
+            <a class="active" href="/barber/hairstyles">
+                2. Hairstyles
+            </a>
+
+            <a href="/barber/bookings">
+                3. Bookings
+            </a>
+
+            <a href="/barber/chats">
+                4. Messages
+            </a>
+
+            <a href="/barber/profile">
+                5. Profile
+            </a>
+
         </nav>
+
     </div>
 </header>
 
-<main class="wrap">
+<main class="barber-main">
 
-    <p class="crumbs"><a href="/barber/dashboard">Dashboard</a> / My hairstyles</p>
+    <p class="barber-breadcrumb">
+        <a href="/barber/dashboard">Dashboard</a>
+        /
+        Hairstyles
+    </p>
 
-    <h1>My hairstyles</h1>
-    <p class="lede">Only styles marked available can be booked by customers.</p>
+    <h1 class="barber-title">
+        Manage Hairstyles
+    </h1>
 
-    <div class="actions">
-        <a class="button primary" href="/barber/hairstyles/new">Add a hairstyle</a>
+    <p class="barber-lede">
+        Add, edit and manage the hairstyles customers can book.
+    </p>
+
+
+    <div class="barber-actions">
+
+        <a class="barber-button primary"
+           href="/barber/hairstyles/new">
+            + Add a Hairstyle
+        </a>
+
     </div>
 
-    {{if .Items}}
-        <div class="grid">
-            {{range .Items}}
-                <article class="card">
 
-                    {{if .Image}}
-                        <img src="{{.Image}}" alt="{{.Name}}">
-                    {{else}}
-                        <span class="thumb" aria-hidden="true"></span>
-                    {{end}}
+    <section class="barber-section">
 
-                    <h3><a href="/barber/hairstyles/{{.ID}}">{{.Name}}</a></h3>
+        {{if .Items}}
 
-                    <p class="muted">{{.Category}}</p>
+            <div class="barber-hairstyle-grid">
 
-                    <p>
-                        <span class="price">&#8358;{{printf "%.2f" .Price}}</span>
-                        <span class="muted">&middot; {{.Duration}} minutes</span>
-                    </p>
+                {{range .Items}}
 
-                    <p>
-                        {{if .IsAvailable}}
-                            <span class="badge Active">Available</span>
+                    <article class="barber-hairstyle-card">
+
+                        {{if .Image}}
+
+                            <img class="barber-hairstyle-image"
+                                 src="{{.Image}}"
+                                 alt="{{.Name}}">
+
                         {{else}}
-                            <span class="badge Suspended">Hidden</span>
+
+                            <div class="barber-hairstyle-no-image">
+                                No photo
+                            </div>
+
                         {{end}}
-                    </p>
 
-                    <div class="actions">
-                        <a class="button small" href="/barber/hairstyles/{{.ID}}">View</a>
-                        <a class="button small" href="/barber/hairstyles/{{.ID}}/edit">Edit</a>
-                        <a class="button small danger"
-                           href="/barber/hairstyles/{{.ID}}/delete">Delete</a>
-                    </div>
 
-                </article>
-            {{end}}
-        </div>
-    {{else}}
-        <p class="empty">
-            You have not listed any hairstyles yet.
-            <a href="/barber/hairstyles/new">Add your first one</a> so customers can book.
-        </p>
-    {{end}}
+                        <div class="barber-hairstyle-content">
+
+                            <h2 class="barber-hairstyle-name">
+
+                                <a href="/barber/hairstyles/{{.ID}}">
+                                    {{.Name}}
+                                </a>
+
+                            </h2>
+
+                            <p class="barber-category">
+                                {{.Category}}
+                            </p>
+
+
+                            <p>
+
+                                <span class="barber-price">
+                                    &#8358;{{printf "%.2f" .Price}}
+                                </span>
+
+                                <span class="barber-duration">
+                                    &middot; {{.Duration}} minutes
+                                </span>
+
+                            </p>
+
+
+                            <p>
+
+                                {{if .IsAvailable}}
+
+                                    <span class="barber-badge Active">
+                                        Available
+                                    </span>
+
+                                {{else}}
+
+                                    <span class="barber-badge Suspended">
+                                        Hidden
+                                    </span>
+
+                                {{end}}
+
+                            </p>
+
+
+                            <div class="barber-actions">
+
+                                <a class="barber-button"
+                                   href="/barber/hairstyles/{{.ID}}">
+                                    View
+                                </a>
+
+                                <a class="barber-button"
+                                   href="/barber/hairstyles/{{.ID}}/edit">
+                                    Edit
+                                </a>
+
+                                <a class="barber-button danger"
+                                   href="/barber/hairstyles/{{.ID}}/delete">
+                                    Delete
+                                </a>
+
+                            </div>
+
+                        </div>
+
+                    </article>
+
+                {{end}}
+
+            </div>
+
+        {{else}}
+
+            <div class="barber-empty">
+
+                <p>
+                    You have not listed any hairstyles yet.
+                </p>
+
+                <a class="barber-button primary"
+                   href="/barber/hairstyles/new">
+                    Add your first hairstyle
+                </a>
+
+            </div>
+
+        {{end}}
+
+    </section>
 
 </main>
 

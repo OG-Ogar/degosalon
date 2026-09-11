@@ -3,79 +3,248 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My profile - Barber Booking</title>
+
+    <title>My Profile - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/barber/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/hairstyles">My hairstyles</a>
-            <a href="/barber/bookings">Bookings</a>
-            <a href="/barber/chats">Messages</a>
-            <a href="/barber/profile">My profile</a>
-            <form class="inline" method="post" action="/barber/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
+<body class="barber-page">
+
+<header class="barber-header">
+    <div class="barber-header-inner">
+
+        <a class="barber-brand" href="/barber/dashboard">
+            Barber Booking
+        </a>
+
+        <nav class="barber-nav" aria-label="Barber navigation">
+
+            <a href="/barber/dashboard">
+                1. Dashboard
+            </a>
+
+            <a href="/barber/hairstyles">
+                2. Hairstyles
+            </a>
+
+            <a href="/barber/bookings">
+                3. Bookings
+            </a>
+
+            <a href="/barber/chats">
+                4. Messages
+            </a>
+
+            <a class="active" href="/barber/profile">
+                5. Profile
+            </a>
+
         </nav>
+
     </div>
 </header>
 
-<main class="wrap">
+<main class="barber-main">
 
-    <p class="crumbs"><a href="/barber/dashboard">Dashboard</a> / My profile</p>
+    <p class="barber-breadcrumb">
+        <a href="/barber/dashboard">Dashboard</a>
+        /
+        My Profile
+    </p>
 
-    <h1>My profile</h1>
-    <p class="lede">This is what customers see on your shop page.</p>
+    <h1 class="barber-title">
+        My Profile
+    </h1>
 
-    <div class="panel">
+    <p class="barber-lede">
+        This is the information customers see about your barber shop.
+    </p>
+
+
+    <section class="barber-profile-card">
 
         {{if .ProfileImage}}
-            <img class="photo" src="{{.ProfileImage}}"
+
+            <img class="barber-shop-photo"
+                 src="{{.ProfileImage}}"
                  alt="Your shop photo, as customers see it">
+
         {{else}}
-            <p class="muted">
-                You have no shop photo yet. Customers see one on your page
-                as soon as you add it.
+
+            <p class="barber-hint">
+                You have not added a shop photo yet.
             </p>
+
         {{end}}
 
-        <div class="who">
+
+        <div class="barber-personal-area">
+
             {{if .PersonalImage}}
-                <img class="avatar" src="{{.PersonalImage}}"
+
+                <img class="barber-personal-photo"
+                     src="{{.PersonalImage}}"
                      alt="Your picture, as customers see it">
+
+                <div>
+
+                    <strong>
+                        {{.FullName}}
+                    </strong>
+
+                    <p class="barber-hint">
+                        This is the picture customers see beside your name.
+                    </p>
+
+                </div>
+
+            {{else}}
+
+                <div>
+
+                    <strong>
+                        {{.FullName}}
+                    </strong>
+
+                    <p class="barber-hint">
+                        You have not added a personal picture yet.
+                    </p>
+
+                </div>
+
             {{end}}
-            <p{{if not .PersonalImage}} class="muted"{{end}}>
-                {{if .PersonalImage}}
-                    This is the picture customers see beside your name.
-                {{else}}
-                    You have not added a picture of yourself yet.
-                {{end}}
-            </p>
+
         </div>
 
-        <table>
+
+        <table class="barber-profile-table">
+
             <tbody>
-                <tr><th scope="row">Full name</th><td>{{.FullName}}</td></tr>
-                <tr><th scope="row">Email</th><td>{{.Email}}</td></tr>
-                <tr><th scope="row">Phone</th><td>{{.PhoneNumber}}</td></tr>
-                <tr><th scope="row">Shop name</th><td>{{.ShopName}}</td></tr>
-                <tr><th scope="row">Shop address</th><td>{{.ShopAddress}}</td></tr>
-                <tr><th scope="row">Account status</th>
-                    <td><span class="badge {{.Status}}">{{.Status}}</span></td></tr>
+
+                <tr>
+                    <th scope="row">
+                        Full Name
+                    </th>
+
+                    <td>
+                        {{.FullName}}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Email
+                    </th>
+
+                    <td>
+                        {{.Email}}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Phone
+                    </th>
+
+                    <td>
+                        {{.PhoneNumber}}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Shop Name
+                    </th>
+
+                    <td>
+                        {{.ShopName}}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Shop Address
+                    </th>
+
+                    <td>
+                        {{.ShopAddress}}
+                    </td>
+                </tr>
+
+
+                <tr>
+                    <th scope="row">
+                        Account Status
+                    </th>
+
+                    <td>
+
+                        <span class="barber-badge {{.Status}}">
+                            {{.Status}}
+                        </span>
+
+                    </td>
+
+                </tr>
+
             </tbody>
+
         </table>
 
-        <div class="actions">
-            <a class="button primary" href="/barber/profile/edit">Edit my details</a>
-            <a class="button" href="/barber/dashboard">Back to dashboard</a>
+
+        <div class="barber-actions">
+
+            <a class="barber-button primary"
+               href="/barber/profile/edit">
+                Edit My Details
+            </a>
+
+            <a class="barber-button"
+               href="/barber/dashboard">
+                Back to Dashboard
+            </a>
+
         </div>
 
-    </div>
+
+        <!-- Logout is intentionally only on the profile page. -->
+
+        <div class="barber-logout">
+
+            <h2 class="barber-logout-title">
+                Account
+            </h2>
+
+            <p class="barber-logout-text">
+                Finished using your barber account? You can safely log out here.
+            </p>
+
+
+            <form method="post"
+                  action="/barber/logout">
+
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{.CSRF}}">
+
+                <button class="barber-button danger"
+                        type="submit">
+                    Log Out
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
 
 </main>
 

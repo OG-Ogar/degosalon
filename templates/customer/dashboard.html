@@ -3,94 +3,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>My dashboard - Barber Booking</title>
-    <link rel="stylesheet" href="/static/app.css">
+
+    <link rel="stylesheet" href="/static/customer-dashboard.css">
     <script src="/static/app.js" defer></script>
 </head>
+
 <body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/customer/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/customer/barbers">Find a barber</a>
-            <a href="/customer/bookings">My bookings</a>
-            <a href="/customer/chats">Messages</a>
-            <a href="/customer/profile">My profile</a>
-            <form class="inline" method="post" action="/customer/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
-        </nav>
-    </div>
-</header>
+<div class="customer-dashboard">
 
-<main class="wrap">
-
-    <h1>Hello, {{.FullName}}</h1>
-    <p class="lede">This is your page. Book a haircut, track your appointments and talk to your barber.</p>
-
-    <div class="grid">
-
-        <div class="card">
-            <span class="stat">{{.Barbers}}</span>
-            Barbers on the app
-            <p><a class="button small" href="/customer/barbers">Browse barbers</a></p>
+    {{if .BackgroundImage}}
+        <div class="dashboard-background"
+             style="background-image: url('{{.BackgroundImage}}');">
         </div>
-
-        <div class="card">
-            <span class="stat">{{.Pending}}</span>
-            Awaiting confirmation
-        </div>
-
-        <div class="card">
-            <span class="stat">{{len .Upcoming}}</span>
-            Upcoming appointments
-            <p><a class="button small" href="/customer/bookings">See all bookings</a></p>
-        </div>
-
-        <div class="card">
-            <span class="stat">{{.Conversations}}</span>
-            Conversations
-            <p><a class="button small" href="/customer/chats">Open messages</a></p>
-        </div>
-
-    </div>
-
-    <h2>Next appointments</h2>
-
-    {{if .Upcoming}}
-        <table>
-            <caption>Bookings that are still pending or confirmed.</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">Hairstyle</th>
-                    <th scope="col">Barber</th>
-                    <th scope="col">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .Upcoming}}
-                    <tr>
-                        <td>{{.Date}}</td>
-                        <td>{{.Time}}</td>
-                        <td>{{.HairstyleName}}</td>
-                        <td>{{.BarberName}}<br><span class="muted">{{.ShopName}}</span></td>
-                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
-                    </tr>
-                {{end}}
-            </tbody>
-        </table>
     {{else}}
-        <p class="empty">
-            You have no appointments yet.
-            <a href="/customer/barbers">Find a barber</a> to book your first haircut.
-        </p>
+        <div class="dashboard-background dashboard-no-image">
+        </div>
     {{end}}
 
-</main>
+    <div class="dashboard-overlay"></div>
+
+    <header class="customer-header">
+
+        <a class="customer-brand"
+           href="/customer/dashboard">
+            Barber Booking
+        </a>
+
+        <nav class="customer-nav" aria-label="Main">
+
+            <a href="/customer/barbers">
+                Find a barber
+            </a>
+
+            <a href="/customer/bookings">
+                My bookings
+            </a>
+
+            <a href="/customer/chats">
+                Messages
+            </a>
+
+            <a href="/customer/profile">
+                My profile
+            </a>
+
+        </nav>
+
+    </header>
+
+    <main class="customer-content">
+
+        <section class="welcome">
+
+            <p class="eyebrow">
+                Welcome back
+            </p>
+
+            <h1>
+                Hello, {{.FullName}}
+            </h1>
+
+            <p class="welcome-text">
+                Book your next haircut, manage your appointments,
+                and stay connected with your barber.
+            </p>
+
+            <a class="hero-button"
+               href="/customer/barbers">
+                Find a barber
+            </a>
+
+        </section>
+
+        <section class="customer-stats"
+                 aria-label="Dashboard summary">
+
+            <article class="stat-card">
+
+                <span class="stat-number">
+                    {{.Barbers}}
+                </span>
+
+                <span class="stat-label">
+                    Barbers available
+                </span>
+
+            </article>
+
+            <article class="stat-card">
+
+                <span class="stat-number">
+                    {{.Pending}}
+                </span>
+
+                <span class="stat-label">
+                    Awaiting confirmation
+                </span>
+
+            </article>
+
+            <article class="stat-card">
+
+                <span class="stat-number">
+                    {{len .Upcoming}}
+                </span>
+
+                <span class="stat-label">
+                    Upcoming appointments
+                </span>
+
+            </article>
+
+            <article class="stat-card">
+
+                <span class="stat-number">
+                    {{.Conversations}}
+                </span>
+
+                <span class="stat-label">
+                    Conversations
+                </span>
+
+            </article>
+
+        </section>
+
+        <section class="appointments">
+
+            <div class="section-heading">
+
+                <div>
+                    <p class="eyebrow">
+                        Your schedule
+                    </p>
+
+                    <h2>
+                        Next appointments
+                    </h2>
+                </div>
+
+                <a class="section-link"
+                   href="/customer/bookings">
+                    See all bookings
+                </a>
+
+            </div>
+
+            {{if .Upcoming}}
+
+                <div class="appointment-list">
+
+                    {{range .Upcoming}}
+
+                        <article class="appointment-card">
+
+                            <div class="appointment-date">
+                                <span>{{.Date}}</span>
+                                <strong>{{.Time}}</strong>
+                            </div>
+
+                            <div class="appointment-details">
+
+                                <h3>
+                                    {{.HairstyleName}}
+                                </h3>
+
+                                <p>
+                                    {{.BarberName}}
+                                </p>
+
+                                <span>
+                                    {{.ShopName}}
+                                </span>
+
+                            </div>
+
+                            <div class="appointment-status">
+
+                                <span class="status">
+                                    {{.Status}}
+                                </span>
+
+                            </div>
+
+                        </article>
+
+                    {{end}}
+
+                </div>
+
+            {{else}}
+
+                <div class="empty-appointments">
+
+                    <h3>
+                        No appointments yet
+                    </h3>
+
+                    <p>
+                        Find a barber and book your first haircut.
+                    </p>
+
+                    <a class="hero-button"
+                       href="/customer/barbers">
+                        Browse barbers
+                    </a>
+
+                </div>
+
+            {{end}}
+
+        </section>
+
+    </main>
+
+</div>
 
 </body>
 </html>

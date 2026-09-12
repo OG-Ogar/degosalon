@@ -11,7 +11,9 @@
 
 <header class="topbar">
     <div class="wrap">
-        <a class="brand" href="/admin/dashboard">Barber Booking admin</a>
+        <a class="brand" href="/admin/dashboard">
+            Barber Booking admin
+        </a>
 
         <nav class="nav" aria-label="Main">
             <a href="/admin/barbers">Barbers</a>
@@ -19,8 +21,13 @@
             <a href="/admin/bookings">Bookings</a>
 
             <form class="inline" method="post" action="/admin/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
+                <input type="hidden"
+                       name="csrf_token"
+                       value="{{.CSRF}}">
+
+                <button class="small" type="submit">
+                    Log out
+                </button>
             </form>
         </nav>
     </div>
@@ -33,6 +40,12 @@
     <p class="lede">
         Everything on the platform at a glance.
     </p>
+
+    {{if .Error}}
+        <p class="error" role="alert">
+            {{.Error}}
+        </p>
+    {{end}}
 
     <div class="grid">
 
@@ -90,17 +103,17 @@
 
     <section class="panel">
 
-        <h2>Landing page background</h2>
+        <h2>Homepage background</h2>
 
         <p class="lede">
-            Upload the large photo customers see on the main landing page.
+            Upload the large photo displayed on the main landing page.
         </p>
 
         {{if .LandingImage}}
 
             <img class="photo"
                  src="{{.LandingImage}}"
-                 alt="Current landing page background">
+                 alt="Current homepage background">
 
             <p class="muted">
                 This is the image currently displayed on the homepage.
@@ -109,7 +122,7 @@
         {{else}}
 
             <p class="muted">
-                No landing page image has been uploaded yet.
+                No homepage background has been uploaded yet.
             </p>
 
         {{end}}
@@ -124,7 +137,7 @@
                    value="{{.CSRF}}">
 
             <label for="landing_image">
-                Choose landing page photo
+                Choose homepage photo
             </label>
 
             <input id="landing_image"
@@ -134,17 +147,85 @@
                    required>
 
             <p class="hint">
-                Use a large, clear photo of a barber cutting a customer's
-                hair. JPG, PNG, GIF or WEBP, up to 5 MB.
+                Use a large, clear photo of a barber cutting a
+                customer's hair. JPG, PNG, GIF or WEBP, up to 5 MB.
             </p>
 
             <div class="actions">
                 <button class="primary" type="submit">
-                    Upload background
+                    Upload homepage background
                 </button>
 
                 <a class="button" href="/">
                     View landing page
+                </a>
+            </div>
+
+        </form>
+
+    </section>
+
+    <section class="panel">
+
+        <h2>Customer dashboard background</h2>
+
+        <p class="lede">
+            Upload the full-screen photo customers see behind
+            their dashboard.
+        </p>
+
+        {{if .CustomerLandingImage}}
+
+            <img class="photo"
+                 src="{{.CustomerLandingImage}}"
+                 alt="Current customer dashboard background">
+
+            <p class="muted">
+                This is the image currently displayed behind
+                the customer dashboard.
+            </p>
+
+        {{else}}
+
+            <p class="muted">
+                No customer dashboard background has been uploaded yet.
+            </p>
+
+        {{end}}
+
+        <form class="stack"
+              method="post"
+              action="/admin/customer-landing-image"
+              enctype="multipart/form-data">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{.CSRF}}">
+
+            <label for="customer_landing_image">
+                Choose customer dashboard photo
+            </label>
+
+            <input id="customer_landing_image"
+                   type="file"
+                   name="customer_landing_image"
+                   accept=".jpg,.jpeg,.png,.gif,.webp"
+                   required>
+
+            <p class="hint">
+                Use a large, clear photo suitable for a
+                full-screen customer dashboard background.
+                JPG, PNG, GIF or WEBP, up to 5 MB.
+            </p>
+
+            <div class="actions">
+                <button class="primary" type="submit">
+                    Upload customer background
+                </button>
+
+                <a class="button"
+                   href="/customer/dashboard">
+                    View customer dashboard
                 </a>
             </div>
 

@@ -19,6 +19,8 @@ type customerDashboardView struct {
 	Upcoming      []bookingRow
 	Pending       int
 	Conversations int
+
+	BackgroundImage string
 }
 
 // CustomerDashboardHandler is the page a customer lands on after login.
@@ -35,10 +37,11 @@ func CustomerDashboardHandler(
 	}
 
 	view := customerDashboardView{
-		Customer:      customer,
-		CSRF:          s.CSRFToken,
-		Barbers:       len(storage.ListActiveBarbers()),
-		Conversations: len(storage.ConversationsForCustomer(customer.ID)),
+		Customer:        customer,
+		CSRF:            s.CSRFToken,
+		Barbers:         len(storage.ListActiveBarbers()),
+		Conversations:   len(storage.ConversationsForCustomer(customer.ID)),
+		BackgroundImage: currentCustomerLandingImage(),
 	}
 
 	view.Customer.PasswordHash = ""
@@ -47,9 +50,16 @@ func CustomerDashboardHandler(
 		switch booking.Status {
 		case models.StatusPending:
 			view.Pending++
-			view.Upcoming = append(view.Upcoming, describeBooking(booking))
+			view.Upcoming = append(
+				view.Upcoming,
+				describeBooking(booking),
+			)
+
 		case models.StatusAccepted:
-			view.Upcoming = append(view.Upcoming, describeBooking(booking))
+			view.Upcoming = append(
+				view.Upcoming,
+				describeBooking(booking),
+			)
 		}
 	}
 
@@ -87,7 +97,12 @@ func EditCustomerProfileHandler(
 	switch r.Method {
 
 	case http.MethodGet:
-		renderCustomerForm(w, s, formFromCustomer(customer), "")
+		renderCustomerForm(
+			w,
+			s,
+			formFromCustomer(customer),
+			"",
+		)
 
 	case http.MethodPost:
 		if !requireCSRF(w, r, s) {
@@ -95,6 +110,7 @@ func EditCustomerProfileHandler(
 		}
 
 		form, problem := readCustomerForm(r)
+
 		if problem != "" {
 			renderCustomerForm(w, s, form, problem)
 
@@ -108,21 +124,39 @@ func EditCustomerProfileHandler(
 		err := storage.UpdateCustomer(customer)
 
 		if errors.Is(err, storage.ErrEmailTaken) {
-			renderCustomerForm(w, s, form, "That email belongs to another account.")
+			renderCustomerForm(
+				w,
+				s,
+				form,
+				"That email belongs to another account.",
+			)
 
 			return
 		}
 
 		if err != nil {
-			serverError(w, "update customer profile", err)
+			serverError(
+				w,
+				"update customer profile",
+				err,
+			)
 
 			return
 		}
 
-		http.Redirect(w, r, "/customer/profile", http.StatusSeeOther)
+		http.Redirect(
+			w,
+			r,
+			"/customer/profile",
+			http.StatusSeeOther,
+		)
 
 	default:
-		methodNotAllowed(w, http.MethodGet, http.MethodPost)
+		methodNotAllowed(
+			w,
+			http.MethodGet,
+			http.MethodPost,
+		)
 	}
 }
 
@@ -143,13 +177,19 @@ func renderCustomerForm(
 	problem string,
 ) {
 	status := http.StatusOK
+
 	if problem != "" {
 		status = http.StatusBadRequest
 	}
 
-	renderStatus(w, status, "customer/edit-profile.html", formView{
-		CSRF:   s.CSRFToken,
-		Error:  problem,
-		Values: form.values(),
-	})
+	renderStatus(
+		w,
+		status,
+		"customer/edit-profile.html",
+		formView{
+			CSRF:   s.CSRFToken,
+			Error:  problem,
+			Values: form.values(),
+		},
+	)
 }

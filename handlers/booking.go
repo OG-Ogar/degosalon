@@ -54,19 +54,17 @@ func readBookingRequest(r *http.Request) (bookingRequest, string) {
 
 	request.HairstyleID = hairstyleID
 
-	date, problem := validBookingDate(dateText)
-	if problem != "" {
-		return request, problem
+	if dateText == "" {
+		return request, "Choose a booking date."
 	}
 
-	request.Date = date
+	request.Date = dateText
 
-	slot, problem := validBookingTime(timeText)
-	if problem != "" {
-		return request, problem
+	if timeText == "" {
+		return request, "Choose a booking time."
 	}
 
-	request.Time = slot
+	request.Time = timeText
 
 	return request, ""
 }

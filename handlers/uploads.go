@@ -37,25 +37,34 @@ var (
 		dir:     "uploads/site",
 		urlPath: "/uploads/site/",
 	}
+
+	customerLandingImages = imageStore{
+		dir:     "uploads/site",
+		urlPath: "/uploads/site/",
+	}
 )
 
 var imageStores = []imageStore{
 	hairstyleImages,
 	barberImages,
 	landingImages,
+	customerLandingImages,
 }
 
 var allowedImageExtensions = map[string]bool{
 	".jpg":  true,
 	".jpeg": true,
-	".png":  true,
-	".gif":  true,
+	".png": true,
+	".gif": true,
 	".webp": true,
 }
 
 var errNoUpload = errors.New("no file uploaded")
 
-const landingImageRecord = "uploads/site/landing-image.txt"
+const (
+	landingImageRecord         = "uploads/site/landing-image.txt"
+	customerLandingImageRecord = "uploads/site/customer-landing-image.txt"
+)
 
 func limitRequestBody(w http.ResponseWriter, r *http.Request) {
 	limitRequestBodyFor(w, r, 1)
@@ -96,6 +105,7 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 	}
 
 	head := make([]byte, 512)
+
 	read, _ := io.ReadFull(file, head)
 
 	if kind := http.DetectContentType(head[:read]); !strings.HasPrefix(kind, "image/") {
@@ -141,7 +151,6 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 	return store.urlPath + name, nil
 }
 
-// removeStoredImage deletes an image from disk when given its public URL.
 func removeStoredImage(imageURL string) error {
 	if imageURL == "" {
 		return nil
@@ -158,7 +167,6 @@ func removeStoredImage(imageURL string) error {
 			strings.Contains(name, "/") ||
 			name == "." ||
 			name == ".." {
-
 			return fmt.Errorf("invalid stored image path %q", imageURL)
 		}
 
@@ -178,8 +186,6 @@ func removeStoredImage(imageURL string) error {
 	return fmt.Errorf("unknown stored image URL %q", imageURL)
 }
 
-// removeImageIgnoringError deletes an image when possible, but does not
-// make an otherwise successful operation fail because cleanup failed.
 func removeImageIgnoringError(imageURL string) {
 	if imageURL == "" {
 		return
@@ -190,7 +196,6 @@ func removeImageIgnoringError(imageURL string) {
 	}
 }
 
-// saveLandingImage saves the new landing-page image and remembers its URL.
 func saveLandingImage(r *http.Request) (string, error) {
 	image, err := landingImages.save(r, "landing_image")
 
@@ -217,12 +222,73 @@ func saveLandingImage(r *http.Request) (string, error) {
 	return image, nil
 }
 
-// currentLandingImage returns the image currently selected for the homepage.
 func currentLandingImage() string {
 	data, err := os.ReadFile(landingImageRecord)
+
 	if err != nil {
 		if !errors.Is(err, os.ErrNotExist) {
 			log.Printf("read landing image record: %v", err)
+		}
+
+		return ""
+	}
+
+	image := strings.TrimSpace(string(data))
+
+	if image == "" {
+		return ""
+	}
+
+	return image
+}
+
+func saveCustomerLandingImage(r *http.Request) (string, error) {
+	image, err := customerLandingImages.save(r, "customer_landing_image")
+
+	if err != nil {
+		return "", err
+	}
+
+	if err := os.MkdirAll(customerLandingImages.dir, 0o755); err != nil {
+		removeImageIgnoringError(image)
+
+		return "", fmt.Errorf(
+			"create customer landing image directory: %w",
+			err,
+		)
+	}
+
+	oldImage := currentCustomerLandingImage()
+
+	if err := os.WriteFile(
+		customerLandingImageRecord,
+		[]byte(image),
+		0o644,
+	); err != nil {
+		removeImageIgnoringError(image)
+
+		return "", fmt.Errorf(
+			"remember customer landing image: %w",
+			err,
+		)
+	}
+
+	if oldImage != "" && oldImage != image {
+		removeImageIgnoringError(oldImage)
+	}
+
+	return image, nil
+}
+
+func currentCustomerLandingImage() string {
+	data, err := os.ReadFile(customerLandingImageRecord)
+
+	if err != nil {
+		if !errors.Is(err, os.ErrNotExist) {
+			log.Printf(
+				"read customer landing image record: %v",
+				err,
+			)
 		}
 
 		return ""

@@ -18,11 +18,18 @@ type adminDashboardView struct {
 	Bookings        int
 	PendingBookings int
 
-	LandingImage string
+	LandingImage         string
+	CustomerLandingImage string
+
+	Error string
 }
 
 // AdminDashboardHandler shows counts and the management links.
-func AdminDashboardHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
+func AdminDashboardHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	s sessionData,
+) {
 	if r.Method != http.MethodGet {
 		methodNotAllowed(w, http.MethodGet)
 
@@ -40,13 +47,14 @@ func AdminDashboardHandler(w http.ResponseWriter, r *http.Request, s sessionData
 	}
 
 	render(w, "admin/dashboard.html", adminDashboardView{
-		CSRF:            s.CSRFToken,
-		Barbers:         len(storage.ListBarbers()),
-		ActiveBarbers:   len(storage.ListActiveBarbers()),
-		Customers:       len(storage.ListCustomers()),
-		Bookings:        len(bookings),
-		PendingBookings: pending,
-		LandingImage:    currentLandingImage(),
+		CSRF:                 s.CSRFToken,
+		Barbers:              len(storage.ListBarbers()),
+		ActiveBarbers:        len(storage.ListActiveBarbers()),
+		Customers:             len(storage.ListCustomers()),
+		Bookings:              len(bookings),
+		PendingBookings:       pending,
+		LandingImage:          currentLandingImage(),
+		CustomerLandingImage: currentCustomerLandingImage(),
 	})
 }
 
@@ -78,25 +86,71 @@ func AdminLandingImageHandler(
 	}
 
 	if err != nil {
-		renderStatus(
-			w,
-			http.StatusBadRequest,
-			"admin/dashboard.html",
-			adminDashboardView{
-				CSRF:            s.CSRFToken,
-				Barbers:         len(storage.ListBarbers()),
-				ActiveBarbers:   len(storage.ListActiveBarbers()),
-				Customers:       len(storage.ListCustomers()),
-				Bookings:        len(storage.ListBookings()),
-				PendingBookings: countPendingBookings(),
-				LandingImage:    currentLandingImage(),
-			},
-		)
+		renderAdminDashboardError(w, s, err.Error())
 
 		return
 	}
 
 	http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+}
+
+// AdminCustomerLandingImageHandler lets the administrator change the
+// image displayed behind the customer dashboard.
+func AdminCustomerLandingImageHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	s sessionData,
+) {
+	if r.Method != http.MethodPost {
+		methodNotAllowed(w, http.MethodPost)
+
+		return
+	}
+
+	limitRequestBody(w, r)
+
+	if !requireCSRF(w, r, s) {
+		return
+	}
+
+	_, err := saveCustomerLandingImage(r)
+
+	if errors.Is(err, errNoUpload) {
+		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+
+		return
+	}
+
+	if err != nil {
+		renderAdminDashboardError(w, s, err.Error())
+
+		return
+	}
+
+	http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
+}
+
+func renderAdminDashboardError(
+	w http.ResponseWriter,
+	s sessionData,
+	problem string,
+) {
+	renderStatus(
+		w,
+		http.StatusBadRequest,
+		"admin/dashboard.html",
+		adminDashboardView{
+			CSRF:                 s.CSRFToken,
+			Barbers:              len(storage.ListBarbers()),
+			ActiveBarbers:        len(storage.ListActiveBarbers()),
+			Customers:             len(storage.ListCustomers()),
+			Bookings:              len(storage.ListBookings()),
+			PendingBookings:       countPendingBookings(),
+			LandingImage:          currentLandingImage(),
+			CustomerLandingImage: currentCustomerLandingImage(),
+			Error:                 problem,
+		},
+	)
 }
 
 // countPendingBookings returns the number of bookings waiting for
@@ -114,7 +168,11 @@ func countPendingBookings() int {
 }
 
 // AdminBookingsHandler lists every booking in the system.
-func AdminBookingsHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
+func AdminBookingsHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	s sessionData,
+) {
 	if r.Method != http.MethodGet {
 		methodNotAllowed(w, http.MethodGet)
 
@@ -136,7 +194,11 @@ type adminCustomerRow struct {
 
 // AdminCustomersHandler lists registered customers and how many
 // bookings each has made.
-func AdminCustomersHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
+func AdminCustomersHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	s sessionData,
+) {
 	if r.Method != http.MethodGet {
 		methodNotAllowed(w, http.MethodGet)
 

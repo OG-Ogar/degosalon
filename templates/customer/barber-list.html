@@ -3,90 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find a barber - Barber Booking</title>
-    <link rel="stylesheet" href="/static/app.css">
+
+    <title>Find a Barber - Barber Booking</title>
+
+    <link rel="stylesheet" href="/static/customer-barbers.css">
     <script src="/static/app.js" defer></script>
 </head>
+
 <body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/customer/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/customer/barbers">Find a barber</a>
-            <a href="/customer/bookings">My bookings</a>
-            <a href="/customer/chats">Messages</a>
-            <a href="/customer/profile">My profile</a>
-            <form class="inline" method="post" action="/customer/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
+<div class="barber-page">
+
+    <!-- Page header -->
+    <header class="barber-header">
+
+        <a class="brand-box" href="/customer/dashboard">
+            <span class="brand-title">Barber</span>
+            <span class="brand-subtitle">Booking</span>
+        </a>
+
+        <nav class="customer-navigation" aria-label="Customer navigation">
+
+            <a class="nav-box active"
+               href="/customer/barbers">
+                <span class="nav-number">01</span>
+                <span class="nav-text">Find a Barber</span>
+            </a>
+
+            <a class="nav-box"
+               href="/customer/bookings">
+                <span class="nav-number">02</span>
+                <span class="nav-text">My Bookings</span>
+            </a>
+
+            <a class="nav-box"
+               href="/customer/chats">
+                <span class="nav-number">03</span>
+                <span class="nav-text">Messages</span>
+            </a>
+
+            <a class="nav-box"
+               href="/customer/profile">
+                <span class="nav-number">04</span>
+                <span class="nav-text">My Profile</span>
+            </a>
+
         </nav>
-    </div>
-</header>
 
-<main class="wrap">
+    </header>
 
-    <p class="crumbs"><a href="/customer/dashboard">My dashboard</a> / Barbers</p>
 
-    <h1>Barbers on the app</h1>
-    <p class="lede">Every barber currently taking bookings. Open one to see their styles and prices.</p>
+    <main class="barber-main">
 
-    {{if .Items}}
-        <div class="toolbar">
-            <div class="field">
-                <label for="filter">Search by shop, name or area</label>
-                <input id="filter" type="search" data-filter=".grid .card"
-                       placeholder="Start typing to narrow the list"
-                       autocomplete="off">
-            </div>
-        </div>
+        <!-- Dashboard link -->
+        <a class="dashboard-box"
+           href="/customer/dashboard">
 
-        <div class="grid">
-            {{range .Items}}
-                <article class="card">
+            <span class="dashboard-arrow">&larr;</span>
 
-                    {{if .ProfileImage}}
-                        <img src="{{.ProfileImage}}" alt="{{.ShopName}}">
-                    {{else if .PersonalImage}}
-                        <img src="{{.PersonalImage}}" alt="{{.FullName}}">
-                    {{else}}
-                        <span class="thumb" aria-hidden="true"></span>
-                    {{end}}
+            <span>
+                <small>Customer Dashboard</small>
+                <strong>Back to Dashboard</strong>
+            </span>
 
-                    <h3>
-                        <a href="/customer/barbers/{{.ID}}">{{.ShopName}}</a>
-                    </h3>
+        </a>
 
-                    <p class="muted">{{.FullName}}</p>
 
-                    <p>
-                        {{.ShopAddress}}<br>
-                        <span class="muted">{{.PhoneNumber}}</span>
-                    </p>
+        <!-- Page introduction -->
+        <section class="page-intro">
 
-                    <p>
-                        {{if .Hairstyles}}
-                            {{.Hairstyles}} style{{if ne .Hairstyles 1}}s{{end}} available,
-                            from <span class="price">{{printf "%.2f" .FromPrice}}</span>
-                        {{else}}
-                            <span class="muted">No styles listed yet</span>
-                        {{end}}
-                    </p>
+            <p class="eyebrow">
+                Discover your barber
+            </p>
 
-                    <div class="actions">
-                        <a class="button primary" href="/customer/barbers/{{.ID}}">Book a haircut</a>
-                        <a class="button small" href="/customer/chats/{{.ID}}">Message</a>
+            <h1>
+                Find a Barber
+            </h1>
+
+            <p class="intro-text">
+                Browse available barbers, explore their hairstyles,
+                check their prices, and book your next haircut.
+            </p>
+
+        </section>
+
+
+        {{if .Items}}
+
+            <!-- Search -->
+            <section class="search-section">
+
+                <div class="search-box">
+
+                    <label for="filter">
+                        Search barbers
+                    </label>
+
+                    <input
+                        id="filter"
+                        type="search"
+                        data-filter=".barber-grid .barber-card"
+                        placeholder="Search by shop, barber or location..."
+                        autocomplete="off">
+
+                </div>
+
+            </section>
+
+
+            <!-- Barber list -->
+            <section class="barbers-section">
+
+                <div class="section-heading">
+
+                    <div>
+                        <p class="eyebrow">
+                            Available now
+                        </p>
+
+                        <h2>
+                            Choose your barber
+                        </h2>
                     </div>
 
-                </article>
-            {{end}}
-        </div>
-    {{else}}
-        <p class="empty">No barbers are taking bookings at the moment. Please check back soon.</p>
-    {{end}}
+                    <span class="barber-count">
+                        {{len .Items}} available
+                    </span>
 
-</main>
+                </div>
+
+
+                <div class="barber-grid">
+
+                    {{range .Items}}
+
+                        <article class="barber-card">
+
+                            <!-- Barber image -->
+                            <a class="barber-image"
+                               href="/customer/barbers/{{.ID}}">
+
+                                {{if .ProfileImage}}
+
+                                    <img
+                                        src="{{.ProfileImage}}"
+                                        alt="{{.ShopName}}">
+
+                                {{else if .PersonalImage}}
+
+                                    <img
+                                        src="{{.PersonalImage}}"
+                                        alt="{{.FullName}}">
+
+                                {{else}}
+
+                                    <span class="image-placeholder">
+                                        BB
+                                    </span>
+
+                                {{end}}
+
+                            </a>
+
+
+                            <!-- Barber information -->
+                            <div class="barber-information">
+
+                                <p class="card-label">
+                                    BARBER SHOP
+                                </p>
+
+                                <h3>
+                                    <a href="/customer/barbers/{{.ID}}">
+                                        {{.ShopName}}
+                                    </a>
+                                </h3>
+
+                                <p class="barber-name">
+                                    {{.FullName}}
+                                </p>
+
+
+                                <div class="barber-location">
+
+                                    <span class="location-icon">
+                                        +
+                                    </span>
+
+                                    <span>
+                                        {{.ShopAddress}}
+                                    </span>
+
+                                </div>
+
+
+                                <div class="barber-details">
+
+                                    {{if .Hairstyles}}
+
+                                        <div class="detail-item">
+
+                                            <strong>
+                                                {{.Hairstyles}}
+                                            </strong>
+
+                                            <span>
+                                                {{if ne .Hairstyles 1}}
+                                                    Hairstyles
+                                                {{else}}
+                                                    Hairstyle
+                                                {{end}}
+                                            </span>
+
+                                        </div>
+
+                                        <div class="detail-divider"></div>
+
+                                        <div class="detail-item">
+
+                                            <strong>
+                                                {{printf "%.2f" .FromPrice}}
+                                            </strong>
+
+                                            <span>
+                                                Starting price
+                                            </span>
+
+                                        </div>
+
+                                    {{else}}
+
+                                        <div class="detail-item">
+
+                                            <strong>
+                                                —
+                                            </strong>
+
+                                            <span>
+                                                No styles listed
+                                            </span>
+
+                                        </div>
+
+                                    {{end}}
+
+                                </div>
+
+
+                                <!-- Actions -->
+                                <div class="barber-actions">
+
+                                    <a class="book-button"
+                                       href="/customer/barbers/{{.ID}}">
+                                        View Barber
+                                        <span>&rarr;</span>
+                                    </a>
+
+                                    <a class="message-button"
+                                       href="/customer/chats/{{.ID}}">
+                                        Message
+                                    </a>
+
+                                </div>
+
+                            </div>
+
+                        </article>
+
+                    {{end}}
+
+                </div>
+
+            </section>
+
+        {{else}}
+
+            <!-- Empty state -->
+            <section class="empty-state">
+
+                <div class="empty-icon">
+                    BB
+                </div>
+
+                <p class="eyebrow">
+                    No barbers available
+                </p>
+
+                <h2>
+                    No barbers are taking bookings yet.
+                </h2>
+
+                <p>
+                    Please check back later. New barbers will appear here
+                    when they become available.
+                </p>
+
+                <a class="back-button"
+                   href="/customer/dashboard">
+                    Back to Dashboard
+                </a>
+
+            </section>
+
+        {{end}}
+
+    </main>
+
+</div>
 
 </body>
 </html>

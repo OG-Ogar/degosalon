@@ -1,0 +1,429 @@
+/* =========================================================
+   CUSTOMER PROFILE
+   ========================================================= */
+
+.customer-page {
+    margin: 0;
+    min-height: 100vh;
+    background: #f5f3ef;
+    color: #222222;
+}
+
+/* =========================================================
+   SIMPLE HEADER
+   ========================================================= */
+
+.customer-simple-header {
+    min-height: 68px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 32px;
+
+    background: #ffffff;
+    border-bottom: 1px solid #e3e0db;
+}
+
+.customer-brand {
+    color: #222222;
+
+    text-decoration: none;
+
+    font-size: 1.15rem;
+    font-weight: 800;
+}
+
+.customer-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.customer-header-actions a,
+.customer-header-actions button {
+    color: #333333;
+
+    background: none;
+    border: 0;
+
+    text-decoration: none;
+
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+.customer-header-actions a:hover,
+.customer-header-actions button:hover {
+    color: #7a4a1e;
+}
+
+/* =========================================================
+   PROFILE PAGE
+   ========================================================= */
+
+.customer-profile-page {
+    width: min(900px, calc(100% - 32px));
+
+    margin: 0 auto;
+
+    padding: 70px 0;
+}
+
+.customer-profile-card {
+    display: flex;
+    align-items: center;
+    gap: 55px;
+
+    padding: 50px;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e0db;
+    border-radius: 14px;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.07);
+}
+
+.customer-profile-photo {
+    flex: 0 0 190px;
+
+    width: 190px;
+    height: 190px;
+}
+
+.customer-profile-photo img,
+.customer-edit-photo {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+
+    border-radius: 50%;
+}
+
+.customer-profile-placeholder {
+    width: 100%;
+    height: 100%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #7a4a1e;
+    color: #ffffff;
+
+    font-size: 4rem;
+    font-weight: 800;
+}
+
+.customer-profile-info {
+    flex: 1;
+}
+
+.customer-profile-label {
+    margin: 0 0 8px;
+
+    color: #7a4a1e;
+
+    font-size: 0.8rem;
+    font-weight: 800;
+
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.customer-profile-info h1 {
+    margin: 0 0 28px;
+
+    font-size: 2.4rem;
+    line-height: 1.1;
+}
+
+.customer-details {
+    display: grid;
+    gap: 18px;
+
+    margin-bottom: 32px;
+}
+
+.customer-details div {
+    display: grid;
+    gap: 4px;
+}
+
+.customer-details span {
+    color: #777777;
+
+    font-size: 0.8rem;
+    font-weight: 700;
+
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.customer-details strong {
+    color: #222222;
+
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.customer-profile-actions,
+.customer-edit-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.customer-primary-button,
+.customer-secondary-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-height: 44px;
+
+    padding: 10px 18px;
+
+    border-radius: 7px;
+
+    text-decoration: none;
+
+    font-size: 0.9rem;
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+.customer-primary-button {
+    color: #ffffff;
+    background: #7a4a1e;
+
+    border: 1px solid #7a4a1e;
+}
+
+.customer-primary-button:hover {
+    background: #5f3915;
+    border-color: #5f3915;
+}
+
+.customer-secondary-button {
+    color: #333333;
+    background: #ffffff;
+
+    border: 1px solid #d5d0c8;
+}
+
+.customer-secondary-button:hover {
+    background: #f5f3ef;
+}
+
+/* =========================================================
+   EDIT PROFILE
+   ========================================================= */
+
+.customer-edit-card {
+    width: min(650px, 100%);
+
+    margin: 0 auto;
+
+    padding: 42px;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e0db;
+    border-radius: 14px;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.07);
+}
+
+.customer-edit-heading {
+    margin-bottom: 30px;
+}
+
+.customer-edit-heading h1 {
+    margin: 0 0 8px;
+
+    font-size: 2rem;
+}
+
+.customer-edit-heading p:last-child {
+    margin: 0;
+
+    color: #777777;
+}
+
+.customer-form-error {
+    margin: 0 0 25px;
+
+    padding: 12px 14px;
+
+    color: #8b1e1e;
+    background: #fff0f0;
+
+    border: 1px solid #e4b5b5;
+    border-radius: 7px;
+}
+
+.customer-edit-form {
+    display: grid;
+    gap: 20px;
+}
+
+.customer-photo-upload {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+
+    padding-bottom: 25px;
+
+    border-bottom: 1px solid #e3e0db;
+}
+
+.customer-edit-photo {
+    flex: 0 0 100px;
+
+    width: 100px;
+    height: 100px;
+}
+
+.customer-photo-upload label {
+    display: block;
+
+    margin-bottom: 8px;
+
+    font-weight: 800;
+}
+
+.customer-photo-upload input {
+    width: 100%;
+}
+
+.customer-photo-upload p {
+    margin: 8px 0 0;
+
+    color: #777777;
+
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+.customer-form-field {
+    display: grid;
+    gap: 7px;
+}
+
+.customer-form-field label {
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.customer-form-field input {
+    width: 100%;
+    box-sizing: border-box;
+
+    min-height: 46px;
+
+    padding: 10px 12px;
+
+    color: #222222;
+    background: #ffffff;
+
+    border: 1px solid #d5d0c8;
+    border-radius: 7px;
+
+    font: inherit;
+}
+
+.customer-form-field input:focus {
+    outline: 2px solid rgba(122, 74, 30, 0.2);
+    border-color: #7a4a1e;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .customer-simple-header {
+        padding: 0 18px;
+    }
+
+    .customer-header-actions {
+        gap: 12px;
+    }
+
+    .customer-profile-page {
+        padding: 35px 0;
+    }
+
+    .customer-profile-card {
+        flex-direction: column;
+
+        gap: 30px;
+
+        padding: 32px 24px;
+
+        text-align: center;
+    }
+
+    .customer-profile-info {
+        width: 100%;
+    }
+
+    .customer-profile-actions,
+    .customer-edit-actions {
+        justify-content: center;
+    }
+
+    .customer-edit-card {
+        padding: 30px 22px;
+    }
+
+    .customer-photo-upload {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 480px) {
+
+    .customer-brand {
+        font-size: 1rem;
+    }
+
+    .customer-header-actions a {
+        display: none;
+    }
+
+    .customer-profile-photo {
+        width: 150px;
+        height: 150px;
+
+        flex-basis: 150px;
+    }
+
+    .customer-profile-info h1 {
+        font-size: 2rem;
+    }
+
+    .customer-primary-button,
+    .customer-secondary-button {
+        width: 100%;
+    }
+
+    .customer-photo-upload {
+        flex-direction: column;
+    }
+}

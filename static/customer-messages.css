@@ -1,0 +1,176 @@
+/* =========================================================
+   CUSTOMER MESSAGES
+   ========================================================= */
+
+.customer-messages-page {
+    width: min(900px, calc(100% - 32px));
+
+    margin: 0 auto;
+
+    padding: 60px 0;
+}
+
+.customer-messages-heading {
+    margin-bottom: 30px;
+}
+
+.customer-messages-heading h1 {
+    margin: 0 0 8px;
+
+    font-size: 2.4rem;
+}
+
+.customer-messages-heading > p:last-child {
+    margin: 0;
+
+    color: #777777;
+}
+
+/* =========================================================
+   CONVERSATION LIST
+   ========================================================= */
+
+.conversation-list {
+    display: grid;
+    gap: 16px;
+}
+
+.conversation-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 30px;
+
+    padding: 24px;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e0db;
+    border-radius: 12px;
+
+    box-shadow:
+        0 7px 20px rgba(0, 0, 0, 0.05);
+}
+
+.conversation-info {
+    min-width: 0;
+}
+
+.conversation-info h2 {
+    margin: 0 0 5px;
+
+    color: #222222;
+
+    font-size: 1.1rem;
+}
+
+.conversation-detail {
+    margin: 0 0 14px;
+
+    color: #7a4a1e;
+
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.conversation-preview {
+    max-width: 500px;
+
+    margin: 0 0 7px;
+
+    color: #444444;
+
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.conversation-time {
+    margin: 0;
+
+    color: #888888;
+
+    font-size: 0.8rem;
+}
+
+.conversation-action {
+    flex: 0 0 auto;
+
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+
+    gap: 12px;
+}
+
+.conversation-count {
+    color: #888888;
+
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.empty-conversations {
+    padding: 50px 30px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e0db;
+    border-radius: 12px;
+}
+
+.empty-conversations h2 {
+    margin: 0 0 10px;
+
+    font-size: 1.4rem;
+}
+
+.empty-conversations p {
+    max-width: 500px;
+
+    margin: 0 auto 25px;
+
+    color: #777777;
+
+    line-height: 1.6;
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .customer-messages-page {
+        padding: 35px 0;
+    }
+
+    .customer-messages-heading h1 {
+        font-size: 2rem;
+    }
+
+    .conversation-card {
+        align-items: flex-start;
+
+        flex-direction: column;
+
+        gap: 20px;
+    }
+
+    .conversation-action {
+        width: 100%;
+
+        align-items: stretch;
+    }
+
+    .conversation-action .customer-primary-button {
+        width: 100%;
+    }
+
+    .conversation-preview {
+        max-width: 100%;
+    }
+}

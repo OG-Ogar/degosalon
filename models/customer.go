@@ -14,4 +14,7 @@ type Customer struct {
 	// PasswordHash holds the encoded PBKDF2 digest produced by the
 	// security package. The plain password is never stored.
 	PasswordHash string
+
+	// ProfileImage is the customer's optional profile photo.
+	ProfileImage string
 }

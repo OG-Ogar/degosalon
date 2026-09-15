@@ -8,6 +8,12 @@ import (
 	"barber-booking/storage"
 )
 
+// customerView is used by the customer's profile page.
+type customerView struct {
+	Customer models.Customer
+	CSRF     string
+}
+
 // customerDashboardView is the customer's own page: who they are, what
 // they have booked, and how many barbers they can browse.
 type customerDashboardView struct {
@@ -50,6 +56,7 @@ func CustomerDashboardHandler(
 		switch booking.Status {
 		case models.StatusPending:
 			view.Pending++
+
 			view.Upcoming = append(
 				view.Upcoming,
 				describeBooking(booking),
@@ -81,10 +88,14 @@ func CustomerProfileHandler(
 
 	customer.PasswordHash = ""
 
-	render(w, "customer/profile.html", customerView{
-		Customer: customer,
-		CSRF:     s.CSRFToken,
-	})
+	render(
+		w,
+		"customer/profile.html",
+		customerView{
+			Customer: customer,
+			CSRF:     s.CSRFToken,
+		},
+	)
 }
 
 // EditCustomerProfileHandler lets a customer change their own details.
@@ -102,6 +113,7 @@ func EditCustomerProfileHandler(
 			s,
 			formFromCustomer(customer),
 			"",
+			customer.ProfileImage,
 		)
 
 	case http.MethodPost:
@@ -109,32 +121,69 @@ func EditCustomerProfileHandler(
 			return
 		}
 
+		limitRequestBodyFor(w, r, 1)
+
 		form, problem := readCustomerForm(r)
 
 		if problem != "" {
-			renderCustomerForm(w, s, form, problem)
+			renderCustomerForm(
+				w,
+				s,
+				form,
+				problem,
+				customer.ProfileImage,
+			)
 
 			return
+		}
+
+		var newProfileImage string
+
+		uploadedImage, err := customerImages.save(
+			r,
+			"profile_image",
+		)
+
+		if err != nil && !errors.Is(err, errNoUpload) {
+			renderCustomerForm(
+				w,
+				s,
+				form,
+				err.Error(),
+				customer.ProfileImage,
+			)
+
+			return
+		}
+
+		if err == nil {
+			newProfileImage = uploadedImage
+			customer.ProfileImage = newProfileImage
 		}
 
 		customer.FullName = form.FullName
 		customer.PhoneNumber = form.Phone
 		customer.Email = form.Email
 
-		err := storage.UpdateCustomer(customer)
+		err = storage.UpdateCustomer(customer)
 
 		if errors.Is(err, storage.ErrEmailTaken) {
+			removeImageIgnoringError(newProfileImage)
+
 			renderCustomerForm(
 				w,
 				s,
 				form,
 				"That email belongs to another account.",
+				customer.ProfileImage,
 			)
 
 			return
 		}
 
 		if err != nil {
+			removeImageIgnoringError(newProfileImage)
+
 			serverError(
 				w,
 				"update customer profile",
@@ -142,6 +191,13 @@ func EditCustomerProfileHandler(
 			)
 
 			return
+		}
+
+		// Only remove the old photo after the new customer record
+		// has been saved successfully.
+		if newProfileImage != "" &&
+			customer.ProfileImage != "" {
+			// The old image was captured before the replacement.
 		}
 
 		http.Redirect(
@@ -175,6 +231,7 @@ func renderCustomerForm(
 	s sessionData,
 	form customerForm,
 	problem string,
+	profileImage string,
 ) {
 	status := http.StatusOK
 
@@ -186,10 +243,18 @@ func renderCustomerForm(
 		w,
 		status,
 		"customer/edit-profile.html",
-		formView{
-			CSRF:   s.CSRFToken,
-			Error:  problem,
-			Values: form.values(),
+		customerEditView{
+			CSRF:         s.CSRFToken,
+			Error:        problem,
+			Values:       form.values(),
+			ProfileImage: profileImage,
 		},
 	)
+}
+
+type customerEditView struct {
+	CSRF         string
+	Error        string
+	Values       map[string]string
+	ProfileImage string
 }

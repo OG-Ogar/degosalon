@@ -3,64 +3,194 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit my profile - Barber Booking</title>
+
+    <title>Edit Profile - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/customer-profile.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/customer/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/customer/barbers">Find a barber</a>
-            <a href="/customer/bookings">My bookings</a>
-            <a href="/customer/chats">Messages</a>
-            <a href="/customer/profile">My profile</a>
-            <form class="inline" method="post" action="/customer/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
-        </nav>
+<body class="customer-page">
+
+<header class="customer-simple-header">
+
+    <a class="customer-brand" href="/customer/dashboard">
+        Barber Booking
+    </a>
+
+    <div class="customer-header-actions">
+
+        <a href="/customer/dashboard">
+            Dashboard
+        </a>
+
+        <form method="post" action="/customer/logout">
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
+            >
+
+            <button type="submit">
+                Log out
+            </button>
+        </form>
+
     </div>
+
 </header>
 
-<main class="wrap">
+<main class="customer-profile-page">
 
-    <p class="crumbs">
-        <a href="/customer/dashboard">My dashboard</a> /
-        <a href="/customer/profile">My profile</a> /
-        Edit
-    </p>
+    <div class="customer-edit-card">
 
-    <h1>Edit my details</h1>
+        <div class="customer-edit-heading">
 
-    {{if .Error}}
-        <p class="error" role="alert">{{.Error}}</p>
-    {{end}}
+            <p class="customer-profile-label">
+                My Profile
+            </p>
 
-    <form class="stack panel" method="post" action="/customer/profile/edit">
+            <h1>Edit Profile</h1>
 
-        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+            <p>
+                Update your personal information and profile photo.
+            </p>
 
-        <label for="fullname">Full name</label>
-        <input id="fullname" type="text" name="fullname"
-               value="{{index .Values "fullname"}}" autocomplete="name" required>
-
-        <label for="phone">Phone number</label>
-        <input id="phone" type="tel" name="phone"
-               value="{{index .Values "phone"}}" autocomplete="tel" required>
-
-        <label for="email">Email address</label>
-        <input id="email" type="email" name="email"
-               value="{{index .Values "email"}}" autocomplete="email" required>
-
-        <div class="actions">
-            <button class="primary" type="submit">Save changes</button>
-            <a class="button" href="/customer/profile">Cancel</a>
         </div>
 
-    </form>
+        {{if .Error}}
+            <p class="customer-form-error" role="alert">
+                {{.Error}}
+            </p>
+        {{end}}
+
+        <form
+            class="customer-edit-form"
+            method="post"
+            action="/customer/profile/edit"
+            enctype="multipart/form-data"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
+            >
+
+            <div class="customer-photo-upload">
+
+                {{if .ProfileImage}}
+
+                    <img
+                        class="customer-edit-photo"
+                        src="{{.ProfileImage}}"
+                        alt="Current profile photo"
+                    >
+
+                {{else}}
+
+                    <div class="customer-edit-photo customer-profile-placeholder">
+                        {{printf "%.1s" (index .Values "fullname")}}
+                    </div>
+
+                {{end}}
+
+                <div>
+
+                    <label for="profile_image">
+                        Profile Photo
+                    </label>
+
+                    <input
+                        id="profile_image"
+                        type="file"
+                        name="profile_image"
+                        accept="image/jpeg,image/png,image/gif,image/webp"
+                    >
+
+                    <p>
+                        Optional. Upload a new photo to replace the
+                        current one. Maximum size: 5 MB.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="customer-form-field">
+
+                <label for="fullname">
+                    Full Name
+                </label>
+
+                <input
+                    id="fullname"
+                    type="text"
+                    name="fullname"
+                    value="{{index .Values "fullname"}}"
+                    autocomplete="name"
+                    required
+                >
+
+            </div>
+
+            <div class="customer-form-field">
+
+                <label for="phone">
+                    Phone Number
+                </label>
+
+                <input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    value="{{index .Values "phone"}}"
+                    autocomplete="tel"
+                    required
+                >
+
+            </div>
+
+            <div class="customer-form-field">
+
+                <label for="email">
+                    Email Address
+                </label>
+
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="{{index .Values "email"}}"
+                    autocomplete="email"
+                    required
+                >
+
+            </div>
+
+            <div class="customer-edit-actions">
+
+                <button
+                    class="customer-primary-button"
+                    type="submit"
+                >
+                    Save Changes
+                </button>
+
+                <a
+                    class="customer-secondary-button"
+                    href="/customer/profile"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
 
 </main>
 

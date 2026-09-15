@@ -3,46 +3,106 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My profile - Barber Booking</title>
+
+    <title>My Profile - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/customer-profile.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/customer/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/customer/barbers">Find a barber</a>
-            <a href="/customer/bookings">My bookings</a>
-            <a href="/customer/chats">Messages</a>
-            <a href="/customer/profile">My profile</a>
-            <form class="inline" method="post" action="/customer/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
-        </nav>
+<body class="customer-page">
+
+<header class="customer-simple-header">
+
+    <a class="customer-brand" href="/customer/dashboard">
+        Barber Booking
+    </a>
+
+    <div class="customer-header-actions">
+
+        <a href="/customer/dashboard">
+            Dashboard
+        </a>
+
+        <form method="post" action="/customer/logout">
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
+            >
+
+            <button type="submit">
+                Log out
+            </button>
+        </form>
+
     </div>
+
 </header>
 
-<main class="wrap">
+<main class="customer-profile-page">
 
-    <p class="crumbs"><a href="/customer/dashboard">My dashboard</a> / My profile</p>
+    <div class="customer-profile-card">
 
-    <h1>My profile</h1>
-    <p class="lede">These are the details your barber sees when you book.</p>
+        <div class="customer-profile-photo">
 
-    <div class="panel">
-        <p>
-            <strong>Name:</strong> {{.FullName}}<br>
-            <strong>Phone:</strong> {{.PhoneNumber}}<br>
-            <strong>Email:</strong> {{.Email}}
-        </p>
+            {{if .Customer.ProfileImage}}
+                <img
+                    src="{{.Customer.ProfileImage}}"
+                    alt="{{.Customer.FullName}}"
+                >
+            {{else}}
+                <div class="customer-profile-placeholder">
+                    {{printf "%.1s" .Customer.FullName}}
+                </div>
+            {{end}}
 
-        <div class="actions">
-            <a class="button primary" href="/customer/profile/edit">Edit my details</a>
-            <a class="button" href="/customer/dashboard">Back to dashboard</a>
         </div>
+
+        <div class="customer-profile-info">
+
+            <p class="customer-profile-label">
+                Customer Profile
+            </p>
+
+            <h1>{{.Customer.FullName}}</h1>
+
+            <div class="customer-details">
+
+                <div>
+                    <span>Phone</span>
+                    <strong>{{.Customer.PhoneNumber}}</strong>
+                </div>
+
+                <div>
+                    <span>Email</span>
+                    <strong>{{.Customer.Email}}</strong>
+                </div>
+
+            </div>
+
+            <div class="customer-profile-actions">
+
+                <a
+                    class="customer-primary-button"
+                    href="/customer/profile/edit"
+                >
+                    Edit Profile
+                </a>
+
+                <a
+                    class="customer-secondary-button"
+                    href="/customer/dashboard"
+                >
+                    Back to Dashboard
+                </a>
+
+            </div>
+
+        </div>
+
     </div>
 
 </main>

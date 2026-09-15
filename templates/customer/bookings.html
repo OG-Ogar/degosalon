@@ -1,386 +1,436 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>My Bookings - Barber Booking</title>
+```
+<title>My Bookings - Barber Booking</title>
 
-    <link rel="stylesheet" href="/static/app.css">
-    <link rel="stylesheet" href="/static/booking-images.css">
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/booking-images.css">
+<link rel="stylesheet" href="/static/customer-bookings.css">
 
-    <script src="/static/app.js" defer></script>
+<script src="/static/app.js" defer></script>
+```
+
 </head>
 
-<body>
+<body class="customer-bookings-page">
 
-<header class="topbar">
+<header class="bookings-header">
 
-    <div class="wrap">
+```
+<div class="bookings-header-inner">
 
-        <a class="brand" href="/customer/dashboard">
-            Barber Booking
+    <a
+        class="bookings-brand"
+        href="/customer/dashboard"
+    >
+        Barber Booking
+    </a>
+
+    <div class="bookings-navigation">
+
+        <a
+            class="dashboard-link"
+            href="/customer/dashboard"
+        >
+            Dashboard
         </a>
 
-        <nav class="nav" aria-label="Main">
+        <form
+            method="post"
+            action="/customer/logout"
+        >
 
-            <a href="/customer/barbers">
-                Find a barber
-            </a>
-
-            <a href="/customer/bookings">
-                My bookings
-            </a>
-
-            <a href="/customer/chats">
-                Messages
-            </a>
-
-            <a href="/customer/profile">
-                My profile
-            </a>
-
-            <form
-                class="inline"
-                method="post"
-                action="/customer/logout"
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
             >
 
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{.CSRF}}"
-                >
+            <button
+                class="logout-button"
+                type="submit"
+            >
+                Log out
+            </button>
 
-                <button
-                    class="small"
-                    type="submit"
-                >
-                    Log out
-                </button>
-
-            </form>
-
-        </nav>
+        </form>
 
     </div>
 
+</div>
+```
+
 </header>
 
+<main class="bookings-main">
 
-<main class="wrap">
+```
+<div class="bookings-heading">
 
-    <p class="crumbs">
-        <a href="/customer/dashboard">
-            My dashboard
-        </a>
-        /
-        My bookings
-    </p>
+    <div>
 
-    <h1>
-        My bookings
-    </h1>
+        <p class="bookings-eyebrow">
+            Customer account
+        </p>
 
-    <p class="lede">
-        Pending requests and confirmed appointments first,
-        then everything finished.
-    </p>
+        <h1>
+            My Bookings
+        </h1>
+
+        <p class="bookings-description">
+            Keep track of your appointments, their status and
+            your previous visits.
+        </p>
+
+    </div>
+
+</div>
 
 
-    <h2>
-        Upcoming
-    </h2>
+<!-- UPCOMING BOOKINGS -->
+
+<section class="bookings-section">
+
+    <div class="section-heading">
+
+        <div>
+            <p class="section-label">
+                Appointments
+            </p>
+
+            <h2>
+                Upcoming
+            </h2>
+        </div>
+
+        {{if .Upcoming}}
+            <span class="booking-count">
+                {{len .Upcoming}}
+            </span>
+        {{end}}
+
+    </div>
 
 
     {{if .Upcoming}}
 
         {{$view := .}}
 
-        <table>
+        <div class="booking-list">
 
-            <caption>
-                Bookings you can still cancel.
-            </caption>
+            {{range .Upcoming}}
 
-            <thead>
+                <article class="booking-card">
 
-                <tr>
+                    <div class="booking-card-main">
 
-                    <th scope="col">
-                        Date
-                    </th>
+                        <div class="booking-hairstyle">
 
-                    <th scope="col">
-                        Time
-                    </th>
+                            <div class="customer-booking-image">
 
-                    <th scope="col">
-                        Hairstyle
-                    </th>
+                                {{if .HairstyleImage}}
 
-                    <th scope="col">
-                        Barber
-                    </th>
+                                    <img
+                                        src="{{.HairstyleImage}}"
+                                        alt="Photo of {{.HairstyleName}}"
+                                    >
 
-                    <th scope="col">
-                        Price
-                    </th>
+                                {{else}}
 
-                    <th scope="col">
-                        Status
-                    </th>
+                                    <span>BB</span>
 
-                    <th scope="col">
-                        <span class="visually-hidden">
-                            Actions
-                        </span>
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {{range .Upcoming}}
-
-                    <tr>
-
-                        <td>
-                            {{.Date}}
-                        </td>
-
-                        <td>
-                            {{.Time}}
-                        </td>
-
-                        <td>
-
-                            <div class="customer-booking-hairstyle">
-
-                                <div class="customer-booking-image">
-
-                                    {{if .HairstyleImage}}
-
-                                        <img
-                                            src="{{.HairstyleImage}}"
-                                            alt="Photo of {{.HairstyleName}}"
-                                        >
-
-                                    {{else}}
-
-                                        <span>BB</span>
-
-                                    {{end}}
-
-                                </div>
-
-                                <div>
-
-                                    <strong>
-                                        {{.HairstyleName}}
-                                    </strong>
-
-                                    <br>
-
-                                    <span class="muted">
-                                        {{.Duration}} min
-                                    </span>
-
-                                </div>
+                                {{end}}
 
                             </div>
 
-                        </td>
+                            <div class="booking-hairstyle-info">
 
-                        <td>
+                                <h3>
+                                    {{.HairstyleName}}
+                                </h3>
 
-                            {{.BarberName}}
+                                <p>
+                                    {{.Duration}} min
+                                </p>
 
-                            <br>
+                            </div>
 
-                            <span class="muted">
-                                {{.ShopName}}
-                            </span>
-
-                        </td>
-
-                        <td class="price">
-                            {{printf "%.2f" .Price}}
-                        </td>
-
-                        <td>
-
-                            <span class="badge {{.Status}}">
-                                {{.Status}}
-                            </span>
-
-                        </td>
-
-                        <td>
-
-                            <form
-                                method="post"
-                                action="{{$view.ActionURL}}{{.ID}}/cancel"
-                                data-confirm="Cancel your {{.Time}} appointment on {{.Date}}?"
-                            >
-
-                                <input
-                                    type="hidden"
-                                    name="csrf_token"
-                                    value="{{$view.CSRF}}"
-                                >
-
-                                <button
-                                    class="danger small"
-                                    type="submit"
-                                >
-                                    Cancel
-                                </button>
-
-                            </form>
-
-                            <a
-                                class="button small"
-                                href="/customer/chats/{{.BarberID}}"
-                            >
-                                Message
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                {{end}}
-
-            </tbody>
-
-        </table>
-
-    {{else}}
-
-        <p class="empty">
-
-            Nothing booked right now.
-
-            <a href="/customer/barbers">
-                Find a barber
-            </a>
-
-            to make an appointment.
-
-        </p>
-
-    {{end}}
+                        </div>
 
 
-    {{if .Past}}
+                        <div class="booking-details">
 
-        <h2>
-            Finished
-        </h2>
+                            <div class="booking-detail">
 
-        <table>
-
-            <caption>
-                Completed, declined and cancelled bookings.
-            </caption>
-
-            <thead>
-
-                <tr>
-
-                    <th scope="col">
-                        Date
-                    </th>
-
-                    <th scope="col">
-                        Time
-                    </th>
-
-                    <th scope="col">
-                        Hairstyle
-                    </th>
-
-                    <th scope="col">
-                        Barber
-                    </th>
-
-                    <th scope="col">
-                        Status
-                    </th>
-
-                </tr>
-
-            </thead>
-
-
-            <tbody>
-
-                {{range .Past}}
-
-                    <tr>
-
-                        <td>
-                            {{.Date}}
-                        </td>
-
-                        <td>
-                            {{.Time}}
-                        </td>
-
-                        <td>
-
-                            <div class="customer-booking-hairstyle">
-
-                                <div class="customer-booking-image">
-
-                                    {{if .HairstyleImage}}
-
-                                        <img
-                                            src="{{.HairstyleImage}}"
-                                            alt="Photo of {{.HairstyleName}}"
-                                        >
-
-                                    {{else}}
-
-                                        <span>BB</span>
-
-                                    {{end}}
-
-                                </div>
+                                <span>
+                                    Barber
+                                </span>
 
                                 <strong>
-                                    {{.HairstyleName}}
+                                    {{.BarberName}}
                                 </strong>
 
                             </div>
 
-                        </td>
+                            <div class="booking-detail">
 
-                        <td>
-                            {{.BarberName}}
-                        </td>
+                                <span>
+                                    Shop
+                                </span>
 
-                        <td>
+                                <strong>
+                                    {{.ShopName}}
+                                </strong>
 
-                            <span class="badge {{.Status}}">
-                                {{.Status}}
+                            </div>
+
+                            <div class="booking-detail">
+
+                                <span>
+                                    Date
+                                </span>
+
+                                <strong>
+                                    {{.Date}}
+                                </strong>
+
+                            </div>
+
+                            <div class="booking-detail">
+
+                                <span>
+                                    Time
+                                </span>
+
+                                <strong>
+                                    {{.Time}}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="booking-card-footer">
+
+                        <div class="booking-price">
+
+                            <span>
+                                Price
                             </span>
 
-                        </td>
+                            <strong>
+                                {{printf "%.2f" .Price}}
+                            </strong>
 
-                    </tr>
+                        </div>
 
-                {{end}}
 
-            </tbody>
+                        <span class="booking-status {{.Status}}">
+                            {{.Status}}
+                        </span>
 
-        </table>
+
+                        <form
+                            method="post"
+                            action="{{$view.ActionURL}}{{.ID}}/cancel"
+                            data-confirm="Cancel your {{.Time}} appointment on {{.Date}}?"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{$view.CSRF}}"
+                            >
+
+                            <button
+                                class="cancel-button"
+                                type="submit"
+                            >
+                                Cancel booking
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </article>
+
+            {{end}}
+
+        </div>
+
+    {{else}}
+
+        <div class="empty-bookings">
+
+            <div class="empty-icon">
+                —
+            </div>
+
+            <h3>
+                No upcoming bookings
+            </h3>
+
+            <p>
+                You don't have any active appointments right now.
+            </p>
+
+        </div>
 
     {{end}}
+
+</section>
+
+
+<!-- FINISHED BOOKINGS -->
+
+{{if .Past}}
+
+    <section class="bookings-section finished-section">
+
+        <div class="section-heading">
+
+            <div>
+                <p class="section-label">
+                    History
+                </p>
+
+                <h2>
+                    Finished
+                </h2>
+            </div>
+
+            <span class="booking-count">
+                {{len .Past}}
+            </span>
+
+        </div>
+
+
+        <div class="booking-list">
+
+            {{range .Past}}
+
+                <article class="booking-card finished-card">
+
+                    <div class="booking-card-main">
+
+                        <div class="booking-hairstyle">
+
+                            <div class="customer-booking-image">
+
+                                {{if .HairstyleImage}}
+
+                                    <img
+                                        src="{{.HairstyleImage}}"
+                                        alt="Photo of {{.HairstyleName}}"
+                                    >
+
+                                {{else}}
+
+                                    <span>BB</span>
+
+                                {{end}}
+
+                            </div>
+
+                            <div class="booking-hairstyle-info">
+
+                                <h3>
+                                    {{.HairstyleName}}
+                                </h3>
+
+                                <p>
+                                    {{.Duration}} min
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="booking-details">
+
+                            <div class="booking-detail">
+
+                                <span>
+                                    Barber
+                                </span>
+
+                                <strong>
+                                    {{.BarberName}}
+                                </strong>
+
+                            </div>
+
+                            <div class="booking-detail">
+
+                                <span>
+                                    Date
+                                </span>
+
+                                <strong>
+                                    {{.Date}}
+                                </strong>
+
+                            </div>
+
+                            <div class="booking-detail">
+
+                                <span>
+                                    Time
+                                </span>
+
+                                <strong>
+                                    {{.Time}}
+                                </strong>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="booking-card-footer">
+
+                        <div class="booking-price">
+
+                            <span>
+                                Price
+                            </span>
+
+                            <strong>
+                                {{printf "%.2f" .Price}}
+                            </strong>
+
+                        </div>
+
+
+                        <span class="booking-status {{.Status}}">
+                            {{.Status}}
+                        </span>
+
+                    </div>
+
+                </article>
+
+            {{end}}
+
+        </div>
+
+    </section>
+
+{{end}}
+```
 
 </main>
 

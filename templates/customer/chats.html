@@ -3,65 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Messages - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/customer-messages.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/customer/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/customer/barbers">Find a barber</a>
-            <a href="/customer/bookings">My bookings</a>
-            <a href="/customer/chats">Messages</a>
-            <a href="/customer/profile">My profile</a>
-            <form class="inline" method="post" action="/customer/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
-        </nav>
+<body class="customer-page">
+
+<header class="customer-simple-header">
+
+    <a class="customer-brand" href="/customer/dashboard">
+        Barber Booking
+    </a>
+
+    <div class="customer-header-actions">
+
+        <a href="/customer/dashboard">
+            Dashboard
+        </a>
+
+        <form method="post" action="/customer/logout">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
+            >
+
+            <button type="submit">
+                Log out
+            </button>
+
+        </form>
+
     </div>
+
 </header>
 
-<main class="wrap">
+<main class="customer-messages-page">
 
-    <p class="crumbs"><a href="/customer/dashboard">My dashboard</a> / Messages</p>
+    <div class="customer-messages-heading">
 
-    <h1>Messages</h1>
-    <p class="lede">Your conversations with barbers, most recent first.</p>
+        <p class="customer-profile-label">
+            Customer Area
+        </p>
+
+        <h1>Messages</h1>
+
+        <p>
+            Your conversations with barbers.
+        </p>
+
+    </div>
 
     {{if .Items}}
-        <table>
-            <caption>Open a conversation to read it or reply.</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Barber</th>
-                    <th scope="col">Last message</th>
-                    <th scope="col">When</th>
-                    <th scope="col">Messages</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .Items}}
-                    <tr>
-                        <td>
-                            <a href="/customer/chats/{{.BarberID}}">{{.Name}}</a>
-                            <br><span class="muted">{{.Detail}}</span>
-                        </td>
-                        <td>{{.LastText}}</td>
-                        <td class="muted">{{.LastAt}}</td>
-                        <td>{{.Count}}</td>
-                    </tr>
-                {{end}}
-            </tbody>
-        </table>
+
+        <div class="conversation-list">
+
+            {{range .Items}}
+
+                <article class="conversation-card">
+
+                    <div class="conversation-info">
+
+                        <h2>
+                            {{.Name}}
+                        </h2>
+
+                        <p class="conversation-detail">
+                            {{.Detail}}
+                        </p>
+
+                        <p class="conversation-preview">
+                            {{.LastText}}
+                        </p>
+
+                        <p class="conversation-time">
+                            {{.LastAt}}
+                        </p>
+
+                    </div>
+
+                    <div class="conversation-action">
+
+                        <span class="conversation-count">
+                            {{.Count}} messages
+                        </span>
+
+                        <a
+                            class="customer-primary-button"
+                            href="/customer/chats/{{.BarberID}}"
+                        >
+                            Open Chat
+                        </a>
+
+                    </div>
+
+                </article>
+
+            {{end}}
+
+        </div>
+
     {{else}}
-        <p class="empty">
-            No conversations yet. Open a barber from
-            <a href="/customer/barbers">Find a barber</a> and send them a message.
-        </p>
+
+        <div class="empty-conversations">
+
+            <h2>No conversations yet</h2>
+
+            <p>
+                Find a barber and send them a message to start
+                a conversation.
+            </p>
+
+            <a
+                class="customer-primary-button"
+                href="/customer/barbers"
+            >
+                Find a Barber
+            </a>
+
+        </div>
+
     {{end}}
 
 </main>

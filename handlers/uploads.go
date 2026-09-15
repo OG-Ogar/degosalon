@@ -33,6 +33,11 @@ var (
 		urlPath: "/uploads/barbers/",
 	}
 
+	customerImages = imageStore{
+		dir:     "uploads/customers",
+		urlPath: "/uploads/customers/",
+	}
+
 	landingImages = imageStore{
 		dir:     "uploads/site",
 		urlPath: "/uploads/site/",
@@ -47,6 +52,7 @@ var (
 var imageStores = []imageStore{
 	hairstyleImages,
 	barberImages,
+	customerImages,
 	landingImages,
 	customerLandingImages,
 }
@@ -150,8 +156,8 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 	// The browser will handle different image dimensions and aspect
 	// ratios when the image is displayed.
 	//
-	// This prevents unnecessary quality loss and keeps barber photos
-	// as sharp as the original uploaded file.
+	// This prevents unnecessary quality loss and keeps customer,
+	// barber, and hairstyle photos as sharp as the original upload.
 
 	return store.urlPath + name, nil
 }

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"barber-booking/models"
@@ -99,7 +100,14 @@ func BookHairstyleHandler(
 	}
 
 	if problem != "" {
-		renderBarberDetail(w, s, barber, request.HairstyleID, request.values, problem)
+		renderBarberDetail(
+			w,
+			s,
+			barber,
+			request.HairstyleID,
+			request.values,
+			problem,
+		)
 
 		return
 	}
@@ -119,7 +127,14 @@ func BookHairstyleHandler(
 	})
 
 	if message := bookingProblem(err); message != "" {
-		renderBarberDetail(w, s, barber, request.HairstyleID, request.values, message)
+		renderBarberDetail(
+			w,
+			s,
+			barber,
+			request.HairstyleID,
+			request.values,
+			message,
+		)
 
 		return
 	}
@@ -130,10 +145,94 @@ func BookHairstyleHandler(
 		return
 	}
 
-	log.Printf("booking %d: customer %d with barber %d on %s %s",
-		booking.ID, customer.ID, barber.ID, booking.Date, booking.Time)
+	log.Printf(
+		"booking %d: customer %d with barber %d on %s %s",
+		booking.ID,
+		customer.ID,
+		barber.ID,
+		booking.Date,
+		booking.Time,
+	)
 
-	http.Redirect(w, r, "/customer/bookings", http.StatusSeeOther)
+	// The booking was successfully created.
+	// Send the customer to the confirmation page instead of
+	// immediately sending them to the bookings list.
+	http.Redirect(
+		w,
+		r,
+		"/customer/booking-confirmation/"+strconv.Itoa(booking.ID),
+		http.StatusSeeOther,
+	)
+}
+
+// BookingConfirmationHandler displays the successful booking request.
+//
+// The booking ID comes from the URL, but we still verify that the booking
+// belongs to the signed-in customer before showing any information.
+func BookingConfirmationHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	customer models.Customer,
+	s sessionData,
+	idSegment string,
+) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+
+		return
+	}
+
+	bookingID, ok := parseID(idSegment)
+	if !ok {
+		http.NotFound(w, r)
+
+		return
+	}
+
+	booking, found := storage.FindBookingByID(bookingID)
+	if !found {
+		http.NotFound(w, r)
+
+		return
+	}
+
+	// A customer must never be able to view another customer's booking
+	// simply by changing the booking ID in the URL.
+	if booking.CustomerID != customer.ID {
+		http.NotFound(w, r)
+
+		return
+	}
+
+	barber, found := storage.FindBarberByID(booking.BarberID)
+	if !found {
+		http.NotFound(w, r)
+
+		return
+	}
+
+	hairstyle, found := storage.FindHairstyleByID(booking.HairstyleID)
+	if !found {
+		http.NotFound(w, r)
+
+		return
+	}
+
+	view := bookingConfirmationView{
+		CSRF:      s.CSRFToken,
+		Booking:   booking,
+		Barber:    barber,
+		Hairstyle: hairstyle,
+	}
+
+	render(w, "customer/booking-confirmation.html", view)
+}
+
+type bookingConfirmationView struct {
+	CSRF      string
+	Booking   models.Booking
+	Barber    models.Barber
+	Hairstyle models.Hairstyle
 }
 
 // bookingProblem turns the storage errors a customer can actually cause
@@ -150,7 +249,8 @@ func bookingProblem(err error) string {
 	case errors.Is(err, storage.ErrUnavailable):
 		return "That hairstyle is not available for booking right now."
 
-	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
+	case errors.Is(err, storage.ErrNotFound),
+		errors.Is(err, storage.ErrForbidden):
 		return "That hairstyle does not belong to this barber."
 	}
 

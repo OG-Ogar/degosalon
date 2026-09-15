@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Booking Request Sent - Barber Booking</title>
+
+    <link
+        rel="stylesheet"
+        href="/static/customer-booking-confirmation.css"
+    >
+</head>
+
+<body>
+
+<div class="confirmation-page">
+
+    <header class="confirmation-header">
+
+        <a class="brand-box" href="/customer/dashboard">
+            <span class="brand-title">Barber</span>
+            <span class="brand-subtitle">Booking</span>
+        </a>
+
+        <nav class="customer-navigation" aria-label="Customer navigation">
+
+            <a
+                class="nav-box"
+                href="/customer/barbers"
+            >
+                <span class="nav-number">01</span>
+                <span class="nav-text">Find a Barber</span>
+            </a>
+
+            <a
+                class="nav-box active"
+                href="/customer/bookings"
+            >
+                <span class="nav-number">02</span>
+                <span class="nav-text">My Bookings</span>
+            </a>
+
+            <a
+                class="nav-box"
+                href="/customer/chats"
+            >
+                <span class="nav-number">03</span>
+                <span class="nav-text">Messages</span>
+            </a>
+
+            <a
+                class="nav-box"
+                href="/customer/profile"
+            >
+                <span class="nav-number">04</span>
+                <span class="nav-text">My Profile</span>
+            </a>
+
+        </nav>
+
+    </header>
+
+
+    <main class="confirmation-main">
+
+        <section class="confirmation-card">
+
+            <div class="success-icon" aria-label="Booking request successful">
+                <svg
+                    class="checkmark"
+                    viewBox="0 0 52 52"
+                    aria-hidden="true"
+                >
+                    <circle
+                        class="check-circle"
+                        cx="26"
+                        cy="26"
+                        r="24"
+                    ></circle>
+
+                    <path
+                        class="check-line"
+                        d="M14 27 L22 35 L39 18"
+                    ></path>
+                </svg>
+            </div>
+
+
+            <p class="eyebrow">Appointment Request</p>
+
+            <h1>Booking Request Sent</h1>
+
+            <p class="confirmation-message">
+                Your appointment request has been successfully sent
+                to the barber.
+            </p>
+
+            <div class="status-box">
+
+                <span class="status-dot"></span>
+
+                <div>
+                    <strong>Pending Barber Approval</strong>
+
+                    <p>
+                        The barber will review your appointment request
+                        and decide whether to accept it.
+                    </p>
+                </div>
+
+            </div>
+
+
+            <section class="booking-details">
+
+                <div class="section-heading">
+                    <p class="eyebrow">Booking Details</p>
+                    <h2>Your appointment</h2>
+                </div>
+
+
+                <div class="detail-list">
+
+                    <div class="detail-row">
+                        <span>Barber Shop</span>
+                        <strong>{{.Barber.ShopName}}</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Barber</span>
+                        <strong>{{.Barber.FullName}}</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Hairstyle</span>
+                        <strong>{{.Hairstyle.Name}}</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Date</span>
+                        <strong>{{.Booking.Date}}</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Time</span>
+                        <strong>{{.Booking.Time}}</strong>
+                    </div>
+
+                    <div class="detail-row">
+                        <span>Status</span>
+                        <strong class="pending-status">
+                            {{.Booking.Status}}
+                        </strong>
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <div class="confirmation-actions">
+
+                <a
+                    class="primary-button"
+                    href="/customer/bookings"
+                >
+                    View My Bookings
+                    <span>&rarr;</span>
+                </a>
+
+                <a
+                    class="secondary-button"
+                    href="/customer/barbers/{{.Barber.ID}}"
+                >
+                    Back to Barber
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+</div>
+
+</body>
+</html>

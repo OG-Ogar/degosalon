@@ -20,7 +20,10 @@ type formView struct {
 
 // newFormView starts an empty form.
 func newFormView(csrf string) formView {
-	return formView{CSRF: csrf, Values: map[string]string{}}
+	return formView{
+		CSRF:   csrf,
+		Values: map[string]string{},
+	}
 }
 
 // barberView renders one barber plus the CSRF token. The embedded
@@ -55,8 +58,8 @@ type listView[T any] struct {
 	Error string
 }
 
-// bookingRow is one line in a bookings table, with the names the
-// booking itself only stores as IDs already resolved.
+// bookingRow is one line in a bookings table, with the names and
+// hairstyle details resolved from the IDs stored by the booking.
 //
 // The customer's name and phone are not resolved here: Booking copies
 // them at creation time so the barber keeps the details that were given
@@ -64,16 +67,19 @@ type listView[T any] struct {
 type bookingRow struct {
 	models.Booking
 
-	BarberName    string
-	ShopName      string
-	HairstyleName string
-	Price         float64
-	Duration      int
+	BarberName     string
+	ShopName       string
+	HairstyleName  string
+	HairstyleImage string
+	Price          float64
+	Duration       int
 }
 
 // describeBooking fills in the barber and hairstyle details for display.
 func describeBooking(booking models.Booking) bookingRow {
-	row := bookingRow{Booking: booking}
+	row := bookingRow{
+		Booking: booking,
+	}
 
 	if barber, found := storage.FindBarberByID(booking.BarberID); found {
 		row.BarberName = barber.FullName
@@ -82,6 +88,7 @@ func describeBooking(booking models.Booking) bookingRow {
 
 	if hairstyle, found := storage.FindHairstyleByID(booking.HairstyleID); found {
 		row.HairstyleName = hairstyle.Name
+		row.HairstyleImage = hairstyle.Image
 		row.Price = hairstyle.Price
 		row.Duration = hairstyle.Duration
 	}

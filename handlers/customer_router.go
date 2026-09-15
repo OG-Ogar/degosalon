@@ -61,7 +61,9 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 2 && parts[1] == "profile":
 		CustomerProfileHandler(w, r, customer, s)
 
-	case len(parts) == 3 && parts[1] == "profile" && parts[2] == "edit":
+	case len(parts) == 3 &&
+		parts[1] == "profile" &&
+		parts[2] == "edit":
 		EditCustomerProfileHandler(w, r, customer, s)
 
 	case len(parts) == 2 && parts[1] == "barbers":
@@ -73,10 +75,22 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 2 && parts[1] == "book":
 		BookHairstyleHandler(w, r, customer, s)
 
+	case len(parts) == 3 &&
+		parts[1] == "booking-confirmation":
+		BookingConfirmationHandler(
+			w,
+			r,
+			customer,
+			s,
+			parts[2],
+		)
+
 	case len(parts) == 2 && parts[1] == "bookings":
 		CustomerBookingsHandler(w, r, customer, s)
 
-	case len(parts) == 4 && parts[1] == "bookings" && parts[3] == "cancel":
+	case len(parts) == 4 &&
+		parts[1] == "bookings" &&
+		parts[3] == "cancel":
 		CancelBookingHandler(w, r, customer, s, parts[2])
 
 	case len(parts) == 2 && parts[1] == "chats":

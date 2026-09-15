@@ -54,8 +54,8 @@ var imageStores = []imageStore{
 var allowedImageExtensions = map[string]bool{
 	".jpg":  true,
 	".jpeg": true,
-	".png": true,
-	".gif": true,
+	".png":  true,
+	".gif":  true,
 	".webp": true,
 }
 
@@ -144,9 +144,14 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("close image file: %w", err)
 	}
 
-	if err := normalizeStoredImage(path); err != nil {
-		log.Printf("resize %s: %v", name, err)
-	}
+	// Keep the original uploaded image.
+	//
+	// We intentionally do not resize or recompress the image here.
+	// The browser will handle different image dimensions and aspect
+	// ratios when the image is displayed.
+	//
+	// This prevents unnecessary quality loss and keeps barber photos
+	// as sharp as the original uploaded file.
 
 	return store.urlPath + name, nil
 }

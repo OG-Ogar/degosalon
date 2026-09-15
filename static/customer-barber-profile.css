@@ -1,0 +1,1166 @@
+* {
+  box-sizing: border-box;
+  }
+
+html,
+body {
+margin: 0;
+min-height: 100%;
+}
+
+body {
+font-family: Arial, sans-serif;
+
+```
+background: #f4f1ed;
+
+color: #171311;
+```
+
+}
+
+a,
+button,
+input,
+textarea {
+font: inherit;
+}
+
+.barber-page {
+min-height: 100vh;
+}
+
+/* =========================================================
+HEADER
+========================================================= */
+
+.barber-header {
+width: min(1180px, calc(100% - 40px));
+
+```
+margin: 0 auto;
+
+padding: 22px 0;
+
+display: flex;
+
+align-items: stretch;
+
+gap: 20px;
+```
+
+}
+
+.brand-box {
+width: 155px;
+
+```
+flex: 0 0 155px;
+
+padding: 16px 18px;
+
+display: flex;
+
+flex-direction: column;
+
+justify-content: center;
+
+background: #171311;
+
+color: #ffffff;
+
+text-decoration: none;
+
+border-radius: 12px;
+```
+
+}
+
+.brand-title {
+font-size: 1.2rem;
+
+```
+font-weight: 800;
+```
+
+}
+
+.brand-subtitle {
+margin-top: 3px;
+
+```
+color: rgba(255, 255, 255, 0.55);
+
+font-size: 0.7rem;
+
+text-transform: uppercase;
+
+letter-spacing: 0.12em;
+```
+
+}
+
+.customer-navigation {
+flex: 1;
+
+```
+display: grid;
+
+grid-template-columns: repeat(4, 1fr);
+
+gap: 8px;
+```
+
+}
+
+.nav-box {
+padding: 13px 15px;
+
+```
+display: flex;
+
+flex-direction: column;
+
+justify-content: space-between;
+
+border: 1px solid #ddd5ce;
+
+border-radius: 12px;
+
+background: #ffffff;
+
+color: #171311;
+
+text-decoration: none;
+
+transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+```
+
+}
+
+.nav-box:hover {
+border-color: #171311;
+
+```
+background: #faf8f6;
+```
+
+}
+
+.nav-number {
+color: #9a918a;
+
+```
+font-size: 0.65rem;
+
+font-weight: 800;
+```
+
+}
+
+.nav-text {
+margin-top: 13px;
+
+```
+font-size: 0.82rem;
+
+font-weight: 700;
+```
+
+}
+
+/* =========================================================
+MAIN
+========================================================= */
+
+.barber-main {
+width: min(1180px, calc(100% - 40px));
+
+```
+margin: 0 auto;
+
+padding: 10px 0 70px;
+```
+
+}
+
+.back-link {
+display: inline-block;
+
+```
+margin-bottom: 20px;
+
+color: #706862;
+
+text-decoration: none;
+
+font-size: 0.85rem;
+
+font-weight: 700;
+```
+
+}
+
+.back-link:hover {
+color: #171311;
+}
+
+/* =========================================================
+BARBER CARD
+========================================================= */
+
+.barber-card {
+display: grid;
+
+```
+grid-template-columns: 330px 1fr;
+
+min-height: 270px;
+
+overflow: hidden;
+
+border: 1px solid #ddd5ce;
+
+border-radius: 16px;
+
+background: #ffffff;
+```
+
+}
+
+.barber-photo {
+min-height: 270px;
+
+```
+background: #211c19;
+```
+
+}
+
+.barber-photo img {
+width: 100%;
+height: 100%;
+
+```
+display: block;
+
+object-fit: cover;
+```
+
+}
+
+.photo-placeholder {
+width: 100%;
+height: 100%;
+
+```
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+color: #ffffff;
+
+font-size: 2rem;
+
+font-weight: 800;
+
+letter-spacing: 0.08em;
+```
+
+}
+
+.barber-details {
+padding: 38px;
+
+```
+display: flex;
+
+flex-direction: column;
+
+justify-content: center;
+```
+
+}
+
+.eyebrow {
+margin: 0 0 7px;
+
+```
+color: #938a83;
+
+font-size: 0.68rem;
+
+font-weight: 800;
+
+text-transform: uppercase;
+
+letter-spacing: 0.13em;
+```
+
+}
+
+.barber-details h1 {
+margin: 0;
+
+```
+font-size: clamp(2rem, 4vw, 3.3rem);
+
+line-height: 1;
+
+letter-spacing: -0.04em;
+```
+
+}
+
+.barber-name {
+margin: 9px 0 0;
+
+```
+color: #706862;
+
+font-size: 0.95rem;
+
+font-weight: 600;
+```
+
+}
+
+.barber-address {
+display: flex;
+
+```
+align-items: center;
+
+gap: 8px;
+
+margin: 17px 0 0;
+
+color: #706862;
+
+font-size: 0.85rem;
+
+line-height: 1.4;
+```
+
+}
+
+.barber-address span {
+width: 19px;
+height: 19px;
+
+```
+flex: 0 0 19px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+border-radius: 50%;
+
+background: #171311;
+
+color: #ffffff;
+
+font-size: 0.6rem;
+
+font-weight: 800;
+```
+
+}
+
+.barber-actions {
+display: flex;
+
+```
+gap: 8px;
+
+margin-top: 25px;
+```
+
+}
+
+.message-button,
+.book-button {
+min-height: 42px;
+
+```
+display: inline-flex;
+
+align-items: center;
+
+justify-content: center;
+
+padding: 10px 16px;
+
+border-radius: 8px;
+
+text-decoration: none;
+
+font-size: 0.82rem;
+
+font-weight: 700;
+```
+
+}
+
+.message-button {
+border: 1px solid #d8d0c9;
+
+```
+background: #ffffff;
+
+color: #171311;
+```
+
+}
+
+.message-button:hover {
+background: #f0ece8;
+}
+
+.book-button {
+background: #171311;
+
+```
+color: #ffffff;
+```
+
+}
+
+.book-button:hover {
+background: #302824;
+}
+
+/* =========================================================
+ERROR
+========================================================= */
+
+.error-box {
+margin-top: 16px;
+
+```
+padding: 15px 17px;
+
+display: flex;
+
+flex-direction: column;
+
+gap: 4px;
+
+border: 1px solid #e2b8b8;
+
+border-radius: 10px;
+
+background: #fff5f5;
+
+color: #6b2424;
+
+font-size: 0.82rem;
+```
+
+}
+
+.error-box strong {
+font-size: 0.85rem;
+}
+
+/* =========================================================
+SECTIONS
+========================================================= */
+
+.hairstyles-section {
+margin-top: 40px;
+}
+
+.section-title {
+display: flex;
+
+```
+align-items: end;
+
+justify-content: space-between;
+
+gap: 15px;
+
+margin-bottom: 16px;
+```
+
+}
+
+.section-title h2 {
+margin: 0;
+
+```
+font-size: 1.8rem;
+
+letter-spacing: -0.03em;
+```
+
+}
+
+.count {
+padding: 7px 11px;
+
+```
+border-radius: 999px;
+
+background: #e6dfd8;
+
+color: #625a54;
+
+font-size: 0.72rem;
+
+font-weight: 700;
+```
+
+}
+
+/* =========================================================
+HAIRSTYLES
+========================================================= */
+
+.hairstyle-list {
+margin: 0;
+
+```
+padding: 0;
+
+border: 0;
+```
+
+}
+
+.hairstyle-list legend {
+margin-bottom: 10px;
+
+```
+color: #706862;
+
+font-size: 0.8rem;
+
+font-weight: 700;
+```
+
+}
+
+.hairstyle-option {
+position: relative;
+
+```
+margin-bottom: 9px;
+```
+
+}
+
+.hairstyle-option input {
+position: absolute;
+
+```
+opacity: 0;
+
+pointer-events: none;
+```
+
+}
+
+.hairstyle-option label {
+min-height: 100px;
+
+```
+display: grid;
+
+grid-template-columns: 85px 1fr auto;
+
+align-items: center;
+
+gap: 15px;
+
+padding: 10px 14px;
+
+border: 1px solid #ddd5ce;
+
+border-radius: 12px;
+
+background: #ffffff;
+
+cursor: pointer;
+
+transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+```
+
+}
+
+.hairstyle-option label:hover {
+border-color: #aaa098;
+
+```
+transform: translateY(-1px);
+```
+
+}
+
+.hairstyle-option input:checked + label {
+border-color: #171311;
+
+```
+box-shadow:
+    0 0 0 2px #171311;
+```
+
+}
+
+.style-image {
+width: 85px;
+height: 78px;
+
+```
+overflow: hidden;
+
+border-radius: 8px;
+
+background: #211c19;
+```
+
+}
+
+.style-image img {
+width: 100%;
+height: 100%;
+
+```
+display: block;
+
+object-fit: cover;
+```
+
+}
+
+.style-image span {
+width: 100%;
+height: 100%;
+
+```
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+color: #ffffff;
+
+font-size: 1rem;
+
+font-weight: 800;
+```
+
+}
+
+.style-info {
+min-width: 0;
+}
+
+.style-info h3 {
+margin: 0;
+
+```
+font-size: 1rem;
+```
+
+}
+
+.style-info p {
+margin: 6px 0 0;
+
+```
+color: #938a83;
+
+font-size: 0.72rem;
+
+font-weight: 700;
+
+text-transform: uppercase;
+
+letter-spacing: 0.04em;
+```
+
+}
+
+.style-info > span {
+display: block;
+
+```
+margin-top: 7px;
+
+color: #706862;
+
+font-size: 0.8rem;
+
+line-height: 1.45;
+```
+
+}
+
+.style-price {
+min-width: 80px;
+
+```
+display: flex;
+
+flex-direction: column;
+
+align-items: flex-end;
+
+gap: 6px;
+```
+
+}
+
+.style-price strong {
+font-size: 1rem;
+}
+
+.style-price span {
+color: #9a918a;
+
+```
+font-size: 0.68rem;
+
+font-weight: 700;
+```
+
+}
+
+/* =========================================================
+BOOKING
+========================================================= */
+
+.booking-form {
+margin: 0;
+}
+
+.appointment-section {
+margin-top: 30px;
+
+```
+padding: 25px;
+
+border: 1px solid #ddd5ce;
+
+border-radius: 14px;
+
+background: #ffffff;
+```
+
+}
+
+.appointment-fields {
+display: grid;
+
+```
+grid-template-columns: 1fr 1fr;
+
+gap: 13px;
+
+margin-top: 20px;
+```
+
+}
+
+.field {
+display: flex;
+
+```
+flex-direction: column;
+```
+
+}
+
+.field label {
+margin-bottom: 7px;
+
+```
+color: #625a54;
+
+font-size: 0.76rem;
+
+font-weight: 700;
+```
+
+}
+
+.field label span {
+margin-left: 4px;
+
+```
+color: #9a918a;
+
+font-weight: 400;
+```
+
+}
+
+.field input,
+.field textarea {
+width: 100%;
+
+```
+border: 1px solid #d8d0c9;
+
+border-radius: 8px;
+
+background: #f8f6f3;
+
+color: #171311;
+
+outline: none;
+```
+
+}
+
+.field input {
+min-height: 45px;
+
+```
+padding: 10px 12px;
+```
+
+}
+
+.field textarea {
+min-height: 105px;
+
+```
+padding: 11px 12px;
+
+resize: vertical;
+
+line-height: 1.5;
+```
+
+}
+
+.field input:focus,
+.field textarea:focus {
+border-color: #171311;
+
+```
+background: #ffffff;
+
+box-shadow:
+    0 0 0 3px rgba(23, 19, 17, 0.07);
+```
+
+}
+
+.notes {
+margin-top: 13px;
+}
+
+.submit-area {
+margin-top: 18px;
+
+```
+padding-top: 18px;
+
+border-top: 1px solid #ebe5df;
+
+display: flex;
+
+align-items: center;
+
+justify-content: space-between;
+
+gap: 20px;
+```
+
+}
+
+.submit-area strong {
+display: block;
+
+```
+font-size: 0.9rem;
+```
+
+}
+
+.submit-area p {
+margin: 5px 0 0;
+
+```
+color: #8a817b;
+
+font-size: 0.76rem;
+```
+
+}
+
+.request-button {
+min-height: 44px;
+
+```
+display: inline-flex;
+
+align-items: center;
+
+justify-content: center;
+
+gap: 12px;
+
+padding: 10px 17px;
+
+border: 0;
+
+border-radius: 8px;
+
+background: #171311;
+
+color: #ffffff;
+
+cursor: pointer;
+
+font-size: 0.82rem;
+
+font-weight: 800;
+
+white-space: nowrap;
+```
+
+}
+
+.request-button:hover {
+background: #302824;
+}
+
+.request-button span {
+font-size: 1rem;
+}
+
+/* =========================================================
+EMPTY
+========================================================= */
+
+.empty-state {
+padding: 55px 25px;
+
+```
+border: 1px solid #ddd5ce;
+
+border-radius: 14px;
+
+background: #ffffff;
+
+text-align: center;
+```
+
+}
+
+.empty-icon {
+width: 55px;
+height: 55px;
+
+```
+margin: 0 auto 18px;
+
+display: flex;
+
+align-items: center;
+justify-content: center;
+
+border-radius: 12px;
+
+background: #171311;
+
+color: #ffffff;
+
+font-weight: 800;
+```
+
+}
+
+.empty-state h2 {
+margin: 0;
+
+```
+font-size: 1.5rem;
+```
+
+}
+
+.empty-state p {
+margin: 10px auto 20px;
+
+```
+color: #706862;
+
+font-size: 0.85rem;
+```
+
+}
+
+/* =========================================================
+RESPONSIVE
+========================================================= */
+
+@media (max-width: 850px) {
+
+```
+.barber-header {
+    flex-direction: column;
+}
+
+.brand-box {
+    width: fit-content;
+
+    flex-basis: auto;
+}
+
+.barber-card {
+    grid-template-columns: 240px 1fr;
+}
+
+.barber-photo {
+    min-height: 240px;
+}
+```
+
+}
+
+@media (max-width: 650px) {
+
+```
+.barber-header,
+.barber-main {
+    width: min(100% - 24px, 1180px);
+}
+
+.barber-header {
+    padding-top: 14px;
+}
+
+.customer-navigation {
+    grid-template-columns: 1fr 1fr;
+}
+
+.nav-box {
+    min-width: 0;
+}
+
+.barber-card {
+    grid-template-columns: 1fr;
+}
+
+.barber-photo {
+    min-height: 230px;
+    max-height: 280px;
+}
+
+.barber-details {
+    padding: 25px 20px;
+}
+
+.barber-details h1 {
+    font-size: 2.3rem;
+}
+
+.barber-actions {
+    display: grid;
+
+    grid-template-columns: 1fr 1fr;
+}
+
+.message-button,
+.book-button {
+    width: 100%;
+}
+
+.hairstyle-option label {
+    grid-template-columns: 70px 1fr auto;
+
+    gap: 10px;
+
+    padding: 9px;
+}
+
+.style-image {
+    width: 70px;
+    height: 68px;
+}
+
+.style-info > span {
+    font-size: 0.74rem;
+}
+
+.style-price {
+    min-width: 55px;
+}
+
+.appointment-section {
+    padding: 20px 15px;
+}
+
+.submit-area {
+    align-items: stretch;
+
+    flex-direction: column;
+}
+
+.request-button {
+    width: 100%;
+}
+```
+
+}
+
+@media (max-width: 430px) {
+
+```
+.customer-navigation {
+    gap: 6px;
+}
+
+.nav-box {
+    padding: 11px;
+}
+
+.nav-text {
+    font-size: 0.75rem;
+}
+
+.barber-details h1 {
+    font-size: 2rem;
+}
+
+.barber-actions {
+    grid-template-columns: 1fr;
+}
+
+.hairstyle-option label {
+    grid-template-columns: 60px 1fr;
+}
+
+.style-image {
+    width: 60px;
+    height: 60px;
+}
+
+.style-price {
+    grid-column: 2;
+
+    align-items: flex-start;
+
+    margin-top: -5px;
+}
+
+.appointment-fields {
+    grid-template-columns: 1fr;
+}
+```
+
+}

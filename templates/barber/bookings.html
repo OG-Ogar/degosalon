@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
+    <link rel="stylesheet" href="/static/booking-images.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -122,14 +123,42 @@
                                 </td>
 
                                 <td>
-                                    {{.HairstyleName}}
-                                    <br>
 
-                                    <span class="barber-hint">
-                                        {{.Duration}} min
-                                        &middot;
-                                        &#8358;{{printf "%.2f" .Price}}
-                                    </span>
+                                    <div class="booking-hairstyle">
+
+                                        <div class="booking-hairstyle-image">
+
+                                            {{if .HairstyleImage}}
+
+                                                <img
+                                                    src="{{.HairstyleImage}}"
+                                                    alt="Photo of {{.HairstyleName}}"
+                                                >
+
+                                            {{else}}
+
+                                                <span>BB</span>
+
+                                            {{end}}
+
+                                        </div>
+
+                                        <div class="booking-hairstyle-info">
+
+                                            <strong>
+                                                {{.HairstyleName}}
+                                            </strong>
+
+                                            <span class="barber-hint">
+                                                {{.Duration}} min
+                                                &middot;
+                                                &#8358;{{printf "%.2f" .Price}}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
                                 </td>
 
                                 <td>
@@ -140,39 +169,53 @@
 
                                     <div class="barber-actions">
 
-                                        <form method="post"
-                                              action="{{$view.ActionURL}}{{.ID}}/accept">
+                                        <form
+                                            method="post"
+                                            action="{{$view.ActionURL}}{{.ID}}/accept"
+                                        >
 
-                                            <input type="hidden"
-                                                   name="csrf_token"
-                                                   value="{{$view.CSRF}}">
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="{{$view.CSRF}}"
+                                            >
 
-                                            <button class="barber-button primary"
-                                                    type="submit">
+                                            <button
+                                                class="barber-button primary"
+                                                type="submit"
+                                            >
                                                 Accept
                                             </button>
 
                                         </form>
 
 
-                                        <form method="post"
-                                              action="{{$view.ActionURL}}{{.ID}}/reject"
-                                              data-confirm="Decline {{.CustomerName}}'s request for {{.Date}} at {{.Time}}?">
+                                        <form
+                                            method="post"
+                                            action="{{$view.ActionURL}}{{.ID}}/reject"
+                                            data-confirm="Decline {{.CustomerName}}'s request for {{.Date}} at {{.Time}}?"
+                                        >
 
-                                            <input type="hidden"
-                                                   name="csrf_token"
-                                                   value="{{$view.CSRF}}">
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="{{$view.CSRF}}"
+                                            >
 
-                                            <button class="barber-button danger"
-                                                    type="submit">
+                                            <button
+                                                class="barber-button danger"
+                                                type="submit"
+                                            >
                                                 Decline
                                             </button>
 
                                         </form>
 
 
-                                        <a class="barber-button"
-                                           href="/barber/chats/{{.CustomerID}}">
+                                        <a
+                                            class="barber-button"
+                                            href="/barber/chats/{{.CustomerID}}"
+                                        >
                                             Message
                                         </a>
 
@@ -254,30 +297,73 @@
                                 </td>
 
                                 <td>
-                                    {{.HairstyleName}}
+
+                                    <div class="booking-hairstyle">
+
+                                        <div class="booking-hairstyle-image">
+
+                                            {{if .HairstyleImage}}
+
+                                                <img
+                                                    src="{{.HairstyleImage}}"
+                                                    alt="Photo of {{.HairstyleName}}"
+                                                >
+
+                                            {{else}}
+
+                                                <span>BB</span>
+
+                                            {{end}}
+
+                                        </div>
+
+                                        <div class="booking-hairstyle-info">
+
+                                            <strong>
+                                                {{.HairstyleName}}
+                                            </strong>
+
+                                            <span class="barber-hint">
+                                                {{.Duration}} min
+                                                &middot;
+                                                &#8358;{{printf "%.2f" .Price}}
+                                            </span>
+
+                                        </div>
+
+                                    </div>
+
                                 </td>
 
                                 <td>
 
                                     <div class="barber-actions">
 
-                                        <form method="post"
-                                              action="{{$view.ActionURL}}{{.ID}}/complete">
+                                        <form
+                                            method="post"
+                                            action="{{$view.ActionURL}}{{.ID}}/complete"
+                                        >
 
-                                            <input type="hidden"
-                                                   name="csrf_token"
-                                                   value="{{$view.CSRF}}">
+                                            <input
+                                                type="hidden"
+                                                name="csrf_token"
+                                                value="{{$view.CSRF}}"
+                                            >
 
-                                            <button class="barber-button primary"
-                                                    type="submit">
+                                            <button
+                                                class="barber-button primary"
+                                                type="submit"
+                                            >
                                                 Mark Complete
                                             </button>
 
                                         </form>
 
 
-                                        <a class="barber-button"
-                                           href="/barber/chats/{{.CustomerID}}">
+                                        <a
+                                            class="barber-button"
+                                            href="/barber/chats/{{.CustomerID}}"
+                                        >
                                             Message
                                         </a>
 
@@ -342,13 +428,50 @@
 
                             <tr>
 
-                                <td>{{.Date}}</td>
+                                <td>
+                                    {{.Date}}
+                                </td>
 
-                                <td>{{.Time}}</td>
+                                <td>
+                                    {{.Time}}
+                                </td>
 
-                                <td>{{.CustomerName}}</td>
+                                <td>
+                                    {{.CustomerName}}
+                                </td>
 
-                                <td>{{.HairstyleName}}</td>
+                                <td>
+
+                                    <div class="booking-hairstyle">
+
+                                        <div class="booking-hairstyle-image">
+
+                                            {{if .HairstyleImage}}
+
+                                                <img
+                                                    src="{{.HairstyleImage}}"
+                                                    alt="Photo of {{.HairstyleName}}"
+                                                >
+
+                                            {{else}}
+
+                                                <span>BB</span>
+
+                                            {{end}}
+
+                                        </div>
+
+                                        <div class="booking-hairstyle-info">
+
+                                            <strong>
+                                                {{.HairstyleName}}
+                                            </strong>
+
+                                        </div>
+
+                                    </div>
+
+                                </td>
 
                                 <td>
 

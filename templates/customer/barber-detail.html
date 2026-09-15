@@ -4,187 +4,461 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{.Barber.ShopName}} - Barber Booking</title>
-    <link rel="stylesheet" href="/static/app.css">
-    <script src="/static/app.js" defer></script>
-</head>
-<body>
-
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/customer/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/customer/barbers">Find a barber</a>
-            <a href="/customer/bookings">My bookings</a>
-            <a href="/customer/chats">Messages</a>
-            <a href="/customer/profile">My profile</a>
-            <form class="inline" method="post" action="/customer/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
-        </nav>
-    </div>
-</header>
-
-<main class="wrap">
 
 ```
-<p class="crumbs">
-    <a href="/customer/dashboard">My dashboard</a> /
-    <a href="/customer/barbers">Barbers</a> /
-    {{.Barber.ShopName}}
-</p>
+<title>{{.Barber.ShopName}} - Barber Booking</title>
 
-<h1>{{.Barber.ShopName}}</h1>
+<link rel="stylesheet" href="/static/customer-barber-profile.css">
+<script src="/static/app.js" defer></script>
+```
 
-<div class="who">
-    {{if .Barber.PersonalImage}}
-        <img class="avatar" src="{{.Barber.PersonalImage}}"
-             alt="{{.Barber.FullName}}">
-    {{end}}
-    <p class="lede">{{.Barber.FullName}} &middot; {{.Barber.ShopAddress}}</p>
-</div>
+</head>
 
-<div class="panel">
-    {{if .Barber.ProfileImage}}
-        <img class="photo" src="{{.Barber.ProfileImage}}"
-             alt="{{.Barber.ShopName}}">
-    {{end}}
-    <p>
-        <strong>Phone:</strong> {{.Barber.PhoneNumber}}<br>
-        <strong>Email:</strong> {{.Barber.Email}}
-    </p>
+<body>
 
-    <div class="actions">
-        <a class="button" href="{{.ChatLink}}">Message this barber</a>
-    </div>
-</div>
+<div class="barber-page">
 
-{{if .Error}}
-    <p class="error" role="alert">{{.Error}}</p>
-{{end}}
+```
+<header class="barber-header">
 
-<h2>Book a haircut</h2>
+    <a class="brand-box"
+       href="/customer/dashboard">
 
-{{if .Hairstyles}}
+        <span class="brand-title">
+            Barber
+        </span>
 
-    <form class="panel" method="post" action="/customer/book">
+        <span class="brand-subtitle">
+            Booking
+        </span>
 
-        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-        <input type="hidden" name="barber_id" value="{{.Barber.ID}}">
+    </a>
 
-        <fieldset>
-            <legend>Choose a style</legend>
+    <nav class="customer-navigation"
+         aria-label="Customer navigation">
 
-            {{$view := .}}
+        <a class="nav-box"
+           href="/customer/barbers">
 
-            {{range .Hairstyles}}
+            <span class="nav-number">
+                01
+            </span>
 
-                <div class="check{{if .Image}} media{{end}}">
+            <span class="nav-text">
+                Find a Barber
+            </span>
 
-                    <input type="radio"
-                           id="style-{{.ID}}"
-                           name="hairstyle_id"
-                           value="{{.ID}}"
-                           data-name="{{.Name}}"
-                           data-price="{{printf "%.2f" .Price}}"
-                           data-duration="{{.Duration}}"
-                           {{if eq $view.Selected .ID}}checked{{end}}
-                           required>
+        </a>
 
-                    <label for="style-{{.ID}}">
+        <a class="nav-box"
+           href="/customer/bookings">
 
-                        {{if .Image}}
-                            <img class="pick"
-                                 src="{{.Image}}"
-                                 alt="Photo of {{.Name}}">
-                        {{end}}
+            <span class="nav-number">
+                02
+            </span>
 
-                        <span>
-                            <strong>{{.Name}}</strong>
-                            &mdash;
-                            <span class="price">
-                                {{printf "%.2f" .Price}}
-                            </span>
+            <span class="nav-text">
+                My Bookings
+            </span>
 
-                            <span class="muted">
-                                ({{.Duration}} min, {{.Category}})
-                            </span>
+        </a>
 
-                            <br>
+        <a class="nav-box"
+           href="/customer/chats">
 
-                            <span class="muted">
-                                {{.Description}}
-                            </span>
-                        </span>
+            <span class="nav-number">
+                03
+            </span>
 
-                    </label>
+            <span class="nav-text">
+                Messages
+            </span>
 
+        </a>
+
+        <a class="nav-box"
+           href="/customer/profile">
+
+            <span class="nav-number">
+                04
+            </span>
+
+            <span class="nav-text">
+                My Profile
+            </span>
+
+        </a>
+
+    </nav>
+
+</header>
+
+
+<main class="barber-main">
+
+    <a class="back-link"
+       href="/customer/barbers">
+
+        &larr; Back to barbers
+
+    </a>
+
+
+    <section class="barber-card">
+
+        <div class="barber-photo">
+
+            {{if .Barber.ProfileImage}}
+
+                <img
+                    src="{{.Barber.ProfileImage}}"
+                    alt="{{.Barber.ShopName}}">
+
+            {{else if .Barber.PersonalImage}}
+
+                <img
+                    src="{{.Barber.PersonalImage}}"
+                    alt="{{.Barber.FullName}}">
+
+            {{else}}
+
+                <div class="photo-placeholder">
+                    BB
                 </div>
 
             {{end}}
 
-        </fieldset>
+        </div>
 
-        <label for="date">Date</label>
 
-        <input id="date"
-               type="date"
-               name="date"
-               value="{{index .Values "date"}}"
-               required>
+        <div class="barber-details">
 
-        <label for="time">Time</label>
+            <p class="eyebrow">
+                Barber Shop
+            </p>
 
-        <input id="time"
-               type="time"
-               name="time"
-               value="{{index .Values "time"}}"
-               required>
+            <h1>
+                {{.Barber.ShopName}}
+            </h1>
 
-        <label for="notes">
-            Notes for the barber (optional)
-        </label>
+            <p class="barber-name">
+                {{.Barber.FullName}}
+            </p>
 
-        <textarea id="notes"
-                  name="notes"
-                  maxlength="2000">{{index .Values "notes"}}</textarea>
+            <p class="barber-address">
+                <span>+</span>
+                {{.Barber.ShopAddress}}
+            </p>
 
-        <div class="actions">
+            <div class="barber-actions">
 
-            <button class="primary"
-                    type="submit">
-                Request this appointment
-            </button>
+                <a class="message-button"
+                   href="{{.ChatLink}}">
+                    Message Barber
+                </a>
 
-            <a class="button"
-               href="/customer/barbers">
-                Back to barbers
-            </a>
+                <a class="book-button"
+                   href="#booking">
+                    Book a Haircut
+                </a>
+
+            </div>
 
         </div>
 
-        <p class="hint">
-            Your request is sent to the barber, who confirms or declines it.
-            You can see the outcome under My bookings.
-        </p>
+    </section>
 
-    </form>
 
-{{else}}
+    {{if .Error}}
 
-    <p class="empty">
-        This barber has not listed any styles yet, so there is nothing to book.
-        You can still
-        <a href="{{.ChatLink}}">
-            send them a message
-        </a>.
-    </p>
+        <div class="error-box"
+             role="alert">
 
-{{end}}
-```
+            <strong>
+                Booking could not be submitted
+            </strong>
+
+            <span>
+                {{.Error}}
+            </span>
+
+        </div>
+
+    {{end }}
+
+
+    <section class="hairstyles-section">
+
+        <div class="section-title">
+
+            <div>
+
+                <p class="eyebrow">
+                    Services
+                </p>
+
+                <h2>
+                    Hairstyles
+                </h2>
+
+            </div>
+
+            {{if .Hairstyles}}
+
+                <span class="count">
+                    {{len .Hairstyles}}
+                    {{if eq (len .Hairstyles) 1}}
+                        style
+                    {{else}}
+                        styles
+                    {{end}}
+                </span>
+
+            {{end}}
+
+        </div>
+
+
+        {{if .Hairstyles}}
+
+            <form class="booking-form"
+                  method="post"
+                  action="/customer/book"
+                  id="booking">
+
+                <input
+                    type="hidden"
+                    name="csrf_token"
+                    value="{{.CSRF}}">
+
+                <input
+                    type="hidden"
+                    name="barber_id"
+                    value="{{.Barber.ID}}">
+
+
+                <fieldset class="hairstyle-list">
+
+                    <legend>
+                        Choose a hairstyle
+                    </legend>
+
+                    {{$view := .}}
+
+                    {{range .Hairstyles}}
+
+                        <div class="hairstyle-option">
+
+                            <input
+                                type="radio"
+                                id="style-{{.ID}}"
+                                name="hairstyle_id"
+                                value="{{.ID}}"
+                                data-name="{{.Name}}"
+                                data-price="{{printf "%.2f" .Price}}"
+                                data-duration="{{.Duration}}"
+                                {{if eq $view.Selected .ID}}checked{{end}}
+                                required>
+
+                            <label for="style-{{.ID}}">
+
+                                <div class="style-image">
+
+                                    {{if .Image}}
+
+                                        <img
+                                            src="{{.Image}}"
+                                            alt="Photo of {{.Name}}">
+
+                                    {{else}}
+
+                                        <span>
+                                            BB
+                                        </span>
+
+                                    {{end}}
+
+                                </div>
+
+
+                                <div class="style-info">
+
+                                    <h3>
+                                        {{.Name}}
+                                    </h3>
+
+                                    <p>
+                                        {{.Category}}
+                                        &middot;
+                                        {{.Duration}} min
+                                    </p>
+
+                                    {{if .Description}}
+
+                                        <span>
+                                            {{.Description}}
+                                        </span>
+
+                                    {{end}}
+
+                                </div>
+
+
+                                <div class="style-price">
+
+                                    <strong>
+                                        {{printf "%.2f" .Price}}
+                                    </strong>
+
+                                    <span>
+                                        Select
+                                    </span>
+
+                                </div>
+
+                            </label>
+
+                        </div>
+
+                    {{end}}
+
+                </fieldset>
+
+
+                <section class="appointment-section">
+
+                    <div class="section-title">
+
+                        <div>
+
+                            <p class="eyebrow">
+                                Appointment
+                            </p>
+
+                            <h2>
+                                Choose date and time
+                            </h2>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="appointment-fields">
+
+                        <div class="field">
+
+                            <label for="date">
+                                Date
+                            </label>
+
+                            <input
+                                id="date"
+                                type="date"
+                                name="date"
+                                value="{{index .Values "date"}}"
+                                required>
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="time">
+                                Time
+                            </label>
+
+                            <input
+                                id="time"
+                                type="time"
+                                name="time"
+                                value="{{index .Values "time"}}"
+                                required>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="field notes">
+
+                        <label for="notes">
+                            Notes
+                            <span>
+                                Optional
+                            </span>
+                        </label>
+
+                        <textarea
+                            id="notes"
+                            name="notes"
+                            maxlength="2000"
+                            placeholder="Add a note for the barber...">{{index .Values "notes"}}</textarea>
+
+                    </div>
+
+
+                    <div class="submit-area">
+
+                        <div>
+
+                            <strong>
+                                Request appointment
+                            </strong>
+
+                            <p>
+                                The barber will review your request.
+                            </p>
+
+                        </div>
+
+                        <button
+                            class="request-button"
+                            type="submit">
+
+                            Request Appointment
+                            <span>&rarr;</span>
+
+                        </button>
+
+                    </div>
+
+                </section>
+
+            </form>
+
+
+        {{else}}
+
+            <div class="empty-state">
+
+                <div class="empty-icon">
+                    BB
+                </div>
+
+                <h2>
+                    No hairstyles available
+                </h2>
+
+                <p>
+                    This barber has not listed any hairstyles yet.
+                </p>
+
+                <a class="message-button"
+                   href="{{.ChatLink}}">
+                    Message Barber
+                </a>
+
+            </div>
+
+        {{end}}
+
+    </section>
 
 </main>
+```
+
+</div>
 
 </body>
 </html>

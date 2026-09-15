@@ -28,38 +28,67 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 		password := r.PostFormValue("password")
 
 		if email == "" || password == "" {
-			loginError(w, "customer/login.html", email,
-				"Email and password are both required.")
+			loginError(
+				w,
+				"customer/login.html",
+				email,
+				"Email and password are both required.",
+			)
 
 			return
 		}
 
 		customer, found := storage.FindCustomerByEmail(email)
+
 		if !found {
 			// Same cost as a real verification, so response time does not
 			// reveal which emails have accounts.
 			security.DummyVerify(password)
 
-			loginError(w, "customer/login.html", email,
-				"Invalid email or password.")
+			loginError(
+				w,
+				"customer/login.html",
+				email,
+				"Invalid email or password.",
+			)
 
 			return
 		}
 
-		if !security.VerifyPassword(customer.PasswordHash, password) {
-			loginError(w, "customer/login.html", email,
-				"Invalid email or password.")
+		if !security.VerifyPassword(
+			customer.PasswordHash,
+			password,
+		) {
+			loginError(
+				w,
+				"customer/login.html",
+				email,
+				"Invalid email or password.",
+			)
 
 			return
 		}
 
-		if _, err := session.Start(w, session.RoleCustomer, customer.ID); err != nil {
-			serverError(w, "start customer session", err)
+		if _, err := session.Start(
+			w,
+			session.RoleCustomer,
+			customer.ID,
+		); err != nil {
+			serverError(
+				w,
+				"start customer session",
+				err,
+			)
 
 			return
 		}
 
-		http.Redirect(w, r, "/customer/dashboard", http.StatusSeeOther)
+		http.Redirect(
+			w,
+			r,
+			"/customer/dashboard",
+			http.StatusSeeOther,
+		)
 
 	default:
 		methodNotAllowed(w, http.MethodGet, http.MethodPost)
@@ -68,7 +97,11 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 // CustomerLogoutHandler ends the customer session. POST plus a CSRF
 // token, so another site cannot sign the visitor out.
-func CustomerLogoutHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
+func CustomerLogoutHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	s sessionData,
+) {
 	if r.Method != http.MethodPost {
 		methodNotAllowed(w, http.MethodPost)
 
@@ -81,5 +114,10 @@ func CustomerLogoutHandler(w http.ResponseWriter, r *http.Request, s sessionData
 
 	session.Clear(w, r, session.RoleCustomer)
 
-	http.Redirect(w, r, "/", http.StatusSeeOther)
+	http.Redirect(
+		w,
+		r,
+		"/",
+		http.StatusSeeOther,
+	)
 }

@@ -8,10 +8,11 @@ import (
 	"barber-booking/storage"
 )
 
-// customerView is used by the customer's profile page.
-type customerView struct {
-	Customer models.Customer
-	CSRF     string
+// customerEditView is used by the customer's profile edit page.
+type customerEditView struct {
+	formView
+
+	ProfileImage string
 }
 
 // customerDashboardView is the customer's own page: who they are, what
@@ -54,6 +55,7 @@ func CustomerDashboardHandler(
 
 	for _, booking := range storage.ListBookingsByCustomer(customer.ID) {
 		switch booking.Status {
+
 		case models.StatusPending:
 			view.Pending++
 
@@ -137,7 +139,8 @@ func EditCustomerProfileHandler(
 			return
 		}
 
-		var newProfileImage string
+		oldProfileImage := customer.ProfileImage
+		newProfileImage := ""
 
 		uploadedImage, err := customerImages.save(
 			r,
@@ -158,7 +161,7 @@ func EditCustomerProfileHandler(
 
 		if err == nil {
 			newProfileImage = uploadedImage
-			customer.ProfileImage = newProfileImage
+			customer.ProfileImage = uploadedImage
 		}
 
 		customer.FullName = form.FullName
@@ -175,7 +178,7 @@ func EditCustomerProfileHandler(
 				s,
 				form,
 				"That email belongs to another account.",
-				customer.ProfileImage,
+				oldProfileImage,
 			)
 
 			return
@@ -193,11 +196,10 @@ func EditCustomerProfileHandler(
 			return
 		}
 
-		// Only remove the old photo after the new customer record
-		// has been saved successfully.
 		if newProfileImage != "" &&
-			customer.ProfileImage != "" {
-			// The old image was captured before the replacement.
+			oldProfileImage != "" &&
+			oldProfileImage != newProfileImage {
+			removeImageIgnoringError(oldProfileImage)
 		}
 
 		http.Redirect(
@@ -216,7 +218,8 @@ func EditCustomerProfileHandler(
 	}
 }
 
-// formFromCustomer pre-fills the edit form with the stored values.
+// formFromCustomer pre-fills the edit form with the customer's
+// currently stored details.
 func formFromCustomer(customer models.Customer) customerForm {
 	return customerForm{
 		FullName: customer.FullName,
@@ -225,7 +228,7 @@ func formFromCustomer(customer models.Customer) customerForm {
 	}
 }
 
-// renderCustomerForm shows the customer's own edit form.
+// renderCustomerForm shows the customer's profile edit form.
 func renderCustomerForm(
 	w http.ResponseWriter,
 	s sessionData,
@@ -244,17 +247,12 @@ func renderCustomerForm(
 		status,
 		"customer/edit-profile.html",
 		customerEditView{
-			CSRF:         s.CSRFToken,
-			Error:        problem,
-			Values:       form.values(),
+			formView: formView{
+				CSRF:   s.CSRFToken,
+				Error:  problem,
+				Values: form.values(),
+			},
 			ProfileImage: profileImage,
 		},
 	)
-}
-
-type customerEditView struct {
-	CSRF         string
-	Error        string
-	Values       map[string]string
-	ProfileImage string
 }

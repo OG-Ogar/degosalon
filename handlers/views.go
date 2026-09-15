@@ -127,8 +127,9 @@ type chatView struct {
 	Messages []models.Message
 
 	// Title names the person on the other side of the chat.
-	Title    string
-	Subtitle string
+	Title      string
+	Subtitle   string
+	BarberImage string
 
 	// BackLink returns to the dashboard of whichever role is viewing.
 	BackLink string

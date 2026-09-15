@@ -109,17 +109,30 @@ func renderCustomerChat(
 	problem string,
 ) {
 	status := http.StatusOK
+
 	if problem != "" {
 		status = http.StatusBadRequest
 	}
 
-	renderStatus(w, status, "customer/chat.html", chatView{
-		Messages: storage.ListConversation(barber.ID, customer.ID),
-		Title:    barber.FullName,
-		Subtitle: barber.ShopName,
-		BackLink: "/customer/chats",
-		Action:   chatPath("/customer/chats/", barber.ID),
-		CSRF:     s.CSRFToken,
-		Error:    problem,
-	})
+	renderStatus(
+		w,
+		status,
+		"customer/chat.html",
+		chatView{
+			Messages: storage.ListConversation(
+				barber.ID,
+				customer.ID,
+			),
+			Title:       barber.FullName,
+			Subtitle:    barber.ShopName,
+			BarberImage: barber.PersonalImage,
+			BackLink:    "/customer/chats",
+			Action: chatPath(
+				"/customer/chats/",
+				barber.ID,
+			),
+			CSRF:  s.CSRFToken,
+			Error: problem,
+		},
+	)
 }

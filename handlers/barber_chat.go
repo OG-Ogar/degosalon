@@ -10,6 +10,12 @@ import (
 // maxMessageLength keeps one chat message to a sensible size.
 const maxMessageLength = 1000
 
+// barberChatView is used by the barber's individual chat page.
+type barberChatView struct {
+	chatView
+	CustomerImage string
+}
+
 // BarberChatsHandler lists the customers who have messaged this barber.
 func BarberChatsHandler(
 	w http.ResponseWriter,
@@ -92,11 +98,11 @@ func BarberChatHandler(
 		}
 
 		_, err := storage.AddMessage(models.Message{
-			BarberID:   barber.ID,
-			CustomerID: customer.ID,
-			SenderRole: models.SenderBarber,
-			SenderName: barber.FullName,
-			Text:       text,
+			BarberID:    barber.ID,
+			CustomerID:  customer.ID,
+			SenderRole:  models.SenderBarber,
+			SenderName:  barber.FullName,
+			Text:        text,
 		})
 
 		if err != nil {
@@ -105,7 +111,12 @@ func BarberChatHandler(
 			return
 		}
 
-		http.Redirect(w, r, chatPath("/barber/chats/", customer.ID), http.StatusSeeOther)
+		http.Redirect(
+			w,
+			r,
+			chatPath("/barber/chats/", customer.ID),
+			http.StatusSeeOther,
+		)
 
 	default:
 		methodNotAllowed(w, http.MethodGet, http.MethodPost)
@@ -121,17 +132,29 @@ func renderChat(
 	problem string,
 ) {
 	status := http.StatusOK
+
 	if problem != "" {
 		status = http.StatusBadRequest
 	}
 
-	renderStatus(w, status, "barber/chat.html", chatView{
-		Messages: storage.ListConversation(barber.ID, customer.ID),
-		Title:    customer.FullName,
-		Subtitle: customer.PhoneNumber,
-		BackLink: "/barber/chats",
-		Action:   chatPath("/barber/chats/", customer.ID),
-		CSRF:     s.CSRFToken,
-		Error:    problem,
-	})
+	renderStatus(
+		w,
+		status,
+		"barber/chat.html",
+		barberChatView{
+			chatView: chatView{
+				Messages: storage.ListConversation(
+					barber.ID,
+					customer.ID,
+				),
+				Title:    customer.FullName,
+				Subtitle: customer.PhoneNumber,
+				BackLink: "/barber/chats",
+				Action:   chatPath("/barber/chats/", customer.ID),
+				CSRF:     s.CSRFToken,
+				Error:    problem,
+			},
+			CustomerImage: customer.ProfileImage,
+		},
+	)
 }

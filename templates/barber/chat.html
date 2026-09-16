@@ -3,64 +3,326 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Chat with {{.Title}} - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
     <script src="/static/app.js" defer></script>
+
+    <style>
+        .barber-chat-page {
+            min-height: 100vh;
+            background: #f5f5f5;
+            padding: 30px 20px;
+        }
+
+        .barber-chat {
+            max-width: 760px;
+            margin: 0 auto;
+        }
+
+        .chat-header {
+            margin-bottom: 28px;
+        }
+
+        .dashboard-button {
+            display: inline-block;
+            padding: 10px 16px;
+            border-radius: 8px;
+            background: #222;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .dashboard-button:hover {
+            opacity: 0.85;
+        }
+
+        .customer-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 26px 24px;
+            text-align: center;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+        }
+
+        .customer-photo {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto 12px;
+        }
+
+        .customer-photo-placeholder {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+            font-size: 32px;
+            font-weight: 700;
+            color: #666;
+        }
+
+        .customer-name {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .customer-phone {
+            margin: 6px 0 0;
+            color: #777;
+        }
+
+        .chat-error {
+            background: #ffe8e8;
+            color: #a00000;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+        }
+
+        .thread {
+            background: #fff;
+            border-radius: 16px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .bubble {
+            max-width: 75%;
+            background: #eeeeee;
+            border-radius: 14px;
+            padding: 12px 15px;
+            margin-bottom: 12px;
+        }
+
+        .bubble.mine {
+            margin-left: auto;
+            background: #222;
+            color: #fff;
+        }
+
+        .bubble .who {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 4px;
+            opacity: 0.7;
+        }
+
+        .bubble .text {
+            margin: 0;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+        }
+
+        .bubble .when {
+            display: block;
+            font-size: 11px;
+            margin-top: 6px;
+            opacity: 0.6;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #777;
+            padding: 80px 20px;
+        }
+
+        .send {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+        }
+
+        .send textarea {
+            flex: 1;
+            min-height: 55px;
+            max-height: 160px;
+            resize: vertical;
+            padding: 14px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font: inherit;
+            background: #fff;
+        }
+
+        .send button {
+            padding: 14px 22px;
+            border: 0;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+        @media (max-width: 600px) {
+            .barber-chat-page {
+                padding: 20px 12px;
+            }
+
+            .bubble {
+                max-width: 88%;
+            }
+
+            .send {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .send button {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/barber/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/hairstyles">My hairstyles</a>
-            <a href="/barber/bookings">Bookings</a>
-            <a href="/barber/chats">Messages</a>
-            <a href="/barber/profile">My profile</a>
-            <form class="inline" method="post" action="/barber/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
-        </nav>
-    </div>
-</header>
+<main class="barber-chat-page">
 
-<main class="wrap">
+    <div class="barber-chat">
 
-    <p class="crumbs">
-        <a href="/barber/dashboard">Dashboard</a> /
-        <a href="{{.BackLink}}">Messages</a> /
-        {{.Title}}
-    </p>
+        <div class="chat-header">
+            <a
+                class="dashboard-button"
+                href="/barber/dashboard"
+            >
+                ← Dashboard
+            </a>
+        </div>
 
-    <h1>{{.Title}}</h1>
-    {{if .Subtitle}}<p class="lede">{{.Subtitle}}</p>{{end}}
+        <section class="customer-card">
 
-    {{if .Error}}
-        <p class="error" role="alert">{{.Error}}</p>
-    {{end}}
+            {{if .CustomerImage}}
 
-    <section class="thread" aria-label="Conversation">
-        {{if .Messages}}
-            {{range .Messages}}
-                <div class="bubble {{if .FromBarber}}mine{{end}}">
-                    <span class="who">{{.SenderName}}</span>
-                    <p class="text">{{.Text}}</p>
-                    <span class="when">{{.SentAt.Format "2 Jan 2006, 15:04"}}</span>
+                <img
+                    class="customer-photo"
+                    src="{{.CustomerImage}}"
+                    alt="{{.Title}}"
+                >
+
+            {{else}}
+
+                <div
+                    class="customer-photo-placeholder"
+                    aria-hidden="true"
+                >
+                    {{printf "%.1s" .Title}}
                 </div>
-            {{end}}
-        {{else}}
-            <p class="muted">No messages yet.</p>
-        {{end}}
-    </section>
 
-    <form class="send" method="post" action="{{.Action}}">
-        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-        <label class="visually-hidden" for="text">Your message</label>
-        <textarea id="text" name="text" maxlength="1000"
-                  placeholder="Reply to this customer" required></textarea>
-        <button class="primary" type="submit">Send</button>
-    </form>
+            {{end}}
+
+            <h1 class="customer-name">
+                {{.Title}}
+            </h1>
+
+            {{if .Subtitle}}
+                <p class="customer-phone">
+                    {{.Subtitle}}
+                </p>
+            {{end}}
+
+        </section>
+
+        {{if .Error}}
+
+            <p
+                class="chat-error"
+                role="alert"
+            >
+                {{.Error}}
+            </p>
+
+        {{end}}
+
+        <section
+            class="thread"
+            aria-label="Conversation"
+        >
+
+            {{if .Messages}}
+
+                {{range .Messages}}
+
+                    <div
+                        class="bubble {{if .FromBarber}}mine{{end}}"
+                    >
+
+                        <span class="who">
+                            {{.SenderName}}
+                        </span>
+
+                        <p class="text">
+                            {{.Text}}
+                        </p>
+
+                        <span class="when">
+                            {{.SentAt.Format "2 Jan 2006, 15:04"}}
+                        </span>
+
+                    </div>
+
+                {{end}}
+
+            {{else}}
+
+                <p class="empty-message">
+                    No messages yet.
+                </p>
+
+            {{end}}
+
+        </section>
+
+        <form
+            class="send"
+            method="post"
+            action="{{.Action}}"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
+            >
+
+            <label
+                class="visually-hidden"
+                for="text"
+            >
+                Your message
+            </label>
+
+            <textarea
+                id="text"
+                name="text"
+                maxlength="1000"
+                placeholder="Reply to this customer"
+                required
+            ></textarea>
+
+            <button
+                class="primary"
+                type="submit"
+            >
+                Send
+            </button>
+
+        </form>
+
+    </div>
 
 </main>
 

@@ -115,8 +115,10 @@ type chatRow struct {
 	BarberID   int
 	CustomerID int
 
-	Name     string
-	Detail   string
+	Name          string
+	Detail        string
+	CustomerImage string
+
 	LastText string
 	LastAt   string
 	Count    int

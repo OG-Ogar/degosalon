@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,131 +8,715 @@
     <title>Messages - Barber Booking</title>
 
     <link rel="stylesheet" href="/static/app.css">
-    <link rel="stylesheet" href="/static/customer-messages.css">
 
     <script src="/static/app.js" defer></script>
+
+    <style>
+
+        /* =====================================================
+           PAGE
+           ===================================================== */
+
+        .customer-messages-page {
+            min-height: 100vh;
+
+            background: #f5f5f5;
+
+            padding: 0 20px 50px;
+        }
+
+
+        .customer-messages {
+            width: min(900px, 100%);
+
+            margin: 0 auto;
+        }
+
+
+        /* =====================================================
+           HEADER
+           ===================================================== */
+
+        .messages-header {
+            display: flex;
+
+            align-items: center;
+            justify-content: space-between;
+
+            gap: 20px;
+
+            padding: 28px 0 40px;
+        }
+
+
+        .messages-brand {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            padding: 14px 22px;
+
+            background: #ffffff;
+
+            border: 1px solid #dddddd;
+
+            border-radius: 10px;
+
+            color: #222222;
+
+            text-decoration: none;
+
+            font-weight: 800;
+
+            box-shadow:
+                0 4px 14px rgba(0, 0, 0, 0.08);
+
+            transition:
+                transform 160ms ease,
+                box-shadow 160ms ease;
+        }
+
+
+        .messages-brand:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+
+
+        .messages-header-actions {
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+        }
+
+
+        .messages-header-button {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            min-height: 44px;
+
+            padding: 11px 18px;
+
+            border-radius: 9px;
+
+            text-decoration: none;
+
+            font-size: 0.9rem;
+
+            font-weight: 700;
+
+            transition:
+                transform 160ms ease,
+                box-shadow 160ms ease,
+                background-color 160ms ease;
+        }
+
+
+        .messages-dashboard-button {
+            background: #222222;
+
+            color: #ffffff;
+
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+
+        .messages-dashboard-button:hover {
+            background: #000000;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 8px 18px rgba(0, 0, 0, 0.20);
+        }
+
+
+        .messages-logout-button {
+            border: 1px solid #dddddd;
+
+            background: #ffffff;
+
+            color: #333333;
+
+            cursor: pointer;
+
+            box-shadow:
+                0 3px 10px rgba(0, 0, 0, 0.07);
+        }
+
+
+        .messages-logout-button:hover {
+            background: #eeeeee;
+
+            transform: translateY(-2px);
+
+            box-shadow:
+                0 7px 16px rgba(0, 0, 0, 0.10);
+        }
+
+
+        /* =====================================================
+           TITLE
+           ===================================================== */
+
+        .messages-title-box {
+            text-align: center;
+
+            margin-bottom: 35px;
+        }
+
+
+        .messages-title-box h1 {
+            margin: 0 0 8px;
+
+            font-size: 32px;
+        }
+
+
+        .messages-title-box p {
+            margin: 0;
+
+            color: #777777;
+
+            font-size: 15px;
+        }
+
+
+        /* =====================================================
+           CONVERSATION LIST
+           ===================================================== */
+
+        .conversation-list {
+            display: grid;
+
+            grid-template-columns:
+                repeat(
+                    auto-fit,
+                    minmax(280px, 1fr)
+                );
+
+            gap: 22px;
+        }
+
+
+        /* =====================================================
+           CONVERSATION CARD
+           ===================================================== */
+
+        .conversation-card {
+            display: block;
+
+            background: #ffffff;
+
+            border: 1px solid #dddddd;
+
+            border-radius: 16px;
+
+            padding: 28px 24px;
+
+            color: #222222;
+
+            text-decoration: none;
+
+            text-align: center;
+
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.07);
+
+            transition:
+                transform 180ms ease,
+                box-shadow 180ms ease,
+                border-color 180ms ease;
+        }
+
+
+        .conversation-card:hover {
+            transform: translateY(-5px);
+
+            border-color: #bbbbbb;
+
+            box-shadow:
+                0 12px 28px rgba(0, 0, 0, 0.13);
+        }
+
+
+        /* =====================================================
+           BARBER PHOTO
+           ===================================================== */
+
+        .barber-photo {
+            width: 90px;
+            height: 90px;
+
+            border-radius: 50%;
+
+            object-fit: cover;
+
+            display: block;
+
+            margin: 0 auto 14px;
+
+            border: 3px solid #eeeeee;
+        }
+
+
+        .barber-photo-placeholder {
+            width: 90px;
+            height: 90px;
+
+            border-radius: 50%;
+
+            background: #dddddd;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            margin: 0 auto 14px;
+
+            font-size: 30px;
+
+            font-weight: 800;
+
+            color: #666666;
+        }
+
+
+        /* =====================================================
+           BARBER INFORMATION
+           ===================================================== */
+
+        .barber-name {
+            margin: 0;
+
+            font-size: 23px;
+
+            font-weight: 800;
+        }
+
+
+        .barber-shop {
+            margin: 6px 0 18px;
+
+            color: #777777;
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           LAST MESSAGE
+           ===================================================== */
+
+        .last-message {
+            background: #f5f5f5;
+
+            border-radius: 10px;
+
+            padding: 14px 16px;
+
+            margin-bottom: 14px;
+
+            text-align: left;
+        }
+
+
+        .last-message-label {
+            display: block;
+
+            margin-bottom: 5px;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            color: #888888;
+        }
+
+
+        .last-message-text {
+            margin: 0;
+
+            color: #333333;
+
+            overflow-wrap: anywhere;
+        }
+
+
+        /* =====================================================
+           DETAILS
+           ===================================================== */
+
+        .conversation-details {
+            display: flex;
+
+            justify-content: center;
+
+            gap: 18px;
+
+            margin-bottom: 18px;
+
+            color: #777777;
+
+            font-size: 13px;
+        }
+
+
+        /* =====================================================
+           OPEN CHAT
+           ===================================================== */
+
+        .open-chat-button {
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            min-width: 150px;
+
+            padding: 12px 20px;
+
+            background: #222222;
+
+            color: #ffffff;
+
+            border-radius: 9px;
+
+            font-weight: 800;
+
+            transition:
+                background-color 160ms ease,
+                transform 160ms ease;
+        }
+
+
+        .conversation-card:hover .open-chat-button {
+            background: #000000;
+
+            transform: translateY(-1px);
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+           ===================================================== */
+
+        .empty-conversations {
+            background: #ffffff;
+
+            border: 1px solid #dddddd;
+
+            border-radius: 16px;
+
+            padding: 50px 25px;
+
+            text-align: center;
+
+            box-shadow:
+                0 4px 16px rgba(0, 0, 0, 0.06);
+        }
+
+
+        .empty-conversations h2 {
+            margin-top: 0;
+        }
+
+
+        .empty-conversations p {
+            color: #777777;
+
+            margin-bottom: 22px;
+        }
+
+
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
+        @media (max-width: 600px) {
+
+            .customer-messages-page {
+                padding:
+                    0
+                    12px
+                    35px;
+            }
+
+
+            .messages-header {
+                align-items: stretch;
+
+                flex-direction: column;
+
+                gap: 15px;
+
+                padding:
+                    18px
+                    0
+                    30px;
+            }
+
+
+            .messages-brand {
+                text-align: center;
+            }
+
+
+            .messages-header-actions {
+                display: grid;
+
+                grid-template-columns: 1fr 1fr;
+
+                gap: 10px;
+            }
+
+
+            .messages-header-button {
+                width: 100%;
+            }
+
+
+            .messages-title-box h1 {
+                font-size: 27px;
+            }
+
+
+            .conversation-list {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
 </head>
 
-<body class="customer-page">
 
-<header class="customer-simple-header">
-
-    <a class="customer-brand" href="/customer/dashboard">
-        Barber Booking
-    </a>
-
-    <div class="customer-header-actions">
-
-        <a href="/customer/dashboard">
-            Dashboard
-        </a>
-
-        <form method="post" action="/customer/logout">
-
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{.CSRF}}"
-            >
-
-            <button type="submit">
-                Log out
-            </button>
-
-        </form>
-
-    </div>
-
-</header>
+<body>
 
 <main class="customer-messages-page">
 
-    <div class="customer-messages-heading">
+    <div class="customer-messages">
 
-        <p class="customer-profile-label">
-            Customer Area
-        </p>
 
-        <h1>Messages</h1>
+        <!-- =================================================
+             HEADER
+             ================================================= -->
 
-        <p>
-            Your conversations with barbers.
-        </p>
+        <header class="messages-header">
 
-    </div>
+            <a
+                class="messages-brand"
+                href="/customer/dashboard"
+            >
+                Barber Booking
+            </a>
 
-    {{if .Items}}
 
-        <div class="conversation-list">
+            <div class="messages-header-actions">
 
-            {{range .Items}}
 
-                <article class="conversation-card">
+                <a
+                    class="messages-header-button messages-dashboard-button"
+                    href="/customer/dashboard"
+                >
+                    Dashboard
+                </a>
 
-                    <div class="conversation-info">
 
-                        <h2>
+                <form
+                    method="post"
+                    action="/customer/logout"
+                >
+
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{.CSRF}}"
+                    >
+
+
+                    <button
+                        class="messages-header-button messages-logout-button"
+                        type="submit"
+                    >
+                        Log out
+                    </button>
+
+                </form>
+
+            </div>
+
+        </header>
+
+
+
+        <!-- =================================================
+             TITLE
+             ================================================= -->
+
+        <section class="messages-title-box">
+
+            <h1>
+                Customer Messages
+            </h1>
+
+            <p>
+                Your conversations with barbers.
+            </p>
+
+        </section>
+
+
+
+        <!-- =================================================
+             CONVERSATIONS
+             ================================================= -->
+
+        {{if .Items}}
+
+            <section
+                class="conversation-list"
+                aria-label="Barber conversations"
+            >
+
+                {{range .Items}}
+
+                    <a
+                        class="conversation-card"
+                        href="/customer/chats/{{.BarberID}}"
+                    >
+
+
+                        <!-- BARBER PHOTO -->
+
+                        {{if .BarberImage}}
+
+                            <img
+                                class="barber-photo"
+                                src="{{.BarberImage}}"
+                                alt="{{.Name}}"
+                            >
+
+                        {{else}}
+
+                            <div
+                                class="barber-photo-placeholder"
+                                aria-hidden="true"
+                            >
+                                {{printf "%.1s" .Name}}
+                            </div>
+
+                        {{end}}
+
+
+
+                        <!-- BARBER NAME -->
+
+                        <h2 class="barber-name">
                             {{.Name}}
                         </h2>
 
-                        <p class="conversation-detail">
-                            {{.Detail}}
-                        </p>
 
-                        <p class="conversation-preview">
-                            {{.LastText}}
-                        </p>
 
-                        <p class="conversation-time">
-                            {{.LastAt}}
-                        </p>
+                        <!-- SHOP NAME -->
 
-                    </div>
+                        {{if .Detail}}
 
-                    <div class="conversation-action">
+                            <p class="barber-shop">
+                                {{.Detail}}
+                            </p>
 
-                        <span class="conversation-count">
-                            {{.Count}} messages
+                        {{end}}
+
+
+
+                        <!-- LAST MESSAGE -->
+
+                        <div class="last-message">
+
+                            <span class="last-message-label">
+                                Last message
+                            </span>
+
+                            <p class="last-message-text">
+                                {{.LastText}}
+                            </p>
+
+                        </div>
+
+
+
+                        <!-- DETAILS -->
+
+                        <div class="conversation-details">
+
+                            <span>
+                                {{.LastAt}}
+                            </span>
+
+                            <span>
+                                {{.Count}} messages
+                            </span>
+
+                        </div>
+
+
+
+                        <!-- OPEN CHAT -->
+
+                        <span class="open-chat-button">
+                            Open Chat
                         </span>
 
-                        <a
-                            class="customer-primary-button"
-                            href="/customer/chats/{{.BarberID}}"
-                        >
-                            Open Chat
-                        </a>
 
-                    </div>
+                    </a>
 
-                </article>
+                {{end}}
 
-            {{end}}
+            </section>
 
-        </div>
+        {{else}}
 
-    {{else}}
+            <div class="empty-conversations">
 
-        <div class="empty-conversations">
+                <h2>
+                    No conversations yet
+                </h2>
 
-            <h2>No conversations yet</h2>
+                <p>
+                    Find a barber and send them a message
+                    to start a conversation.
+                </p>
 
-            <p>
-                Find a barber and send them a message to start
-                a conversation.
-            </p>
+                <a
+                    class="open-chat-button"
+                    href="/customer/barbers"
+                >
+                    Find a Barber
+                </a>
 
-            <a
-                class="customer-primary-button"
-                href="/customer/barbers"
-            >
-                Find a Barber
-            </a>
+            </div>
 
-        </div>
+        {{end}}
 
-    {{end}}
+
+    </div>
 
 </main>
 
 </body>
+
 </html>

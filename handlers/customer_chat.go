@@ -36,6 +36,7 @@ func CustomerChatsHandler(
 		if barber, found := storage.FindBarberByID(conversation.BarberID); found {
 			row.Name = barber.FullName
 			row.Detail = barber.ShopName
+			row.BarberImage = barber.PersonalImage
 		}
 
 		rows = append(rows, row)
@@ -93,7 +94,12 @@ func CustomerChatHandler(
 			return
 		}
 
-		http.Redirect(w, r, chatPath("/customer/chats/", barber.ID), http.StatusSeeOther)
+		http.Redirect(
+			w,
+			r,
+			chatPath("/customer/chats/", barber.ID),
+			http.StatusSeeOther,
+		)
 
 	default:
 		methodNotAllowed(w, http.MethodGet, http.MethodPost)

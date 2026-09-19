@@ -111,6 +111,9 @@ func describeBookings(bookings []models.Booking) []bookingRow {
 // the other side and Detail is whatever identifies them best: the shop
 // name when a customer looks at barbers, the phone number when a barber
 // looks at customers.
+//
+// CustomerImage is used when the barber is viewing customer conversations.
+// BarberImage is used when the customer is viewing barber conversations.
 type chatRow struct {
 	BarberID   int
 	CustomerID int
@@ -118,6 +121,7 @@ type chatRow struct {
 	Name          string
 	Detail        string
 	CustomerImage string
+	BarberImage   string
 
 	LastText string
 	LastAt   string

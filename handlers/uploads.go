@@ -14,6 +14,7 @@ import (
 
 const (
 	maxUploadBytes = 5 << 20
+	maxVideoBytes  = 50 << 20
 	maxFormMemory  = 1 << 20
 )
 
@@ -22,10 +23,20 @@ type imageStore struct {
 	urlPath string
 }
 
+type videoStore struct {
+	dir     string
+	urlPath string
+}
+
 var (
 	hairstyleImages = imageStore{
 		dir:     "uploads/hairstyles",
 		urlPath: "/uploads/hairstyles/",
+	}
+
+	hairstyleVideos = videoStore{
+		dir:     "uploads/hairstyle-videos",
+		urlPath: "/uploads/hairstyle-videos/",
 	}
 
 	barberImages = imageStore{
@@ -65,6 +76,12 @@ var allowedImageExtensions = map[string]bool{
 	".webp": true,
 }
 
+var allowedVideoExtensions = map[string]bool{
+	".mp4":  true,
+	".webm": true,
+	".mov":  true,
+}
+
 var errNoUpload = errors.New("no file uploaded")
 
 const (
@@ -81,6 +98,14 @@ func limitRequestBodyFor(w http.ResponseWriter, r *http.Request, photos int) {
 		w,
 		r.Body,
 		maxUploadBytes*int64(photos)+maxFormMemory,
+	)
+}
+
+func limitVideoRequestBody(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(
+		w,
+		r.Body,
+		maxVideoBytes+maxFormMemory,
 	)
 }
 
@@ -162,6 +187,77 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 	return store.urlPath + name, nil
 }
 
+func (store videoStore) save(r *http.Request, field string) (string, error) {
+	file, header, err := r.FormFile(field)
+	if err != nil {
+		if errors.Is(err, http.ErrMissingFile) {
+			return "", errNoUpload
+		}
+
+		return "", fmt.Errorf("read video upload: %w", err)
+	}
+
+	defer file.Close()
+
+	if header.Size > maxVideoBytes {
+		return "", fmt.Errorf(
+			"video is %d MiB; the limit is %d MiB",
+			header.Size>>20,
+			maxVideoBytes>>20,
+		)
+	}
+
+	extension := strings.ToLower(filepath.Ext(header.Filename))
+
+	if !allowedVideoExtensions[extension] {
+		return "", fmt.Errorf("unsupported video type %q", extension)
+	}
+
+	head := make([]byte, 512)
+
+	read, _ := io.ReadFull(file, head)
+
+	kind := http.DetectContentType(head[:read])
+
+	if !strings.HasPrefix(kind, "video/") {
+		return "", fmt.Errorf("that file is %s, not a video", kind)
+	}
+
+	if _, err := file.Seek(0, io.SeekStart); err != nil {
+		return "", fmt.Errorf("rewind video upload: %w", err)
+	}
+
+	if err := os.MkdirAll(store.dir, 0o755); err != nil {
+		return "", fmt.Errorf("create video directory: %w", err)
+	}
+
+	name := fmt.Sprintf("%d%s", time.Now().UnixNano(), extension)
+	path := filepath.Join(store.dir, name)
+
+	destination, err := os.Create(path)
+	if err != nil {
+		return "", fmt.Errorf("create video file: %w", err)
+	}
+
+	if _, err := io.Copy(
+		destination,
+		io.LimitReader(file, maxVideoBytes),
+	); err != nil {
+		destination.Close()
+		os.Remove(path)
+
+		return "", fmt.Errorf("save video: %w", err)
+	}
+
+	if err := destination.Close(); err != nil {
+		os.Remove(path)
+
+		return "", fmt.Errorf("close video file: %w", err)
+	}
+
+	return store.urlPath + name, nil
+}
+
 func removeStoredImage(imageURL string) error {
 	if imageURL == "" {
 		return nil
@@ -197,6 +293,37 @@ func removeStoredImage(imageURL string) error {
 	return fmt.Errorf("unknown stored image URL %q", imageURL)
 }
 
+func removeStoredVideo(videoURL string) error {
+	if videoURL == "" {
+		return nil
+	}
+
+	if !strings.HasPrefix(videoURL, hairstyleVideos.urlPath) {
+		return fmt.Errorf("unknown stored video URL %q", videoURL)
+	}
+
+	name := strings.TrimPrefix(videoURL, hairstyleVideos.urlPath)
+
+	if name == "" ||
+		strings.Contains(name, "/") ||
+		name == "." ||
+		name == ".." {
+		return fmt.Errorf("invalid stored video path %q", videoURL)
+	}
+
+	path := filepath.Join(hairstyleVideos.dir, name)
+
+	if err := os.Remove(path); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return nil
+		}
+
+		return err
+	}
+
+	return nil
+}
+
 func removeImageIgnoringError(imageURL string) {
 	if imageURL == "" {
 		return
@@ -204,6 +331,16 @@ func removeImageIgnoringError(imageURL string) {
 
 	if err := removeStoredImage(imageURL); err != nil {
 		log.Printf("remove stored image %q: %v", imageURL, err)
+	}
+}
+
+func removeVideoIgnoringError(videoURL string) {
+	if videoURL == "" {
+		return
+	}
+
+	if err := removeStoredVideo(videoURL); err != nil {
+		log.Printf("remove stored video %q: %v", videoURL, err)
 	}
 }
 

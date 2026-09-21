@@ -52,7 +52,7 @@ func readHairstyleForm(r *http.Request) (hairstyleForm, string) {
 		priceText == "" ||
 		durationText == "" {
 
-		return form, "Every field except the image is required."
+		return form, "Every field except the image and video is required."
 	}
 
 	price, err := strconv.ParseFloat(priceText, 64)
@@ -134,7 +134,13 @@ func NewHairstyleHandler(
 		renderHairstyleForm(w, s, hairstyleForm{Available: true}, 0, "", "")
 
 	case http.MethodPost:
-		limitRequestBody(w, r)
+		// A hairstyle can contain one image up to 5 MiB and
+		// one video up to 50 MiB, plus form data.
+		r.Body = http.MaxBytesReader(
+			w,
+			r.Body,
+			maxUploadBytes+maxVideoBytes+maxFormMemory,
+		)
 
 		if !requireCSRF(w, r, s) {
 			return
@@ -155,6 +161,16 @@ func NewHairstyleHandler(
 			return
 		}
 
+		video, err := hairstyleVideos.save(r, "video")
+
+		if err != nil && !errors.Is(err, errNoUpload) {
+			removeImageIgnoringError(image)
+
+			renderHairstyleForm(w, s, form, 0, "", err.Error())
+
+			return
+		}
+
 		_, err = storage.CreateHairstyle(models.Hairstyle{
 			BarberID:    barber.ID,
 			Name:        form.Name,
@@ -163,11 +179,14 @@ func NewHairstyleHandler(
 			Price:       form.Price,
 			Duration:    form.Duration,
 			Image:       image,
+			Video:       video,
 			IsAvailable: form.Available,
 		})
 
 		if err != nil {
 			removeImageIgnoringError(image)
+			removeVideoIgnoringError(video)
+
 			serverError(w, "create hairstyle", err)
 
 			return

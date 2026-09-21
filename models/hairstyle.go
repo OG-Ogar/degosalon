@@ -12,6 +12,7 @@ type Hairstyle struct {
 	Duration int
 
 	Image string
+	Video string
 
 	IsAvailable bool
 }

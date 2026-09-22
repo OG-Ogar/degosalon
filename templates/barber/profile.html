@@ -8,8 +8,10 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
-
+    <link rel="stylesheet" href="/static/image-viewer.css">
+    <script src="/static/image-viewer.js" defer></script>
     <script src="/static/app.js" defer></script>
+    
 </head>
 
 <body class="barber-page">
@@ -69,11 +71,13 @@
 
         {{if .ProfileImage}}
 
-            <img class="barber-shop-photo"
-                 src="{{.ProfileImage}}"
-                 alt="Your shop photo, as customers see it">
-
-        {{else}}
+            <img
+                class="fullscreen-image"
+                src="{{.Barber.ProfileImage}}"
+                alt="{{.Barber.ShopName}}"
+               data-fullscreen-image
+            >
+         {{else}}
 
             <p class="barber-hint">
                 You have not added a shop photo yet.

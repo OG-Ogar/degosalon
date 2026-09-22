@@ -8,6 +8,8 @@
 
     <link rel="stylesheet" href="/static/customer-barbers.css">
     <script src="/static/app.js" defer></script>
+    <link rel="stylesheet" href="/static/image-viewer.css">
+    <script src="/static/image-viewer.js" defer></script>
 </head>
 
 <body>
@@ -145,15 +147,21 @@
 
                                 {{if .ProfileImage}}
 
-                                    <img
-                                        src="{{.ProfileImage}}"
-                                        alt="{{.ShopName}}">
+                                <img
+                                    class="fullscreen-image"
+                                    src="{{.ProfileImage}}"
+                                    alt="{{.ShopName}}"
+                                    data-fullscreen-image
+                                >
 
                                 {{else if .PersonalImage}}
 
-                                    <img
-                                        src="{{.PersonalImage}}"
-                                        alt="{{.FullName}}">
+                                   <img
+                                       class="fullscreen-image"
+                                       src="{{.PersonalImage}}"
+                                       alt="{{.FullName}}"
+                                       data-fullscreen-image
+                                     >
 
                                 {{else}}
 

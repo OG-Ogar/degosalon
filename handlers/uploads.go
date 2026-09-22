@@ -39,6 +39,11 @@ var (
 		urlPath: "/uploads/hairstyle-videos/",
 	}
 
+	productImages = imageStore{
+		dir:     "uploads/products",
+		urlPath: "/uploads/products/",
+	}
+
 	barberImages = imageStore{
 		dir:     "uploads/barbers",
 		urlPath: "/uploads/barbers/",
@@ -62,6 +67,7 @@ var (
 
 var imageStores = []imageStore{
 	hairstyleImages,
+	productImages,
 	barberImages,
 	customerImages,
 	landingImages,

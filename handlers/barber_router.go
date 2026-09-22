@@ -76,6 +76,19 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 4 && parts[1] == "hairstyles":
 		hairstyleAction(w, r, barber, s, parts[2], parts[3])
 
+	case len(parts) == 2 && parts[1] == "products":
+		ListProductsHandler(w, r, barber, s)
+
+	case len(parts) == 3 &&
+		parts[1] == "products" &&
+		parts[2] == "new":
+		NewProductHandler(w, r, barber, s)
+
+	case len(parts) == 4 &&
+		parts[1] == "products" &&
+		parts[3] == "delete":
+		DeleteProductHandler(w, r, barber, s, parts[2])
+
 	case len(parts) == 2 && parts[1] == "bookings":
 		BarberBookingsHandler(w, r, barber, s)
 

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Products - Barber Booking</title>
+
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+    <link rel="stylesheet" href="/static/products.css">
+
+    <script src="/static/app.js" defer></script>
+    <script src="/static/image-viewer.js" defer></script>
+</head>
+
+<body class="barber-page">
+
+<header class="barber-header">
+    <div class="barber-header-inner">
+
+        <a class="barber-brand" href="/barber/dashboard">
+            Barber Booking
+        </a>
+
+        <nav class="barber-nav">
+            <a href="/barber/dashboard">1. Dashboard</a>
+            <a href="/barber/hairstyles">2. Hairstyles</a>
+            <a class="active" href="/barber/products">3. Products</a>
+            <a href="/barber/bookings">4. Bookings</a>
+            <a href="/barber/chats">5. Messages</a>
+            <a href="/barber/profile">6. Profile</a>
+        </nav>
+
+    </div>
+</header>
+
+<main class="barber-main">
+
+    <section class="barber-dashboard-intro">
+
+        <div>
+            <h1 class="barber-title">
+                Products
+            </h1>
+
+            <p class="barber-lede">
+                Sell clippers, hair cream and other barbing accessories.
+            </p>
+        </div>
+
+        <div class="barber-actions">
+            <a
+                class="barber-button primary"
+                href="/barber/products/new"
+            >
+                Add Product
+            </a>
+        </div>
+
+    </section>
+
+    {{if .Products}}
+
+        <section class="product-grid">
+
+            {{range .Products}}
+
+                <article class="product-card">
+
+                    {{if .Image}}
+
+                        <img
+                            class="product-image fullscreen-image"
+                            src="{{.Image}}"
+                            alt="{{.Name}}"
+                            data-fullscreen-image
+                        >
+
+                    {{else}}
+
+                        <div class="product-image product-image-placeholder">
+                            No photo
+                        </div>
+
+                    {{end}}
+
+                    <div class="product-card-body">
+
+                        <h2>{{.Name}}</h2>
+
+                        <p class="product-category">
+                            {{.Category}}
+                        </p>
+
+                        <p>
+                            {{.Description}}
+                        </p>
+
+                        <strong class="product-price">
+                            ₦{{printf "%.2f" .Price}}
+                        </strong>
+
+                        <p>
+                            {{if .IsAvailable}}
+                                Available
+                            {{else}}
+                                Not available
+                            {{end}}
+                        </p>
+
+                        <form
+                            method="post"
+                            action="/barber/products/{{.ID}}/delete"
+                        >
+
+                            <input
+                                type="hidden"
+                                name="csrf_token"
+                                value="{{$.CSRF}}"
+                            >
+
+                            <button
+                                class="barber-button danger"
+                                type="submit"
+                            >
+                                Delete
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                </article>
+
+            {{end}}
+
+        </section>
+
+    {{else}}
+
+        <section class="barber-card">
+
+            <h2>No products yet</h2>
+
+            <p>
+                Add your first barbing accessory for customers to see.
+            </p>
+
+            <a
+                class="barber-button primary"
+                href="/barber/products/new"
+            >
+                Add Product
+            </a>
+
+        </section>
+
+    {{end}}
+
+</main>
+
+</body>
+</html>

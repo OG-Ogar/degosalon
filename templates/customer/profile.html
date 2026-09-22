@@ -8,8 +8,10 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/customer-profile.css">
+    <link rel="stylesheet" href="/static/image-viewer.css">
 
     <script src="/static/app.js" defer></script>
+    <script src="/static/image-viewer.js" defer></script>
 </head>
 
 <body class="customer-page">
@@ -49,10 +51,12 @@
         <div class="customer-profile-photo">
 
             {{if .Customer.ProfileImage}}
-                <img
-                    src="{{.Customer.ProfileImage}}"
-                    alt="{{.Customer.FullName}}"
-                >
+               <img
+            class="fullscreen-image"
+            src="{{.Customer.ProfileImage}}"
+            alt="{{.Customer.FullName}}"
+            data-fullscreen-image
+        >
             {{else}}
                 <div class="customer-profile-placeholder">
                     {{printf "%.1s" .Customer.FullName}}

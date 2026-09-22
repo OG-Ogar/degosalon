@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        {{if .Editing}}Edit Product{{else}}Add Product{{end}}
+        - Barber Booking
+    </title>
+
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+
+    <script src="/static/app.js" defer></script>
+</head>
+
+<body class="barber-page">
+
+<header class="barber-header">
+    <div class="barber-header-inner">
+
+        <a class="barber-brand" href="/barber/dashboard">
+            Barber Booking
+        </a>
+
+        <nav class="barber-nav">
+            <a href="/barber/dashboard">1. Dashboard</a>
+            <a href="/barber/hairstyles">2. Hairstyles</a>
+            <a class="active" href="/barber/products">3. Products</a>
+            <a href="/barber/bookings">4. Bookings</a>
+            <a href="/barber/chats">5. Messages</a>
+            <a href="/barber/profile">6. Profile</a>
+        </nav>
+
+    </div>
+</header>
+
+<main class="barber-main">
+
+    <p class="barber-breadcrumb">
+        <a href="/barber/dashboard">Dashboard</a>
+        /
+        <a href="/barber/products">Products</a>
+        /
+        {{if .Editing}}Edit{{else}}Add{{end}}
+    </p>
+
+    <h1 class="barber-title">
+        {{if .Editing}}Edit Product{{else}}Add Product{{end}}
+    </h1>
+
+    {{if .Error}}
+        <div class="barber-card">
+            <p>{{.Error}}</p>
+        </div>
+    {{end}}
+
+    <section class="barber-card">
+
+        <form
+            method="post"
+            action="{{if .Editing}}/barber/products/{{.ID}}/update{{else}}/barber/products/new{{end}}"
+            enctype="multipart/form-data"
+        >
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
+            >
+
+            <div class="barber-field">
+                <label for="name">Product name</label>
+
+                <input
+                    id="name"
+                    type="text"
+                    name="name"
+                    value="{{index .Values "name"}}"
+                    required
+                >
+            </div>
+
+            <div class="barber-field">
+                <label for="category">Category</label>
+
+                <input
+                    id="category"
+                    type="text"
+                    name="category"
+                    value="{{index .Values "category"}}"
+                    placeholder="Clipper, Hair Cream, Brush..."
+                    required
+                >
+            </div>
+
+            <div class="barber-field">
+                <label for="description">Description</label>
+
+                <textarea
+                    id="description"
+                    name="description"
+                    required
+                >{{index .Values "description"}}</textarea>
+            </div>
+
+            <div class="barber-field">
+                <label for="price">Price</label>
+
+                <input
+                    id="price"
+                    type="number"
+                    name="price"
+                    min="0"
+                    step="0.01"
+                    value="{{index .Values "price"}}"
+                    required
+                >
+            </div>
+
+            <div class="barber-field">
+                <label for="image">Product photo</label>
+
+                <input
+                    id="image"
+                    type="file"
+                    name="image"
+                    accept=".jpg,.jpeg,.png,.gif,.webp"
+                >
+
+                <p class="barber-hint">
+                    JPG, JPEG, PNG, GIF or WEBP, up to 5 MB.
+                </p>
+            </div>
+
+            {{if .Image}}
+                <div class="barber-field">
+                    <p class="barber-hint">Current photo</p>
+
+                    <img
+                        class="fullscreen-image"
+                        src="{{.Image}}"
+                        alt="Current product photo"
+                        data-fullscreen-image
+                    >
+                </div>
+            {{end}}
+
+            <div class="barber-field">
+
+                <label>
+                    <input
+                        type="checkbox"
+                        name="available"
+                        {{if .Available}}checked{{end}}
+                    >
+
+                    Available for sale
+                </label>
+
+            </div>
+
+            <div class="barber-actions">
+
+                <button
+                    class="barber-button primary"
+                    type="submit"
+                >
+                    {{if .Editing}}Save Product{{else}}Add Product{{end}}
+                </button>
+
+                <a
+                    class="barber-button"
+                    href="/barber/products"
+                >
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</main>
+
+</body>
+</html>

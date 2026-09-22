@@ -34,6 +34,7 @@ var (
 	barbers    []models.Barber
 	customers  []models.Customer
 	hairstyles []models.Hairstyle
+	products   []models.Product
 	bookings   []models.Booking
 	messages   []models.Message
 )
@@ -44,6 +45,7 @@ var (
 	lastBarberID    int
 	lastCustomerID  int
 	lastHairstyleID int
+	lastProductID   int
 	lastBookingID   int
 	lastMessageID   int
 )
@@ -56,12 +58,14 @@ func Reset() {
 	barbers = nil
 	customers = nil
 	hairstyles = nil
+	products = nil
 	bookings = nil
 	messages = nil
 
 	lastBarberID = 0
 	lastCustomerID = 0
 	lastHairstyleID = 0
+	lastProductID = 0
 	lastBookingID = 0
 	lastMessageID = 0
 }

@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Barbing Products - Barber Booking</title>
+
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/products.css">
+    <link rel="stylesheet" href="/static/image-viewer.css">
+    
+    <script src="/static/app.js" defer></script>
+    <script src="/static/image-viewer.js" defer></script>
+</head>
+
+<body class="customer-page">
+
+<header class="customer-simple-header">
+
+    <a class="customer-brand" href="/customer/dashboard">
+        Barber Booking
+    </a>
+
+    <div class="customer-header-actions">
+
+        <a href="/customer/dashboard">
+            Dashboard
+        </a>
+
+        <form method="post" action="/customer/logout">
+
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
+            >
+
+            <button type="submit">
+                Log out
+            </button>
+
+        </form>
+
+    </div>
+
+</header>
+
+<main class="products-page">
+
+    <div class="products-heading">
+
+        <p class="eyebrow">
+            Barber accessories
+        </p>
+
+        <h1>
+            Products
+        </h1>
+
+        <p>
+            Find clippers, hair cream and other accessories
+            sold by barbers.
+        </p>
+
+    </div>
+
+    {{if .Products}}
+
+        <section class="product-grid">
+
+            {{range .Products}}
+
+                <article class="product-card">
+
+                    {{if .Product.Image}}
+
+                        <img
+                            class="product-image fullscreen-image"
+                            src="{{.Product.Image}}"
+                            alt="{{.Product.Name}}"
+                            data-fullscreen-image
+                        >
+
+                    {{else}}
+
+                        <div class="product-image product-image-placeholder">
+                            No photo
+                        </div>
+
+                    {{end}}
+
+                    <div class="product-card-body">
+
+                        <h2>
+                            {{.Product.Name}}
+                        </h2>
+
+                        <p class="product-category">
+                            {{.Product.Category}}
+                        </p>
+
+                        <p>
+                            {{.Product.Description}}
+                        </p>
+
+                        <p class="product-owner">
+                            Sold by:
+                            <strong>{{.Barber.FullName}}</strong>
+                        </p>
+
+                        <p class="product-shop">
+                            {{.Barber.ShopName}}
+                        </p>
+
+                        <strong class="product-price">
+                            ₦{{printf "%.2f" .Product.Price}}
+                        </strong>
+
+                    </div>
+
+                </article>
+
+            {{end}}
+
+        </section>
+
+    {{else}}
+
+        <section class="products-empty">
+
+            <h2>
+                No products available
+            </h2>
+
+            <p>
+                Barbers have not listed any accessories for sale yet.
+            </p>
+
+        </section>
+
+    {{end}}
+
+</main>
+
+</body>
+</html>

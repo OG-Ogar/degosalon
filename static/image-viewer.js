@@ -40,15 +40,21 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.classList.add("image-viewer-open");
     }
 
-    document.addEventListener("click", (event) => {
-        const image =
-            event.target.closest("[data-fullscreen-image]");
+   document.addEventListener("click", (event) => {
+    const image =
+        event.target.closest("[data-fullscreen-image]");
 
-        if (!image) {
-            return;
-        }
+    if (!image) {
+        return;
+    }
 
-        openViewer(image);
+    /*
+     * Prevent the image click from activating
+     * the radio button inside the surrounding label.
+     */
+    event.preventDefault();
+
+    openViewer(image);
     });
 
     closeButton.addEventListener("click", closeViewer);

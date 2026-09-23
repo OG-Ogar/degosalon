@@ -1,16 +1,28 @@
 <!DOCTYPE html>
-
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<title>{{.Barber.ShopName}} - Barber Booking</title>
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="/static/customer-barber-profile.css">
-<script src="/static/app.js" defer></script>
-```
+    <title>
+        {{.Barber.ShopName}} - Barber Booking
+    </title>
+
+    <link rel="stylesheet"
+          href="/static/customer-barber-profile.css">
+
+    <link rel="stylesheet"
+          href="/static/image-viewer.css">
+
+    <script src="/static/app.js"
+            defer></script>
+
+    <script src="/static/image-viewer.js"
+            defer></script>
 
 </head>
 
@@ -18,7 +30,6 @@
 
 <div class="barber-page">
 
-```
 <header class="barber-header">
 
     <a class="brand-box"
@@ -111,14 +122,20 @@
             {{if .Barber.ProfileImage}}
 
                 <img
+                    class="fullscreen-image"
                     src="{{.Barber.ProfileImage}}"
-                    alt="{{.Barber.ShopName}}">
+                    alt="{{.Barber.ShopName}}"
+                    data-fullscreen-image
+                >
 
             {{else if .Barber.PersonalImage}}
 
                 <img
+                    class="fullscreen-image"
                     src="{{.Barber.PersonalImage}}"
-                    alt="{{.Barber.FullName}}">
+                    alt="{{.Barber.FullName}}"
+                    data-fullscreen-image
+                >
 
             {{else}}
 
@@ -184,7 +201,7 @@
 
         </div>
 
-    {{end }}
+    {{end}}
 
 
     <section class="hairstyles-section">
@@ -206,12 +223,15 @@
             {{if .Hairstyles}}
 
                 <span class="count">
+
                     {{len .Hairstyles}}
+
                     {{if eq (len .Hairstyles) 1}}
                         style
                     {{else}}
                         styles
                     {{end}}
+
                 </span>
 
             {{end}}
@@ -260,6 +280,7 @@
                                 {{if eq $view.Selected .ID}}checked{{end}}
                                 required>
 
+
                             <label for="style-{{.ID}}">
 
                                 <div class="style-image">
@@ -267,8 +288,11 @@
                                     {{if .Image}}
 
                                         <img
+                                            class="fullscreen-image"
                                             src="{{.Image}}"
-                                            alt="Photo of {{.Name}}">
+                                            alt="Photo of {{.Name}}"
+                                            data-fullscreen-image
+                                        >
 
                                     {{else}}
 
@@ -383,10 +407,13 @@
                     <div class="field notes">
 
                         <label for="notes">
+
                             Notes
+
                             <span>
                                 Optional
                             </span>
+
                         </label>
 
                         <textarea
@@ -417,7 +444,10 @@
                             type="submit">
 
                             Request Appointment
-                            <span>&rarr;</span>
+
+                            <span>
+                                &rarr;
+                            </span>
 
                         </button>
 
@@ -456,9 +486,9 @@
     </section>
 
 </main>
-```
 
 </div>
 
 </body>
+
 </html>

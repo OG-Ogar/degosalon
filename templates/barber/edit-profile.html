@@ -3,100 +3,312 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit my profile - Barber Booking</title>
+
+    <title>Edit My Profile - Barber Booking</title>
+
     <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber-profile.css">
+
     <script src="/static/app.js" defer></script>
 </head>
-<body>
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/barber/dashboard">Barber Booking</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/hairstyles">My hairstyles</a>
-            <a href="/barber/bookings">Bookings</a>
-            <a href="/barber/chats">Messages</a>
-            <a href="/barber/profile">My profile</a>
-            <form class="inline" method="post" action="/barber/logout">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="small" type="submit">Log out</button>
-            </form>
-        </nav>
+<body class="barber-page">
+
+<header class="barber-simple-header">
+    <a class="barber-brand" href="/barber/dashboard">
+        Barber Booking
+    </a>
+
+    <div class="barber-header-actions">
+        <a href="/barber/dashboard">Dashboard</a>
+
+        <a href="/barber/profile">My Profile</a>
+
+        <form method="post" action="/barber/logout">
+            <input
+                type="hidden"
+                name="csrf_token"
+                value="{{.CSRF}}"
+            >
+
+            <button type="submit">
+                Log out
+            </button>
+        </form>
     </div>
 </header>
 
-<main class="wrap">
+<main class="barber-edit-page">
 
-    <p class="crumbs">
-        <a href="/barber/dashboard">Dashboard</a> /
-        <a href="/barber/profile">My profile</a> /
-        Edit
-    </p>
+    <div class="barber-edit-heading">
+        <p class="barber-profile-label">Profile Settings</p>
 
-    <h1>Edit my details</h1>
+        <h1>Edit My Profile</h1>
+
+        <p>
+            Update your personal information, shop information and photos.
+        </p>
+    </div>
 
     {{if .Error}}
-        <p class="error" role="alert">{{.Error}}</p>
+        <p class="barber-form-error" role="alert">
+            {{.Error}}
+        </p>
     {{end}}
 
-    <form class="stack panel" method="post" action="/barber/profile/edit"
-          enctype="multipart/form-data">
+    <form
+        class="barber-edit-card"
+        method="post"
+        action="/barber/profile/edit"
+        enctype="multipart/form-data"
+    >
 
-        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{.CSRF}}"
+        >
 
-        <label for="fullname">Full name</label>
-        <input id="fullname" type="text" name="fullname"
-               value="{{index .Values "fullname"}}" autocomplete="name" required>
+        <!-- =================================================
+             PERSONAL INFORMATION
+             ================================================= -->
 
-        <label for="phone">Phone number</label>
-        <input id="phone" type="tel" name="phone"
-               value="{{index .Values "phone"}}" autocomplete="tel" required>
+        <section class="barber-edit-section">
 
-        <label for="email">Email address</label>
-        <input id="email" type="email" name="email"
-               value="{{index .Values "email"}}" autocomplete="email" required>
+            <div class="barber-section-heading">
+                <h2>Personal Information</h2>
 
-        <label for="shopname">Shop name</label>
-        <input id="shopname" type="text" name="shopname"
-               value="{{index .Values "shopname"}}" required>
+                <p>
+                    Your basic contact information.
+                </p>
+            </div>
 
-        <label for="shopaddress">Shop address</label>
-        <input id="shopaddress" type="text" name="shopaddress"
-               value="{{index .Values "shopaddress"}}" required>
+            <div class="barber-form-row barber-form-row-three">
 
-        {{if index .Values "profile_image"}}
-            <p>Current shop photo:</p>
-            <img class="photo" src="{{index .Values "profile_image"}}"
-                 alt="Your current shop photo">
-        {{end}}
+                <div class="barber-form-field">
+                    <label for="fullname">
+                        Full name
+                    </label>
 
-        <label for="profile_image">Shop photo (optional)</label>
-        <input id="profile_image" type="file" name="profile_image"
-               accept=".jpg,.jpeg,.png,.gif,.webp" aria-describedby="shop-photo-hint">
-        <p class="hint" id="shop-photo-hint">
-            The shop itself, shown across the top of your page. Leave it empty
-            to keep the photo you already have. JPG, PNG, GIF or WEBP, up to
-            5 MB; large pictures are resized for you.
-        </p>
+                    <input
+                        id="fullname"
+                        type="text"
+                        name="fullname"
+                        value="{{index .Values "fullname"}}"
+                        autocomplete="name"
+                        required
+                    >
+                </div>
 
-        {{if index .Values "personal_image"}}
-            <p>Your picture:</p>
-            <img class="avatar" src="{{index .Values "personal_image"}}"
-                 alt="Your current picture">
-        {{end}}
+                <div class="barber-form-field">
+                    <label for="phone">
+                        Phone number
+                    </label>
 
-        <label for="personal_image">Your own picture (optional)</label>
-        <input id="personal_image" type="file" name="personal_image"
-               accept=".jpg,.jpeg,.png,.gif,.webp" data-preview="avatar"
-               aria-describedby="personal-photo-hint">
-        <p class="hint" id="personal-photo-hint">
-            A picture of you, shown beside your name so customers know who
-            will be cutting their hair. Same formats and limit as above.
-        </p>
+                    <input
+                        id="phone"
+                        type="tel"
+                        name="phone"
+                        value="{{index .Values "phone"}}"
+                        autocomplete="tel"
+                        required
+                    >
+                </div>
 
-        <div class="actions">
-            <button class="primary" type="submit">Save changes</button>
-            <a class="button" href="/barber/profile">Cancel</a>
+                <div class="barber-form-field">
+                    <label for="email">
+                        Email address
+                    </label>
+
+                    <input
+                        id="email"
+                        type="email"
+                        name="email"
+                        value="{{index .Values "email"}}"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             SHOP INFORMATION
+             ================================================= -->
+
+        <section class="barber-edit-section">
+
+            <div class="barber-section-heading">
+                <h2>Shop Information</h2>
+
+                <p>
+                    Information customers will see about your shop.
+                </p>
+            </div>
+
+            <div class="barber-form-row barber-form-row-two">
+
+                <div class="barber-form-field">
+                    <label for="shopname">
+                        Shop name
+                    </label>
+
+                    <input
+                        id="shopname"
+                        type="text"
+                        name="shopname"
+                        value="{{index .Values "shopname"}}"
+                        required
+                    >
+                </div>
+
+                <div class="barber-form-field">
+                    <label for="shopaddress">
+                        Shop address
+                    </label>
+
+                    <input
+                        id="shopaddress"
+                        type="text"
+                        name="shopaddress"
+                        value="{{index .Values "shopaddress"}}"
+                        required
+                    >
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             SHOP PHOTO
+             ================================================= -->
+
+        <section class="barber-edit-section">
+
+            <div class="barber-section-heading">
+                <h2>Shop Photo</h2>
+
+                <p>
+                    Upload a photo of your barbershop.
+                </p>
+            </div>
+
+            <div class="barber-photo-upload-box">
+
+                {{if index .Values "profile_image"}}
+                    <div class="barber-current-photo">
+                        <img
+                            src="{{index .Values "profile_image"}}"
+                            alt="Your current shop photo"
+                        >
+                    </div>
+                {{end}}
+
+                <div class="barber-upload-content">
+
+                    <label for="profile_image">
+                        Choose shop photo
+                    </label>
+
+                    <input
+                        id="profile_image"
+                        type="file"
+                        name="profile_image"
+                        accept=".jpg,.jpeg,.png,.gif,.webp"
+                        aria-describedby="shop-photo-hint"
+                    >
+
+                    <p
+                        class="barber-upload-hint"
+                        id="shop-photo-hint"
+                    >
+                        Leave empty to keep your current photo.
+                        JPG, PNG, GIF or WEBP, up to 5 MB.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             PERSONAL PHOTO
+             ================================================= -->
+
+        <section class="barber-edit-section">
+
+            <div class="barber-section-heading">
+                <h2>Personal Photo</h2>
+
+                <p>
+                    Upload a photo of yourself so customers know their barber.
+                </p>
+            </div>
+
+            <div class="barber-photo-upload-box">
+
+                {{if index .Values "personal_image"}}
+                    <div class="barber-current-photo barber-personal-current-photo">
+                        <img
+                            src="{{index .Values "personal_image"}}"
+                            alt="Your current personal photo"
+                        >
+                    </div>
+                {{end}}
+
+                <div class="barber-upload-content">
+
+                    <label for="personal_image">
+                        Choose your picture
+                    </label>
+
+                    <input
+                        id="personal_image"
+                        type="file"
+                        name="personal_image"
+                        accept=".jpg,.jpeg,.png,.gif,.webp"
+                        data-preview="avatar"
+                        aria-describedby="personal-photo-hint"
+                    >
+
+                    <p
+                        class="barber-upload-hint"
+                        id="personal-photo-hint"
+                    >
+                        Leave empty to keep your current photo.
+                        JPG, PNG, GIF or WEBP, up to 5 MB.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- =================================================
+             ACTIONS
+             ================================================= -->
+
+        <div class="barber-edit-actions">
+
+            <button
+                class="barber-primary-button"
+                type="submit"
+            >
+                Save Changes
+            </button>
+
+            <a
+                class="barber-secondary-button"
+                href="/barber/profile"
+            >
+                Cancel
+            </a>
+
         </div>
 
     </form>

@@ -1,75 +1,297 @@
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 24px;
-    margin-top: 32px;
+/* =========================================================
+   PRODUCTS PAGE
+   ========================================================= */
+
+.products-page {
+
+    max-width: 1200px;
+
+    margin: 0 auto;
+
+    padding: 40px 24px;
+
 }
+
+/* =========================================================
+   PRODUCTS HEADER
+   ========================================================= */
+
+.products-header {
+
+    position: relative;
+
+    min-height: 76px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 0 32px;
+
+    background: #ffffff;
+
+    border-bottom: 1px solid #e3e0db;
+
+}
+
+/* =========================================================
+   HEADER BUTTONS
+   ========================================================= */
+
+.products-header-button {
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    min-width: 110px;
+
+    min-height: 42px;
+
+    box-sizing: border-box;
+
+    padding: 9px 18px;
+
+    border-radius: 8px;
+
+    font: inherit;
+
+    font-size: 0.9rem;
+
+    font-weight: 800;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        color 0.2s ease;
+
+}
+
+/* =========================================================
+   LOG OUT BUTTON
+   ========================================================= */
+
+.products-logout-button {
+
+    color: #ffffff;
+
+    background: #7a4a1e;
+
+    border: 1px solid #7a4a1e;
+
+}
+
+.products-logout-button:hover {
+
+    background: #5f3915;
+
+    border-color: #5f3915;
+
+}
+
+/* =========================================================
+   DASHBOARD BUTTON
+   ========================================================= */
+
+.products-dashboard-button {
+
+    color: #333333;
+
+    background: #ffffff;
+
+    border: 1px solid #d5d0c8;
+
+}
+
+.products-dashboard-button:hover {
+
+    background: #f5f3ef;
+
+    border-color: #c8c1b8;
+
+}
+
+/* =========================================================
+   PRODUCTS HEADING
+   ========================================================= */
+
+.products-heading {
+
+    text-align: center;
+
+    margin-bottom: 30px;
+
+}
+
+/* =========================================================
+   PRODUCT GRID
+   ========================================================= */
+
+.product-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(auto-fit, minmax(240px, 1fr));
+
+    gap: 24px;
+
+    margin-top: 32px;
+
+}
+
+/* =========================================================
+   PRODUCT CARD
+   ========================================================= */
 
 .product-card {
+
     overflow: hidden;
+
     border-radius: 18px;
+
     background: #ffffff;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.08);
+
 }
 
+/* =========================================================
+   PRODUCT IMAGE
+   ========================================================= */
+
 .product-image {
+
     display: block;
+
     width: 100%;
+
     height: 240px;
+
     object-fit: cover;
+
 }
 
 .fullscreen-image {
+
     cursor: zoom-in;
+
 }
+
+/* =========================================================
+   PRODUCT IMAGE PLACEHOLDER
+   ========================================================= */
 
 .product-image-placeholder {
+
     display: flex;
+
     align-items: center;
+
     justify-content: center;
+
     background: #eeeeee;
+
     color: #777777;
+
 }
 
+/* =========================================================
+   PRODUCT CARD CONTENT
+   ========================================================= */
+
 .product-card-body {
+
     padding: 20px;
+
 }
 
 .product-card-body h2 {
+
     margin: 0 0 8px;
+
 }
 
 .product-category {
+
     margin: 0 0 12px;
+
     font-weight: 600;
+
     opacity: 0.7;
+
 }
 
 .product-owner,
 .product-shop {
+
     margin: 8px 0;
+
 }
 
 .product-price {
+
     display: block;
+
     margin: 16px 0;
+
     font-size: 1.3rem;
+
 }
 
-.products-page {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 40px 24px;
-}
-
-.products-heading {
-    text-align: center;
-    margin-bottom: 30px;
-}
+/* =========================================================
+   EMPTY PRODUCTS
+   ========================================================= */
 
 .products-empty {
+
     padding: 60px 20px;
+
     text-align: center;
+
     background: #ffffff;
+
     border-radius: 18px;
+
+}
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 600px) {
+
+    .products-header {
+
+        min-height: 68px;
+
+        padding: 0 16px;
+
+    }
+
+    .products-header-button {
+
+        min-width: 100px;
+
+        padding: 9px 14px;
+
+        font-size: 0.85rem;
+
+    }
+
+    .products-page {
+
+        padding: 30px 16px;
+
+    }
+
 }

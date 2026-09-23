@@ -224,8 +224,279 @@
 }
 
 /* =========================================================
+   EDIT PROFILE PAGE
+   ========================================================= */
+
+.barber-edit-page {
+    width: min(1050px, calc(100% - 32px));
+
+    margin: 0 auto;
+
+    padding: 55px 0 70px;
+}
+
+.barber-edit-heading {
+    margin-bottom: 30px;
+}
+
+.barber-edit-heading h1 {
+    margin: 0 0 8px;
+
+    font-size: 2.2rem;
+    line-height: 1.15;
+}
+
+.barber-edit-heading > p:last-child {
+    margin: 0;
+
+    color: #777777;
+
+    font-size: 0.95rem;
+}
+
+/* =========================================================
+   ERROR
+   ========================================================= */
+
+.barber-form-error {
+    margin: 0 0 25px;
+
+    padding: 13px 15px;
+
+    color: #8b1e1e;
+    background: #fff0f0;
+
+    border: 1px solid #e4b5b5;
+    border-radius: 7px;
+}
+
+/* =========================================================
+   EDIT CARD
+   ========================================================= */
+
+.barber-edit-card {
+    display: grid;
+    gap: 0;
+
+    padding: 0;
+
+    background: #ffffff;
+
+    border: 1px solid #e3e0db;
+    border-radius: 14px;
+
+    box-shadow:
+        0 12px 35px rgba(0, 0, 0, 0.07);
+
+    overflow: hidden;
+}
+
+/* =========================================================
+   EDIT SECTION
+   ========================================================= */
+
+.barber-edit-section {
+    padding: 30px 38px;
+
+    border-bottom: 1px solid #e3e0db;
+}
+
+.barber-section-heading {
+    margin-bottom: 22px;
+}
+
+.barber-section-heading h2 {
+    margin: 0 0 6px;
+
+    font-size: 1.15rem;
+}
+
+.barber-section-heading p {
+    margin: 0;
+
+    color: #777777;
+
+    font-size: 0.85rem;
+}
+
+/* =========================================================
+   FORM ROWS
+   ========================================================= */
+
+.barber-form-row {
+    display: grid;
+
+    gap: 20px;
+}
+
+.barber-form-row-three {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.barber-form-row-two {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+/* =========================================================
+   FORM FIELDS
+   ========================================================= */
+
+.barber-form-field {
+    display: grid;
+    gap: 7px;
+}
+
+.barber-form-field label {
+    color: #333333;
+
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.barber-form-field input {
+    width: 100%;
+
+    box-sizing: border-box;
+
+    min-height: 46px;
+
+    padding: 10px 12px;
+
+    color: #222222;
+    background: #ffffff;
+
+    border: 1px solid #d5d0c8;
+    border-radius: 7px;
+
+    font: inherit;
+}
+
+.barber-form-field input:focus {
+    outline: 2px solid rgba(122, 74, 30, 0.2);
+
+    border-color: #7a4a1e;
+}
+
+/* =========================================================
+   PHOTO UPLOAD BOX
+   ========================================================= */
+
+.barber-photo-upload-box {
+    display: flex;
+    align-items: center;
+
+    gap: 25px;
+
+    padding: 20px;
+
+    background: #faf9f7;
+
+    border: 1px solid #e3e0db;
+    border-radius: 10px;
+}
+
+.barber-current-photo {
+    flex: 0 0 120px;
+
+    width: 120px;
+    height: 90px;
+
+    overflow: hidden;
+
+    border-radius: 8px;
+
+    background: #eeeeee;
+}
+
+.barber-current-photo img {
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    object-fit: cover;
+}
+
+.barber-personal-current-photo {
+    width: 100px;
+    height: 100px;
+
+    flex-basis: 100px;
+
+    border-radius: 50%;
+}
+
+.barber-upload-content {
+    flex: 1;
+}
+
+.barber-upload-content label {
+    display: block;
+
+    margin-bottom: 9px;
+
+    color: #333333;
+
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.barber-upload-content input {
+    width: 100%;
+
+    font: inherit;
+}
+
+.barber-upload-hint {
+    margin: 8px 0 0;
+
+    color: #777777;
+
+    font-size: 0.8rem;
+    line-height: 1.5;
+}
+
+/* =========================================================
+   EDIT ACTIONS
+   ========================================================= */
+
+.barber-edit-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 25px 38px;
+
+    background: #faf9f7;
+}
+
+.barber-edit-actions .barber-primary-button,
+.barber-edit-actions .barber-secondary-button {
+    min-width: 130px;
+}
+
+/* =========================================================
    MOBILE
    ========================================================= */
+
+@media (max-width: 800px) {
+
+    .barber-form-row-three {
+        grid-template-columns: 1fr;
+    }
+
+    .barber-form-row-two {
+        grid-template-columns: 1fr;
+    }
+
+    .barber-edit-section {
+        padding: 28px 25px;
+    }
+
+    .barber-edit-actions {
+        padding: 22px 25px;
+    }
+}
 
 @media (max-width: 700px) {
 
@@ -258,6 +529,38 @@
     .barber-profile-actions {
         justify-content: center;
     }
+
+    .barber-edit-page {
+        padding: 35px 0 50px;
+    }
+
+    .barber-edit-heading h1 {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+
+    .barber-photo-upload-box {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
+
+    .barber-upload-content {
+        width: 100%;
+    }
+
+    .barber-edit-actions {
+        flex-direction: column;
+
+        align-items: stretch;
+    }
+
+    .barber-edit-actions .barber-primary-button,
+    .barber-edit-actions .barber-secondary-button {
+        width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
@@ -284,5 +587,17 @@
     .barber-primary-button,
     .barber-secondary-button {
         width: 100%;
+    }
+
+    .barber-edit-page {
+        width: min(100% - 22px, 1050px);
+    }
+
+    .barber-edit-section {
+        padding: 24px 18px;
+    }
+
+    .barber-edit-actions {
+        padding: 20px 18px;
     }
 }

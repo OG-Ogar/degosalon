@@ -58,16 +58,17 @@ func Reset() {
 	barbers = nil
 	customers = nil
 	hairstyles = nil
-	products = nil
 	bookings = nil
 	messages = nil
+	products = nil
+	carts = make(map[int]map[int]int)
 
 	lastBarberID = 0
 	lastCustomerID = 0
 	lastHairstyleID = 0
-	lastProductID = 0
 	lastBookingID = 0
 	lastMessageID = 0
+	lastProductID = 0
 }
 
 // nextID hands out the next unused ID for one table. Callers must

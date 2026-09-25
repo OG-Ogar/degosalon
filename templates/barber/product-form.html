@@ -120,6 +120,26 @@
             </div>
 
             <div class="barber-field">
+                <label for="quantity">
+                    Quantity in stock
+                </label>
+
+                <input
+                    id="quantity"
+                    type="number"
+                    name="quantity"
+                    min="0"
+                    step="1"
+                    value="{{index .Values "quantity"}}"
+                    required
+                >
+
+                <p class="barber-hint">
+                    Enter how many units of this product are currently available.
+                </p>
+            </div>
+
+            <div class="barber-field">
                 <label for="image">Product photo</label>
 
                 <input

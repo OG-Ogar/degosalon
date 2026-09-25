@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,14 +36,31 @@
 
     </form>
 
-    <a
-        class="products-header-button products-dashboard-button"
-        href="/customer/dashboard"
-    >
-        Dashboard
-    </a>
+
+    <div class="products-header-right">
+
+        <a
+            class="products-cart-button"
+            href="/customer/products"
+        >
+            Cart
+            <span class="products-cart-count">
+                {{.CartCount}}
+            </span>
+        </a>
+
+
+        <a
+            class="products-header-button products-dashboard-button"
+            href="/customer/dashboard"
+        >
+            Dashboard
+        </a>
+
+    </div>
 
 </header>
+
 
 <main class="products-page">
 
@@ -63,6 +81,7 @@
 
     </div>
 
+
     {{if .Products}}
 
         <section class="product-grid">
@@ -71,22 +90,58 @@
 
                 <article class="product-card">
 
-                    {{if .Product.Image}}
+                    <div class="product-image-wrapper">
 
-                        <img
-                            class="product-image fullscreen-image"
-                            src="{{.Product.Image}}"
-                            alt="{{.Product.Name}}"
-                            data-fullscreen-image
-                        >
+                        {{if .Product.Image}}
 
-                    {{else}}
+                            <img
+                                class="product-image fullscreen-image"
+                                src="{{.Product.Image}}"
+                                alt="{{.Product.Name}}"
+                                data-fullscreen-image
+                            >
 
-                        <div class="product-image product-image-placeholder">
-                            No photo
-                        </div>
+                        {{else}}
 
-                    {{end}}
+                            <div class="product-image product-image-placeholder">
+                                No photo
+                            </div>
+
+                        {{end}}
+
+
+                        <span class="product-stock-badge">
+                            {{.Product.Quantity}} left
+                        </span>
+
+
+                        {{if gt .Product.Quantity 0}}
+
+                            <form
+                                class="product-buy-form"
+                                method="post"
+                                action="/customer/products/{{.Product.ID}}/add-to-cart"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="csrf_token"
+                                    value="{{$.CSRF}}"
+                                >
+
+                                <button
+                                    class="product-buy-button"
+                                    type="submit"
+                                >
+                                    Buy Now
+                                </button>
+
+                            </form>
+
+                        {{end}}
+
+                    </div>
+
 
                     <div class="product-card-body">
 
@@ -94,22 +149,37 @@
                             {{.Product.Name}}
                         </h2>
 
+
                         <p class="product-category">
                             {{.Product.Category}}
                         </p>
+
 
                         <p>
                             {{.Product.Description}}
                         </p>
 
+
                         <p class="product-owner">
+
                             Sold by:
-                            <strong>{{.Barber.FullName}}</strong>
+
+                            <a
+                                class="product-barber-link"
+                                href="/customer/barbers/{{.Barber.ID}}"
+                            >
+                                <strong>
+                                    {{.Barber.FullName}}
+                                </strong>
+                            </a>
+
                         </p>
+
 
                         <p class="product-shop">
                             {{.Barber.ShopName}}
                         </p>
+
 
                         <strong class="product-price">
                             ₦{{printf "%.2f" .Product.Price}}

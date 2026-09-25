@@ -12,6 +12,12 @@ type customerProductRow struct {
 	Barber  models.Barber
 }
 
+type customerProductsView struct {
+	Products  []customerProductRow
+	CSRF      string
+	CartCount int
+}
+
 func CustomerProductsHandler(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -40,15 +46,11 @@ func CustomerProductsHandler(
 		})
 	}
 
-	render(
-		w,
-		"customer/products.html",
-		struct {
-			Products []customerProductRow
-			CSRF     string
-		}{
-			Products: rows,
-			CSRF:     s.CSRFToken,
-		},
-	)
+	view := customerProductsView{
+		Products:  rows,
+		CSRF:      s.CSRFToken,
+		CartCount: storage.CartItemCount(customer.ID),
+	}
+
+	render(w, "customer/products.html", view)
 }

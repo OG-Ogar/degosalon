@@ -15,6 +15,7 @@ type productForm struct {
 	Category    string
 	Description string
 	Price       float64
+	Quantity    int
 	Available   bool
 
 	values map[string]string
@@ -22,6 +23,7 @@ type productForm struct {
 
 func readProductForm(r *http.Request) (productForm, string) {
 	priceText := trimmedField(r.PostFormValue("price"))
+	quantityText := trimmedField(r.PostFormValue("quantity"))
 
 	form := productForm{
 		Name:        trimmedField(r.PostFormValue("name")),
@@ -35,12 +37,14 @@ func readProductForm(r *http.Request) (productForm, string) {
 		"category":    form.Category,
 		"description": form.Description,
 		"price":       priceText,
+		"quantity":    quantityText,
 	}
 
 	if form.Name == "" ||
 		form.Category == "" ||
 		form.Description == "" ||
-		priceText == "" {
+		priceText == "" ||
+		quantityText == "" {
 
 		return form, "Every field except the image is required."
 	}
@@ -56,6 +60,14 @@ func readProductForm(r *http.Request) (productForm, string) {
 	}
 
 	form.Price = price
+
+	quantity, err := strconv.Atoi(quantityText)
+
+	if err != nil || quantity < 0 {
+		return form, "Enter a quantity of zero or more."
+	}
+
+	form.Quantity = quantity
 
 	return form, ""
 }
@@ -148,6 +160,7 @@ func NewProductHandler(
 			Category:    form.Category,
 			Description: form.Description,
 			Price:       form.Price,
+			Quantity:    form.Quantity,
 			Image:       image,
 			IsAvailable: form.Available,
 		})

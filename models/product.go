@@ -8,7 +8,8 @@ type Product struct {
 	Category    string
 	Description string
 
-	Price float64
+	Price    float64
+	Quantity int
 
 	Image       string
 	IsAvailable bool

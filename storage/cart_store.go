@@ -25,6 +25,13 @@ func AddToCart(customerID, productID int) (int, error) {
 
 	carts[customerID][productID]++
 
+	for i := range products {
+		if products[i].ID == productID {
+			products[i].Quantity--
+			break
+		}
+	}
+
 	return carts[customerID][productID], nil
 }
 

@@ -61,3 +61,67 @@ func AddToCartHandler(
 
 	http.Redirect(w, r, "/customer/products", http.StatusSeeOther)
 }
+
+type customerCartItem struct {
+	Product  models.Product
+	Quantity int
+	Subtotal float64
+	Barber   models.Barber
+}
+
+type customerCartView struct {
+	Items []customerCartItem
+	Total float64
+	CSRF  string
+}
+
+func CustomerCartHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	customer models.Customer,
+	s sessionData,
+) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+		return
+	}
+
+	cartItems := storage.ListCartItems(customer.ID)
+
+	items := make([]customerCartItem, 0, len(cartItems))
+
+	var total float64
+
+	for _, cartItem := range cartItems {
+		product, found := storage.FindProductByID(cartItem.ProductID)
+
+		if !found {
+			continue
+		}
+
+		barber, found := storage.FindBarberByID(product.BarberID)
+
+		if !found {
+			continue
+		}
+
+		subtotal := product.Price * float64(cartItem.Quantity)
+
+		items = append(items, customerCartItem{
+			Product:  product,
+			Quantity: cartItem.Quantity,
+			Subtotal: subtotal,
+			Barber:   barber,
+		})
+
+		total += subtotal
+	}
+
+	view := customerCartView{
+		Items: items,
+		Total: total,
+		CSRF:  s.CSRFToken,
+	}
+
+	render(w, "customer/cart.html", view)
+}

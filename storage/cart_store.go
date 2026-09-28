@@ -67,3 +67,16 @@ func ListCartItems(customerID int) []models.CartItem {
 
 	return items
 }
+
+func ClearCart(customerID int) error {
+	mu.Lock()
+	defer mu.Unlock()
+
+	if _, found := carts[customerID]; !found {
+		return ErrNotFound
+	}
+
+	delete(carts, customerID)
+
+	return nil
+}

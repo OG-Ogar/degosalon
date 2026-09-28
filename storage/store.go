@@ -63,6 +63,12 @@ func Reset() {
 	products = nil
 	carts = make(map[int]map[int]int)
 
+	productOrders = nil
+	productOrderItems = nil
+
+	lastProductOrderID = 0
+	lastProductOrderItemID = 0
+
 	lastBarberID = 0
 	lastCustomerID = 0
 	lastHairstyleID = 0

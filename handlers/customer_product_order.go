@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 	"time"
 
 	"barber-booking/models"
@@ -116,7 +117,7 @@ func CustomerProductOrderHandler(
 	http.Redirect(
 		w,
 		r,
-		"/customer/order-confirmation/"+itoa(order.ID),
+		"/customer/order-confirmation/"+strconv.Itoa(order.ID),
 		http.StatusSeeOther,
 	)
 }

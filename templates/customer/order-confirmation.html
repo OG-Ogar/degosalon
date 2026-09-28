@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Order Confirmation - Barber Booking</title>
+
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/products.css">
+    <link rel="stylesheet" href="/static/image-viewer.css">
+
+    <script src="/static/app.js" defer></script>
+    <script src="/static/image-viewer.js" defer></script>
+</head>
+
+<body class="customer-page">
+
+<header class="products-header">
+
+    <form method="post" action="/customer/logout">
+
+        <input
+            type="hidden"
+            name="csrf_token"
+            value="{{.CSRF}}"
+        >
+
+        <button
+            class="products-header-button products-logout-button"
+            type="submit"
+        >
+            Log out
+        </button>
+
+    </form>
+
+    <a
+        class="products-header-button products-dashboard-button"
+        href="/customer/dashboard"
+    >
+        Dashboard
+    </a>
+
+</header>
+
+
+<main class="products-page">
+
+    <div class="products-heading">
+
+        <p class="eyebrow">
+            Order
+        </p>
+
+        <h1>
+            Order Confirmation
+        </h1>
+
+        <p>
+            Your order has been created successfully.
+        </p>
+
+    </div>
+
+
+    <section class="cart-summary">
+
+        <h2>
+            Order #{{.Order.ID}}
+        </h2>
+
+        <p>
+            Customer:
+            <strong>
+                {{.Order.CustomerName}}
+            </strong>
+        </p>
+
+        <p>
+            Status:
+            <strong>
+                {{.Order.Status}}
+            </strong>
+        </p>
+
+        <p>
+            Date:
+            <strong>
+                {{.Order.CreatedAt.Format "02 Jan 2006 03:04 PM"}}
+            </strong>
+        </p>
+
+    </section>
+
+
+    {{if .Items}}
+
+        <section class="cart-list">
+
+            {{range .Items}}
+
+                <article class="cart-item">
+
+                    {{if .Product.Image}}
+
+                        <img
+                            class="cart-item-image fullscreen-image"
+                            src="{{.Product.Image}}"
+                            alt="{{.Product.Name}}"
+                            data-fullscreen-image
+                        >
+
+                    {{else}}
+
+                        <div class="cart-item-image cart-item-image-placeholder">
+                            No photo
+                        </div>
+
+                    {{end}}
+
+
+                    <div class="cart-item-details">
+
+                        <h2>
+                            {{.Item.ProductName}}
+                        </h2>
+
+                        <p class="product-category">
+                            {{.Product.Category}}
+                        </p>
+
+                        <p>
+                            {{.Product.Description}}
+                        </p>
+
+                        <p class="product-owner">
+
+                            Sold by:
+
+                            <a
+                                class="product-barber-link"
+                                href="/customer/barbers/{{.Barber.ID}}"
+                            >
+                                <strong>
+                                    {{.Barber.FullName}}
+                                </strong>
+                            </a>
+
+                        </p>
+
+                        <p class="product-shop">
+                            {{.Barber.ShopName}}
+                        </p>
+
+                    </div>
+
+
+                    <div class="cart-item-pricing">
+
+                        <p>
+                            Price:
+                            <strong>
+                                ₦{{printf "%.2f" .Item.Price}}
+                            </strong>
+                        </p>
+
+                        <p>
+                            Quantity:
+                            <strong>
+                                {{.Item.Quantity}}
+                            </strong>
+                        </p>
+
+                        <p class="cart-item-subtotal">
+                            Subtotal:
+                            <strong>
+                                ₦{{printf "%.2f" .Item.Subtotal}}
+                            </strong>
+                        </p>
+
+                    </div>
+
+                </article>
+
+            {{end}}
+
+        </section>
+
+
+        <section class="cart-summary">
+
+            <h2>
+                Order Summary
+            </h2>
+
+            <div class="cart-total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong>
+                    ₦{{printf "%.2f" .Order.TotalAmount}}
+                </strong>
+
+            </div>
+
+            <a
+                class="cart-continue-button"
+                href="/customer/products"
+            >
+                Continue Shopping
+            </a>
+
+        </section>
+
+    {{else}}
+
+        <section class="products-empty">
+
+            <h2>
+                No order items found
+            </h2>
+
+            <p>
+                The order exists, but no products were found inside it.
+            </p>
+
+        </section>
+
+    {{end}}
+
+</main>
+
+</body>
+</html>

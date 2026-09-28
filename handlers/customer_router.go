@@ -62,6 +62,9 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 3 && parts[1] == "booking-confirmation":
 		BookingConfirmationHandler(w, r, customer, s, parts[2])
 
+	case len(parts) == 3 && parts[1] == "order-confirmation":
+		CustomerProductOrderConfirmationHandler(w, r, customer, s, parts[2])
+
 	case len(parts) == 2 && parts[1] == "bookings":
 		CustomerBookingsHandler(w, r, customer, s)
 
@@ -79,6 +82,11 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 
 	case len(parts) == 2 && parts[1] == "cart":
 		CustomerCartHandler(w, r, customer, s)
+
+	case len(parts) == 3 &&
+		parts[1] == "products" &&
+		parts[2] == "pay":
+		CustomerProductOrderHandler(w, r, customer, s)
 
 	case len(parts) == 4 &&
 		parts[1] == "products" &&

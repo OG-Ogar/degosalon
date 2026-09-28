@@ -27,6 +27,8 @@ type customerDashboardView struct {
 	Pending       int
 	Conversations int
 
+	ProductOrders []models.ProductOrder
+
 	BackgroundImage string
 }
 

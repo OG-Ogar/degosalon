@@ -18,6 +18,8 @@ type barberDashboardView struct {
 	PendingBookings  int
 	UpcomingBookings int
 	Conversations    int
+
+	ProductOrders []models.ProductOrderItem
 }
 
 // BarberDashboardHandler shows the barber's own overview.
@@ -48,8 +50,6 @@ func BarberDashboardHandler(
 	}
 
 	// The password hash must never reach the template.
-	barber.PasswordHash = ""
-
 	render(w, "barber/dashboard.html", barberDashboardView{
 		Barber:           barber,
 		CSRF:             s.CSRFToken,
@@ -57,6 +57,7 @@ func BarberDashboardHandler(
 		PendingBookings:  pending,
 		UpcomingBookings: upcoming,
 		Conversations:    len(storage.ConversationsForBarber(barber.ID)),
+		ProductOrders:    storage.ListProductOrderItemsByBarber(barber.ID),
 	})
 }
 

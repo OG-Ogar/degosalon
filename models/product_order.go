@@ -3,8 +3,8 @@ package models
 import "time"
 
 const (
-	OrderPending = "Pending"
-	OrderPaid    = "Paid"
+	OrderPending   = "Pending"
+	OrderPaid      = "Paid"
 	OrderCancelled = "Cancelled"
 	OrderCompleted = "Completed"
 )

@@ -34,7 +34,7 @@
             <a href="/barber/products">
                 3. Products
             </a>
-            
+
             <a href="/barber/bookings">
                 3. Bookings
             </a>
@@ -110,10 +110,12 @@
             </span>
 
             <div class="barber-actions">
+
                 <a class="barber-button primary"
                    href="/barber/bookings">
                     Review
                 </a>
+
             </div>
 
         </article>
@@ -130,10 +132,12 @@
             </span>
 
             <div class="barber-actions">
+
                 <a class="barber-button"
                    href="/barber/bookings">
                     Schedule
                 </a>
+
             </div>
 
         </article>
@@ -150,10 +154,12 @@
             </span>
 
             <div class="barber-actions">
+
                 <a class="barber-button"
                    href="/barber/hairstyles">
                     Manage
                 </a>
+
             </div>
 
         </article>
@@ -170,10 +176,12 @@
             </span>
 
             <div class="barber-actions">
+
                 <a class="barber-button"
                    href="/barber/chats">
                     Messages
                 </a>
+
             </div>
 
         </article>
@@ -249,6 +257,76 @@
             </div>
 
         </div>
+
+    </section>
+
+
+    <section class="barber-section">
+
+        <h2 class="barber-section-title">
+            Product Orders
+        </h2>
+
+        {{if .ProductOrders}}
+
+            <div class="barber-card">
+
+                <table class="barber-profile-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>Order</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {{range .ProductOrders}}
+
+                            <tr>
+
+                                <td>
+                                    #{{.OrderID}}
+                                </td>
+
+                                <td>
+                                    {{.ProductName}}
+                                </td>
+
+                                <td>
+                                    {{.Quantity}}
+                                </td>
+
+                                <td>
+                                    ₦{{printf "%.2f" .Subtotal}}
+                                </td>
+
+                            </tr>
+
+                        {{end}}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {{else}}
+
+            <div class="barber-card">
+
+                <p>
+                    No customers have ordered your products yet.
+                </p>
+
+            </div>
+
+        {{end}}
 
     </section>
 

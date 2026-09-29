@@ -26,6 +26,7 @@ type customerDashboardView struct {
 	Upcoming      []bookingRow
 	Pending       int
 	Conversations int
+	CartCount     int
 
 	ProductOrders []models.ProductOrder
 
@@ -50,6 +51,7 @@ func CustomerDashboardHandler(
 		CSRF:            s.CSRFToken,
 		Barbers:         len(storage.ListActiveBarbers()),
 		Conversations:   len(storage.ConversationsForCustomer(customer.ID)),
+		CartCount:       storage.CartItemCount(customer.ID),
 		BackgroundImage: currentCustomerLandingImage(),
 	}
 

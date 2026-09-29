@@ -39,9 +39,14 @@
             </a>
 
             <a href="/customer/products">
-               Products
+                Products
             </a>
-            
+
+            <a href="/customer/cart">
+                Cart
+                ({{.CartCount}})
+            </a>
+
             <a href="/customer/bookings">
                 My bookings
             </a>
@@ -135,6 +140,7 @@
 
         </section>
 
+
         <section class="appointments">
 
             <div class="section-heading">
@@ -214,6 +220,102 @@
                     <a class="hero-button"
                        href="/customer/barbers">
                         Browse barbers
+                    </a>
+
+                </div>
+
+            {{end}}
+
+        </section>
+
+
+        <section class="appointments">
+
+            <div class="section-heading">
+
+                <div>
+                    <p class="eyebrow">
+                        Your purchases
+                    </p>
+
+                    <h2>
+                        My Product Orders
+                    </h2>
+                </div>
+
+                <a class="section-link"
+                   href="/customer/products">
+                    Shop products
+                </a>
+
+            </div>
+
+            {{if .ProductOrders}}
+
+                <div class="appointment-list">
+
+                    {{range .ProductOrders}}
+
+                        <article class="appointment-card">
+
+                            <div class="appointment-date">
+
+                                <span>
+                                    Order #{{.ID}}
+                                </span>
+
+                                <strong>
+                                    {{.CreatedAt.Format "02 Jan 2006"}}
+                                </strong>
+
+                            </div>
+
+                            <div class="appointment-details">
+
+                                <h3>
+                                    ₦{{printf "%.2f" .TotalAmount}}
+                                </h3>
+
+                                <p>
+                                    {{.CustomerName}}
+                                </p>
+
+                                <span>
+                                    {{.Status}}
+                                </span>
+
+                            </div>
+
+                            <div class="appointment-status">
+
+                                <a class="section-link"
+                                   href="/customer/order-confirmation/{{.ID}}">
+                                    View order
+                                </a>
+
+                            </div>
+
+                        </article>
+
+                    {{end}}
+
+                </div>
+
+            {{else}}
+
+                <div class="empty-appointments">
+
+                    <h3>
+                        No product orders yet
+                    </h3>
+
+                    <p>
+                        Browse products from barbers and make your first purchase.
+                    </p>
+
+                    <a class="hero-button"
+                       href="/customer/products">
+                        Browse products
                     </a>
 
                 </div>

@@ -8,6 +8,18 @@ import (
 
 // ListBarbers returns every barber, newest last.
 func ListBarbers() []models.Barber {
+	if databaseEnabled() {
+		rows, err := db.Query("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, profile_image, personal_image, status from public.barbers order by id")
+		if err == nil {
+			defer rows.Close()
+			var out []models.Barber
+			for rows.Next() {
+				var b models.Barber
+				if rows.Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.ProfileImage,&b.PersonalImage,&b.Status)==nil { out=append(out,b) }
+			}
+			return out
+		}
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -33,6 +45,11 @@ func ListActiveBarbers() []models.Barber {
 
 // FindBarberByID returns a copy of the barber with the given ID.
 func FindBarberByID(id int) (models.Barber, bool) {
+	if databaseEnabled() {
+		var b models.Barber
+		err:=db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, profile_image, personal_image, status from public.barbers where id=$1",id).Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.ProfileImage,&b.PersonalImage,&b.Status)
+		return b, err==nil
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -52,6 +69,11 @@ func findBarberByID(id int) (models.Barber, bool) {
 
 // FindBarberByEmail matches case-insensitively, the way logins do.
 func FindBarberByEmail(email string) (models.Barber, bool) {
+	if databaseEnabled() {
+		var b models.Barber
+		err:=db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, profile_image, personal_image, status from public.barbers where lower(email)=lower($1)",email).Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.ProfileImage,&b.PersonalImage,&b.Status)
+		return b, err==nil
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -68,6 +90,15 @@ func FindBarberByEmail(email string) (models.Barber, bool) {
 // uniqueness check happens under the same lock as the insert, so two
 // simultaneous registrations cannot both succeed with one email.
 func CreateBarber(barber models.Barber) (models.Barber, error) {
+	if databaseEnabled() {
+		if barber.Status=="" { barber.Status=models.BarberActive }
+		err:=db.QueryRow("insert into public.barbers(full_name,phone_number,email,password_hash,shop_name,shop_address,profile_image,personal_image,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id",barber.FullName,barber.PhoneNumber,barber.Email,barber.PasswordHash,barber.ShopName,barber.ShopAddress,barber.ProfileImage,barber.PersonalImage,barber.Status).Scan(&barber.ID)
+		if err!=nil {
+			if strings.Contains(strings.ToLower(err.Error()),"unique") { return models.Barber{},ErrEmailTaken }
+			return models.Barber{},err
+		}
+		return barber,nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 

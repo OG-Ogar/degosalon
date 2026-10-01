@@ -3,7 +3,7 @@ services:
     name: baba-multiverse
     runtime: go
     branch: main
-    buildCommand: go build -o baba-multiverse .
+    buildCommand: go mod tidy && go build -o baba-multiverse .
     startCommand: ./baba-multiverse
     healthCheckPath: /
     envVars:

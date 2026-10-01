@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"barber-booking/handlers"
+	"barber-booking/storage"
 )
 
 // listenAddress is where the server binds. PORT overrides it so the app
@@ -22,6 +23,11 @@ func listenAddress() string {
 
 func main() {
 	log.SetFlags(log.LstdFlags)
+
+	if err := storage.InitDatabase(); err != nil {
+		log.Fatalf("connect to database: %v", err)
+	}
+	defer storage.CloseDatabase()
 
 	// Templates are parsed once, at startup. A broken template used to
 	// surface as a half-written page on the first request that hit it;

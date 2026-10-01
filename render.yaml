@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: baba-multiverse
+    runtime: go
+    branch: main
+    buildCommand: go build -o baba-multiverse .
+    startCommand: ./baba-multiverse
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: ADMIN_USERNAME
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: SHOW_RESET_LINKS
+        value: "0"

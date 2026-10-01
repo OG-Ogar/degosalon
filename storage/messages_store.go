@@ -21,6 +21,7 @@ type Conversation struct {
 
 // AddMessage assigns an ID and appends the message to its conversation.
 func AddMessage(message models.Message) (models.Message, error) {
+	if databaseEnabled(){if message.SentAt.IsZero(){message.SentAt=time.Now()};err:=db.QueryRow("insert into public.messages(barber_id,customer_id,sender_role,sender_name,text,sent_at) values($1,$2,$3,$4,$5,$6) returning id",message.BarberID,message.CustomerID,message.SenderRole,message.SenderName,message.Text,message.SentAt).Scan(&message.ID);return message,err}
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -46,6 +47,7 @@ func AddMessage(message models.Message) (models.Message, error) {
 // ListConversation returns the messages between one barber and one
 // customer, oldest first.
 func ListConversation(barberID, customerID int) []models.Message {
+	if databaseEnabled(){rows,err:=db.Query("select id,barber_id,customer_id,sender_role,sender_name,text,sent_at from public.messages where barber_id=$1 and customer_id=$2 order by id",barberID,customerID);if err==nil{defer rows.Close();var out []models.Message;for rows.Next(){var v models.Message;if rows.Scan(&v.ID,&v.BarberID,&v.CustomerID,&v.SenderRole,&v.SenderName,&v.Text,&v.SentAt)==nil{out=append(out,v)}};return out}}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -85,6 +87,7 @@ func ConversationsForCustomer(customerID int) []Conversation {
 // summarise groups the matching messages into one Conversation per
 // barber/customer pair.
 func summarise(match func(models.Message) bool) []Conversation {
+	if databaseEnabled(){rows,err:=db.Query("select id,barber_id,customer_id,sender_role,sender_name,text,sent_at from public.messages order by sent_at");if err==nil{defer rows.Close();var all []models.Message;for rows.Next(){var v models.Message;if rows.Scan(&v.ID,&v.BarberID,&v.CustomerID,&v.SenderRole,&v.SenderName,&v.Text,&v.SentAt)==nil{all=append(all,v)}};return summariseMessages(all,match)}}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -131,4 +134,11 @@ func summarise(match func(models.Message) bool) []Conversation {
 	})
 
 	return list
+}
+
+func summariseMessages(source []models.Message, match func(models.Message) bool) []Conversation {
+	type key struct{barberID,customerID int}
+	index:=map[key]*Conversation{}
+	for _,message:=range source{if !match(message){continue};id:=key{message.BarberID,message.CustomerID};conversation:=index[id];if conversation==nil{conversation=&Conversation{BarberID:message.BarberID,CustomerID:message.CustomerID};index[id]=conversation};conversation.Count++;if !message.SentAt.Before(conversation.LastAt){conversation.LastAt=message.SentAt;conversation.LastText=message.Text}}
+	list:=make([]Conversation,0,len(index));for _,v:=range index{list=append(list,*v)};sort.SliceStable(list,func(i,j int)bool{return list[i].LastAt.After(list[j].LastAt)});return list
 }

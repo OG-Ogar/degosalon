@@ -2,7 +2,9 @@ package storage
 
 import (
 	"errors"
+	"database/sql"
 	"sort"
+	"strings"
 
 	"barber-booking/models"
 )
@@ -17,6 +19,13 @@ var ErrUnavailable = errors.New("that hairstyle is not available for booking")
 // inside one write lock, so two customers submitting the same slot at
 // the same moment cannot both be accepted.
 func CreateBooking(booking models.Booking) (models.Booking, error) {
+	if databaseEnabled(){
+		var active bool;var available bool;var owner int
+		if err:=db.QueryRow("select status='Active' from public.barbers where id=$1",booking.BarberID).Scan(&active);err!=nil{return models.Booking{},ErrNotFound};if !active{return models.Booking{},ErrUnavailable}
+		if err:=db.QueryRow("select barber_id,is_available from public.hairstyles where id=$1",booking.HairstyleID).Scan(&owner,&available);err!=nil{return models.Booking{},ErrNotFound};if owner!=booking.BarberID{return models.Booking{},ErrForbidden};if !available{return models.Booking{},ErrUnavailable}
+		err:=db.QueryRow("insert into public.bookings(barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date,booking_time,notes,status,created_at) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id",booking.BarberID,booking.HairstyleID,booking.CustomerID,booking.CustomerName,booking.CustomerPhone,booking.CustomerEmail,booking.Date,booking.Time,booking.Notes,booking.Status,booking.CreatedAt).Scan(&booking.ID)
+		if err!=nil{if strings.Contains(strings.ToLower(err.Error()),"bookings_open_slot_unique"){return models.Booking{},ErrSlotTaken};return models.Booking{},err};return booking,nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -61,6 +70,7 @@ func CreateBooking(booking models.Booking) (models.Booking, error) {
 
 // FindBookingByID returns a copy of the booking with the given ID.
 func FindBookingByID(id int) (models.Booking, bool) {
+	if databaseEnabled(){var v models.Booking;err:=db.QueryRow("select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at from public.bookings where id=$1",id).Scan(&v.ID,&v.BarberID,&v.HairstyleID,&v.CustomerID,&v.CustomerName,&v.CustomerPhone,&v.CustomerEmail,&v.Date,&v.Time,&v.Notes,&v.Status,&v.CreatedAt);return v,err==nil}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -75,6 +85,7 @@ func FindBookingByID(id int) (models.Booking, bool) {
 
 // ListBookings returns every booking, for the admin overview.
 func ListBookings() []models.Booking {
+	if databaseEnabled(){return listBookingsDB("",0)}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -83,6 +94,7 @@ func ListBookings() []models.Booking {
 
 // ListBookingsByBarber returns one barber's schedule.
 func ListBookingsByBarber(barberID int) []models.Booking {
+	if databaseEnabled(){return listBookingsDB("barber_id",barberID)}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -99,6 +111,7 @@ func ListBookingsByBarber(barberID int) []models.Booking {
 
 // ListBookingsByCustomer returns one customer's appointments.
 func ListBookingsByCustomer(customerID int) []models.Booking {
+	if databaseEnabled(){return listBookingsDB("customer_id",customerID)}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -158,4 +171,12 @@ func sortBySlot(list []models.Booking) []models.Booking {
 	})
 
 	return list
+}
+
+func listBookingsDB(field string,id int) []models.Booking {
+	q:="select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at from public.bookings"
+	var rows *sql.Rows;var err error
+	if field!=""{q+=" where "+field+"=$1";rows,err=db.Query(q,id)}else{rows,err=db.Query(q)}
+	if err!=nil{return nil};defer rows.Close();var out []models.Booking
+	for rows.Next(){var v models.Booking;if rows.Scan(&v.ID,&v.BarberID,&v.HairstyleID,&v.CustomerID,&v.CustomerName,&v.CustomerPhone,&v.CustomerEmail,&v.Date,&v.Time,&v.Notes,&v.Status,&v.CreatedAt)==nil{out=append(out,v)}};return sortBySlot(out)
 }

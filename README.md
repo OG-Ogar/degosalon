@@ -1,4 +1,4 @@
-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
+[REVOKED GITHUB TOKEN REMOVED]
 
 
 # barber-booking
@@ -221,4 +221,4 @@ Why are we solving it this way instead of another way?
 
 
 
-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
+[REVOKED GITHUB TOKEN REMOVED]

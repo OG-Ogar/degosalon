@@ -3,8 +3,8 @@ services:
     name: baba-multiverse
     runtime: go
     branch: main
-    buildCommand: go mod tidy && go build -o baba-multiverse .
-    startCommand: ./baba-multiverse
+    buildCommand: go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
+    startCommand: ./app
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL

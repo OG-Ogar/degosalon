@@ -3,6 +3,7 @@ package storage
 import "barber-booking/models"
 
 func ListProductsByBarber(barberID int) []models.Product {
+	if databaseEnabled(){rows,err:=db.Query("select id,barber_id,name,category,description,price,quantity,image,is_available from public.products where barber_id=$1 order by id",barberID);if err==nil{defer rows.Close();var out []models.Product;for rows.Next(){var v models.Product;if rows.Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Quantity,&v.Image,&v.IsAvailable)==nil{out=append(out,v)}};return out}}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -18,6 +19,7 @@ func ListProductsByBarber(barberID int) []models.Product {
 }
 
 func ListAvailableProducts() []models.Product {
+	if databaseEnabled(){rows,err:=db.Query("select id,barber_id,name,category,description,price,quantity,image,is_available from public.products where is_available=true order by id");if err==nil{defer rows.Close();var out []models.Product;for rows.Next(){var v models.Product;if rows.Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Quantity,&v.Image,&v.IsAvailable)==nil{out=append(out,v)}};return out}}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -33,6 +35,7 @@ func ListAvailableProducts() []models.Product {
 }
 
 func FindProductByID(id int) (models.Product, bool) {
+	if databaseEnabled(){var v models.Product;err:=db.QueryRow("select id,barber_id,name,category,description,price,quantity,image,is_available from public.products where id=$1",id).Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Quantity,&v.Image,&v.IsAvailable);return v,err==nil}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -67,6 +70,7 @@ func FindProductOwnedBy(id, barberID int) (models.Product, error) {
 }
 
 func CreateProduct(product models.Product) (models.Product, error) {
+	if databaseEnabled(){err:=db.QueryRow("insert into public.products(barber_id,name,category,description,price,quantity,image,is_available) values($1,$2,$3,$4,$5,$6,$7,$8) returning id",product.BarberID,product.Name,product.Category,product.Description,product.Price,product.Quantity,product.Image,product.IsAvailable).Scan(&product.ID);return product,err}
 	mu.Lock()
 	defer mu.Unlock()
 

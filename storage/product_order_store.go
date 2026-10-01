@@ -18,6 +18,7 @@ var (
 
 // CreateProductOrder creates and stores a new product order.
 func CreateProductOrder(order models.ProductOrder) (models.ProductOrder, error) {
+	if databaseEnabled(){err:=db.QueryRow("insert into public.product_orders(customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at) values($1,$2,$3,$4,$5,$6,$7) returning id",order.CustomerID,order.CustomerName,order.CustomerPhone,order.CustomerEmail,order.TotalAmount,order.Status,order.CreatedAt).Scan(&order.ID);return order,err}
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -30,6 +31,7 @@ func CreateProductOrder(order models.ProductOrder) (models.ProductOrder, error) 
 
 // CreateProductOrderItem creates and stores a product inside an order.
 func CreateProductOrderItem(item models.ProductOrderItem) (models.ProductOrderItem, error) {
+	if databaseEnabled(){err:=db.QueryRow("insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal) values($1,$2,$3,$4,$5,$6,$7) returning id",item.OrderID,item.ProductID,item.BarberID,item.ProductName,item.Price,item.Quantity,item.Subtotal).Scan(&item.ID);return item,err}
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -42,6 +44,7 @@ func CreateProductOrderItem(item models.ProductOrderItem) (models.ProductOrderIt
 
 // FindProductOrderByID finds an order by its ID.
 func FindProductOrderByID(id int) (models.ProductOrder, bool) {
+	if databaseEnabled(){var v models.ProductOrder;err:=db.QueryRow("select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where id=$1",id).Scan(&v.ID,&v.CustomerID,&v.CustomerName,&v.CustomerPhone,&v.CustomerEmail,&v.TotalAmount,&v.Status,&v.CreatedAt);return v,err==nil}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -56,6 +59,7 @@ func FindProductOrderByID(id int) (models.ProductOrder, bool) {
 
 // ListProductOrderItems returns all items belonging to an order.
 func ListProductOrderItems(orderID int) []models.ProductOrderItem {
+	if databaseEnabled(){rows,err:=db.Query("select id,order_id,product_id,barber_id,product_name,price,quantity,subtotal from public.product_order_items where order_id=$1 order by id",orderID);if err==nil{defer rows.Close();var out []models.ProductOrderItem;for rows.Next(){var v models.ProductOrderItem;if rows.Scan(&v.ID,&v.OrderID,&v.ProductID,&v.BarberID,&v.ProductName,&v.Price,&v.Quantity,&v.Subtotal)==nil{out=append(out,v)}};return out}}
 	mu.RLock()
 	defer mu.RUnlock()
 

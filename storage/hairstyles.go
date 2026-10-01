@@ -4,6 +4,7 @@ import "barber-booking/models"
 
 // ListHairstylesByBarber returns everything one barber offers.
 func ListHairstylesByBarber(barberID int) []models.Hairstyle {
+	if databaseEnabled(){rows,err:=db.Query("select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where barber_id=$1 order by id",barberID);if err==nil{defer rows.Close();var out []models.Hairstyle;for rows.Next(){var v models.Hairstyle;if rows.Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Duration,&v.Image,&v.Video,&v.IsAvailable)==nil{out=append(out,v)}};return out}}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -37,6 +38,7 @@ func ListAvailableHairstylesByBarber(barberID int) []models.Hairstyle {
 
 // FindHairstyleByID returns a copy of the hairstyle with the given ID.
 func FindHairstyleByID(id int) (models.Hairstyle, bool) {
+	if databaseEnabled(){var v models.Hairstyle;err:=db.QueryRow("select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where id=$1",id).Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Duration,&v.Image,&v.Video,&v.IsAvailable);return v,err==nil}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -74,6 +76,7 @@ func FindHairstyleOwnedBy(id, barberID int) (models.Hairstyle, error) {
 
 // CreateHairstyle assigns an ID and stores the hairstyle.
 func CreateHairstyle(hairstyle models.Hairstyle) (models.Hairstyle, error) {
+	if databaseEnabled(){err:=db.QueryRow("insert into public.hairstyles(barber_id,name,category,description,price,duration,image,video,is_available) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id",hairstyle.BarberID,hairstyle.Name,hairstyle.Category,hairstyle.Description,hairstyle.Price,hairstyle.Duration,hairstyle.Image,hairstyle.Video,hairstyle.IsAvailable).Scan(&hairstyle.ID);return hairstyle,err}
 	mu.Lock()
 	defer mu.Unlock()
 

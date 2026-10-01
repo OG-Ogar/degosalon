@@ -1,4 +1,4 @@
-# Barber Booking
+# Baba Multiverse
 
 A Go web application for managing barber services, appointments, customer communication, and product orders.
 
@@ -98,7 +98,7 @@ Admin signs in → manages barbers → reviews customers/bookings → suspends o
 ## MVP Architecture
 
 ```text
-barber-booking/
+barbermultiverse/
 ├── main.go
 ├── go.mod
 ├── handlers/     # HTTP routing, authentication and application flows

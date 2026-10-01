@@ -8,6 +8,10 @@ import (
 
 // ListCustomers returns every registered customer.
 func ListCustomers() []models.Customer {
+	if databaseEnabled() {
+		rows,err:=db.Query("select id,full_name,phone_number,email,password_hash,profile_image from public.customers order by id")
+		if err==nil { defer rows.Close(); var out []models.Customer; for rows.Next(){var v models.Customer;if rows.Scan(&v.ID,&v.FullName,&v.PhoneNumber,&v.Email,&v.PasswordHash,&v.ProfileImage)==nil{out=append(out,v)}}; return out }
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -16,6 +20,7 @@ func ListCustomers() []models.Customer {
 
 // FindCustomerByID returns a copy of the customer with the given ID.
 func FindCustomerByID(id int) (models.Customer, bool) {
+	if databaseEnabled(){var v models.Customer;err:=db.QueryRow("select id,full_name,phone_number,email,password_hash,profile_image from public.customers where id=$1",id).Scan(&v.ID,&v.FullName,&v.PhoneNumber,&v.Email,&v.PasswordHash,&v.ProfileImage);return v,err==nil}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -35,6 +40,7 @@ func findCustomerByID(id int) (models.Customer, bool) {
 
 // FindCustomerByEmail matches case-insensitively, the way logins do.
 func FindCustomerByEmail(email string) (models.Customer, bool) {
+	if databaseEnabled(){var v models.Customer;err:=db.QueryRow("select id,full_name,phone_number,email,password_hash,profile_image from public.customers where lower(email)=lower($1)",email).Scan(&v.ID,&v.FullName,&v.PhoneNumber,&v.Email,&v.PasswordHash,&v.ProfileImage);return v,err==nil}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -50,6 +56,7 @@ func FindCustomerByEmail(email string) (models.Customer, bool) {
 // CreateCustomer assigns an ID and stores the customer, rejecting an
 // email that is already registered.
 func CreateCustomer(customer models.Customer) (models.Customer, error) {
+	if databaseEnabled(){err:=db.QueryRow("insert into public.customers(full_name,phone_number,email,password_hash,profile_image) values($1,$2,$3,$4,$5) returning id",customer.FullName,customer.PhoneNumber,customer.Email,customer.PasswordHash,customer.ProfileImage).Scan(&customer.ID);if err!=nil{if strings.Contains(strings.ToLower(err.Error()),"unique"){return models.Customer{},ErrEmailTaken};return models.Customer{},err};return customer,nil}
 	mu.Lock()
 	defer mu.Unlock()
 

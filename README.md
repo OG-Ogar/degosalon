@@ -1,4 +1,4 @@
-# Baba Multiverse
+# Barbermultiverse
 
 A Go web application for managing barber services, appointments, customer communication, and product orders.
 

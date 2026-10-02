@@ -1,14 +1,16 @@
 # Barbermultiverse
 
-A Go web application for managing barber services, appointments, customer communication, and product orders.
+**Barbermultiverse — Your complete barber ecosystem**
+
+A Go web platform connecting barbers and customers through barber services, appointments, communication, product discovery, carts, and product orders.
 
 ## Current Status
 
-**MVP in active development.**
+**MVP deployed and in active development.**
 
 The repository already contains functional application flows for administrators, barbers, and customers. The README previously described an early product plan and no longer matched the implementation.
 
-> Important MVP limitation: application data is currently stored in memory and is lost whenever the server restarts. Persistent database storage is therefore a key requirement before production use.
+The application is deployed on Render and uses Supabase PostgreSQL for persistent application data. Core records therefore survive application restarts.
 
 ## Users
 
@@ -103,7 +105,7 @@ barbermultiverse/
 ├── go.mod
 ├── handlers/     # HTTP routing, authentication and application flows
 ├── models/       # Domain models
-├── storage/      # In-memory application data store
+├── storage/      # PostgreSQL persistence and data access
 ├── session/      # Session management
 ├── security/     # Password/security utilities
 ├── reset/        # Password-reset token handling
@@ -118,7 +120,9 @@ barbermultiverse/
 - **Backend:** Go 1.22.2
 - **HTTP:** Go standard library `net/http`
 - **Frontend:** Server-rendered HTML, CSS and JavaScript
-- **Storage:** In-memory Go data structures
+- **Database:** Supabase PostgreSQL
+- **Database driver:** pgx v5
+- **Hosting:** Render
 - **Testing:** Go `testing` and `httptest`
 
 ## Configuration
@@ -126,21 +130,49 @@ barbermultiverse/
 The server uses environment configuration where applicable.
 
 - `PORT` — overrides the default HTTP port (`8080`).
+- `DATABASE_URL` — PostgreSQL connection string used by the application. The deployed Render service uses Supabase's IPv4-compatible session pooler.
 - Admin credentials are initialized from environment configuration; when no admin password is supplied, the application generates one for that run.
 - Booking hours are configurable without changing application code.
 
 ## Known MVP Gaps / Production Readiness
 
-The existing feature set is substantial, but the application should not yet be treated as production-ready.
+Barbermultiverse is now deployed with persistent PostgreSQL storage, but production hardening and feature verification are still ongoing.
 
 Priority work includes:
 
-1. **Persistent database storage** — current records live only in memory and disappear after a restart.
-2. **Production configuration and secret management** — credentials must remain outside source control.
-3. **End-to-end verification of all user journeys** — validate admin, barber, customer, booking, chat, product, and password-reset flows together.
-4. **Deployment and persistence strategy for uploads** — local uploads require durable production storage.
-5. **Expanded automated coverage** — especially authorization boundaries and complete booking/order lifecycle scenarios.
-6. **Operational readiness** — deployment configuration, logging/monitoring, backups, and recovery procedures.
+1. **End-to-end verification of all user journeys** — validate admin, barber, customer, booking, chat, product, and password-reset flows against the live database.
+2. **Durable upload storage** — uploaded images currently need a production-safe persistence strategy rather than relying on local instance storage.
+3. **Expanded automated coverage** — especially authorization boundaries and complete booking/order lifecycle scenarios.
+4. **Operational readiness** — strengthen logging/monitoring, database backup/recovery procedures, and deployment observability.
+5. **Security review** — continue verifying authentication, authorization, secrets, session handling, and database access boundaries.
+
+## Deployment
+
+The live application architecture is:
+
+```text
+Browser
+   ↓
+Render (Go web application)
+   ↓
+Supabase Session Pooler
+   ↓
+Supabase PostgreSQL
+```
+
+Render builds the application with:
+
+```bash
+go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
+```
+
+and starts it with:
+
+```bash
+./app
+```
+
+The Supabase session pooler is used for the deployed database connection because it provides IPv4-compatible connectivity for Render.
 
 ## Security Note
 
@@ -151,7 +183,7 @@ Never commit passwords, API keys, personal access tokens, or other credentials t
 For the MVP to be considered deployable for real users:
 
 - Core admin, barber, and customer journeys work end to end.
-- Data survives application restarts.
+- Persistent application data survives application restarts through Supabase PostgreSQL.
 - Authentication and authorization boundaries are verified.
 - Booking conflicts and ownership rules are enforced.
 - Uploaded images persist safely.

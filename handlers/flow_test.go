@@ -141,7 +141,10 @@ func TestPublicExploreRequiresLocationAndShowsMatchingBarber(t *testing.T) {
 	storage.Reset()
 	_,err:=storage.CreateBarber(models.Barber{FullName:"Ada",PhoneNumber:"1",Email:"ada@example.com",PasswordHash:"x",ShopName:"Ada Cuts",ShopAddress:"12 Road",State:"Lagos",LocalArea:"Ikeja",Status:models.BarberActive})
 	if err!=nil{t.Fatal(err)}
-	server:=newServer(t); browser:=newBrowser(t)
+	server:=newServer(t)
+	_,err=storage.CreateBarber(models.Barber{FullName:"Ada",PhoneNumber:"1",Email:"ada@example.com",PasswordHash:"x",ShopName:"Ada Cuts",ShopAddress:"12 Road",State:"Lagos",LocalArea:"Ikeja",Status:models.BarberActive})
+	if err!=nil{t.Fatal(err)}
+	browser:=newBrowser(t)
 	body:=get(t,browser,server.URL+"/explore")
 	mustContain(t,"explore",body,"Where do you need a barber?")
 	body=get(t,browser,server.URL+"/explore?state=Lagos&area=Ikeja")

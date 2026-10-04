@@ -16,6 +16,8 @@ type barberForm struct {
 	Email       string
 	ShopName    string
 	ShopAddress string
+	State       string
+	LocalArea   string
 }
 
 // readBarberForm pulls the fields out of a request and returns a
@@ -27,6 +29,8 @@ func readBarberForm(r *http.Request) (barberForm, string) {
 		Email:       normalisedEmail(r.PostFormValue("email")),
 		ShopName:    trimmedField(r.PostFormValue("shopname")),
 		ShopAddress: trimmedField(r.PostFormValue("shopaddress")),
+		State:       trimmedField(r.PostFormValue("state")),
+		LocalArea:   trimmedField(r.PostFormValue("local_area")),
 	}
 
 	if form.FullName == "" ||
@@ -49,6 +53,8 @@ func (f barberForm) values() map[string]string {
 		"email":       f.Email,
 		"shopname":    f.ShopName,
 		"shopaddress": f.ShopAddress,
+		"state":       f.State,
+		"local_area":  f.LocalArea,
 	}
 }
 

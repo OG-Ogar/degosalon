@@ -198,6 +198,8 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 			ShopAddress:  form.ShopAddress,
 			State:        form.State,
 			LocalArea:    form.LocalArea,
+			State:        form.State,
+			LocalArea:    form.LocalArea,
 			Status:       models.BarberActive,
 		})
 

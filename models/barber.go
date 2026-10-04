@@ -21,6 +21,8 @@ type Barber struct {
 
 	ShopName    string
 	ShopAddress string
+	State       string
+	LocalArea   string
 
 	// The two photos are separate on purpose. ProfileImage is the shop
 	// itself, shown wide at the top of the page; PersonalImage is the

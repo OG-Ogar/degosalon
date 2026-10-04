@@ -660,3 +660,6 @@ RESPONSIVE
         font-size: 1.3rem;
     }
 }
+
+/* De Go Salon commerce refinement */
+.products-header{background:#171311}.products-header-button,.products-cart-button{border-radius:999px}.products-heading h1{letter-spacing:-.045em}.product-card,.cart-item,.cart-summary{border-radius:16px;box-shadow:0 10px 30px rgba(31,24,20,.06)}@media(max-width:600px){.products-header{overflow-x:auto}.products-page{width:min(100% - 24px,1100px)}}

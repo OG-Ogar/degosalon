@@ -3,63 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbermultiverse</title>
+    <meta name="description" content="De Go Salon — your complete barber ecosystem. Discover barbers, explore styles, book appointments and shop barber products.">
+    <title>De Go Salon — Your complete barber ecosystem</title>
     <link rel="stylesheet" href="/static/app.css">
     <script src="/static/app.js" defer></script>
 </head>
-
 <body class="landing-page">
-
-<main class="landing"
-      {{if .LandingImage}}
-      style="background-image: url('{{.LandingImage}}');"
-      {{end}}>
-
-    <div class="landing-overlay">
-
-        <header class="landing-header">
-
-            <a class="landing-login landing-login-barber"
-               href="/barber/login">
-                Barber Login
-            </a>
-
-            <a class="landing-brand" href="/">
-                Barbermultiverse
-            </a>
-
-            <a class="landing-login landing-login-admin"
-               href="/admin/login">
-                Admin Login
-            </a>
-
-        </header>
-
-        <section class="landing-content">
-
-            <div class="landing-main-content">
-
-                <h1>
-                    Find your barber.
-                </h1>
-
-                <p>
-                    Choose a barber, explore hairstyles and prices,
-                    then book your appointment.
-                </p>
-
-                <a class="landing-button"
-                   href="/customer/barbers">
-                    Find a Barber
-                </a>
-
-            </div>
-
-        </section>
-
-    </div>
-
+<main class="landing" {{if .LandingImage}}style="background-image: url('{{.LandingImage}}');"{{end}}>
+<div class="landing-overlay">
+<header class="landing-header">
+<a class="landing-brand" href="/" aria-label="De Go Salon home"><span class="landing-brand-name">De Go Salon</span><span class="landing-brand-tagline">Your complete barber ecosystem</span></a>
+<nav class="landing-nav" aria-label="Main navigation"><a class="landing-nav-link" href="/barber/login">Barber Login</a><a class="landing-nav-cta" href="/customer/barbers">Find a Barber</a></nav>
+</header>
+<section class="landing-content">
+<div class="landing-main-content">
+<p class="landing-eyebrow">WELCOME TO THE BARBER MULTIVERSE</p>
+<h1>Your next great cut starts here.</h1>
+<p class="landing-lead">Discover skilled barbers, explore styles and prices, book with confidence, and shop barber products — all in one place.</p>
+<div class="landing-actions"><a class="landing-button" href="/customer/barbers">Explore Barbers</a><a class="landing-secondary-button" href="/customer/register">Create an Account</a></div>
+<p class="landing-trust">One destination. More choice. Your barber experience, simplified.</p>
+</div>
+</section>
+</div>
 </main>
-
 </body>
 </html>

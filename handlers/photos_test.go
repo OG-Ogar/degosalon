@@ -108,7 +108,7 @@ func registerBarber(
 		t.Fatalf("hash barber password: %v", err)
 	}
 
-	id, err := storage.CreateBarber(models.Barber{
+	created, err := storage.CreateBarber(models.Barber{
 		FullName:     "Bob Barber",
 		PhoneNumber:  "0700000000",
 		Email:        email,
@@ -123,7 +123,7 @@ func registerBarber(
 		t.Fatalf("create barber: %v", err)
 	}
 
-	s, err := session.New(session.RoleBarber, id)
+	s, err := session.New(session.RoleBarber, created.ID)
 	if err != nil {
 		t.Fatalf("create barber session: %v", err)
 	}
@@ -139,7 +139,7 @@ func registerBarber(
 		Path:  "/",
 	}})
 
-	return id
+	return created.ID
 }
 
 // storedPath turns a public image path back into the file on disk, which

@@ -101,15 +101,20 @@ func registerBarber(
 
 	const password = "clippers and all"
 
-	post(t, browser, base+"/barber/register", url.Values{
-		"fullname":         {"Bob Barber"},
-		"phone":            {"0700000000"},
-		"email":            {email},
-		"password":         {password},
-		"confirm_password": {password},
-		"shopname":         {"Bob's Chair"},
-		"shopaddress":      {"12 High Street"},
-	})
+	status, page := uploadForm(t, browser, base+"/barber/register", map[string]string{
+		"fullname":         "Bob Barber",
+		"phone":            "0700000000",
+		"email":            email,
+		"password":         password,
+		"confirm_password": password,
+		"shopname":         "Bob's Chair",
+		"shopaddress":      "12 High Street",
+		"state":            "Lagos",
+		"local_area":       "Ikeja",
+	}, photoFile{"personal_image", "bob.png", photoBytes(t, 64, 64)})
+	if status != http.StatusOK {
+		t.Fatalf("register barber: status %d\n%s", status, page)
+	}
 
 	post(t, browser, base+"/barber/login", url.Values{
 		"email":    {email},

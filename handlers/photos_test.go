@@ -116,10 +116,11 @@ func registerBarber(
 		t.Fatalf("register barber: status %d\n%s", status, page)
 	}
 
-	post(t, browser, base+"/barber/login", url.Values{
+	login := post(t, browser, base+"/barber/login", url.Values{
 		"email":    {email},
 		"password": {password},
 	})
+	mustContain(t, "barber login", login, "Dashboard")
 
 	barber, found := storage.FindBarberByEmail(email)
 	if !found {

@@ -785,3 +785,45 @@ body {
     }
 
 }
+
+/* Find Barbers discovery */
+.find-hero { max-width: 820px; }
+.location-panel { padding: 28px; border: 1px solid #ddd5ce; border-radius: 20px; background: #fff; }
+.location-copy { display:flex; align-items:flex-start; gap:16px; margin-bottom:22px; }
+.location-copy h2 { margin:0; font-size:clamp(1.6rem,3vw,2.4rem); }
+.step-number { display:inline-flex; align-items:center; justify-content:center; min-width:42px; height:42px; border-radius:50%; background:#171311; color:#fff; font-size:.75rem; font-weight:800; }
+.location-form { padding:0; border:0; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:12px; align-items:end; }
+.location-field select, .location-field input { width:100%; min-height:48px; padding:12px 14px; border:1px solid #d8d0c9; border-radius:10px; background:#f8f6f3; color:#171311; font:inherit; }
+.find-submit { border:0; cursor:pointer; min-height:48px; }
+.location-hint { margin:14px 0 0; color:#8a817b; font-size:.82rem; }
+.discovery-guide { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin-top:28px; }
+.discovery-guide > div { padding:28px; border:1px solid #ddd5ce; border-radius:18px; background:#fff; }
+.discovery-guide h2 { margin:18px 0 8px; }
+.discovery-guide p { margin:0; color:#706862; line-height:1.6; }
+.card-topline { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.rating-badge { padding:6px 9px; border-radius:999px; background:#f4f1ed; font-size:.76rem; font-weight:800; }
+
+@media (max-width: 760px) {
+  .find-hero { margin-top:28px; }
+  .find-hero h1 { font-size:clamp(2.7rem,14vw,4.2rem); }
+  .location-panel { margin-top:28px; padding:20px; }
+  .location-form { grid-template-columns:1fr; }
+  .find-submit { width:100%; }
+  .discovery-guide { grid-template-columns:1fr; }
+  .barber-details { align-items:stretch; }
+  .barber-card .barber-actions { grid-template-columns:1fr; }
+}
+
+@media (max-width: 420px) {
+  .barber-header, .barber-main { width:calc(100% - 20px); }
+  .barber-header { gap:12px; }
+  .brand-box { width:100%; }
+  .customer-navigation { grid-template-columns:1fr 1fr; gap:8px; }
+  .nav-box { padding:12px; }
+  .location-panel { padding:16px; border-radius:16px; }
+  .location-copy { gap:10px; }
+  .step-number { min-width:36px; height:36px; }
+  .barber-image { height:230px; }
+  .barber-information { padding:18px; }
+  .detail-divider { margin:0 10px; }
+}

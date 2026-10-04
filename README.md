@@ -223,3 +223,20 @@ Run the test suite with:
 ```bash
 go test ./...
 ```
+
+## Post-UI optimization backlog
+
+During the full De Go Salon UI optimization pass, improvements that require product behavior or deeper interaction changes are recorded here rather than being mixed into the visual-only branch.
+
+- **Shared authenticated navigation:** replace duplicated customer/barber page headers with reusable role-aware navigation so active states, mobile behavior, labels, and logout placement stay consistent.
+- **Customer messages and barber messages:** move legacy page-specific inline CSS into the shared design system, then improve conversation states and the mobile chat experience.
+- **Authentication usability:** add a password visibility control and consistent client-side field feedback across customer and barber sign-in/registration/reset flows.
+- **Customer dashboard discovery:** make the dashboard's Find a Barber entry preserve and reuse the location-first discovery journey introduced on the public experience.
+- **Booking management:** improve action/status feedback after booking, cancellation, acceptance, rejection, and completion instead of relying only on page refresh context.
+- **Barber workspace navigation:** consolidate the duplicated numbered navigation and make the information architecture consistent across Dashboard, Hairstyles, Products, Bookings, Messages, and Profile.
+- **Responsive data views:** review admin and barber table-heavy screens for card/list alternatives on narrow phones rather than horizontal table compression.
+- **Empty states:** make empty bookings, messages, products, hairstyles, and search results consistently provide a useful next action.
+- **Design-system cleanup:** remove remaining inline styles and consolidate repeated button, form, card, status, header, and responsive rules into shared components after the visual migration settles.
+
+This list should be reviewed after the UI optimization branch is merged. Items are implementation follow-ups, not claims that the underlying feature is currently broken.
+

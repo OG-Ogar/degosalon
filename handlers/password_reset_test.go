@@ -52,10 +52,10 @@ func registerCustomer(
 
 	var body strings.Builder
 	writer := multipart.NewWriter(&body)
-	for key, values := range url.Values{
+	for key, values := range (url.Values{
 		"fullname": {"Ada Lovelace"}, "phone": {"0700000000"}, "email": {email},
 		"password": {password}, "confirm_password": {password},
-	} {
+	}) {
 		for _, value := range values { _ = writer.WriteField(key, value) }
 	}
 	if err := writer.Close(); err != nil { t.Fatal(err) }

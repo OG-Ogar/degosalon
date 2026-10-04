@@ -75,6 +75,8 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			PasswordHash:  hash,
 			ShopName:      form.ShopName,
 			ShopAddress:   form.ShopAddress,
+			State:         form.State,
+			LocalArea:     form.LocalArea,
 			PersonalImage: personalImage,
 			Status:        models.BarberActive,
 		})

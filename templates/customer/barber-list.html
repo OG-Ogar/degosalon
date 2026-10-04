@@ -103,7 +103,6 @@
             </form>
         </section>
 
-        {{if .SelectedState}}
         {{if .Items}}
 
             <!-- Search -->
@@ -302,40 +301,18 @@
 
         {{else}}
             <section class="empty-state">
+                {{if .SelectedState}}
                 <p class="eyebrow">No match in this location</p>
                 <h2>No registered barbers matched your selection.</h2>
                 <p>Try the state without an LGA/local area, or choose another location.</p>
+                {{else}}
+                <p class="eyebrow">No barbers available</p>
+                <h2>No active registered barbers are available yet.</h2>
+                <p>When a barber registers and is active, they will appear here automatically.</p>
+                {{end}}
             </section>
         {{end}}
-        {{else}}
 
-            <!-- Empty state -->
-            <section class="empty-state">
-
-                <div class="empty-icon">
-                    BB
-                </div>
-
-                <p class="eyebrow">
-                    No barbers available
-                </p>
-
-                <h2>
-                    Choose a location to enter the Barber Multiverse.
-                </h2>
-
-                <p>
-                    Select your state and optional LGA/local area above. We will show active registered barbers serving that location.
-                </p>
-
-                <a class="back-button"
-                   href="/customer/dashboard">
-                    Back to Dashboard
-                </a>
-
-            </section>
-
-        {{end}}
 
     </main>
 

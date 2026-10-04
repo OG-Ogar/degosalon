@@ -196,6 +196,8 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 			PasswordHash: hash,
 			ShopName:     form.ShopName,
 			ShopAddress:  form.ShopAddress,
+			State: form.State,
+			LocalArea: form.LocalArea,
 			State:        form.State,
 			LocalArea:    form.LocalArea,
 			State:        form.State,

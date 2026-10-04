@@ -6,7 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"net/url"
+	"net/http/httptest"
 	"os"
 	"strconv"
 	"strings"
@@ -123,21 +123,27 @@ func registerBarber(
 		t.Fatalf("create barber: %v", err)
 	}
 
-	s, err := session.New(session.RoleBarber, created.ID)
-	if err != nil {
-		t.Fatalf("create barber session: %v", err)
+	// Use the same session.Start path as production login so this test does
+	// not duplicate the application's cookie contract.
+	recorder := httptest.NewRecorder()
+	if _, err := session.Start(recorder, session.RoleBarber, created.ID); err != nil {
+		t.Fatalf("start barber session: %v", err)
 	}
 
-	baseURL, err := url.Parse(base)
-	if err != nil {
-		t.Fatalf("parse server URL: %v", err)
+	request := httptest.NewRequest(http.MethodGet, base+"/barber/profile/edit", nil)
+	for _, cookie := range recorder.Result().Cookies() {
+		request.AddCookie(cookie)
 	}
 
-	browser.Jar.SetCookies(baseURL, []*http.Cookie{{
-		Name:  session.CookieName(session.RoleBarber),
-		Value: s.ID,
-		Path:  "/",
-	}})
+	response := httptest.NewRecorder()
+	BarberRouter(response, request)
+	for _, cookie := range response.Result().Cookies() {
+		browser.Jar.SetCookies(request.URL, []*http.Cookie{cookie})
+	}
+
+	// Start writes the session cookie; seed the browser jar from that exact
+	// Set-Cookie value rather than reconstructing its name/value attributes.
+	browser.Jar.SetCookies(request.URL, recorder.Result().Cookies())
 
 	return created.ID
 }

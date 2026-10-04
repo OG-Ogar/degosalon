@@ -178,6 +178,15 @@
                     >
                 </div>
 
+                <div class="barber-form-field">
+                    <label for="state">State</label>
+                    <input id="state" type="text" name="state" value="{{index .Values "state"}}" required>
+                </div>
+
+                <div class="barber-form-field">
+                    <label for="local_area">LGA / Local area</label>
+                    <input id="local_area" type="text" name="local_area" value="{{index .Values "local_area"}}" required>
+                </div>
             </div>
 
         </section>

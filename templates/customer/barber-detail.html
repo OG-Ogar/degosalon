@@ -164,7 +164,7 @@
 
             <p class="barber-address">
                 <span>+</span>
-                {{.Barber.ShopAddress}}
+                {{.Barber.ShopAddress}} · {{.Barber.LocalArea}}, {{.Barber.State}}
             </p>
 
             <div class="barber-actions">
@@ -203,6 +203,44 @@
 
     {{end}}
 
+
+    <section class="hairstyles-section" id="reviews">
+        <div class="section-title"><div><p class="eyebrow">Customer feedback</p><h2>Reviews</h2></div>{{if .ReviewCount}}<span class="count">★ {{printf "%.1f" .Rating}} · {{.ReviewCount}} reviews</span>{{end}}</div>
+        {{if .Reviews}}
+            {{range .Reviews}}
+            <article class="hairstyle-option" style="padding:1rem;margin-bottom:.75rem">
+                <strong>{{.CustomerName}} · {{.Rating}}/5</strong>
+                {{if .Comment}}<p>{{.Comment}}</p>{{end}}
+            </article>
+            {{end}}
+        {{else}}<p>No reviews yet.</p>{{end}}
+        {{if .CanReview}}
+        <form method="post" action="/customer/barbers/{{.Barber.ID}}/reviews" class="booking-form">
+            <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+            <div class="appointment-fields">
+                <div class="field"><label for="rating">Rating</label><select id="rating" name="rating" required><option value="">Choose</option><option value="5">5 - Excellent</option><option value="4">4 - Very good</option><option value="3">3 - Good</option><option value="2">2 - Fair</option><option value="1">1 - Poor</option></select></div>
+                <div class="field notes"><label for="comment">Comment</label><textarea id="comment" name="comment" maxlength="2000"></textarea></div>
+            </div>
+            <button class="request-button" type="submit">Post Review</button>
+        </form>
+        {{end}}
+    </section>
+
+    {{if .Products}}
+    <section class="hairstyles-section">
+        <div class="section-title"><div><p class="eyebrow">From this barber</p><h2>Products for sale</h2></div><span class="count">{{len .Products}} available</span></div>
+        <div class="hairstyle-list">
+        {{range .Products}}
+            <article class="hairstyle-option" style="padding:1rem;margin-bottom:.75rem">
+                {{if .Image}}<div class="style-image"><img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}" data-fullscreen-image></div>{{end}}
+                <div class="style-info"><h3>{{.Name}}</h3><p>{{.Category}}</p>{{if .Description}}<span>{{.Description}}</span>{{end}}</div>
+                <div class="style-price"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Quantity}} in stock</span></div>
+            </article>
+        {{end}}
+        </div>
+        <a class="message-button" href="/customer/products">Shop products</a>
+    </section>
+    {{end}}
 
     <section class="hairstyles-section">
 

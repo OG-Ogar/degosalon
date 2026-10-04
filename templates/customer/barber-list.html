@@ -90,6 +90,20 @@
         </section>
 
 
+        <section class="search-section">
+            <form class="search-box" method="get" action="/customer/barbers">
+                <label for="state">Choose your location</label>
+                <select id="state" name="state" required>
+                    <option value="">Select state</option>
+                    {{$selected := .SelectedState}}{{range .States}}<option value="{{.}}" {{if eq . $selected}}selected{{end}}>{{.}}</option>{{end}}
+                </select>
+                <label for="area">LGA / local area</label>
+                <input id="area" name="area" value="{{.SelectedArea}}" placeholder="e.g. Ikeja">
+                <button class="book-button" type="submit">Show barbers <span>&rarr;</span></button>
+            </form>
+        </section>
+
+        {{if .SelectedState}}
         {{if .Items}}
 
             <!-- Search -->
@@ -199,11 +213,13 @@
                                     </span>
 
                                     <span>
-                                        {{.ShopAddress}}
+                                        {{.ShopAddress}} · {{.LocalArea}}, {{.State}}
                                     </span>
 
                                 </div>
 
+
+                                {{if .ReviewCount}}<p class="barber-name">★ {{printf "%.1f" .Rating}} · {{.ReviewCount}} reviews</p>{{end}}
 
                                 <div class="barber-details">
 
@@ -285,6 +301,13 @@
             </section>
 
         {{else}}
+            <section class="empty-state">
+                <p class="eyebrow">No match in this location</p>
+                <h2>No registered barbers matched your selection.</h2>
+                <p>Try the state without an LGA/local area, or choose another location.</p>
+            </section>
+        {{end}}
+        {{else}}
 
             <!-- Empty state -->
             <section class="empty-state">
@@ -298,12 +321,11 @@
                 </p>
 
                 <h2>
-                    No barbers are taking bookings yet.
+                    Choose a location to enter the Barber Multiverse.
                 </h2>
 
                 <p>
-                    Please check back later. New barbers will appear here
-                    when they become available.
+                    Select your state and optional LGA/local area above. We will show active registered barbers serving that location.
                 </p>
 
                 <a class="back-button"

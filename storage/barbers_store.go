@@ -9,13 +9,13 @@ import (
 // ListBarbers returns every barber, newest last.
 func ListBarbers() []models.Barber {
 	if databaseEnabled() {
-		rows, err := db.Query("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, profile_image, personal_image, status from public.barbers order by id")
+		rows, err := db.Query("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers order by id")
 		if err == nil {
 			defer rows.Close()
 			var out []models.Barber
 			for rows.Next() {
 				var b models.Barber
-				if rows.Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.ProfileImage,&b.PersonalImage,&b.Status)==nil { out=append(out,b) }
+				if rows.Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.State,&b.LocalArea,&b.ProfileImage,&b.PersonalImage,&b.Status)==nil { out=append(out,b) }
 			}
 			return out
 		}
@@ -29,6 +29,18 @@ func ListBarbers() []models.Barber {
 // ListActiveBarbers returns only barbers customers are allowed to see
 // and book with.
 func ListActiveBarbers() []models.Barber {
+	if databaseEnabled() {
+		rows, err := db.Query("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where status='Active' order by id")
+		if err == nil {
+			defer rows.Close()
+			var active []models.Barber
+			for rows.Next() {
+				var b models.Barber
+				if rows.Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.State,&b.LocalArea,&b.ProfileImage,&b.PersonalImage,&b.Status)==nil { active=append(active,b) }
+			}
+			return active
+		}
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -47,7 +59,7 @@ func ListActiveBarbers() []models.Barber {
 func FindBarberByID(id int) (models.Barber, bool) {
 	if databaseEnabled() {
 		var b models.Barber
-		err:=db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, profile_image, personal_image, status from public.barbers where id=$1",id).Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.ProfileImage,&b.PersonalImage,&b.Status)
+		err:=db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where id=$1",id).Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.State,&b.LocalArea,&b.ProfileImage,&b.PersonalImage,&b.Status)
 		return b, err==nil
 	}
 	mu.RLock()
@@ -71,7 +83,7 @@ func findBarberByID(id int) (models.Barber, bool) {
 func FindBarberByEmail(email string) (models.Barber, bool) {
 	if databaseEnabled() {
 		var b models.Barber
-		err:=db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, profile_image, personal_image, status from public.barbers where lower(email)=lower($1)",email).Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.ProfileImage,&b.PersonalImage,&b.Status)
+		err:=db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where lower(email)=lower($1)",email).Scan(&b.ID,&b.FullName,&b.PhoneNumber,&b.Email,&b.PasswordHash,&b.ShopName,&b.ShopAddress,&b.State,&b.LocalArea,&b.ProfileImage,&b.PersonalImage,&b.Status)
 		return b, err==nil
 	}
 	mu.RLock()
@@ -92,7 +104,7 @@ func FindBarberByEmail(email string) (models.Barber, bool) {
 func CreateBarber(barber models.Barber) (models.Barber, error) {
 	if databaseEnabled() {
 		if barber.Status=="" { barber.Status=models.BarberActive }
-		err:=db.QueryRow("insert into public.barbers(full_name,phone_number,email,password_hash,shop_name,shop_address,profile_image,personal_image,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id",barber.FullName,barber.PhoneNumber,barber.Email,barber.PasswordHash,barber.ShopName,barber.ShopAddress,barber.ProfileImage,barber.PersonalImage,barber.Status).Scan(&barber.ID)
+		err:=db.QueryRow("insert into public.barbers(full_name,phone_number,email,password_hash,shop_name,shop_address,state,local_area,profile_image,personal_image,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id",barber.FullName,barber.PhoneNumber,barber.Email,barber.PasswordHash,barber.ShopName,barber.ShopAddress,barber.State,barber.LocalArea,barber.ProfileImage,barber.PersonalImage,barber.Status).Scan(&barber.ID)
 		if err!=nil {
 			if strings.Contains(strings.ToLower(err.Error()),"unique") { return models.Barber{},ErrEmailTaken }
 			return models.Barber{},err
@@ -140,6 +152,14 @@ func SetBarberPassword(id int, hash string) error {
 // password hash is preserved when the incoming copy leaves it empty, so
 // profile edits cannot accidentally blank out a password.
 func UpdateBarber(barber models.Barber) error {
+	if databaseEnabled() {
+		result, err := db.Exec("update public.barbers set full_name=$1,phone_number=$2,email=$3,shop_name=$4,shop_address=$5,state=$6,local_area=$7,profile_image=$8,personal_image=$9,status=$10 where id=$11", barber.FullName,barber.PhoneNumber,barber.Email,barber.ShopName,barber.ShopAddress,barber.State,barber.LocalArea,barber.ProfileImage,barber.PersonalImage,barber.Status,barber.ID)
+		if err != nil {
+			if strings.Contains(strings.ToLower(err.Error()),"unique") { return ErrEmailTaken }
+			return err
+		}
+		n,_:=result.RowsAffected(); if n==0{return ErrNotFound}; return nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 

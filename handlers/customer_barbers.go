@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"barber-booking/models"
 	"barber-booking/storage"
@@ -14,9 +15,19 @@ type barberCard struct {
 
 	Hairstyles int
 	FromPrice  float64
+	Rating     float64
+	ReviewCount int
 }
 
-// BrowseBarbersHandler lists every active barber on the app.
+type browseBarbersView struct {
+	Items []barberCard
+	States []string
+	SelectedState string
+	SelectedArea string
+	CSRF string
+}
+
+// BrowseBarbersHandler lists active barbers after a customer chooses a location.
 //
 // Suspended and deleted barbers are filtered out by storage, and the
 // password hash never reaches the view.
@@ -33,9 +44,17 @@ func BrowseBarbersHandler(
 	}
 
 	barbers := storage.ListActiveBarbers()
+	state := strings.TrimSpace(r.URL.Query().Get("state"))
+	area := strings.TrimSpace(r.URL.Query().Get("area"))
+	var states []string
+	seen:=map[string]bool{}
+	for _,b:=range barbers { if b.State!=""&&!seen[strings.ToLower(b.State)]{states=append(states,b.State);seen[strings.ToLower(b.State)]=true} }
 	cards := make([]barberCard, 0, len(barbers))
 
 	for _, barber := range barbers {
+		if state=="" { continue }
+		if !strings.EqualFold(barber.State,state) { continue }
+		if area!="" && !strings.EqualFold(barber.LocalArea,area) { continue }
 		barber.PasswordHash = ""
 
 		card := barberCard{Barber: barber}
@@ -48,13 +67,11 @@ func BrowseBarbersHandler(
 			}
 		}
 
+		card.Rating,card.ReviewCount=storage.ReviewSummary(barber.ID)
 		cards = append(cards, card)
 	}
 
-	render(w, "customer/barber-list.html", listView[barberCard]{
-		Items: cards,
-		CSRF:  s.CSRFToken,
-	})
+	render(w, "customer/barber-list.html", browseBarbersView{Items:cards,States:states,SelectedState:state,SelectedArea:area,CSRF:s.CSRFToken})
 }
 
 // barberDetailView is one barber's shop as a customer sees it: their
@@ -62,6 +79,7 @@ func BrowseBarbersHandler(
 type barberDetailView struct {
 	Barber     models.Barber
 	Hairstyles []models.Hairstyle
+	Products   []models.Product
 
 	// Selected pre-picks a style when the customer arrived from a link.
 	Selected int
@@ -74,6 +92,10 @@ type barberDetailView struct {
 	CSRF     string
 	Error    string
 	Values   map[string]string
+	Reviews  []models.Review
+	Rating float64
+	ReviewCount int
+	CanReview bool
 }
 
 // ViewBarberHandler shows one barber's styles and the booking form.
@@ -97,7 +119,7 @@ func ViewBarberHandler(
 
 	selected, _ := parseID(r.URL.Query().Get("hairstyle"))
 
-	renderBarberDetail(w, s, barber, selected, nil, "")
+	renderBarberDetail(w, s, barber, customer.ID, selected, nil, "")
 }
 
 // bookableBarber resolves a barber a customer is allowed to see. A
@@ -129,6 +151,7 @@ func renderBarberDetail(
 	w http.ResponseWriter,
 	s sessionData,
 	barber models.Barber,
+	customerID int,
 	selected int,
 	values map[string]string,
 	problem string,
@@ -142,9 +165,12 @@ func renderBarberDetail(
 		values = map[string]string{}
 	}
 
+	rating,count:=storage.ReviewSummary(barber.ID)
+	_,canReview:=storage.CanCustomerReview(customerID,barber.ID)
 	renderStatus(w, status, "customer/barber-detail.html", barberDetailView{
 		Barber:     barber,
 		Hairstyles: storage.ListAvailableHairstylesByBarber(barber.ID),
+		Products: availableProductsByBarber(barber.ID),
 		Selected:   selected,
 		Today:      today(),
 		Opening:    formatHour(openingHour),
@@ -153,5 +179,17 @@ func renderBarberDetail(
 		CSRF:       s.CSRFToken,
 		Error:      problem,
 		Values:     values,
+		Reviews: storage.ListReviewsByBarber(barber.ID),
+		Rating: rating,
+		ReviewCount: count,
+		CanReview: canReview,
 	})
+}
+
+func availableProductsByBarber(barberID int) []models.Product {
+	var out []models.Product
+	for _,product:=range storage.ListProductsByBarber(barberID) {
+		if product.IsAvailable && product.Quantity>0 { out=append(out,product) }
+	}
+	return out
 }

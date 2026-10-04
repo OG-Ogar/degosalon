@@ -82,6 +82,12 @@ func EditBarberHandler(
 		Email:       barber.Email,
 		ShopName:    barber.ShopName,
 		ShopAddress: barber.ShopAddress,
+		State: barber.State,
+		LocalArea: barber.LocalArea,
+		State:       barber.State,
+		LocalArea:   barber.LocalArea,
+		State: barber.State,
+		LocalArea: barber.LocalArea,
 	}
 
 	renderBarberForm(w, s, form, barber.ID, "")
@@ -130,6 +136,12 @@ func UpdateBarberHandler(
 	barber.Email = form.Email
 	barber.ShopName = form.ShopName
 	barber.ShopAddress = form.ShopAddress
+	barber.State = form.State
+	barber.LocalArea = form.LocalArea
+	barber.State = form.State
+	barber.LocalArea = form.LocalArea
+	barber.State = form.State
+	barber.LocalArea = form.LocalArea
 
 	err := storage.UpdateBarber(barber)
 

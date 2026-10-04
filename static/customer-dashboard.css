@@ -356,3 +356,5 @@ body {
         flex-direction: column;
     }
 }
+/* De Go Salon customer refinement */
+.customer-brand{font-weight:900;letter-spacing:-.025em}.customer-nav{display:flex;flex-wrap:wrap;gap:6px}.customer-nav a{border-radius:999px}.welcome h1{letter-spacing:-.05em}.customer-stats>*,.appointments,.appointment-card{border-radius:16px}@media(max-width:560px){.customer-nav{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px}.customer-nav a{flex:0 0 auto}.welcome h1{font-size:clamp(2.4rem,12vw,3rem)}}

@@ -22,3 +22,51 @@
 .landing-trust{margin:28px 0 0;color:rgba(255,255,255,.58);font-size:.87rem;letter-spacing:.02em}
 .landing a:focus-visible{outline:3px solid #fff;outline-offset:4px}
 @media(max-width:680px){.landing::before{background:linear-gradient(0deg,rgba(8,7,6,.9),rgba(8,7,6,.34) 70%,rgba(8,7,6,.62))}.landing-header{padding:19px 18px}.landing-brand-tagline{display:none}.landing-nav-link{display:none}.landing-nav-cta{padding:10px 14px}.landing-content{align-items:flex-end;padding:60px 20px 54px}.landing-main-content h1{font-size:clamp(3rem,15vw,4.5rem)}.landing-lead{margin:22px 0 28px;font-size:1rem}.landing-actions{display:grid}.landing-button,.landing-secondary-button{width:100%;box-sizing:border-box}.landing-trust{font-size:.8rem}}
+
+/* Mobile landing polish */
+@media (max-width: 680px) {
+  .landing-page { overflow-x: hidden; }
+  .landing { min-height: 100dvh; background-position: 58% center; }
+  .landing-overlay { min-height: 100dvh; }
+  .landing-header {
+    min-height: 68px; box-sizing: border-box; padding: 14px 16px;
+    gap: 12px; background: rgba(10,9,8,.48);
+  }
+  .landing-brand { min-width: 0; }
+  .landing-brand-name { font-size: 1.22rem; letter-spacing: -.025em; white-space: nowrap; }
+  .landing-nav { margin-left: auto; flex: 0 0 auto; }
+  .landing-nav-cta { min-height: 40px; box-sizing: border-box; padding: 0 14px; font-size: .8rem; }
+  .landing-content {
+    box-sizing: border-box; min-height: calc(100dvh - 68px);
+    align-items: flex-end; padding: 44px 18px max(34px, env(safe-area-inset-bottom));
+  }
+  .landing-main-content { width: 100%; max-width: 520px; }
+  .landing-eyebrow { margin-bottom: 14px; font-size: .68rem; line-height: 1.4; letter-spacing: .14em; }
+  .landing-main-content h1 {
+    max-width: 10ch; font-size: clamp(2.75rem, 13.5vw, 4rem);
+    line-height: .96; letter-spacing: -.052em; text-wrap: balance;
+  }
+  .landing-lead {
+    max-width: 34rem; margin: 18px 0 24px; font-size: .96rem;
+    line-height: 1.52; color: rgba(255,255,255,.88);
+  }
+  .landing-actions { display: grid; grid-template-columns: 1fr; gap: 10px; width: 100%; }
+  .landing-button, .landing-secondary-button {
+    width: 100%; min-height: 50px; padding: 0 18px; box-sizing: border-box;
+    font-size: .92rem;
+  }
+  .landing-trust { margin-top: 18px; font-size: .76rem; line-height: 1.45; }
+}
+@media (max-width: 380px) {
+  .landing-header { padding-inline: 13px; }
+  .landing-brand-name { font-size: 1.08rem; }
+  .landing-nav-cta { padding-inline: 11px; font-size: .75rem; }
+  .landing-content { padding-inline: 16px; }
+  .landing-main-content h1 { font-size: clamp(2.55rem, 13vw, 3.3rem); }
+}
+@media (max-height: 700px) and (max-width: 680px) {
+  .landing-content { padding-top: 26px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+  .landing-main-content h1 { font-size: clamp(2.45rem, 12vw, 3.35rem); }
+  .landing-lead { margin: 14px 0 18px; line-height: 1.42; }
+  .landing-trust { margin-top: 12px; }
+}

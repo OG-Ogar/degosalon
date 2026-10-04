@@ -13,6 +13,9 @@ import (
 	"testing"
 	"time"
 
+	"barber-booking/models"
+	"barber-booking/security"
+	"barber-booking/session"
 	"barber-booking/storage"
 )
 
@@ -88,9 +91,10 @@ func uploadForm(
 	return response.StatusCode, string(page)
 }
 
-// registerBarber creates a shop through the real form, signs in, and
-// returns the shop's ID. Barber registration lands on the login page
-// rather than opening a session, so the sign-in is part of the setup.
+// registerBarber creates the account state this photo test needs and gives
+// the browser a real barber session. Registration and login have their own
+// tests; keeping them out of this setup makes a photo failure describe the
+// photo flow rather than an unrelated authentication page.
 func registerBarber(
 	t *testing.T,
 	browser *http.Client,
@@ -99,35 +103,43 @@ func registerBarber(
 ) int {
 	t.Helper()
 
-	const password = "clippers and all"
-
-	status, page := uploadForm(t, browser, base+"/barber/register", map[string]string{
-		"fullname":         "Bob Barber",
-		"phone":            "0700000000",
-		"email":            email,
-		"password":         password,
-		"confirm_password": password,
-		"shopname":         "Bob's Chair",
-		"shopaddress":      "12 High Street",
-		"state":            "Lagos",
-		"local_area":       "Ikeja",
-	}, photoFile{"personal_image", "bob.png", photoBytes(t, 64, 64)})
-	if status != http.StatusOK {
-		t.Fatalf("register barber: status %d\n%s", status, page)
+	hash, err := security.HashPassword("clippers and all")
+	if err != nil {
+		t.Fatalf("hash barber password: %v", err)
 	}
 
-	login := post(t, browser, base+"/barber/login", url.Values{
-		"email":    {email},
-		"password": {password},
+	id, err := storage.CreateBarber(models.Barber{
+		FullName:     "Bob Barber",
+		PhoneNumber:  "0700000000",
+		Email:        email,
+		PasswordHash: hash,
+		ShopName:     "Bob's Chair",
+		ShopAddress:  "12 High Street",
+		State:        "Lagos",
+		LocalArea:    "Ikeja",
+		Status:       models.BarberActive,
 	})
-	mustContain(t, "barber login", login, "Dashboard")
-
-	barber, found := storage.FindBarberByEmail(email)
-	if !found {
-		t.Fatalf("registering %s stored no barber", email)
+	if err != nil {
+		t.Fatalf("create barber: %v", err)
 	}
 
-	return barber.ID
+	s, err := session.New(session.RoleBarber, id)
+	if err != nil {
+		t.Fatalf("create barber session: %v", err)
+	}
+
+	baseURL, err := url.Parse(base)
+	if err != nil {
+		t.Fatalf("parse server URL: %v", err)
+	}
+
+	browser.Jar.SetCookies(baseURL, []*http.Cookie{{
+		Name:  session.CookieName(session.RoleBarber),
+		Value: s.ID,
+		Path:  "/",
+	}})
+
+	return id
 }
 
 // storedPath turns a public image path back into the file on disk, which

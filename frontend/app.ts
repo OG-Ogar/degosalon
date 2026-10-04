@@ -32,7 +32,7 @@
             input.focus();
         });
 
-        input.parentNode.insertBefore(wrap, input);
+        input.parentNode?.insertBefore(wrap, input);
         wrap.appendChild(input);
         wrap.appendChild(button);
     }
@@ -40,13 +40,19 @@
     /* The line of feedback under one field, made on first use and reused
        afterwards so repeated typing does not stack up notes. */
     function noteFor(input: HTMLInputElement): HTMLParagraphElement {
-        const cached = input.dataset.fieldNoteId;\n        if (cached) {\n            const existing = document.getElementById(cached);\n            if (existing instanceof HTMLParagraphElement) return existing;\n        }\n        {
+        const cached = input.dataset.fieldNoteId;
+        if (cached) {
+            const existing = document.getElementById(cached);
+            if (existing instanceof HTMLParagraphElement) return existing;
+        }
+        {
             var note = document.createElement("p");
             note.className = "field-note";
             note.setAttribute("aria-live", "polite");
 
             (input.closest(".pw") || input).insertAdjacentElement("afterend", note);
-            note.id = "field-note-" + Math.random().toString(36).slice(2);\n            input.dataset.fieldNoteId = note.id;
+            note.id = "field-note-" + Math.random().toString(36).slice(2);
+            input.dataset.fieldNoteId = note.id;
         }
 
         return document.getElementById(input.dataset.fieldNoteId || "") as HTMLParagraphElement;
@@ -56,8 +62,8 @@
        confirmation matches it, while it is being typed. The server checks
        both again; this only saves a round trip. */
     function watchNewPassword(form: HTMLFormElement) {
-        var password = form.querySelector('input[autocomplete="new-password"][name="password"]');
-        var confirm = form.querySelector('input[name="confirm_password"]');
+        var password = form.querySelector<HTMLInputElement>('input[autocomplete="new-password"][name="password"]');
+        var confirm = form.querySelector<HTMLInputElement>('input[name="confirm_password"]');
 
         if (!password) {
             return;
@@ -110,7 +116,9 @@
        carries data-filter with a selector for the things to filter, so
        one function serves tables and card grids alike. */
     function wireFilter(box: HTMLElement & { value: string }) {
-        var targets = document.querySelectorAll(box.getAttribute("data-filter"));
+        var selector = box.getAttribute("data-filter");
+        if (!selector) return;
+        var targets = document.querySelectorAll<HTMLElement>(selector);
 
         if (!targets.length) {
             return;
@@ -281,7 +289,7 @@
        list above. The figures come from the radio's data attributes, which
        the server rendered from the same hairstyle record. */
     function wireBookingSummary(form: HTMLFormElement) {
-        var styles = form.querySelectorAll('input[name="hairstyle_id"][data-price]');
+        var styles = form.querySelectorAll<HTMLInputElement>('input[name="hairstyle_id"][data-price]');
         var actions = form.querySelector(".actions");
 
         if (!styles.length || !actions) {
@@ -348,8 +356,8 @@
             thread.scrollTop = thread.scrollHeight;
         }
 
-        var send = document.querySelector("form.send");
-        var box = send && send.querySelector("textarea");
+        var send = document.querySelector<HTMLFormElement>("form.send");
+        var box = send && send.querySelector<HTMLTextAreaElement>("textarea");
 
         if (box) {
             sendOnEnter(send, box);

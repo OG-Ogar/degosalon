@@ -94,7 +94,7 @@ func Reset() {
 	carts=make(map[int]map[int]int)
 	productOrders=nil; productOrderItems=nil
 	lastProductOrderID=0; lastProductOrderItemID=0
-	lastBarberID=0; lastCustomerID=0; lastHairstyleID=0; lastBookingID=0; lastMessageID=0; lastProductID=0
+	lastBarberID=0; lastCustomerID=0; lastHairstyleID=0; lastBookingID=0; lastMessageID=0; lastProductID=0; reviews=nil; lastReviewID=0
 }
 
 func nextID(last *int) int { *last++; return *last }

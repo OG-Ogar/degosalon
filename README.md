@@ -176,7 +176,7 @@ Supabase PostgreSQL
 Render builds the application with:
 
 ```bash
-npm ci && npm run build && go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
+npm install --no-audit --no-fund && npm run build && go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
 ```
 
 and starts it with:
@@ -250,7 +250,7 @@ This keeps the current Render deployment as one web service while giving interac
 Frontend checks:
 
 ```bash
-npm ci
+npm install --no-audit --no-fund
 npm run typecheck
 npm run build
 ```

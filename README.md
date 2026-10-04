@@ -1,6 +1,8 @@
-# Barbermultiverse
+# De Go Salon
 
-**Barbermultiverse — Your complete barber ecosystem**
+**De Go Salon — Your complete barber ecosystem**
+
+**Barber Multiverse** is the in-platform barber ecosystem: the discovery space where customers find barbers, explore their work and services, read reviews, and book appointments.
 
 A Go web platform connecting barbers and customers through barber services, appointments, communication, product discovery, carts, and product orders.
 
@@ -60,9 +62,20 @@ Current capabilities:
 
 ## Core MVP Flows
 
+### Location-first barber discovery
+
+Customer selects **Explore Barbers** → chooses a structured location (state, then LGA/local area) → sees registered barbers serving that locality → compares barber profiles, services, pricing, portfolio, availability, ratings and reviews → opens a barber profile → books an appointment.
+
+Barber discovery should use structured location data rather than relying only on free-text addresses. Barber profiles should store a state and LGA/local area, with an optional more specific address. This gives customers consistent locality matching now and leaves room for coordinate/distance-based discovery later.
+
+Each public barber profile should provide enough information for a customer to make a booking decision, including the barber/shop identity, portfolio, services and prices, location, availability, customer reviews/comments, and a clear **Book Appointment** action. Reviews should be tied to genuine customer/booking activity as the review system matures.
+
+**Product hierarchy:** De Go Salon is the public brand and product; Barber Multiverse is the barber ecosystem customers enter through discovery.
+
+
 ### Appointment flow
 
-Customer registers/signs in → browses barbers → views a barber → chooses a hairstyle → books a date/time → receives booking confirmation → barber manages the booking.
+Customer selects Explore Barbers → selects a location → discovers barbers serving that area → compares profiles and reviews → views a barber → chooses a hairstyle/service → books a date/time → receives booking confirmation → barber manages the booking.
 
 ### Barber service flow
 
@@ -100,7 +113,7 @@ Admin signs in → manages barbers → reviews customers/bookings → suspends o
 ## MVP Architecture
 
 ```text
-barbermultiverse/
+degosalon/
 ├── main.go
 ├── go.mod
 ├── handlers/     # HTTP routing, authentication and application flows
@@ -136,7 +149,7 @@ The server uses environment configuration where applicable.
 
 ## Known MVP Gaps / Production Readiness
 
-Barbermultiverse is now deployed with persistent PostgreSQL storage, but production hardening and feature verification are still ongoing.
+De Go Salon is now deployed with persistent PostgreSQL storage, but production hardening and feature verification are still ongoing.
 
 Priority work includes:
 

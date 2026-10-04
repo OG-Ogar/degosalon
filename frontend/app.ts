@@ -69,7 +69,8 @@
             return;
         }
 
-        var minLength = parseInt(password.getAttribute("minlength"), 10) || 8;
+        var minLength = parseInt(password.getAttribute("minlength") || "", 10) || 8;
+        var passwordInput = password;
 
         function say(input: HTMLInputElement, text: string, state?: string) {
             var note = noteFor(input);
@@ -79,15 +80,15 @@
         }
 
         function check() {
-            var short = minLength - password.value.length;
+            var short = minLength - passwordInput.value.length;
 
-            if (!password.value) {
-                say(password, "");
+            if (!passwordInput.value) {
+                say(passwordInput, "");
             } else if (short > 0) {
-                say(password, short + (short === 1 ? " more character" : " more characters") +
+                say(passwordInput, short + (short === 1 ? " more character" : " more characters") +
                     " needed.", "warn");
             } else {
-                say(password, "Long enough.", "ok");
+                say(passwordInput, "Long enough.", "ok");
             }
 
             if (!confirm) {
@@ -96,14 +97,14 @@
 
             if (!confirm.value) {
                 say(confirm, "");
-            } else if (confirm.value === password.value) {
+            } else if (confirm.value === passwordInput.value) {
                 say(confirm, "Both passwords match.", "ok");
             } else {
                 say(confirm, "The two passwords do not match.", "warn");
             }
         }
 
-        password.addEventListener("input", check);
+        passwordInput.addEventListener("input", check);
 
         if (confirm) {
             confirm.addEventListener("input", check);
@@ -175,7 +176,7 @@
 
     /* How much room is left in a capped text box. */
     function addCounter(box: HTMLTextAreaElement) {
-        var limit = parseInt(box.getAttribute("maxlength"), 10);
+        var limit = parseInt(box.getAttribute("maxlength") || "", 10);
 
         if (!limit) {
             return;
@@ -239,8 +240,9 @@
             preview.src = URL.createObjectURL(file);
             preview.hidden = false;
 
+            var imageFile = file;
             preview.onload = function () {
-                var size = Math.round(file.size / 1024) + " KB";
+                var size = Math.round(imageFile.size / 1024) + " KB";
                 var shape = preview.naturalWidth + " by " + preview.naturalHeight;
                 var big = Math.max(preview.naturalWidth, preview.naturalHeight) > 1600;
 
@@ -255,7 +257,7 @@
        the form's data-confirm attribute, so each page words its own. */
     function confirmBeforeSubmit(form: HTMLFormElement) {
         form.addEventListener("submit", function (event) {
-            if (!window.confirm(form.getAttribute("data-confirm"))) {
+            if (!window.confirm(form.getAttribute("data-confirm") || "")) {
                 event.preventDefault();
             }
         });
@@ -353,7 +355,7 @@
         var send = document.querySelector<HTMLFormElement>("form.send");
         var box = send && send.querySelector<HTMLTextAreaElement>("textarea");
 
-        if (box) {
+        if (send && box) {
             sendOnEnter(send, box);
             box.focus();
         }

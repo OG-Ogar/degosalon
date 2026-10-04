@@ -62,6 +62,8 @@ func main() {
 
 	mux := http.NewServeMux()
 
+	mux.HandleFunc("/explore", handlers.ExploreRouter)
+	mux.HandleFunc("/explore/", handlers.ExploreRouter)
 	mux.HandleFunc("/", handlers.HomeHandler)
 	mux.HandleFunc("/admin/", handlers.AdminRouter)
 	mux.HandleFunc("/barber/", handlers.BarberRouter)

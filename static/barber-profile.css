@@ -601,3 +601,5 @@
         padding: 20px 18px;
     }
 }
+/* De Go Salon barber profile refinement */
+.barber-simple-header{background:#171311}.barber-brand,.barber-header-actions a,.barber-header-actions button{color:#fff}.barber-edit-section,.barber-profile-card{border-radius:16px;box-shadow:0 10px 30px rgba(31,24,20,.06)}@media(max-width:480px){.barber-simple-header{min-height:64px}}

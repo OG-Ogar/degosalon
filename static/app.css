@@ -105,3 +105,6 @@
  .landing-actions{grid-template-columns:1fr}
  .landing-button,.landing-secondary-button{font-size:.88rem}
 }
+
+/* Shared De Go Salon authenticated UI refinement */
+body:not(.landing-page):not(.auth-page){color:#171311;background:#f4f1ed;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}body:not(.landing-page):not(.auth-page) a{transition:opacity .16s ease,transform .16s ease,background .16s ease}.topbar{background:#171311;color:#fff}.topbar .brand,.topbar a{color:#fff}.panel,.card{border-color:#ddd5ce;border-radius:14px;box-shadow:0 10px 30px rgba(31,24,20,.06)}input,select,textarea,button{font:inherit}:focus-visible{outline:3px solid rgba(122,74,30,.3);outline-offset:2px}@media(max-width:700px){.topbar .wrap{gap:12px}.topbar .nav{overflow-x:auto;max-width:100%;padding-bottom:3px}}

@@ -819,3 +819,5 @@
         width: 120px;
     }
 }
+/* De Go Salon barber workspace refinement */
+.barber-header{background:#171311}.barber-brand{font-weight:900;letter-spacing:-.025em}.barber-nav{gap:5px}.barber-nav a{border-radius:999px}.barber-title{letter-spacing:-.04em}.barber-card,.barber-profile-card,.barber-form,.barber-hairstyle-card{border-radius:16px;box-shadow:0 10px 30px rgba(31,24,20,.06)}@media(max-width:600px){.barber-nav{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding-bottom:6px}.barber-nav a{flex:0 0 auto;min-width:auto}.barber-main{width:calc(100% - 24px)}}

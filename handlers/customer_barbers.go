@@ -52,9 +52,10 @@ func BrowseBarbersHandler(
 	cards := make([]barberCard, 0, len(barbers))
 
 	for _, barber := range barbers {
-		if state=="" { continue }
-		if !strings.EqualFold(barber.State,state) { continue }
-		if area!="" && !strings.EqualFold(barber.LocalArea,area) { continue }
+		// Show all active barbers until the customer chooses a location.
+		// Once selected, state and area narrow the marketplace results.
+		if state != "" && !strings.EqualFold(barber.State, state) { continue }
+		if area != "" && !strings.EqualFold(barber.LocalArea, area) { continue }
 		barber.PasswordHash = ""
 
 		card := barberCard{Barber: barber}

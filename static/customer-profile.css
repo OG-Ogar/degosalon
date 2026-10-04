@@ -427,3 +427,5 @@
         flex-direction: column;
     }
 }
+/* De Go Salon profile refinement */
+.customer-simple-header{background:#171311}.customer-brand,.customer-header-actions a,.customer-header-actions button{color:#fff}.customer-profile-card,.customer-edit-card{border-radius:18px;box-shadow:0 14px 40px rgba(31,24,20,.07)}.customer-form-field input{border-radius:10px;background:#f8f6f3}@media(max-width:480px){.customer-simple-header{min-height:64px}}

@@ -104,7 +104,7 @@ func FindBarberByEmail(email string) (models.Barber, bool) {
 func CreateBarber(barber models.Barber) (models.Barber, error) {
 	if databaseEnabled() {
 		if barber.Status=="" { barber.Status=models.BarberActive }
-		err:=db.QueryRow("insert into public.barbers(full_name,phone_number,email,password_hash,shop_name,shop_address,profile_image,personal_image,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id",barber.FullName,barber.PhoneNumber,barber.Email,barber.PasswordHash,barber.ShopName,barber.ShopAddress,barber.ProfileImage,barber.PersonalImage,barber.Status).Scan(&barber.ID)
+		err:=db.QueryRow("insert into public.barbers(full_name,phone_number,email,password_hash,shop_name,shop_address,state,local_area,profile_image,personal_image,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id",barber.FullName,barber.PhoneNumber,barber.Email,barber.PasswordHash,barber.ShopName,barber.ShopAddress,barber.State,barber.LocalArea,barber.ProfileImage,barber.PersonalImage,barber.Status).Scan(&barber.ID)
 		if err!=nil {
 			if strings.Contains(strings.ToLower(err.Error()),"unique") { return models.Barber{},ErrEmailTaken }
 			return models.Barber{},err

@@ -33,7 +33,7 @@ func TestMain(m *testing.M) {
 }
 
 // csrfPattern finds the hidden token every authenticated form carries.
-var csrfPattern = regexp.MustCompile(`name="csrf_token" value="([^"]*)"`)
+var csrfPattern = regexp.MustCompile(`name="csrf_token"\\s+value="([^"]*)"`)
 
 // newServer starts the routes main.go serves, on a clean store.
 func newServer(t *testing.T) *httptest.Server {

@@ -79,6 +79,7 @@ func BrowseBarbersHandler(
 type barberDetailView struct {
 	Barber     models.Barber
 	Hairstyles []models.Hairstyle
+	Products   []models.Product
 
 	// Selected pre-picks a style when the customer arrived from a link.
 	Selected int
@@ -169,6 +170,7 @@ func renderBarberDetail(
 	renderStatus(w, status, "customer/barber-detail.html", barberDetailView{
 		Barber:     barber,
 		Hairstyles: storage.ListAvailableHairstylesByBarber(barber.ID),
+		Products: availableProductsByBarber(barber.ID),
 		Selected:   selected,
 		Today:      today(),
 		Opening:    formatHour(openingHour),
@@ -182,4 +184,12 @@ func renderBarberDetail(
 		ReviewCount: count,
 		CanReview: canReview,
 	})
+}
+
+func availableProductsByBarber(barberID int) []models.Product {
+	var out []models.Product
+	for _,product:=range storage.ListProductsByBarber(barberID) {
+		if product.IsAvailable && product.Quantity>0 { out=append(out,product) }
+	}
+	return out
 }

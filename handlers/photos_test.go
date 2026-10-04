@@ -6,7 +6,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
-	"net/http/httptest"
+	"net/url"
 	"os"
 	"strconv"
 	"strings"
@@ -15,7 +15,6 @@ import (
 
 	"barber-booking/models"
 	"barber-booking/security"
-	"barber-booking/session"
 	"barber-booking/storage"
 )
 
@@ -123,27 +122,14 @@ func registerBarber(
 		t.Fatalf("create barber: %v", err)
 	}
 
-	// Use the same session.Start path as production login so this test does
-	// not duplicate the application's cookie contract.
-	recorder := httptest.NewRecorder()
-	if _, err := session.Start(recorder, session.RoleBarber, created.ID); err != nil {
-		t.Fatalf("start barber session: %v", err)
-	}
-
-	request := httptest.NewRequest(http.MethodGet, base+"/barber/profile/edit", nil)
-	for _, cookie := range recorder.Result().Cookies() {
-		request.AddCookie(cookie)
-	}
-
-	response := httptest.NewRecorder()
-	BarberRouter(response, request)
-	for _, cookie := range response.Result().Cookies() {
-		browser.Jar.SetCookies(request.URL, []*http.Cookie{cookie})
-	}
-
-	// Start writes the session cookie; seed the browser jar from that exact
-	// Set-Cookie value rather than reconstructing its name/value attributes.
-	browser.Jar.SetCookies(request.URL, recorder.Result().Cookies())
+	// Sign in through the real HTTP endpoint. This lets the browser cookie jar
+	// receive exactly the cookie production login writes, and makes a broken
+	// authentication setup fail here instead of masquerading as a CSRF error.
+	login := post(t, browser, base+"/barber/login", url.Values{
+		"email":    {email},
+		"password": {"clippers and all"},
+	})
+	mustContain(t, "barber login", login, "Dashboard")
 
 	return created.ID
 }

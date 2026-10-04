@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: baba-multiverse
+    name: de-go-salon
     runtime: go
     branch: main
-    buildCommand: go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
+    buildCommand: npm ci && npm run build && go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
     startCommand: ./app
     healthCheckPath: /
     envVars:

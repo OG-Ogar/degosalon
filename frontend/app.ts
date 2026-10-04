@@ -133,7 +133,7 @@
             var needle = box.value.trim().toLowerCase();
             var shown = 0;
 
-            Array.prototype.forEach.call(targets, function (target) {
+            targets.forEach(function (target: HTMLElement) {
                 var match = !needle ||
                     target.textContent.toLowerCase().indexOf(needle) !== -1;
 
@@ -274,9 +274,9 @@
             }
 
             window.setTimeout(function () {
-                var buttons = form.querySelectorAll("button:not([type=button])");
+                var buttons = form.querySelectorAll<HTMLButtonElement>("button:not([type=button])");
 
-                Array.prototype.forEach.call(buttons, function (button) {
+                buttons.forEach(function (button: HTMLButtonElement) {
                     button.disabled = true;
                     button.classList.add("busy");
                 });
@@ -309,7 +309,7 @@
                 ", about " + style.getAttribute("data-duration") + " minutes.";
         }
 
-        Array.prototype.forEach.call(styles, function (style) {
+        styles.forEach(function (style: HTMLInputElement) {
             style.addEventListener("change", function () {
                 show(style);
             });
@@ -323,12 +323,9 @@
     /* ---- wiring ---- */
 
     function init() {
-        Array.prototype.forEach.call(
-            document.querySelectorAll('input[type="password"]'),
-            addRevealButton
-        );
+        document.querySelectorAll<HTMLInputElement>('input[type="password"]').forEach(addRevealButton);
 
-        Array.prototype.forEach.call(document.querySelectorAll("form"), function (form) {
+        document.querySelectorAll<HTMLFormElement>("form").forEach(function (form) {
             watchNewPassword(form);
             wireBookingSummary(form);
 
@@ -341,16 +338,13 @@
             guardDoubleSubmit(form);
         });
 
-        Array.prototype.forEach.call(document.querySelectorAll("[data-filter]"), wireFilter);
-        Array.prototype.forEach.call(document.querySelectorAll("textarea[maxlength]"), addCounter);
-        Array.prototype.forEach.call(
-            document.querySelectorAll('input[type="file"]'),
-            previewChosenPhoto
-        );
+        document.querySelectorAll<HTMLInputElement>("[data-filter]").forEach(wireFilter);
+        document.querySelectorAll<HTMLTextAreaElement>("textarea[maxlength]").forEach(addCounter);
+        document.querySelectorAll<HTMLInputElement>('input[type="file"]').forEach(previewChosenPhoto);
 
         // A conversation opens on its newest message, the way every other
         // chat does, rather than at the oldest one.
-        var thread = document.querySelector(".thread");
+        var thread = document.querySelector<HTMLElement>(".thread");
 
         if (thread) {
             thread.scrollTop = thread.scrollHeight;
@@ -368,9 +362,8 @@
     // Buttons disabled by the submit guard are freed when the browser
     // restores this page from its history cache.
     window.addEventListener("pageshow", function () {
-        Array.prototype.forEach.call(
-            document.querySelectorAll("button.busy"),
-            function (button) {
+        document.querySelectorAll<HTMLButtonElement>("button.busy").forEach(
+            function (button: HTMLButtonElement) {
                 button.disabled = false;
                 button.classList.remove("busy");
             }

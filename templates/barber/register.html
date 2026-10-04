@@ -132,6 +132,16 @@
         </div>
 
         <div class="auth-field">
+            <label for="state">State</label>
+            <input id="state" type="text" name="state" value="{{index .Values "state"}}" placeholder="e.g. Lagos" required>
+        </div>
+
+        <div class="auth-field">
+            <label for="local_area">LGA / Local area</label>
+            <input id="local_area" type="text" name="local_area" value="{{index .Values "local_area"}}" placeholder="e.g. Ikeja" required>
+        </div>
+
+        <div class="auth-field">
 
             <label for="password">
                 Password

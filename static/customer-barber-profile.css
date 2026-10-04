@@ -11,11 +11,11 @@ min-height: 100%;
 body {
 font-family: Arial, sans-serif;
 
-```
+
 background: #f4f1ed;
 
 color: #171311;
-```
+
 
 }
 
@@ -37,7 +37,7 @@ HEADER
 .barber-header {
 width: min(1180px, calc(100% - 40px));
 
-```
+
 margin: 0 auto;
 
 padding: 22px 0;
@@ -47,14 +47,14 @@ display: flex;
 align-items: stretch;
 
 gap: 20px;
-```
+
 
 }
 
 .brand-box {
 width: 155px;
 
-```
+
 flex: 0 0 155px;
 
 padding: 16px 18px;
@@ -72,23 +72,23 @@ color: #ffffff;
 text-decoration: none;
 
 border-radius: 12px;
-```
+
 
 }
 
 .brand-title {
 font-size: 1.2rem;
 
-```
+
 font-weight: 800;
-```
+
 
 }
 
 .brand-subtitle {
 margin-top: 3px;
 
-```
+
 color: rgba(255, 255, 255, 0.55);
 
 font-size: 0.7rem;
@@ -96,27 +96,27 @@ font-size: 0.7rem;
 text-transform: uppercase;
 
 letter-spacing: 0.12em;
-```
+
 
 }
 
 .customer-navigation {
 flex: 1;
 
-```
+
 display: grid;
 
 grid-template-columns: repeat(4, 1fr);
 
 gap: 8px;
-```
+
 
 }
 
 .nav-box {
 padding: 13px 15px;
 
-```
+
 display: flex;
 
 flex-direction: column;
@@ -136,38 +136,38 @@ text-decoration: none;
 transition:
     background 0.2s ease,
     border-color 0.2s ease;
-```
+
 
 }
 
 .nav-box:hover {
 border-color: #171311;
 
-```
+
 background: #faf8f6;
-```
+
 
 }
 
 .nav-number {
 color: #9a918a;
 
-```
+
 font-size: 0.65rem;
 
 font-weight: 800;
-```
+
 
 }
 
 .nav-text {
 margin-top: 13px;
 
-```
+
 font-size: 0.82rem;
 
 font-weight: 700;
-```
+
 
 }
 
@@ -178,18 +178,18 @@ MAIN
 .barber-main {
 width: min(1180px, calc(100% - 40px));
 
-```
+
 margin: 0 auto;
 
 padding: 10px 0 70px;
-```
+
 
 }
 
 .back-link {
 display: inline-block;
 
-```
+
 margin-bottom: 20px;
 
 color: #706862;
@@ -199,7 +199,7 @@ text-decoration: none;
 font-size: 0.85rem;
 
 font-weight: 700;
-```
+
 
 }
 
@@ -214,7 +214,7 @@ BARBER CARD
 .barber-card {
 display: grid;
 
-```
+
 grid-template-columns: 330px 1fr;
 
 min-height: 270px;
@@ -226,16 +226,16 @@ border: 1px solid #ddd5ce;
 border-radius: 16px;
 
 background: #ffffff;
-```
+
 
 }
 
 .barber-photo {
 min-height: 270px;
 
-```
+
 background: #211c19;
-```
+
 
 }
 
@@ -243,11 +243,11 @@ background: #211c19;
 width: 100%;
 height: 100%;
 
-```
+
 display: block;
 
 object-fit: cover;
-```
+
 
 }
 
@@ -255,7 +255,7 @@ object-fit: cover;
 width: 100%;
 height: 100%;
 
-```
+
 display: flex;
 
 align-items: center;
@@ -268,27 +268,27 @@ font-size: 2rem;
 font-weight: 800;
 
 letter-spacing: 0.08em;
-```
+
 
 }
 
 .barber-details {
 padding: 38px;
 
-```
+
 display: flex;
 
 flex-direction: column;
 
 justify-content: center;
-```
+
 
 }
 
 .eyebrow {
 margin: 0 0 7px;
 
-```
+
 color: #938a83;
 
 font-size: 0.68rem;
@@ -298,40 +298,40 @@ font-weight: 800;
 text-transform: uppercase;
 
 letter-spacing: 0.13em;
-```
+
 
 }
 
 .barber-details h1 {
 margin: 0;
 
-```
+
 font-size: clamp(2rem, 4vw, 3.3rem);
 
 line-height: 1;
 
 letter-spacing: -0.04em;
-```
+
 
 }
 
 .barber-name {
 margin: 9px 0 0;
 
-```
+
 color: #706862;
 
 font-size: 0.95rem;
 
 font-weight: 600;
-```
+
 
 }
 
 .barber-address {
 display: flex;
 
-```
+
 align-items: center;
 
 gap: 8px;
@@ -343,7 +343,7 @@ color: #706862;
 font-size: 0.85rem;
 
 line-height: 1.4;
-```
+
 
 }
 
@@ -351,7 +351,7 @@ line-height: 1.4;
 width: 19px;
 height: 19px;
 
-```
+
 flex: 0 0 19px;
 
 display: flex;
@@ -368,18 +368,18 @@ color: #ffffff;
 font-size: 0.6rem;
 
 font-weight: 800;
-```
+
 
 }
 
 .barber-actions {
 display: flex;
 
-```
+
 gap: 8px;
 
 margin-top: 25px;
-```
+
 
 }
 
@@ -387,7 +387,7 @@ margin-top: 25px;
 .book-button {
 min-height: 42px;
 
-```
+
 display: inline-flex;
 
 align-items: center;
@@ -403,18 +403,18 @@ text-decoration: none;
 font-size: 0.82rem;
 
 font-weight: 700;
-```
+
 
 }
 
 .message-button {
 border: 1px solid #d8d0c9;
 
-```
+
 background: #ffffff;
 
 color: #171311;
-```
+
 
 }
 
@@ -425,9 +425,9 @@ background: #f0ece8;
 .book-button {
 background: #171311;
 
-```
+
 color: #ffffff;
-```
+
 
 }
 
@@ -442,7 +442,7 @@ ERROR
 .error-box {
 margin-top: 16px;
 
-```
+
 padding: 15px 17px;
 
 display: flex;
@@ -460,7 +460,7 @@ background: #fff5f5;
 color: #6b2424;
 
 font-size: 0.82rem;
-```
+
 
 }
 
@@ -479,7 +479,7 @@ margin-top: 40px;
 .section-title {
 display: flex;
 
-```
+
 align-items: end;
 
 justify-content: space-between;
@@ -487,25 +487,25 @@ justify-content: space-between;
 gap: 15px;
 
 margin-bottom: 16px;
-```
+
 
 }
 
 .section-title h2 {
 margin: 0;
 
-```
+
 font-size: 1.8rem;
 
 letter-spacing: -0.03em;
-```
+
 
 }
 
 .count {
 padding: 7px 11px;
 
-```
+
 border-radius: 999px;
 
 background: #e6dfd8;
@@ -515,7 +515,7 @@ color: #625a54;
 font-size: 0.72rem;
 
 font-weight: 700;
-```
+
 
 }
 
@@ -526,51 +526,51 @@ HAIRSTYLES
 .hairstyle-list {
 margin: 0;
 
-```
+
 padding: 0;
 
 border: 0;
-```
+
 
 }
 
 .hairstyle-list legend {
 margin-bottom: 10px;
 
-```
+
 color: #706862;
 
 font-size: 0.8rem;
 
 font-weight: 700;
-```
+
 
 }
 
 .hairstyle-option {
 position: relative;
 
-```
+
 margin-bottom: 9px;
-```
+
 
 }
 
 .hairstyle-option input {
 position: absolute;
 
-```
+
 opacity: 0;
 
 pointer-events: none;
-```
+
 
 }
 
 .hairstyle-option label {
 min-height: 100px;
 
-```
+
 display: grid;
 
 grid-template-columns: 85px 1fr auto;
@@ -593,26 +593,26 @@ transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     transform 0.2s ease;
-```
+
 
 }
 
 .hairstyle-option label:hover {
 border-color: #aaa098;
 
-```
+
 transform: translateY(-1px);
-```
+
 
 }
 
 .hairstyle-option input:checked + label {
 border-color: #171311;
 
-```
+
 box-shadow:
     0 0 0 2px #171311;
-```
+
 
 }
 
@@ -620,13 +620,13 @@ box-shadow:
 width: 85px;
 height: 78px;
 
-```
+
 overflow: hidden;
 
 border-radius: 8px;
 
 background: #211c19;
-```
+
 
 }
 
@@ -634,11 +634,11 @@ background: #211c19;
 width: 100%;
 height: 100%;
 
-```
+
 display: block;
 
 object-fit: cover;
-```
+
 
 }
 
@@ -646,7 +646,7 @@ object-fit: cover;
 width: 100%;
 height: 100%;
 
-```
+
 display: flex;
 
 align-items: center;
@@ -657,7 +657,7 @@ color: #ffffff;
 font-size: 1rem;
 
 font-weight: 800;
-```
+
 
 }
 
@@ -668,16 +668,16 @@ min-width: 0;
 .style-info h3 {
 margin: 0;
 
-```
+
 font-size: 1rem;
-```
+
 
 }
 
 .style-info p {
 margin: 6px 0 0;
 
-```
+
 color: #938a83;
 
 font-size: 0.72rem;
@@ -687,14 +687,14 @@ font-weight: 700;
 text-transform: uppercase;
 
 letter-spacing: 0.04em;
-```
+
 
 }
 
 .style-info > span {
 display: block;
 
-```
+
 margin-top: 7px;
 
 color: #706862;
@@ -702,14 +702,14 @@ color: #706862;
 font-size: 0.8rem;
 
 line-height: 1.45;
-```
+
 
 }
 
 .style-price {
 min-width: 80px;
 
-```
+
 display: flex;
 
 flex-direction: column;
@@ -717,7 +717,7 @@ flex-direction: column;
 align-items: flex-end;
 
 gap: 6px;
-```
+
 
 }
 
@@ -728,11 +728,11 @@ font-size: 1rem;
 .style-price span {
 color: #9a918a;
 
-```
+
 font-size: 0.68rem;
 
 font-weight: 700;
-```
+
 
 }
 
@@ -747,7 +747,7 @@ margin: 0;
 .appointment-section {
 margin-top: 30px;
 
-```
+
 padding: 25px;
 
 border: 1px solid #ddd5ce;
@@ -755,53 +755,53 @@ border: 1px solid #ddd5ce;
 border-radius: 14px;
 
 background: #ffffff;
-```
+
 
 }
 
 .appointment-fields {
 display: grid;
 
-```
+
 grid-template-columns: 1fr 1fr;
 
 gap: 13px;
 
 margin-top: 20px;
-```
+
 
 }
 
 .field {
 display: flex;
 
-```
+
 flex-direction: column;
-```
+
 
 }
 
 .field label {
 margin-bottom: 7px;
 
-```
+
 color: #625a54;
 
 font-size: 0.76rem;
 
 font-weight: 700;
-```
+
 
 }
 
 .field label span {
 margin-left: 4px;
 
-```
+
 color: #9a918a;
 
 font-weight: 400;
-```
+
 
 }
 
@@ -809,7 +809,7 @@ font-weight: 400;
 .field textarea {
 width: 100%;
 
-```
+
 border: 1px solid #d8d0c9;
 
 border-radius: 8px;
@@ -819,29 +819,29 @@ background: #f8f6f3;
 color: #171311;
 
 outline: none;
-```
+
 
 }
 
 .field input {
 min-height: 45px;
 
-```
+
 padding: 10px 12px;
-```
+
 
 }
 
 .field textarea {
 min-height: 105px;
 
-```
+
 padding: 11px 12px;
 
 resize: vertical;
 
 line-height: 1.5;
-```
+
 
 }
 
@@ -849,12 +849,12 @@ line-height: 1.5;
 .field textarea:focus {
 border-color: #171311;
 
-```
+
 background: #ffffff;
 
 box-shadow:
     0 0 0 3px rgba(23, 19, 17, 0.07);
-```
+
 
 }
 
@@ -865,7 +865,7 @@ margin-top: 13px;
 .submit-area {
 margin-top: 18px;
 
-```
+
 padding-top: 18px;
 
 border-top: 1px solid #ebe5df;
@@ -877,34 +877,34 @@ align-items: center;
 justify-content: space-between;
 
 gap: 20px;
-```
+
 
 }
 
 .submit-area strong {
 display: block;
 
-```
+
 font-size: 0.9rem;
-```
+
 
 }
 
 .submit-area p {
 margin: 5px 0 0;
 
-```
+
 color: #8a817b;
 
 font-size: 0.76rem;
-```
+
 
 }
 
 .request-button {
 min-height: 44px;
 
-```
+
 display: inline-flex;
 
 align-items: center;
@@ -930,7 +930,7 @@ font-size: 0.82rem;
 font-weight: 800;
 
 white-space: nowrap;
-```
+
 
 }
 
@@ -949,7 +949,7 @@ EMPTY
 .empty-state {
 padding: 55px 25px;
 
-```
+
 border: 1px solid #ddd5ce;
 
 border-radius: 14px;
@@ -957,7 +957,7 @@ border-radius: 14px;
 background: #ffffff;
 
 text-align: center;
-```
+
 
 }
 
@@ -965,7 +965,7 @@ text-align: center;
 width: 55px;
 height: 55px;
 
-```
+
 margin: 0 auto 18px;
 
 display: flex;
@@ -980,27 +980,27 @@ background: #171311;
 color: #ffffff;
 
 font-weight: 800;
-```
+
 
 }
 
 .empty-state h2 {
 margin: 0;
 
-```
+
 font-size: 1.5rem;
-```
+
 
 }
 
 .empty-state p {
 margin: 10px auto 20px;
 
-```
+
 color: #706862;
 
 font-size: 0.85rem;
-```
+
 
 }
 
@@ -1010,7 +1010,7 @@ RESPONSIVE
 
 @media (max-width: 850px) {
 
-```
+
 .barber-header {
     flex-direction: column;
 }
@@ -1028,13 +1028,13 @@ RESPONSIVE
 .barber-photo {
     min-height: 240px;
 }
-```
+
 
 }
 
 @media (max-width: 650px) {
 
-```
+
 .barber-header,
 .barber-main {
     width: min(100% - 24px, 1180px);
@@ -1114,13 +1114,13 @@ RESPONSIVE
 .request-button {
     width: 100%;
 }
-```
+
 
 }
 
 @media (max-width: 430px) {
 
-```
+
 .customer-navigation {
     gap: 6px;
 }
@@ -1161,6 +1161,17 @@ RESPONSIVE
 .appointment-fields {
     grid-template-columns: 1fr;
 }
-```
+
 
 }
+
+
+/* Public barber shop */
+.shop-trust-row{display:flex;align-items:center;gap:10px;margin-top:14px}.shop-trust-row small,.signin-note,.section-cta-note{color:#8a817b}.signin-note{margin:12px 0 0;font-size:.76rem}
+.shop-jumpbar{position:sticky;top:0;z-index:5;display:flex;gap:8px;margin-top:18px;padding:10px;border:1px solid #ddd5ce;border-radius:12px;background:rgba(244,241,237,.96)}.shop-jumpbar a{padding:10px 14px;border-radius:8px;color:#171311;text-decoration:none;font-size:.78rem;font-weight:800}.shop-jumpbar a:hover{background:#fff}
+.public-style-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}.public-style-card,.public-product-card,.public-review-card{overflow:hidden;border:1px solid #ddd5ce;border-radius:14px;background:#fff}.public-style-image{height:190px;background:#211c19}.public-style-image img{width:100%;height:100%;object-fit:cover}.public-style-copy{padding:18px}.public-style-copy h3,.public-product-card h3{margin:0}.public-style-copy>p:not(.eyebrow){color:#706862;line-height:1.5;font-size:.84rem}.style-meta{display:flex;justify-content:space-between;gap:12px;margin-top:18px;padding-top:14px;border-top:1px solid #ebe5df}.style-meta span{color:#8a817b;font-size:.78rem}
+.public-product-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.public-product-card{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px}.product-price{text-align:right}.product-price strong,.product-price span{display:block}.product-price span{margin-top:4px;color:#8a817b;font-size:.72rem}
+.public-review-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.public-review-card{padding:20px}.review-heading{display:flex;justify-content:space-between;gap:12px}.public-review-card p{color:#625a54;line-height:1.6}.public-review-card small{color:#8a817b;font-weight:700}
+.shop-final-cta{margin-top:42px;padding:34px;border-radius:18px;background:#171311;color:#fff}.shop-final-cta h2{margin:0;font-size:2rem}.shop-final-cta>p:not(.eyebrow){color:rgba(255,255,255,.68)}.shop-final-cta .message-button{border-color:rgba(255,255,255,.3);background:transparent;color:#fff}.shop-final-cta .book-button{background:#fff;color:#171311}
+@media(max-width:760px){.public-style-grid{grid-template-columns:1fr 1fr}.public-product-grid,.public-review-list{grid-template-columns:1fr}.shop-jumpbar{overflow-x:auto;white-space:nowrap}.shop-trust-row{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.public-style-grid{grid-template-columns:1fr}.public-style-image{height:220px}.shop-final-cta{padding:24px 20px}.shop-jumpbar{margin-left:-2px;margin-right:-2px}.shop-jumpbar a{padding:9px 10px}}

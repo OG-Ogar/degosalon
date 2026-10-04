@@ -145,7 +145,7 @@ func TestPasswordResetReplacesThePassword(t *testing.T) {
 
 	// The session opened at registration belonged to the old password.
 	mustContain(t, "session from before the reset",
-		get(t, browser, server.URL+"/customer/dashboard"), "Customer login")
+		get(t, browser, server.URL+"/customer/dashboard"), "Sign In")
 
 	if status, _ := submit(t, browser, server.URL+"/customer/login", url.Values{
 		"email":    {"ada@example.com"},

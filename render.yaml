@@ -3,7 +3,7 @@ services:
     name: de-go-salon
     runtime: go
     branch: main
-    buildCommand: npm ci && npm run build && go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
+    buildCommand: npm install --no-audit --no-fund && npm run build && go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
     startCommand: ./app
     healthCheckPath: /
     envVars:

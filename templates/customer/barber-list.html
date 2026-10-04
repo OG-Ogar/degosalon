@@ -95,7 +95,7 @@
                 <label for="state">Choose your location</label>
                 <select id="state" name="state" required>
                     <option value="">Select state</option>
-                    {{range .States}}<option value="{{.}}">{{.}}</option>{{end}}
+                    {{$selected := .SelectedState}}{{range .States}}<option value="{{.}}" {{if eq . $selected}}selected{{end}}>{{.}}</option>{{end}}
                 </select>
                 <label for="area">LGA / local area</label>
                 <input id="area" name="area" value="{{.SelectedArea}}" placeholder="e.g. Ikeja">

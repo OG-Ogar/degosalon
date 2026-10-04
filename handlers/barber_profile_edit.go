@@ -65,6 +65,8 @@ func EditProfileHandler(
 		barber.Email = form.Email
 		barber.ShopName = form.ShopName
 		barber.ShopAddress = form.ShopAddress
+		barber.State = form.State
+		barber.LocalArea = form.LocalArea
 		barber.ProfileImage = shop
 		barber.PersonalImage = personal
 
@@ -134,6 +136,8 @@ func formFromBarber(barber models.Barber) barberForm {
 		Email:       barber.Email,
 		ShopName:    barber.ShopName,
 		ShopAddress: barber.ShopAddress,
+		State:       barber.State,
+		LocalArea:   barber.LocalArea,
 	}
 }
 

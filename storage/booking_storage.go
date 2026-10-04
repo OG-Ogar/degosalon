@@ -131,6 +131,13 @@ func ListBookingsByCustomer(customerID int) []models.Booking {
 // schedule, customerID for the customer's own appointments. Passing 0
 // skips that check, which only the admin does.
 func SetBookingStatus(id int, status string, barberID, customerID int) error {
+	if databaseEnabled() {
+		q := "update public.bookings set status=$1 where id=$2"
+		args := []any{status,id}
+		if barberID != 0 { q += " and barber_id=$3"; args=append(args,barberID) }
+		if customerID != 0 { q += " and customer_id=$3"; args=append(args,customerID) }
+		result,err:=db.Exec(q,args...); if err!=nil{return err}; n,_:=result.RowsAffected(); if n==0{return ErrForbidden}; return nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 

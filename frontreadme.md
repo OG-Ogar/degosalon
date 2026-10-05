@@ -511,23 +511,23 @@ This inventory is based on the repository tree on `main` immediately after PR #2
 
 ### Customer authentication
 
-- [ ] `templates/customer/login.html`
-- [ ] `templates/customer/register.html`
-- [ ] `templates/customer/forgot-password.html`
-- [ ] `templates/customer/reset-password.html`
+- [x] `templates/customer/login.html` — forest customer authentication styling, accessible form contrast and responsive layout.
+- [x] `templates/customer/register.html` — customer registration aligned with shared auth family and upload/form states.
+- [x] `templates/customer/forgot-password.html` — recovery flow rebranded to De Go Salon and aligned with forest auth surfaces.
+- [x] `templates/customer/reset-password.html` — password reset flow aligned with shared forest auth controls and feedback.
 
 ### Customer application
 
-- [ ] `templates/customer/dashboard.html`
-- [ ] `templates/customer/barber-list.html`
-- [ ] `templates/customer/barber-detail.html`
-- [ ] `templates/customer/booking-confirmation.html`
-- [ ] `templates/customer/bookings.html`
-- [ ] `templates/customer/chats.html`
-- [ ] `templates/customer/chat.html`
-- [ ] `templates/customer/products.html`
-- [ ] `templates/customer/cart.html`
-- [ ] `templates/customer/order-confirmation.html`
+- [x] `templates/customer/dashboard.html` — customer home surface aligned with forest system, navigation, stats and appointment/order cards.
+- [x] `templates/customer/barber-list.html` — authenticated barber discovery aligned with shared forest customer surfaces.
+- [x] `templates/customer/barber-detail.html` — authenticated barber detail/booking surface aligned with shared contrast and controls.
+- [x] `templates/customer/booking-confirmation.html` — booking confirmation aligned with forest cards, status and action hierarchy.
+- [x] `templates/customer/bookings.html` — booking history aligned with forest cards, status semantics and responsive presentation.
+- [x] `templates/customer/chats.html` — conversation list aligned with shared customer navigation and forest surfaces.
+- [x] `templates/customer/chat.html` — message thread/composer aligned with forest messaging surfaces and accessible fields.
+- [x] `templates/customer/products.html` — product catalog aligned with forest commerce cards, stock and primary actions.
+- [x] `templates/customer/cart.html` — cart aligned with forest commerce hierarchy, totals and checkout emphasis.
+- [x] `templates/customer/order-confirmation.html` — order confirmation aligned with forest commerce/status presentation.
 - [ ] `templates/customer/profile.html`
 - [ ] `templates/customer/edit-profile.html`
 

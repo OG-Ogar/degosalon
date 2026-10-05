@@ -145,6 +145,10 @@ func ListProductOrderItems(orderID int) []models.ProductOrderItem {
 
 // ListProductOrdersByCustomer returns all orders belonging to a customer.
 func ListProductOrdersByCustomer(customerID int) []models.ProductOrder {
+	if databaseEnabled() {
+		rows,err:=db.Query("select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where customer_id=$1 order by id desc",customerID)
+		if err==nil { defer rows.Close(); var out []models.ProductOrder; for rows.Next(){var v models.ProductOrder;if rows.Scan(&v.ID,&v.CustomerID,&v.CustomerName,&v.CustomerPhone,&v.CustomerEmail,&v.TotalAmount,&v.Status,&v.CreatedAt)==nil{out=append(out,v)}};return out }
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 

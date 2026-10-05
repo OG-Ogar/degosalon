@@ -91,7 +91,7 @@
     <div class="auth-register">
         <span>Don't have an account?</span>
 
-        <a href="/customer/register">
+        <a href="/customer/register?next={{urlquery (index .Values "next")}}">
             Create an account
         </a>
     </div>

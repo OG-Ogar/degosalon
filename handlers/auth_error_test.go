@@ -95,7 +95,8 @@ func TestMissingAndSuspendedAccountsStillClearSessions(t *testing.T) {
 			if checkAccountSession(tc.role, response, request) {
 				t.Fatal("unavailable account authorized")
 			}
-			if response.Code != http.StatusSeeOther || response.Header().Get("Location") != "/"+string(tc.role)+"/login" {
+			destination, parseErr := url.Parse(response.Header().Get("Location"))
+			if parseErr != nil || response.Code != http.StatusSeeOther || destination.Path != "/"+string(tc.role)+"/login" {
 				t.Fatalf("missing login redirect: %d %+v", response.Code, response.Header())
 			}
 			if _, ok := session.Get(s.ID); ok {

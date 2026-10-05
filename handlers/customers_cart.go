@@ -47,7 +47,11 @@ func AddToCartHandler(
 		return
 	}
 
-	http.Redirect(w, r, "/customer/products", http.StatusSeeOther)
+	destination := "/customer/products"
+	if seller, ok := parseID(r.URL.Query().Get("barber")); ok {
+		destination = discoveryPath(destination, map[string][]string{"barber": {strconv.Itoa(seller)}})
+	}
+	http.Redirect(w, r, destination, http.StatusSeeOther)
 }
 
 type customerCartItem struct {

@@ -293,3 +293,6 @@ The initial migration creates a fresh schema or adopts the existing baseline wit
 
 
 Checkout forms include a customer-scoped retry key. After a successful order, resubmitting that form returns the original confirmation and never consumes a newly added cart. Failed stock checks leave the cart and key available for retry. The server computes totals from product records; posted amounts are ignored. Keys persist with PostgreSQL orders and survive application reconnects.
+
+
+Discovery is location-first for visitors and signed-in customers: choose a state to list shops, then optionally narrow by local area. Profile, sign-in, signup, and booking continuations retain selected filters and services. Public portfolio product actions open that barber's catalogue; users can return to all products explicitly.

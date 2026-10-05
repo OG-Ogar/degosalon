@@ -109,9 +109,15 @@
                             {{end}}
                         </p>
 
+                        <div class="barber-actions">
+                            <a class="barber-button" href="/barber/products/{{.ID}}">View</a>
+                            <a class="barber-button" href="/barber/products/{{.ID}}/edit">Edit</a>
+                        </div>
+
                         <form
                             method="post"
                             action="/barber/products/{{.ID}}/delete"
+                            data-confirm="Delete this product? This cannot be undone."
                         >
 
                             <input

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"strings"
 
 	"barber-booking/security"
 	"barber-booking/session"
@@ -14,6 +15,7 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 
 	case http.MethodGet:
 		view := newFormView("")
+		view.Values["next"] = safeCustomerNext(r.URL.Query().Get("next"))
 
 		// Set by the last step of a password reset, so the visitor is
 		// told the change worked instead of landing on a bare form.
@@ -26,6 +28,7 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 	case http.MethodPost:
 		email := normalisedEmail(r.PostFormValue("email"))
 		password := r.PostFormValue("password")
+		next := safeCustomerNext(r.PostFormValue("next"))
 
 		if email == "" || password == "" {
 			loginError(
@@ -83,12 +86,8 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(
-			w,
-			r,
-			"/customer/dashboard",
-			http.StatusSeeOther,
-		)
+		if next == "" { next = "/customer/dashboard" }
+		http.Redirect(w, r, next, http.StatusSeeOther)
 
 	default:
 		methodNotAllowed(w, http.MethodGet, http.MethodPost)
@@ -120,4 +119,13 @@ func CustomerLogoutHandler(
 		"/",
 		http.StatusSeeOther,
 	)
+}
+
+
+func safeCustomerNext(next string) string {
+	next = strings.TrimSpace(next)
+	if !strings.HasPrefix(next, "/customer/") || strings.HasPrefix(next, "//") {
+		return ""
+	}
+	return next
 }

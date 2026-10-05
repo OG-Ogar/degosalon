@@ -47,6 +47,7 @@
     <form class="auth-form"
           method="post"
           action="/customer/login">
+        <input type="hidden" name="next" value="{{index .Values "next"}}">
 
         <div class="auth-field">
             <label for="email">Email</label>

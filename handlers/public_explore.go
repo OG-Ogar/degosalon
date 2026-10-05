@@ -5,11 +5,12 @@ import (
 	"strings"
 	"barber-booking/models"
 	"barber-booking/storage"
+	"barber-booking/session"
 )
 
 type exploreCard struct{ models.Barber; Hairstyles int; FromPrice float64; Rating float64; ReviewCount int }
 type exploreView struct{ Items []exploreCard; States []string; SelectedState,SelectedArea string }
-type publicBarberView struct{ Barber models.Barber; Hairstyles []models.Hairstyle; Products []models.Product; Reviews []models.Review; Rating float64; ReviewCount int }
+type publicBarberView struct{ Barber models.Barber; Hairstyles []models.Hairstyle; Products []models.Product; Reviews []models.Review; Rating float64; ReviewCount int; CustomerSignedIn bool; BookLink string; MessageLink string }
 
 func ExploreRouter(w http.ResponseWriter,r *http.Request){
 	parts:=pathParts(r.URL.Path)
@@ -37,5 +38,10 @@ func ExploreBarberHandler(w http.ResponseWriter,r *http.Request,idSegment string
 	id,ok:=parseID(idSegment);if !ok{http.NotFound(w,r);return}
 	b,found:=storage.FindBarberByID(id);if !found||!b.IsActive(){http.NotFound(w,r);return};b.PasswordHash=""
 	rating,count:=storage.ReviewSummary(id)
-	render(w,"explore-barber.html",publicBarberView{Barber:b,Hairstyles:storage.ListAvailableHairstylesByBarber(id),Products:availableProductsByBarber(id),Reviews:storage.ListReviewsByBarber(id),Rating:rating,ReviewCount:count})
+	signedIn:=false
+	if s,ok:=session.FromRequest(r,session.RoleCustomer);ok { _,signedIn=storage.FindCustomerByID(s.UserID) }
+	bookLink:="/customer/login?next=/customer/barbers/"+idSegment+"%23booking"
+	messageLink:="/customer/login?next=/customer/chats/"+idSegment
+	if signedIn { bookLink="/customer/barbers/"+idSegment+"#booking"; messageLink="/customer/chats/"+idSegment }
+	render(w,"explore-barber.html",publicBarberView{Barber:b,Hairstyles:storage.ListAvailableHairstylesByBarber(id),Products:availableProductsByBarber(id),Reviews:storage.ListReviewsByBarber(id),Rating:rating,ReviewCount:count,CustomerSignedIn:signedIn,BookLink:bookLink,MessageLink:messageLink})
 }

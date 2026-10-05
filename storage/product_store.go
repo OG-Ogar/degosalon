@@ -53,6 +53,11 @@ func findProductByID(id int) (models.Product, bool) {
 }
 
 func FindProductOwnedBy(id, barberID int) (models.Product, error) {
+	if databaseEnabled() {
+		var v models.Product
+		err:=db.QueryRow("select id,barber_id,name,category,description,price,quantity,image,is_available from public.products where id=$1",id).Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Quantity,&v.Image,&v.IsAvailable)
+		if err!=nil{return models.Product{},ErrNotFound}; if v.BarberID!=barberID{return models.Product{},ErrForbidden}; return v,nil
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -82,6 +87,10 @@ func CreateProduct(product models.Product) (models.Product, error) {
 }
 
 func UpdateProduct(product models.Product) error {
+	if databaseEnabled() {
+		result,err:=db.Exec("update public.products set name=$1,category=$2,description=$3,price=$4,quantity=$5,image=$6,is_available=$7 where id=$8 and barber_id=$9",product.Name,product.Category,product.Description,product.Price,product.Quantity,product.Image,product.IsAvailable,product.ID,product.BarberID)
+		if err!=nil{return err}; n,_:=result.RowsAffected(); if n==0{return ErrNotFound}; return nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -103,6 +112,11 @@ func UpdateProduct(product models.Product) error {
 }
 
 func DeleteProduct(id, barberID int) (string, error) {
+	if databaseEnabled() {
+		var image string
+		err:=db.QueryRow("delete from public.products where id=$1 and barber_id=$2 returning image",id,barberID).Scan(&image)
+		if err!=nil{return "",ErrNotFound}; return image,nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 

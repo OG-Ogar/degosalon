@@ -277,9 +277,11 @@
 
                         <tr>
                             <th>Order</th>
+                            <th>Customer</th>
                             <th>Product</th>
                             <th>Quantity</th>
                             <th>Subtotal</th>
+                            <th>Status</th>
                         </tr>
 
                     </thead>
@@ -295,6 +297,12 @@
                                 </td>
 
                                 <td>
+                                    <strong>{{.CustomerName}}</strong><br>
+                                    <span class="muted">{{.CustomerPhone}}</span><br>
+                                    <span class="muted">{{.CustomerEmail}}</span>
+                                </td>
+
+                                <td>
                                     {{.ProductName}}
                                 </td>
 
@@ -304,6 +312,10 @@
 
                                 <td>
                                     ₦{{printf "%.2f" .Subtotal}}
+                                </td>
+
+                                <td>
+                                    <span class="barber-badge">{{.OrderStatus}}</span>
                                 </td>
 
                             </tr>

@@ -176,7 +176,7 @@ Supabase PostgreSQL
 Render builds the application with:
 
 ```bash
-npm install --no-audit --no-fund && npm run build && go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
+npm ci && npm run build && go build -tags netgo -ldflags '-s -w' -o app && go build -tags netgo -ldflags '-s -w' -o migrate ./cmd/migrate
 ```
 
 and starts it with:
@@ -262,9 +262,31 @@ CI runs Go tests/vet/race checks and a separate PostgreSQL 17 service job. The d
 To run it locally, set `TEST_DATABASE_URL` to a disposable PostgreSQL server URL with a role allowed to create databases, then run:
 
 ```sh
-go test -race -v ./storage ./handlers -run TestPostgres -count=1 -timeout=5m
+go test -race -v ./storage ./handlers ./internal/dbmigrate -run TestPostgres -count=1 -timeout=5m
 ```
 
-Each test package creates a randomly named `degosalon_test_*` database and applies `supabase/schema.sql` there. Existing tables in the configured database are not modified. Tests close their connections and drop only the database they created. Without `TEST_DATABASE_URL`, the integration tests skip while ordinary tests continue using memory.
+Each test package creates a randomly named `degosalon_test_*` database and applies the baseline and versioned migrations there. Existing tables in the configured database are not modified. Tests close their connections and drop only the database they created. Without `TEST_DATABASE_URL`, the integration tests skip while ordinary tests continue using memory.
 
 The CI service configuration follows [GitHub's PostgreSQL service-container guide](https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers). This suite verifies the server-owned PostgreSQL access used by Go; it does not certify production Supabase Data API grants, Storage policies, or deployment settings.
+
+
+### Database schema upgrades
+
+SQL migrations in `supabase/migrations` are embedded in the Go binaries. Create each file with the pinned CLI, then review and commit its SQL:
+
+```bash
+npm exec --yes --package=supabase@2.119.0 -- supabase migration new describe_the_change
+```
+
+Apply upgrades using this application's runner with `DATABASE_URL` configured:
+
+```bash
+go run ./cmd/migrate
+go run .
+```
+
+The runner uses a private `degosalon_internal.schema_migrations` ledger, records SHA-256 checksums, locks concurrent migration commands, and commits SQL and history together. Never edit a previously applied migration; add another file. It rejects unknown, reordered, or modified history. This ledger is separate from Supabase CLI's own migration history: use the Go runner consistently to apply this application's files. `supabase/schema.sql` remains the original baseline fixture, not the upgrade command.
+
+App startup only verifies migration history and connectivity; it performs no schema changes. The Render Blueprint builds both binaries and starts with `./migrate && ./app`, so migration failures prevent the new app from starting. This startup sequence works without requiring a paid pre-deploy feature; concurrent starts serialize on the migration lock. Deployments managed outside this Blueprint must run the migration command before starting the new app.
+
+The initial migration creates a fresh schema or adopts the existing baseline without deleting records, and adds the earlier discovery location columns where absent. CI checks fresh/concurrent execution, legacy data preservation, rejected checksum changes, RLS presence, and transaction rollback for an incompatible schema. Take and verify database backups before operational upgrades; production restore drills remain separate acceptance work. Migration file creation follows [Supabase's migration guide](https://supabase.com/docs/guides/deployment/database-migrations).

@@ -528,35 +528,35 @@ This inventory is based on the repository tree on `main` immediately after PR #2
 - [x] `templates/customer/products.html` — product catalog aligned with forest commerce cards, stock and primary actions.
 - [x] `templates/customer/cart.html` — cart aligned with forest commerce hierarchy, totals and checkout emphasis.
 - [x] `templates/customer/order-confirmation.html` — order confirmation aligned with forest commerce/status presentation.
-- [ ] `templates/customer/profile.html`
-- [ ] `templates/customer/edit-profile.html`
+- [x] `templates/customer/profile.html` — customer identity/profile surface aligned with forest cards and account actions.
+- [x] `templates/customer/edit-profile.html` — profile form and photo management aligned with shared fields and responsive actions.
 
 ### Barber authentication
 
-- [ ] `templates/barber/login.html`
-- [ ] `templates/barber/register.html`
-- [ ] `templates/barber/forgot-password.html`
-- [ ] `templates/barber/reset-password.html`
+- [x] `templates/barber/login.html` — barber sign-in aligned with shared role-aware authentication family.
+- [x] `templates/barber/register.html` — barber onboarding aligned with shared auth fields, location and photo controls.
+- [x] `templates/barber/forgot-password.html` — barber recovery rebranded and aligned with forest authentication feedback.
+- [x] `templates/barber/reset-password.html` — barber reset flow aligned with shared password controls and feedback.
 
 ### Barber application
 
-- [ ] `templates/barber/dashboard.html`
-- [ ] `templates/barber/profile.html`
-- [ ] `templates/barber/edit-profile.html`
-- [ ] `templates/barber/hairstyle-list.html`
-- [ ] `templates/barber/hairstyle-profile.html`
-- [ ] `templates/barber/hairstyle-form.html`
-- [ ] `templates/barber/edit-hairstyle.html`
-- [ ] `templates/barber/confirm-delete-hairstyle.html`
-- [ ] `templates/barber/products.html`
-- [ ] `templates/barber/product-form.html`
-- [ ] `templates/barber/bookings.html`
-- [ ] `templates/barber/chats.html`
-- [ ] `templates/barber/chat.html`
+- [x] `templates/barber/dashboard.html` — barber operations home aligned with forest shell, cards and readable hierarchy.
+- [x] `templates/barber/profile.html` — shop/personal identity profile aligned with responsive forest information surfaces.
+- [x] `templates/barber/edit-profile.html` — personal/shop/location/photo editor aligned with shared form system.
+- [x] `templates/barber/hairstyle-list.html` — service management cards, prices, statuses and actions aligned with forest system.
+- [x] `templates/barber/hairstyle-profile.html` — service detail aligned with forest information card and status/action hierarchy.
+- [x] `templates/barber/hairstyle-form.html` — new-service form aligned with shared fields, upload controls and accessible contrast.
+- [x] `templates/barber/edit-hairstyle.html` — service editor aligned with shared fields, availability and danger hierarchy.
+- [x] `templates/barber/confirm-delete-hairstyle.html` — destructive confirmation aligned with shared danger pattern.
+- [x] `templates/barber/products.html` — barber product management aligned with forest commerce cards and actions.
+- [x] `templates/barber/product-form.html` — product form aligned with shared management fields and responsive actions.
+- [x] `templates/barber/bookings.html` — barber booking operations aligned with forest status and scan-friendly surfaces.
+- [x] `templates/barber/chats.html` — customer conversation list aligned with forest messaging language.
+- [x] `templates/barber/chat.html` — barber message thread/composer aligned with shared forest messaging contrast.
 
 ### Admin
 
-- [ ] `templates/admin/login.html`
+- [x] `templates/admin/login.html` — admin sign-in aligned with the shared De Go Salon authentication family.
 - [ ] `templates/admin/dashboard.html`
 - [ ] `templates/admin/barber-list.html`
 - [ ] `templates/admin/barber-profile.html`

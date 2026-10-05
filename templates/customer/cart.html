@@ -58,7 +58,7 @@
         </h1>
 
         <p>
-            Review the products you selected before making your payment.
+            Review your products. Place an order to reserve stock, then arrange collection and payment directly with each shop. No online payment is taken.
         </p>
 
     </div>
@@ -183,7 +183,7 @@
 
             </div>
 
-            <form method="post" action="/customer/products/pay">
+            <form method="post" action="/customer/products/checkout">
  <input type="hidden" name="checkout_key" value="{{.CheckoutKey}}">
 
                 <input
@@ -202,7 +202,7 @@
                     class="cart-pay-button"
                     type="submit"
                 >
-                    Pay ₦{{printf "%.2f" .Total}}
+                    Place order · ₦{{printf "%.2f" .Total}}
                 </button>
 
             </form>

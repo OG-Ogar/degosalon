@@ -32,6 +32,59 @@ func TestPostgresIntegrity(t *testing.T) {
 	t.Run("immutable booking service and shop snapshots", checkBookingSnapshots)
 	t.Run("per-barber calendar and available times", checkCalendarAvailability)
 	t.Run("booking lifecycle domain graph", checkBookingLifecycle)
+	t.Run("seller fulfillment and cancellation stock", checkOrderFulfillment)
+
+	t.Run("fulfillment failure rolls back stock and item state", func(t *testing.T) {
+		seller, buyer, _ := postgresBookingFixture(t)
+		product := postgresProduct(t, seller.ID, 2)
+		if _, err := AddToCart(buyer.ID, product.ID); err != nil {
+			t.Fatal(err)
+		}
+		order, err := CheckoutCart(buyer)
+		if err != nil {
+			t.Fatal(err)
+		}
+		items, err := ListProductOrderItems(ctx, order.ID)
+		if err != nil || len(items) != 1 {
+			t.Fatal(err)
+		}
+		function := fmt.Sprintf("fail_fulfillment_%d_fn", order.ID)
+		trigger := fmt.Sprintf("fail_fulfillment_%d", order.ID)
+		_, err = db.Exec(fmt.Sprintf(`create function public.%s() returns trigger language plpgsql as $$ begin raise exception 'injected fulfillment failure'; end $$;
+   create trigger %s before update on public.product_orders for each row when(new.id=%d) execute function public.%s()`, function, trigger, order.ID, function))
+		if err != nil {
+			t.Fatal(err)
+		}
+		cleanup := func() {
+			if _, err := db.Exec(fmt.Sprintf("drop trigger if exists %s on public.product_orders; drop function if exists public.%s()", trigger, function)); err != nil {
+				t.Error(err)
+			}
+		}
+		t.Cleanup(cleanup)
+		if err := FulfillOrderItem(ctx, items[0].ID, seller.ID, models.FulfillmentCancelled); err == nil {
+			t.Fatal("injected fulfillment succeeded")
+		}
+		stored, err := FindProductByIDResult(ctx, product.ID)
+		if err != nil || stored.Quantity != 1 {
+			t.Fatalf("stock rollback: %+v %v", stored, err)
+		}
+		after, err := ListProductOrderItems(ctx, order.ID)
+		if err != nil || after[0].FulfillmentStatus != models.FulfillmentPending {
+			t.Fatalf("item rollback: %+v %v", after, err)
+		}
+		original, err := FindProductOrderByIDResult(ctx, order.ID)
+		if err != nil || original.Status != models.OrderPending {
+			t.Fatalf("order rollback: %+v %v", original, err)
+		}
+		cleanup()
+		if err := FulfillOrderItem(ctx, items[0].ID, seller.ID, models.FulfillmentCancelled); err != nil {
+			t.Fatal(err)
+		}
+		stored, err = FindProductByIDResult(ctx, product.ID)
+		if err != nil || stored.Quantity != 2 {
+			t.Fatalf("retry restored stock: %+v %v", stored, err)
+		}
+	})
 
 	t.Run("concurrent overlapping bookings", func(t *testing.T) {
 		barber, customer, style := postgresBookingFixture(t)

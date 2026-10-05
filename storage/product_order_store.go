@@ -223,7 +223,7 @@ func checkoutCartMemory(customer models.Customer, key string) (models.ProductOrd
 		p := products[ln.index]
 		products[ln.index].Quantity -= ln.quantity
 		lastProductOrderItemID++
-		productOrderItems = append(productOrderItems, models.ProductOrderItem{ID: lastProductOrderItemID, OrderID: order.ID, ProductID: p.ID, BarberID: p.BarberID, ProductName: p.Name, Price: p.Price, Quantity: ln.quantity, Subtotal: ln.subtotal})
+		productOrderItems = append(productOrderItems, models.ProductOrderItem{ID: lastProductOrderItemID, OrderID: order.ID, ProductID: p.ID, BarberID: p.BarberID, FulfillmentStatus: models.FulfillmentPending, ProductName: p.Name, Price: p.Price, Quantity: ln.quantity, Subtotal: ln.subtotal})
 	}
 	delete(carts, customer.ID)
 	return order, nil
@@ -247,6 +247,7 @@ func CreateProductOrder(order models.ProductOrder) (models.ProductOrder, error) 
 
 // CreateProductOrderItem creates and stores a product inside an order.
 func CreateProductOrderItem(item models.ProductOrderItem) (models.ProductOrderItem, error) {
+	item.FulfillmentStatus = models.FulfillmentPending
 	if databaseEnabled() {
 		err := db.QueryRow("insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal) values($1,$2,$3,$4,$5,$6,$7) returning id", item.OrderID, item.ProductID, item.BarberID, item.ProductName, item.Price, item.Quantity, item.Subtotal).Scan(&item.ID)
 		return item, err
@@ -286,9 +287,9 @@ func ListProductOrderItems(ctx context.Context, orderID int) ([]models.ProductOr
 		return nil, err
 	}
 	if databaseEnabled() {
-		return queryRecords(ctx, "select id,order_id,product_id,barber_id,product_name,price,quantity,subtotal from public.product_order_items where order_id=$1 order by id", func(rows *sql.Rows) (models.ProductOrderItem, error) {
+		return queryRecords(ctx, "select id,order_id,product_id,barber_id,product_name,price,quantity,subtotal,fulfillment_status from public.product_order_items where order_id=$1 order by id", func(rows *sql.Rows) (models.ProductOrderItem, error) {
 			var v models.ProductOrderItem
-			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal)
+			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.FulfillmentStatus)
 			return v, err
 		}, orderID)
 	}
@@ -343,9 +344,9 @@ func ListProductOrderItemsByBarber(ctx context.Context, barberID int) ([]models.
 		return nil, err
 	}
 	if databaseEnabled() {
-		return queryRecords(ctx, `select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status from public.product_order_items i join public.product_orders o on o.id=i.order_id where i.barber_id=$1 order by i.id desc`, func(rows *sql.Rows) (models.ProductOrderItem, error) {
+		return queryRecords(ctx, `select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status,i.fulfillment_status from public.product_order_items i join public.product_orders o on o.id=i.order_id where i.barber_id=$1 order by i.id desc`, func(rows *sql.Rows) (models.ProductOrderItem, error) {
 			var v models.ProductOrderItem
-			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.OrderStatus)
+			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.OrderStatus, &v.FulfillmentStatus)
 			return v, err
 		}, barberID)
 	}

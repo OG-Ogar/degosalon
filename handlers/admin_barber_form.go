@@ -86,7 +86,7 @@ func UpdateBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData, 
 	barber.ShopAddress = form.ShopAddress
 	barber.State = form.State
 	barber.LocalArea = form.LocalArea
-	err = storage.UpdateBarber(barber)
+	err = storage.UpdateBarberProfile(r.Context(), barber)
 	if errors.Is(err, storage.ErrEmailTaken) {
 		renderBarberForm(w, s, form, id, "That email belongs to another barber.")
 		return

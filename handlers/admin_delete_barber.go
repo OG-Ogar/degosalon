@@ -131,7 +131,7 @@ func SetBarberStatusHandler(
 		return
 	}
 
-	err := storage.SetBarberStatus(id, statusLabel(activate))
+	err := storage.SetBarberStatusContext(r.Context(), id, statusLabel(activate))
 
 	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)

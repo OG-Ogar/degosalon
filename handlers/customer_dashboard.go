@@ -205,7 +205,7 @@ func EditCustomerProfileHandler(
 		customer.PhoneNumber = form.Phone
 		customer.Email = form.Email
 
-		err = storage.UpdateCustomer(customer)
+		err = storage.UpdateCustomerProfile(r.Context(), customer)
 
 		if errors.Is(err, storage.ErrEmailTaken) {
 			removeImageIgnoringError(newProfileImage)

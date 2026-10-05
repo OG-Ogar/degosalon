@@ -497,3 +497,110 @@ The frontend modernization is complete only when:
 ## Tracking convention
 
 When implementation starts, convert the phase/page items above into checkboxes and update this file in every frontend PR. A page is checked off only after its implementation, responsive review and relevant automated tests pass.
+
+
+## 17. Phase 0 inventory — completed source audit
+
+This inventory is based on the repository tree on `main` immediately after PR #29. It is the implementation checklist; entries remain unchecked until the page has been restyled, responsively reviewed, and relevant tests pass.
+
+### Public
+
+- [ ] `templates/home.html` — landing/home.
+- [ ] `templates/explore.html` — public location/discovery entry.
+- [ ] `templates/explore-barber.html` — public barber exploration/result surface.
+
+### Customer authentication
+
+- [ ] `templates/customer/login.html`
+- [ ] `templates/customer/register.html`
+- [ ] `templates/customer/forgot-password.html`
+- [ ] `templates/customer/reset-password.html`
+
+### Customer application
+
+- [ ] `templates/customer/dashboard.html`
+- [ ] `templates/customer/barber-list.html`
+- [ ] `templates/customer/barber-detail.html`
+- [ ] `templates/customer/booking-confirmation.html`
+- [ ] `templates/customer/bookings.html`
+- [ ] `templates/customer/chats.html`
+- [ ] `templates/customer/chat.html`
+- [ ] `templates/customer/products.html`
+- [ ] `templates/customer/cart.html`
+- [ ] `templates/customer/order-confirmation.html`
+- [ ] `templates/customer/profile.html`
+- [ ] `templates/customer/edit-profile.html`
+
+### Barber authentication
+
+- [ ] `templates/barber/login.html`
+- [ ] `templates/barber/register.html`
+- [ ] `templates/barber/forgot-password.html`
+- [ ] `templates/barber/reset-password.html`
+
+### Barber application
+
+- [ ] `templates/barber/dashboard.html`
+- [ ] `templates/barber/profile.html`
+- [ ] `templates/barber/edit-profile.html`
+- [ ] `templates/barber/hairstyle-list.html`
+- [ ] `templates/barber/hairstyle-profile.html`
+- [ ] `templates/barber/hairstyle-form.html`
+- [ ] `templates/barber/edit-hairstyle.html`
+- [ ] `templates/barber/confirm-delete-hairstyle.html`
+- [ ] `templates/barber/products.html`
+- [ ] `templates/barber/product-form.html`
+- [ ] `templates/barber/bookings.html`
+- [ ] `templates/barber/chats.html`
+- [ ] `templates/barber/chat.html`
+
+### Admin
+
+- [ ] `templates/admin/login.html`
+- [ ] `templates/admin/dashboard.html`
+- [ ] `templates/admin/barber-list.html`
+- [ ] `templates/admin/barber-profile.html`
+- [ ] `templates/admin/edit-barber.html`
+- [ ] `templates/admin/confirm-delete.html`
+- [ ] `templates/admin/customers.html`
+- [ ] `templates/admin/bookings.html`
+
+### Existing style/interaction assets to consolidate
+
+- `static/app.css` — global/shared styling; target home for design tokens and reusable primitives.
+- `static/app.js` — generated TypeScript output; do not hand-edit.
+- `frontend/app.ts` — progressive interaction source.
+- `static/login.css` — authentication styling candidate for consolidation.
+- `static/barber.css` and `static/barber-profile.css` — barber application styles.
+- `static/customer-dashboard.css`, `static/customer-barbers.css`, `static/customer-barber-profile.css`, `static/customer-bookings.css`, `static/customer-booking-confirmation.css`, `static/customer-messages.css`, `static/customer-profile.css` — customer page styles.
+- `static/products.css` — catalog/product styling shared across product surfaces.
+- `static/booking-images.css` — booking image-specific rules.
+- `static/image-viewer.css` and `static/image-viewer.js` — legacy/specialized image-viewer behavior; audit before deciding whether to move behavior into TypeScript.
+
+### Duplication/consolidation targets
+
+The repository currently uses a global stylesheet plus many role/page-specific stylesheets. The modernization should not blindly delete them. First move universal tokens and primitives into `static/app.css`; then reduce page styles to genuinely page-specific layout rules. Customer and barber messaging, profile imagery, product cards, authentication forms, buttons, fields and status treatments should converge on shared patterns.
+
+### Implementation order locked after inventory
+
+1. Design tokens and shared primitives in `static/app.css`.
+2. Shared responsive shell conventions.
+3. Public landing/explore.
+4. Customer/barber/admin authentication.
+5. Customer core journey: dashboard -> discovery -> barber detail -> booking.
+6. Remaining customer pages.
+7. Barber operational pages.
+8. Admin pages.
+9. Full consistency/accessibility/performance cleanup.
+
+### Phase 0 baseline status
+
+- [x] Repository frontend tree inventoried.
+- [x] Public/customer/barber/admin template families identified.
+- [x] Existing CSS and JavaScript/TypeScript assets inventoried.
+- [x] Consolidation targets documented.
+- [ ] Baseline TypeScript build/typecheck verified on this branch.
+- [ ] Baseline Go test suite verified on this branch.
+- [ ] Representative pre-restyle desktop/mobile screenshots captured where environment permits.
+
+The unchecked baseline verification items must be completed before the first visual implementation PR is merged. They do not block drafting the Phase 1 design-system changes, but they must not be reported as passing without execution evidence.

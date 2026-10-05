@@ -505,7 +505,7 @@ This inventory is based on the repository tree on `main` immediately after PR #2
 
 ### Public
 
-- [ ] `templates/home.html` — landing/home.
+- [x] `templates/home.html` — landing/home. Forest/cream/gold visual foundation implemented; responsive landing structure complete.
 - [ ] `templates/explore.html` — public location/discovery entry.
 - [ ] `templates/explore-barber.html` — public barber exploration/result surface.
 

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"barber-booking/models"
@@ -38,9 +39,12 @@ func CustomerProductOrderConfirmationHandler(
 		return
 	}
 
-	order, found := storage.FindProductOrderByID(orderID)
-
-	if !found {
+	order, err := storage.FindProductOrderByIDResult(r.Context(), orderID)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load customer order", err)
+		return
+	}
+	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)
 		return
 	}
@@ -51,20 +55,30 @@ func CustomerProductOrderConfirmationHandler(
 		return
 	}
 
-	orderItems := storage.ListProductOrderItems(order.ID)
+	orderItems, err := storage.ListProductOrderItems(r.Context(), order.ID)
+	if err != nil {
+		serverError(w, "load order items", err)
+		return
+	}
 
 	items := make([]customerProductOrderConfirmationItem, 0, len(orderItems))
 
 	for _, item := range orderItems {
-		product, found := storage.FindProductByID(item.ProductID)
-
-		if !found {
+		product, err := storage.FindProductByIDResult(r.Context(), item.ProductID)
+		if err != nil && !errors.Is(err, storage.ErrNotFound) {
+			serverError(w, "load order product", err)
+			return
+		}
+		if errors.Is(err, storage.ErrNotFound) {
 			continue
 		}
 
-		barber, found := storage.FindBarberByID(item.BarberID)
-
-		if !found {
+		barber, err := storage.FindBarberByIDContext(r.Context(), item.BarberID)
+		if err != nil && !errors.Is(err, storage.ErrNotFound) {
+			serverError(w, "load order seller", err)
+			return
+		}
+		if errors.Is(err, storage.ErrNotFound) {
 			continue
 		}
 

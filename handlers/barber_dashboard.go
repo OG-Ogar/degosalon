@@ -52,15 +52,10 @@ func BarberDashboardHandler(
 	// The password hash must never reach the template.
 	barber.PasswordHash = ""
 
-	orderItems := storage.ListProductOrderItemsByBarber(barber.ID)
-	for i := range orderItems {
-		if orderItems[i].CustomerName != "" { continue }
-		if order, found := storage.FindProductOrderByID(orderItems[i].OrderID); found {
-			orderItems[i].CustomerName = order.CustomerName
-			orderItems[i].CustomerPhone = order.CustomerPhone
-			orderItems[i].CustomerEmail = order.CustomerEmail
-			orderItems[i].OrderStatus = order.Status
-		}
+	orderItems, err := storage.ListProductOrderItemsByBarber(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load seller sales", err)
+		return
 	}
 
 	render(w, "barber/dashboard.html", barberDashboardView{

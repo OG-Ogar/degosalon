@@ -1,6 +1,7 @@
 package storage
 
 import (
+ "context"
 	"testing"
 
 	"barber-booking/models"
@@ -301,6 +302,6 @@ func TestCheckoutRejectsInactiveSellerWithoutMutatingCartOrStock(t *testing.T) {
 	if _,err=AddToCart(customer.ID,product.ID);err!=nil{t.Fatal(err)}
 	for i:=range barbers{if barbers[i].ID==barber.ID{barbers[i].Status=models.BarberSuspended}}
 	if _,err=CheckoutCart(customer);err==nil{t.Fatal("checkout succeeded for inactive seller")}
-	if CartItemCount(customer.ID)!=1{t.Fatal("failed checkout cleared cart")}
+	if count,err:=CartItemCount(context.Background(),customer.ID);err!=nil||count!=1{t.Fatal("failed checkout cleared cart")}
 	stored,_:=FindProductByID(product.ID);if stored.Quantity!=3{t.Fatalf("failed checkout changed stock to %d",stored.Quantity)}
 }

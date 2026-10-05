@@ -109,7 +109,7 @@ func BookHairstyleHandler(
 
 	if problem != "" {
 		renderBarberDetail(
-			w,
+			w, r,
 			s,
 			barber,
 			customer.ID,
@@ -126,11 +126,11 @@ func BookHairstyleHandler(
 		return
 	}
 	if errors.Is(lookupErr, storage.ErrNotFound) || hairstyle.BarberID != barber.ID || !hairstyle.IsAvailable {
-		renderBarberDetail(w, s, barber, customer.ID, request.HairstyleID, request.values, "That hairstyle is not available for booking right now.")
+		renderBarberDetail(w, r, s, barber, customer.ID, request.HairstyleID, request.values, "That hairstyle is not available for booking right now.")
 		return
 	}
 	if problem = validBookingInterval(request.Date, request.Time, hairstyle.Duration); problem != "" {
-		renderBarberDetail(w, s, barber, customer.ID, request.HairstyleID, request.values, problem)
+		renderBarberDetail(w, r, s, barber, customer.ID, request.HairstyleID, request.values, problem)
 		return
 	}
 
@@ -150,7 +150,7 @@ func BookHairstyleHandler(
 
 	if message := bookingProblem(err); message != "" {
 		renderBarberDetail(
-			w,
+			w, r,
 			s,
 			barber,
 			customer.ID,

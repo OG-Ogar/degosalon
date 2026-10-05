@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"barber-booking/models"
@@ -29,14 +30,26 @@ func CustomerProductsHandler(
 		return
 	}
 
-	products := storage.ListAvailableProducts()
+	products, err := storage.ListAvailableProducts(r.Context())
+	if err != nil {
+		serverError(w, "load product catalogue", err)
+		return
+	}
+	cartCount, err := storage.CartItemCount(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load cart count", err)
+		return
+	}
 
 	rows := make([]customerProductRow, 0, len(products))
 
 	for _, product := range products {
-		barber, found := storage.FindBarberByID(product.BarberID)
-
-		if !found || !barber.IsActive() {
+		barber, err := storage.FindBarberByIDContext(r.Context(), product.BarberID)
+		if err != nil && !errors.Is(err, storage.ErrNotFound) {
+			serverError(w, "load product seller", err)
+			return
+		}
+		if errors.Is(err, storage.ErrNotFound) || !barber.IsActive() {
 			continue
 		}
 
@@ -49,7 +62,7 @@ func CustomerProductsHandler(
 	view := customerProductsView{
 		Products:  rows,
 		CSRF:      s.CSRFToken,
-		CartCount: storage.CartItemCount(customer.ID),
+		CartCount: cartCount,
 	}
 
 	render(w, "customer/products.html", view)

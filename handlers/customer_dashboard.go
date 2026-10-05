@@ -52,13 +52,18 @@ func CustomerDashboardHandler(
 		return
 	}
 
+	cartCount, err := storage.CartItemCount(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load dashboard cart count", err)
+		return
+	}
 	view := customerDashboardView{
 		Customer:        customer,
 		ProductOrders:   orders,
 		CSRF:            s.CSRFToken,
 		Barbers:         len(storage.ListActiveBarbers()),
 		Conversations:   len(storage.ConversationsForCustomer(customer.ID)),
-		CartCount:       storage.CartItemCount(customer.ID),
+		CartCount:       cartCount,
 		BackgroundImage: currentCustomerLandingImage(),
 	}
 

@@ -15,3 +15,5 @@ services:
         sync: false
       - key: SHOW_RESET_LINKS
         value: "0"
+
+BOOKING_TIMEZONE=Africa/Lagos

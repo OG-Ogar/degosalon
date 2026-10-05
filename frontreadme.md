@@ -557,13 +557,13 @@ This inventory is based on the repository tree on `main` immediately after PR #2
 ### Admin
 
 - [x] `templates/admin/login.html` — admin sign-in aligned with the shared De Go Salon authentication family.
-- [ ] `templates/admin/dashboard.html`
-- [ ] `templates/admin/barber-list.html`
-- [ ] `templates/admin/barber-profile.html`
-- [ ] `templates/admin/edit-barber.html`
-- [ ] `templates/admin/confirm-delete.html`
-- [ ] `templates/admin/customers.html`
-- [ ] `templates/admin/bookings.html`
+- [x] `templates/admin/dashboard.html` — admin overview, real KPI cards, upload panels and responsive workspace styling modernized.
+- [x] `templates/admin/barber-list.html` — barber management table/search/actions modernized with responsive stacked presentation.
+- [x] `templates/admin/barber-profile.html` — barber identity, services, bookings and management actions aligned with the admin forest system.
+- [x] `templates/admin/edit-barber.html` — add/edit barber form aligned with shared admin fields, hierarchy and responsive actions.
+- [x] `templates/admin/confirm-delete.html` — destructive barber confirmation aligned with shared danger treatment.
+- [x] `templates/admin/customers.html` — customer management data presentation modernized for desktop tables and narrow screens.
+- [x] `templates/admin/bookings.html` — platform booking view modernized with accessible status and responsive data presentation.
 
 ### Existing style/interaction assets to consolidate
 
@@ -599,8 +599,8 @@ The repository currently uses a global stylesheet plus many role/page-specific s
 - [x] Public/customer/barber/admin template families identified.
 - [x] Existing CSS and JavaScript/TypeScript assets inventoried.
 - [x] Consolidation targets documented.
-- [ ] Baseline TypeScript build/typecheck verified on this branch.
-- [ ] Baseline Go test suite verified on this branch.
+- [ ] Baseline TypeScript build/typecheck verified on this branch. Pending CI evidence for this batch.
+- [ ] Baseline Go test suite verified on this branch. Pending CI evidence for this batch.
 - [ ] Representative pre-restyle desktop/mobile screenshots captured where environment permits.
 
 The unchecked baseline verification items must be completed before the first visual implementation PR is merged. They do not block drafting the Phase 1 design-system changes, but they must not be reported as passing without execution evidence.

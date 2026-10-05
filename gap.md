@@ -277,3 +277,10 @@ All PostgreSQL cart writes and checkout lock the customer row before touching ca
 A CLI-created immutable baseline and embedded Go migration runner replace unrecorded startup DDL. The runner records checksums in a private RLS-protected ledger, serializes concurrent commands, and commits schema/history atomically. App startup verifies applied versions and checksums without changing the schema. Render builds the runner and executes it before starting the app; other deployments have an explicit documented migration command. No production database is directly changed by the development tools.
 
 Acceptance: PostgreSQL CI tests fresh and simultaneous migration commands, existing-record/location-column upgrades, checksum rejection, RLS presence, and full rollback against an incompatible baseline. Pending or mismatched migrations prevent application startup. Live production deployment configuration, backups, and restore drills remain operational acceptance items; this does not claim that production has already run the migration.
+
+
+## Eleventh implementation: replayable checkout (BE-04)
+
+Cart checkout forms carry a cryptographically random request key. The customer-scoped key is saved with the order in the same transaction as items, stock, and cart removal. A duplicate request returns its original order before reading the current cart, including after storage reconnect; later cart additions remain untouched. Failed requests do not claim keys. Missing/malformed keys return a recoverable cart form, and the database enforces key format and per-customer uniqueness through a new versioned migration. Legacy pre-key orders remain valid.
+
+Acceptance: shared memory/PostgreSQL cases cover simultaneous identical requests, one order/stock change, replay with a new cart, customer isolation, invalid keys, and retry after stock failure. PostgreSQL verifies replay after reconnect. HTTP coverage extracts the real form key, checks missing-key recovery, repeats the checkout, verifies identical confirmation destinations, and proves client-supplied totals are ignored. Payment/fulfillment policy and money representation remain BE-07/17.

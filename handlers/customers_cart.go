@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"net/http"
 	"strconv"
@@ -56,10 +58,11 @@ type customerCartItem struct {
 }
 
 type customerCartView struct {
-	Items   []customerCartItem
-	Total   float64
-	CSRF    string
-	Problem string
+	Items       []customerCartItem
+	Total       float64
+	CSRF        string
+	Problem     string
+	CheckoutKey string
 }
 
 func CustomerCartHandler(
@@ -118,11 +121,21 @@ func renderCustomerCart(w http.ResponseWriter, r *http.Request, customer models.
 		total += subtotal
 	}
 
+	key := r.PostFormValue("checkout_key")
+	if !storage.ValidCheckoutKey(key) {
+		random := make([]byte, 16)
+		if _, err := rand.Read(random); err != nil {
+			serverError(w, "create checkout retry key", err)
+			return
+		}
+		key = hex.EncodeToString(random)
+	}
 	view := customerCartView{
-		Items:   items,
-		Total:   total,
-		CSRF:    s.CSRFToken,
-		Problem: problem,
+		Items:       items,
+		CheckoutKey: key,
+		Total:       total,
+		CSRF:        s.CSRFToken,
+		Problem:     problem,
 	}
 
 	renderStatus(w, status, "customer/cart.html", view)

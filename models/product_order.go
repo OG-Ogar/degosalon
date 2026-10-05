@@ -12,6 +12,7 @@ const (
 type ProductOrder struct {
 	ID int
 
+	CheckoutKey   string
 	CustomerID    int
 	CustomerName  string
 	CustomerPhone string

@@ -23,10 +23,12 @@ func CustomerProductOrderHandler(
 		return
 	}
 
-	order, err := storage.CheckoutCartContext(r.Context(), customer)
+	order, err := storage.CheckoutCartWithKey(r.Context(), customer, r.PostFormValue("checkout_key"))
 	if err != nil {
 		var checkoutErr storage.CheckoutError
 		switch {
+		case errors.Is(err, storage.ErrInvalidCheckoutKey):
+			renderCustomerCart(w, r, customer, s, http.StatusBadRequest, "This checkout form is incomplete or expired. Review your cart and submit the new form below.")
 		case errors.Is(err, storage.ErrNotFound):
 			http.Redirect(w, r, "/customer/cart", http.StatusSeeOther)
 		case errors.As(err, &checkoutErr):

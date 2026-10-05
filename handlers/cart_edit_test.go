@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"testing"
@@ -70,4 +71,45 @@ func TestCartQuantityControlsAndRecovery(t *testing.T) {
 			}
 		})
 	}
+	// The actual rendered checkout form supplies a stable retry key.
+	matches := regexp.MustCompile(`name="checkout_key" value="([a-f0-9]{32})"`).FindStringSubmatch(page.Body.String())
+	if len(matches) != 2 {
+		t.Fatal("cart form lacks a checkout retry key")
+	}
+	if _, err := storage.AddToCart(customer.ID, product.ID); err != nil {
+		t.Fatal(err)
+	}
+	invalid := httptest.NewRecorder()
+	CustomerProductOrderHandler(invalid, authFormRequest("/customer/products/pay", url.Values{"csrf_token": {"test"}}), customer, s)
+	if invalid.Code != http.StatusBadRequest {
+		t.Fatalf("missing key status=%d", invalid.Code)
+	}
+	location := ""
+	for i := 0; i < 3; i++ {
+		if i == 2 {
+			if _, err := storage.AddToCart(customer.ID, product.ID); err != nil {
+				t.Fatal(err)
+			}
+		}
+		response := httptest.NewRecorder()
+		request := authFormRequest("/customer/products/pay", url.Values{"csrf_token": {"test"}, "checkout_key": {matches[1]}, "amount": {"0.01"}})
+		CustomerProductOrderHandler(response, request, customer, s)
+		if response.Code != http.StatusSeeOther {
+			t.Fatalf("checkout %d status=%d: %s", i, response.Code, response.Body.String())
+		}
+		if i == 0 {
+			location = response.Header().Get("Location")
+		} else if response.Header().Get("Location") != location {
+			t.Fatal("replay redirected to a different order")
+		}
+	}
+	orders, err := storage.ListProductOrdersByCustomer(context.Background(), customer.ID)
+	if err != nil || len(orders) != 1 || orders[0].TotalAmount != 500 {
+		t.Fatalf("checkout totals or replay: %+v %v", orders, err)
+	}
+	count, err := storage.CartItemCount(context.Background(), customer.ID)
+	if err != nil || count != 1 {
+		t.Fatalf("replay consumed newer cart: %d %v", count, err)
+	}
+
 }

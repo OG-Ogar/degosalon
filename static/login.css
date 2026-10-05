@@ -11,3 +11,8 @@
 .barber-login-page .auth-submit{width:100%}
 @media(max-width:800px){.barber-login-page .auth-layout{gap:16px}.barber-login-page .auth-card{width:100%}}
 @media(max-width:480px){.barber-login-page .auth-layout{padding-top:74px}.barber-login-page .auth-card{padding:26px 20px}.barber-login-page .auth-header h1{font-size:2rem}}
+
+/* Barber login is a single focused task: center the card instead of pinning it right. */
+.barber-login-page .auth-layout{grid-template-columns:minmax(0,490px);justify-content:center}
+.barber-login-page .auth-layout::before{display:none}
+@media(max-width:800px){.barber-login-page .auth-layout{padding-top:30px;min-height:100vh}}

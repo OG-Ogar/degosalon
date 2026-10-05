@@ -13,8 +13,6 @@ import (
 	"testing"
 	"time"
 
-	"barber-booking/models"
-	"barber-booking/security"
 	"barber-booking/storage"
 )
 
@@ -90,10 +88,12 @@ func uploadForm(
 	return response.StatusCode, string(page)
 }
 
-// registerBarber creates the account state this photo test needs and gives
-// the browser a real barber session. Registration and login have their own
-// tests; keeping them out of this setup makes a photo failure describe the
-// photo flow rather than an unrelated authentication page.
+// registerBarber creates a shop through the real registration form, signs
+// the browser in, and returns the shop's ID.
+//
+// The form carries a required personal photo, so it is posted as multipart
+// with one attached. A url-encoded post would arrive with the file input
+// empty, and the handler rejects that before storing anything.
 func registerBarber(
 	t *testing.T,
 	browser *http.Client,
@@ -102,36 +102,44 @@ func registerBarber(
 ) int {
 	t.Helper()
 
-	hash, err := security.HashPassword("clippers and all")
-	if err != nil {
-		t.Fatalf("hash barber password: %v", err)
+	const password = "clippers and all"
+
+	status, body := uploadForm(t, browser, base+"/barber/register",
+		map[string]string{
+			"fullname":         "Bob Barber",
+			"phone":            "0700000000",
+			"email":            email,
+			"password":         password,
+			"confirm_password": password,
+			"shopname":         "Bob's Chair",
+			"shopaddress":      "12 High Street",
+			"state":            "Lagos",
+			"local_area":       "Ikeja",
+		},
+		photoFile{"personal_image", "bob.png", photoBytes(t, 300, 300)})
+
+	if status != http.StatusOK {
+		t.Fatalf("registering %s: status %d\n%s", email, status, body)
 	}
 
-	created, err := storage.CreateBarber(models.Barber{
-		FullName:     "Bob Barber",
-		PhoneNumber:  "0700000000",
-		Email:        email,
-		PasswordHash: hash,
-		ShopName:     "Bob's Chair",
-		ShopAddress:  "12 High Street",
-		State:        "Lagos",
-		LocalArea:    "Ikeja",
-		Status:       models.BarberActive,
-	})
-	if err != nil {
-		t.Fatalf("create barber: %v", err)
-	}
-
-	// Sign in through the real HTTP endpoint. This lets the browser cookie jar
-	// receive exactly the cookie production login writes, and makes a broken
-	// authentication setup fail here instead of masquerading as a CSRF error.
+	// Sign in through the real endpoint, so the browser ends up with
+	// exactly the cookie production login writes. A broken sign-in then
+	// fails here rather than looking like a missing CSRF token later on.
 	login := post(t, browser, base+"/barber/login", url.Values{
 		"email":    {email},
-		"password": {"clippers and all"},
+		"password": {password},
 	})
 	mustContain(t, "barber login", login, "Dashboard")
 
-	return created.ID
+	barber, found := storage.FindBarberByEmail(email)
+	if !found {
+		t.Fatalf("registering %s stored no barber", email)
+	}
+	if barber.State != "Lagos" || barber.LocalArea != "Ikeja" {
+		t.Fatalf("registration lost the barber's location: state=%q area=%q", barber.State, barber.LocalArea)
+	}
+
+	return barber.ID
 }
 
 // storedPath turns a public image path back into the file on disk, which
@@ -168,6 +176,11 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 
 	id := registerBarber(t, barber, server.URL, "bob@example.com")
 
+	// Registration stores the photo it was given, so the shop already has
+	// one. The edit below has to replace it, and remembering what it
+	// started as is what keeps that check honest.
+	registered, _ := storage.FindBarberByEmail("bob@example.com")
+
 	profileForm := get(t, barber, server.URL+"/barber/profile/edit")
 
 	// Both test photos are over the edge limit in one direction only.
@@ -184,6 +197,8 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 			"email":       "bob@example.com",
 			"shopname":    "Bob's Chair",
 			"shopaddress": "12 High Street",
+			"state":       "Lagos",
+			"local_area":  "Ikeja",
 		},
 		photoFile{"profile_image", "shop.png", photoBytes(t, 1900, 300)},
 		photoFile{"personal_image", "bob.png", photoBytes(t, 300, 1900)})
@@ -217,6 +232,13 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 
 	if shop.PersonalImage == "" {
 		t.Fatal("the barber's own picture was not stored")
+	}
+	if shop.State != "Lagos" || shop.LocalArea != "Ikeja" {
+		t.Fatalf("profile edit lost the barber's location: state=%q area=%q", shop.State, shop.LocalArea)
+	}
+
+	if shop.PersonalImage == registered.PersonalImage {
+		t.Fatal("the edit did not replace the picture uploaded at registration")
 	}
 
 	if shop.PersonalImage == shop.ProfileImage {
@@ -253,13 +275,16 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 	// The shop photo is bounded rather than stretched, the barber's own
 	// picture sits beside their name, and the style photo is the small
 	// square beside its radio button.
-	mustContain(t, "the barber's page", page, `class="photo"`)
+	mustContain(t, "the barber's page", page, `class="barber-photo"`)
 	mustContain(t, "the barber's page", page, `class="avatar"`)
-	mustContain(t, "the barber's page", page, `class="pick"`)
+	mustContain(t, "the barber's page", page, `class="style-image"`)
 
-	// The list customers arrive from carries the photo too.
+	// The list customers arrive from carries the photo too. It only offers
+	// barbers once a location has been chosen, so ask for the one Bob is in.
 	mustContain(t, "the barber list",
-		get(t, customer, server.URL+"/customer/barbers"), shop.ProfileImage)
+		get(t, customer,
+			server.URL+"/customer/barbers?state=Lagos&area=Ikeja"),
+		shop.ProfileImage)
 
 	// A second edit that fills in neither file input has to keep both
 	// photos rather than clearing the profile.
@@ -273,6 +298,8 @@ func TestCustomerSeesTheBarbersPhotos(t *testing.T) {
 			"email":       "bob@example.com",
 			"shopname":    "Bob's Barbers",
 			"shopaddress": "12 High Street",
+			"state":       "Lagos",
+			"local_area":  "Ikeja",
 		})
 
 	if status != http.StatusOK {

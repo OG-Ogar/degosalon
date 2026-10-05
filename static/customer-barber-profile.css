@@ -315,8 +315,35 @@ letter-spacing: -0.04em;
 
 }
 
-.barber-name {
+/* The barber's own picture beside their name. The photo above the fold is
+   the shop; this one is the person who will be cutting hair, so a customer
+   knows who they are booking. */
+.barber-identity {
+display: flex;
+
+align-items: center;
+
+gap: 11px;
+
 margin: 9px 0 0;
+
+}
+
+.barber-identity .avatar {
+flex: none;
+
+width: 42px;
+
+height: 42px;
+
+border-radius: 50%;
+
+object-fit: cover;
+
+}
+
+.barber-name {
+margin: 0;
 
 
 color: #706862;

@@ -33,7 +33,15 @@ func TestMain(m *testing.M) {
 }
 
 // csrfPattern finds the hidden token every authenticated form carries.
-var csrfPattern = regexp.MustCompile(`name="csrf_token"\\s+value="([^"]*)"`)
+//
+// The templates put the two attributes on separate lines, so the gap
+// between them is whitespace of any kind rather than a single space.
+//
+// This literal is a raw string, which passes backslashes through to the
+// regular expression untouched: \s is the whitespace class, while \\s
+// would be a literal backslash followed by an "s" and would match no
+// page at all.
+var csrfPattern = regexp.MustCompile(`name="csrf_token"\s+value="([^"]*)"`)
 
 // newServer starts the routes main.go serves, on a clean store.
 func newServer(t *testing.T) *httptest.Server {

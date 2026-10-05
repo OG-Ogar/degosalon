@@ -109,6 +109,9 @@ func CreateBooking(booking models.Booking) (models.Booking, error) {
 		if existing.BarberID != booking.BarberID || existing.Date != booking.Date || !existing.IsOpen() {
 			continue
 		}
+		if existing.Time == booking.Time {
+			return models.Booking{}, ErrSlotTaken
+		}
 		existingStyle, found := findHairstyleByID(existing.HairstyleID)
 		if !found { continue }
 		if bookingIntervalsOverlap(booking.Time, hairstyle.Duration, existing.Time, existingStyle.Duration) {

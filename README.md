@@ -302,3 +302,6 @@ New appointments preserve their service name, price, duration, and shop contact 
 
 
 Barbers manage weekly hours, breaks, and time off at `/barber/schedule` (linked from appointments). Calendars support named timezones, minimum notice, and up to 365 days of advance booking. Customers choose a service and date, select an available start time, and submit an appointment request; availability is rechecked on submission. New bookings record the calendar timezone. Schedule changes conflicting with existing future appointments must wait until those appointments are resolved.
+
+
+Product checkout is a stock reservation for collection, with payment arranged directly with each shop. No online payment is taken. Sellers mark their own items Ready, then Collected, or cancel Pending/Ready items to restore stock exactly once. An order is Pending while any item is pending, Ready when remaining open items are ready, Completed when collected items remain and all items are closed, or Cancelled when every item is cancelled. Original order totals remain historical; cancelled items are not payable. The old `/customer/products/pay` POST remains compatible with previously loaded forms; current forms use `/customer/products/checkout`.

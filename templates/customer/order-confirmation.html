@@ -59,7 +59,7 @@
         </h1>
 
         <p>
-            Your order has been created successfully.
+            No online payment is taken. Pending and Ready items reserve stock for collection. Contact each shop to agree collection and payment before travelling. Cancelled items are released and are not payable; Collected records collection, not an online payment.
         </p>
 
     </div>
@@ -124,7 +124,7 @@
                     <div class="cart-item-details">
 
                         <h2>
-                            {{.Item.ProductName}}
+                            {{.Item.ProductName}} <span class="barber-badge">{{.Item.FulfillmentStatus}}</span>
                         </h2>
 
                         <p class="product-category">
@@ -192,7 +192,7 @@
         <section class="cart-summary">
 
             <h2>
-                Order Summary
+                Original Order Summary
             </h2>
 
             <div class="cart-total">

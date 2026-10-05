@@ -91,7 +91,7 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 
 	case len(parts) == 3 &&
 		parts[1] == "products" &&
-		parts[2] == "pay":
+		(parts[2] == "pay" || parts[2] == "checkout"):
 		CustomerProductOrderHandler(w, r, customer, s)
 
 	case len(parts) == 4 &&

@@ -5,6 +5,7 @@ import "time"
 const (
 	OrderPending   = "Pending"
 	OrderPaid      = "Paid"
+	OrderReady     = "Ready"
 	OrderCancelled = "Cancelled"
 	OrderCompleted = "Completed"
 )
@@ -24,3 +25,10 @@ type ProductOrder struct {
 
 	CreatedAt time.Time
 }
+
+const (
+	FulfillmentPending   = "Pending"
+	FulfillmentReady     = "Ready"
+	FulfillmentCollected = "Collected"
+	FulfillmentCancelled = "Cancelled"
+)

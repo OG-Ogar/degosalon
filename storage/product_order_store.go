@@ -2,6 +2,10 @@ package storage
 
 import (
 	"barber-booking/models"
+	"errors"
+	"time"
+
+	"github.com/jackc/pgx/v5"
 )
 
 // Product order storage.
@@ -15,6 +19,71 @@ var (
 	lastProductOrderID     int
 	lastProductOrderItemID int
 )
+
+
+
+type CheckoutError struct { Message string }
+func (e CheckoutError) Error() string { return e.Message }
+
+// CheckoutCart atomically converts a customer's cart into one order. Stock is
+// reserved only here, at checkout, so abandoned carts never consume inventory.
+func CheckoutCart(customer models.Customer) (models.ProductOrder, error) {
+	if !databaseEnabled() { return checkoutCartMemory(customer) }
+	tx,err:=db.Begin(); if err!=nil{return models.ProductOrder{},err}; defer tx.Rollback()
+
+	rows,err:=tx.Query("select product_id,quantity from public.carts where customer_id=$1 order by product_id for update",customer.ID)
+	if err!=nil{return models.ProductOrder{},err}
+	var cart []models.CartItem
+	for rows.Next(){var item models.CartItem;if err=rows.Scan(&item.ProductID,&item.Quantity);err!=nil{rows.Close();return models.ProductOrder{},err};cart=append(cart,item)}
+	if err=rows.Err();err!=nil{rows.Close();return models.ProductOrder{},err};rows.Close()
+	if len(cart)==0{return models.ProductOrder{},ErrNotFound}
+
+	type line struct{ product models.Product; quantity int; subtotal float64 }
+	lines:=make([]line,0,len(cart)); total:=0.0
+	for _,item:=range cart {
+		if item.Quantity<=0{return models.ProductOrder{},CheckoutError{"Invalid product quantity in cart."}}
+		var p models.Product; var barberStatus string
+		err=tx.QueryRow(`select p.id,p.barber_id,p.name,p.category,p.description,p.price,p.quantity,p.image,p.is_available,b.status
+			from public.products p join public.barbers b on b.id=p.barber_id where p.id=$1 for update of p`,item.ProductID).
+			Scan(&p.ID,&p.BarberID,&p.Name,&p.Category,&p.Description,&p.Price,&p.Quantity,&p.Image,&p.IsAvailable,&barberStatus)
+		if errors.Is(err,pgx.ErrNoRows){return models.ProductOrder{},CheckoutError{"A product in your cart is no longer available."}};if err!=nil{return models.ProductOrder{},err}
+		if !p.IsAvailable || barberStatus!="Active"{return models.ProductOrder{},CheckoutError{"A product in your cart is no longer available for sale."}}
+		if p.Quantity<item.Quantity{return models.ProductOrder{},CheckoutError{"A product in your cart no longer has enough stock."}}
+		sub:=p.Price*float64(item.Quantity); total+=sub; lines=append(lines,line{p,item.Quantity,sub})
+	}
+
+	order:=models.ProductOrder{CustomerID:customer.ID,CustomerName:customer.FullName,CustomerPhone:customer.PhoneNumber,CustomerEmail:customer.Email,TotalAmount:total,Status:models.OrderPending,CreatedAt:time.Now()}
+	err=tx.QueryRow("insert into public.product_orders(customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at) values($1,$2,$3,$4,$5,$6,$7) returning id",order.CustomerID,order.CustomerName,order.CustomerPhone,order.CustomerEmail,order.TotalAmount,order.Status,order.CreatedAt).Scan(&order.ID)
+	if err!=nil{return models.ProductOrder{},err}
+	for _,item:=range lines {
+		_,err=tx.Exec("insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal) values($1,$2,$3,$4,$5,$6,$7)",order.ID,item.product.ID,item.product.BarberID,item.product.Name,item.product.Price,item.quantity,item.subtotal)
+		if err!=nil{return models.ProductOrder{},err}
+		result,err:=tx.Exec("update public.products set quantity=quantity-$1 where id=$2 and quantity >= $1",item.quantity,item.product.ID);if err!=nil{return models.ProductOrder{},err}
+		n,_:=result.RowsAffected();if n!=1{return models.ProductOrder{},CheckoutError{"A product in your cart no longer has enough stock."}}
+	}
+	if _,err=tx.Exec("delete from public.carts where customer_id=$1",customer.ID);err!=nil{return models.ProductOrder{},err}
+	if err=tx.Commit();err!=nil{return models.ProductOrder{},err}
+	return order,nil
+}
+
+func checkoutCartMemory(customer models.Customer) (models.ProductOrder,error) {
+	mu.Lock(); defer mu.Unlock()
+	cart:=carts[customer.ID];if len(cart)==0{return models.ProductOrder{},ErrNotFound}
+	order:=models.ProductOrder{CustomerID:customer.ID,CustomerName:customer.FullName,CustomerPhone:customer.PhoneNumber,CustomerEmail:customer.Email,Status:models.OrderPending,CreatedAt:time.Now()}
+	type line struct{ index,quantity int; subtotal float64 }
+	lines:=[]line{}
+	for productID,quantity:=range cart {
+		if quantity<=0{return models.ProductOrder{},CheckoutError{"Invalid product quantity in cart."}}
+		idx:=-1;for i:=range products{if products[i].ID==productID{idx=i;break}}
+		if idx<0 || !products[idx].IsAvailable{return models.ProductOrder{},CheckoutError{"A product in your cart is no longer available."}}
+		barber,found:=findBarberByID(products[idx].BarberID);if !found||!barber.IsActive(){return models.ProductOrder{},CheckoutError{"A product in your cart is no longer available for sale."}}
+		if products[idx].Quantity<quantity{return models.ProductOrder{},CheckoutError{"A product in your cart no longer has enough stock."}}
+		sub:=products[idx].Price*float64(quantity);order.TotalAmount+=sub;lines=append(lines,line{idx,quantity,sub})
+	}
+	order.ID=nextID(&lastProductOrderID);productOrders=append(productOrders,order)
+	for _,ln:=range lines{p:=products[ln.index];products[ln.index].Quantity-=ln.quantity;lastProductOrderItemID++;productOrderItems=append(productOrderItems,models.ProductOrderItem{ID:lastProductOrderItemID,OrderID:order.ID,ProductID:p.ID,BarberID:p.BarberID,ProductName:p.Name,Price:p.Price,Quantity:ln.quantity,Subtotal:ln.subtotal})}
+	delete(carts,customer.ID);return order,nil
+}
 
 // CreateProductOrder creates and stores a new product order.
 func CreateProductOrder(order models.ProductOrder) (models.ProductOrder, error) {

@@ -7,190 +7,7 @@
     <link rel="stylesheet" href="/static/app.css">
     <script src="/static/app.js" defer></script>
 
-    <style>
-        .customer-chat-page {
-            min-height: 100vh;
-            background: #f5f5f5;
-            padding: 30px 20px;
-        }
-
-        .customer-chat {
-            max-width: 760px;
-            margin: 0 auto;
-        }
-
-        .chat-header {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 24px;
-        }
-
-        .dashboard-button {
-            display: inline-block;
-            padding: 10px 16px;
-            border-radius: 8px;
-            background: #222;
-            color: #fff;
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .dashboard-button:hover {
-            opacity: 0.85;
-        }
-
-        .barber-card {
-            background: #fff;
-            border-radius: 16px;
-            padding: 24px;
-            text-align: center;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-            margin-bottom: 20px;
-        }
-
-        .barber-photo {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            object-fit: cover;
-            display: block;
-            margin: 0 auto 12px;
-        }
-
-        .barber-photo-placeholder {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            background: #ddd;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-            font-size: 32px;
-            font-weight: 700;
-            color: #666;
-        }
-
-        .barber-name {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .barber-shop {
-            margin: 6px 0 0;
-            color: #777;
-        }
-
-        .chat-error {
-            background: #ffe8e8;
-            color: #a00000;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 16px;
-        }
-
-        .thread {
-            background: #fff;
-            border-radius: 16px;
-            padding: 20px;
-            min-height: 300px;
-            max-height: 500px;
-            overflow-y: auto;
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
-            margin-bottom: 16px;
-        }
-
-        .bubble {
-            max-width: 75%;
-            background: #eeeeee;
-            border-radius: 14px;
-            padding: 12px 15px;
-            margin-bottom: 12px;
-        }
-
-        .bubble.mine {
-            margin-left: auto;
-            background: #222;
-            color: #fff;
-        }
-
-        .bubble .who {
-            display: block;
-            font-size: 12px;
-            font-weight: 700;
-            margin-bottom: 4px;
-            opacity: 0.7;
-        }
-
-        .bubble .text {
-            margin: 0;
-            white-space: pre-wrap;
-            overflow-wrap: anywhere;
-        }
-
-        .bubble .when {
-            display: block;
-            font-size: 11px;
-            margin-top: 6px;
-            opacity: 0.6;
-        }
-
-        .empty-message {
-            text-align: center;
-            color: #777;
-            padding: 80px 20px;
-        }
-
-        .send {
-            display: flex;
-            gap: 10px;
-            align-items: flex-end;
-        }
-
-        .send textarea {
-            flex: 1;
-            min-height: 55px;
-            max-height: 160px;
-            resize: vertical;
-            padding: 14px;
-            border: 1px solid #ccc;
-            border-radius: 10px;
-            font: inherit;
-            background: #fff;
-        }
-
-        .send button {
-            padding: 14px 22px;
-            border: 0;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-        }
-
-        @media (max-width: 600px) {
-            .customer-chat-page {
-                padding: 20px 12px;
-            }
-
-            .chat-header {
-                margin-bottom: 18px;
-            }
-
-            .bubble {
-                max-width: 88%;
-            }
-
-            .send {
-                flex-direction: column;
-                align-items: stretch;
-            }
-
-            .send button {
-                width: 100%;
-            }
-        }
-    </style>
+    
 </head>
 
 <body class="modern-customer-page">
@@ -199,19 +16,17 @@
 
     <div class="customer-chat">
 
-        <div class="chat-header">
-            <a class="dashboard-button"
-               href="/customer/dashboard">
-                ← Dashboard
-            </a>
-        </div>
+        <header class="chat-header">
+            <a class="dashboard-button" href="/customer/chats">← Messages</a>
+            <a class="chat-dashboard-link" href="/customer/dashboard">Dashboard</a>
+        </header>
 
         <section class="barber-card">
 
             {{if .BarberImage}}
                 <img
-                    class="barber-photo"
-                    src="{{.BarberImage}}"
+                    class="barber-photo customer-chat-avatar"
+                    src="{{.BarberImage}}" loading="lazy" decoding="async"
                     alt="{{.Title}}"
                 >
             {{else}}

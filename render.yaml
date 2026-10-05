@@ -3,8 +3,8 @@ services:
     name: baba-multiverse
     runtime: go
     branch: main
-    buildCommand: npm install --no-audit --no-fund && npm run build && go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
-    startCommand: ./app
+    buildCommand: npm ci && npm run build && go build -tags netgo -ldflags '-s -w' -o app && go build -tags netgo -ldflags '-s -w' -o migrate ./cmd/migrate
+    startCommand: ./migrate && ./app
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL

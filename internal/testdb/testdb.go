@@ -2,6 +2,7 @@
 package testdb
 
 import (
+	"barber-booking/internal/dbmigrate"
 	"context"
 	"crypto/rand"
 	"database/sql"
@@ -61,12 +62,17 @@ func New(t testing.TB, schemaPath string) string {
 		t.Fatal(err)
 	}
 	defer connection.Close()
-	schema, err := os.ReadFile(schemaPath)
-	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err := connection.ExecContext(ctx, string(schema)); err != nil {
-		t.Fatalf("apply test schema: %v", err)
+	if schemaPath != "" {
+		schema, err := os.ReadFile(schemaPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := connection.ExecContext(ctx, string(schema)); err != nil {
+			t.Fatalf("apply test schema: %v", err)
+		}
+		if err := dbmigrate.Apply(ctx, connection); err != nil {
+			t.Fatalf("apply test migrations: %v", err)
+		}
 	}
 	return databaseURL
 }

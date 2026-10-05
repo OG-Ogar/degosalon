@@ -270,3 +270,10 @@ Acceptance: shared memory/PostgreSQL cases exercise pending and unowned booking 
 Customer cart lines now have quantity and remove forms with CSRF protection, ownership checks, integer/stock validation, and stock-conflict feedback rendered within the cart at the correct HTTP status. Unavailable or suspended-seller items can always be removed. Stock is reserved only at checkout. Product-stock failures have their own error, rather than a booking-slot error.
 
 All PostgreSQL cart writes and checkout lock the customer row before touching cart rows, including empty carts and newly added product lines. Product/seller eligibility reads hold locks until transaction completion. Checkout and cart changes accept request contexts. A PostgreSQL fault-delay test overlaps a new product addition with checkout and checks that the addition survives; shared memory/PostgreSQL editing tests verify ownership, stock, removal, and cancellation. HTTP tests cover rendered controls, CSRF, validation, stock recovery, and removal with an invalid quantity field. Explicit checkout replay keys, payment/fulfillment policy, and browser acceptance remain open.
+
+
+## Tenth implementation: versioned database migrations (BE-19)
+
+A CLI-created immutable baseline and embedded Go migration runner replace unrecorded startup DDL. The runner records checksums in a private RLS-protected ledger, serializes concurrent commands, and commits schema/history atomically. App startup verifies applied versions and checksums without changing the schema. Render builds the runner and executes it before starting the app; other deployments have an explicit documented migration command. No production database is directly changed by the development tools.
+
+Acceptance: PostgreSQL CI tests fresh and simultaneous migration commands, existing-record/location-column upgrades, checksum rejection, RLS presence, and full rollback against an incompatible baseline. Pending or mismatched migrations prevent application startup. Live production deployment configuration, backups, and restore drills remain operational acceptance items; this does not claim that production has already run the migration.

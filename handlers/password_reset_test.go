@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"io"
+	"mime/multipart"
 	"net/http"
 	"net/url"
 	"strings"
@@ -49,13 +50,22 @@ func registerCustomer(
 ) int {
 	t.Helper()
 
-	post(t, browser, base+"/customer/register", url.Values{
-		"fullname":         {"Ada Lovelace"},
-		"phone":            {"0700000000"},
-		"email":            {email},
-		"password":         {password},
-		"confirm_password": {password},
-	})
+	var body strings.Builder
+	writer := multipart.NewWriter(&body)
+	for key, values := range (url.Values{
+		"fullname": {"Ada Lovelace"}, "phone": {"0700000000"}, "email": {email},
+		"password": {password}, "confirm_password": {password},
+	}) {
+		for _, value := range values { _ = writer.WriteField(key, value) }
+	}
+	if err := writer.Close(); err != nil { t.Fatal(err) }
+	req, err := http.NewRequest(http.MethodPost, base+"/customer/register", strings.NewReader(body.String()))
+	if err != nil { t.Fatal(err) }
+	req.Header.Set("Content-Type", writer.FormDataContentType())
+	response, err := browser.Do(req)
+	if err != nil { t.Fatal(err) }
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK { b, _ := io.ReadAll(response.Body); t.Fatalf("register: status %d\n%s", response.StatusCode, b) }
 
 	customer, found := storage.FindCustomerByEmail(email)
 	if !found {
@@ -135,7 +145,7 @@ func TestPasswordResetReplacesThePassword(t *testing.T) {
 
 	// The session opened at registration belonged to the old password.
 	mustContain(t, "session from before the reset",
-		get(t, browser, server.URL+"/customer/dashboard"), "Customer login")
+		get(t, browser, server.URL+"/customer/dashboard"), "Sign In")
 
 	if status, _ := submit(t, browser, server.URL+"/customer/login", url.Values{
 		"email":    {"ada@example.com"},

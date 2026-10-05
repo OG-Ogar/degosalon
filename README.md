@@ -132,7 +132,7 @@ degosalon/
 
 - **Backend:** Go 1.22.2
 - **HTTP:** Go standard library `net/http`
-- **Frontend:** Server-rendered HTML, CSS and JavaScript
+- **Frontend:** Server-rendered HTML/CSS with TypeScript-enhanced browser interactions
 - **Database:** Supabase PostgreSQL
 - **Database driver:** pgx v5
 - **Hosting:** Render
@@ -176,7 +176,7 @@ Supabase PostgreSQL
 Render builds the application with:
 
 ```bash
-go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
+npm install --no-audit --no-fund && npm run build && go mod tidy && go build -tags netgo -ldflags '-s -w' -o app
 ```
 
 and starts it with:
@@ -240,3 +240,17 @@ During the full De Go Salon UI optimization pass, improvements that require prod
 
 This list should be reviewed after the UI optimization branch is merged. Items are implementation follow-ups, not claims that the underlying feature is currently broken.
 
+
+## TypeScript frontend strategy
+
+De Go Salon uses a progressive-enhancement architecture rather than a separate single-page frontend. Go continues to own routing, authentication, authorization, server-rendered HTML, forms, and Supabase access. TypeScript source lives under `frontend/` and compiles to browser JavaScript under `static/`, which the existing Go server serves.
+
+This keeps the current Render deployment as one web service while giving interactive surfaces typed client-side code. High-interaction areas such as location discovery, booking selection, chat, cart behavior, uploads, and role navigation can migrate incrementally without rewriting stable server-rendered pages.
+
+Frontend checks:
+
+```bash
+npm install --no-audit --no-fund
+npm run typecheck
+npm run build
+```

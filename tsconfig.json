@@ -1,0 +1,1 @@
+{"compilerOptions":{"target":"ES2018","module":"none","lib":["DOM","ES2018"],"strict":true,"noEmitOnError":true,"removeComments":false,"outFile":"static/app.js"},"include":["frontend/**/*.ts"]}

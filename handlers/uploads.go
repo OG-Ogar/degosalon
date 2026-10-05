@@ -181,14 +181,19 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("close image file: %w", err)
 	}
 
-	// Keep the original uploaded image.
+	// Shrink the stored file down to what a page can actually draw.
 	//
-	// We intentionally do not resize or recompress the image here.
-	// The browser will handle different image dimensions and aspect
-	// ratios when the image is displayed.
-	//
-	// This prevents unnecessary quality loss and keeps customer,
-	// barber, and hairstyle photos as sharp as the original upload.
+	// A picture straight off a phone carries several megabytes of detail
+	// that the browser downloads and then throws away, so an oversized
+	// photo is rewritten here rather than served whole. A file that cannot
+	// be decoded is left exactly as it arrived: it was already sniffed as
+	// an image above, and failing to shrink one is not a reason to refuse
+	// it.
+	if err := normalizeStoredImage(path); err != nil {
+		os.Remove(path)
+
+		return "", fmt.Errorf("resize image: %w", err)
+	}
 
 	return store.urlPath + name, nil
 }

@@ -59,9 +59,6 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 3 && parts[1] == "barbers":
 		ViewBarberHandler(w, r, customer, s, parts[2])
 
-	case len(parts) == 4 && parts[1] == "barbers" && parts[3] == "reviews":
-		CreateBarberReviewHandler(w, r, customer, s, parts[2])
-
 	case len(parts) == 2 && parts[1] == "book":
 		BookHairstyleHandler(w, r, customer, s)
 

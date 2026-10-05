@@ -418,6 +418,7 @@
                                 id="date"
                                 type="date"
                                 name="date"
+                                min="{{.Today}}"
                                 value="{{index .Values "date"}}"
                                 required>
 
@@ -434,6 +435,8 @@
                                 id="time"
                                 type="time"
                                 name="time"
+                                min="{{.Opening}}"
+                                max="{{.Closing}}"
                                 value="{{index .Values "time"}}"
                                 required>
 

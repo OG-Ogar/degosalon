@@ -284,3 +284,10 @@ Acceptance: PostgreSQL CI tests fresh and simultaneous migration commands, exist
 Cart checkout forms carry a cryptographically random request key. The customer-scoped key is saved with the order in the same transaction as items, stock, and cart removal. A duplicate request returns its original order before reading the current cart, including after storage reconnect; later cart additions remain untouched. Failed requests do not claim keys. Missing/malformed keys return a recoverable cart form, and the database enforces key format and per-customer uniqueness through a new versioned migration. Legacy pre-key orders remain valid.
 
 Acceptance: shared memory/PostgreSQL cases cover simultaneous identical requests, one order/stock change, replay with a new cart, customer isolation, invalid keys, and retry after stock failure. PostgreSQL verifies replay after reconnect. HTTP coverage extracts the real form key, checks missing-key recovery, repeats the checkout, verifies identical confirmation destinations, and proves client-supplied totals are ignored. Payment/fulfillment policy and money representation remain BE-07/17.
+
+
+## Twelfth implementation: preserved audit repairs (FE-07 / BE-24)
+
+The booking form now renders its supplied minimum date and opening/closing time bounds. Server-side date, interval, timezone, and duration validation remains authoritative. The duplicate customer review route and duplicate review-reset assignments are removed. These changes carry the remaining applicable local audit repairs into the remote implementation while leaving the original uncommitted checkout untouched.
+
+Acceptance: the existing real-template/application suite verifies the affected pages and flows; available-slot selection and per-barber schedule policy remain BE-02.

@@ -30,10 +30,13 @@ func AddToCartHandler(
 		return
 	}
 
-	product, found := storage.FindProductByID(id)
-
-	if !found {
+	product, err := storage.FindProductByIDResult(id)
+	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)
+		return
+	}
+	if err != nil {
+		serverError(w, "load product for cart", err)
 		return
 	}
 
@@ -47,7 +50,7 @@ func AddToCartHandler(
 		return
 	}
 
-	_, err := storage.AddToCart(customer.ID, product.ID)
+	_, err = storage.AddToCart(customer.ID, product.ID)
 
 	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)
@@ -93,17 +96,13 @@ func CustomerCartHandler(
 	var total float64
 
 	for _, cartItem := range cartItems {
-		product, found := storage.FindProductByID(cartItem.ProductID)
+		product, err := storage.FindProductByIDResult(cartItem.ProductID)
+		if errors.Is(err, storage.ErrNotFound) { continue }
+		if err != nil { serverError(w, "load cart product", err); return }
 
-		if !found {
-			continue
-		}
-
-		barber, found := storage.FindBarberByID(product.BarberID)
-
-		if !found {
-			continue
-		}
+		barber, err := storage.FindBarberByIDResult(product.BarberID)
+		if errors.Is(err, storage.ErrNotFound) { continue }
+		if err != nil { serverError(w, "load cart barber", err); return }
 
 		subtotal := product.Price * float64(cartItem.Quantity)
 

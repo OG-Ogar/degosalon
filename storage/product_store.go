@@ -1,6 +1,11 @@
 package storage
 
-import "barber-booking/models"
+import (
+	"barber-booking/models"
+	"errors"
+
+	"github.com/jackc/pgx/v5"
+)
 
 func ListProductsByBarber(barberID int) []models.Product {
 	if databaseEnabled(){rows,err:=db.Query("select id,barber_id,name,category,description,price,quantity,image,is_available from public.products where barber_id=$1 order by id",barberID);if err==nil{defer rows.Close();var out []models.Product;for rows.Next(){var v models.Product;if rows.Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Quantity,&v.Image,&v.IsAvailable)==nil{out=append(out,v)}};return out}}
@@ -137,4 +142,17 @@ func DeleteProduct(id, barberID int) (string, error) {
 	}
 
 	return "", ErrNotFound
+}
+
+
+// FindProductByIDResult is the error-aware database form used by request
+// handlers that must distinguish a missing product from a database outage.
+func FindProductByIDResult(id int) (models.Product, error) {
+	if databaseEnabled() {
+		var v models.Product
+		err:=db.QueryRow("select id,barber_id,name,category,description,price,quantity,image,is_available from public.products where id=$1",id).Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Quantity,&v.Image,&v.IsAvailable)
+		if errors.Is(err,pgx.ErrNoRows){return models.Product{},ErrNotFound}
+		return v,err
+	}
+	v,ok:=FindProductByID(id);if !ok{return models.Product{},ErrNotFound};return v,nil
 }

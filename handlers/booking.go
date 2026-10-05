@@ -120,8 +120,12 @@ func BookHairstyleHandler(
 		return
 	}
 
-	hairstyle, found := storage.FindHairstyleByID(request.HairstyleID)
-	if !found || hairstyle.BarberID != barber.ID || !hairstyle.IsAvailable {
+	hairstyle, lookupErr := storage.FindHairstyleByIDResult(request.HairstyleID)
+	if lookupErr != nil && !errors.Is(lookupErr, storage.ErrNotFound) {
+		serverError(w, "load hairstyle for booking", lookupErr)
+		return
+	}
+	if errors.Is(lookupErr, storage.ErrNotFound) || hairstyle.BarberID != barber.ID || !hairstyle.IsAvailable {
 		renderBarberDetail(w, s, barber, customer.ID, request.HairstyleID, request.values, "That hairstyle is not available for booking right now.")
 		return
 	}
@@ -223,19 +227,13 @@ func BookingConfirmationHandler(
 		return
 	}
 
-	barber, found := storage.FindBarberByID(booking.BarberID)
-	if !found {
-		http.NotFound(w, r)
+	barber, err := storage.FindBarberByIDResult(booking.BarberID)
+	if errors.Is(err, storage.ErrNotFound) { http.NotFound(w, r); return }
+	if err != nil { serverError(w, "load booking barber", err); return }
 
-		return
-	}
-
-	hairstyle, found := storage.FindHairstyleByID(booking.HairstyleID)
-	if !found {
-		http.NotFound(w, r)
-
-		return
-	}
+	hairstyle, err := storage.FindHairstyleByIDResult(booking.HairstyleID)
+	if errors.Is(err, storage.ErrNotFound) { http.NotFound(w, r); return }
+	if err != nil { serverError(w, "load booking hairstyle", err); return }
 
 	view := bookingConfirmationView{
 		CSRF:      s.CSRFToken,

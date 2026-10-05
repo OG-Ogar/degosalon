@@ -2,6 +2,9 @@ package storage
 
 import (
 	"strings"
+	"errors"
+
+	"github.com/jackc/pgx/v5"
 
 	"barber-booking/models"
 )
@@ -270,4 +273,15 @@ func DeleteBarber(id int) ([]string, error) {
 	barbers = append(barbers[:index], barbers[index+1:]...)
 
 	return images, nil
+}
+
+// FindBarberByIDResult distinguishes not-found from database failures.
+func FindBarberByIDResult(id int) (models.Barber, error) {
+	if databaseEnabled() {
+		var v models.Barber
+		err:=db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where id=$1",id).Scan(&v.ID,&v.FullName,&v.PhoneNumber,&v.Email,&v.PasswordHash,&v.ShopName,&v.ShopAddress,&v.State,&v.LocalArea,&v.ProfileImage,&v.PersonalImage,&v.Status)
+		if errors.Is(err,pgx.ErrNoRows){return models.Barber{},ErrNotFound}
+		return v,err
+	}
+	v,ok:=FindBarberByID(id);if !ok{return models.Barber{},ErrNotFound};return v,nil
 }

@@ -26,6 +26,7 @@ func TestPostgresIntegrity(t *testing.T) {
 	ctx := context.Background()
 
 	t.Run("account writes preserve recovery and suspension", checkProfileEditsPreserveRecovery)
+	t.Run("review ownership and concurrency", checkReviewIntegrity)
 
 	t.Run("concurrent overlapping bookings", func(t *testing.T) {
 		barber, customer, style := postgresBookingFixture(t)

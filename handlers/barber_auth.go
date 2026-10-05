@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"barber-booking/security"
@@ -32,8 +33,12 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		barber, found := storage.FindBarberByEmail(email)
-		if !found {
+		barber, err := storage.FindBarberByEmailResult(r.Context(), email)
+		if err != nil && !errors.Is(err, storage.ErrNotFound) {
+			serverError(w, "look up barber login", err)
+			return
+		}
+		if errors.Is(err, storage.ErrNotFound) {
 			// Burn the same work a real check would, so the response
 			// time does not reveal which emails are registered.
 			security.DummyVerify(password)

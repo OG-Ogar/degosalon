@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"errors"
 	"log"
 	"net/http"
 	"os"
@@ -21,9 +23,8 @@ type resetFlow struct {
 	ForgotPage string
 	ResetPage  string
 
-	// FindID resolves an email address to an account ID, reporting false
-	// for an address nobody has registered.
-	FindID func(email string) (int, bool)
+	// FindID reports ErrNotFound for unknown accounts and preserves lookup failures.
+	FindID func(ctx context.Context, email string) (int, error)
 
 	// SetPassword stores an already hashed password.
 	SetPassword func(id int, hash string) error
@@ -35,10 +36,9 @@ var customerResetFlow = resetFlow{
 	ForgotPage: "customer/forgot-password.html",
 	ResetPage:  "customer/reset-password.html",
 
-	FindID: func(email string) (int, bool) {
-		customer, found := storage.FindCustomerByEmail(email)
-
-		return customer.ID, found
+	FindID: func(ctx context.Context, email string) (int, error) {
+		customer, err := storage.FindCustomerByEmailResult(ctx, email)
+		return customer.ID, err
 	},
 
 	SetPassword: storage.SetCustomerPassword,
@@ -53,10 +53,9 @@ var barberResetFlow = resetFlow{
 	// A suspended barber may still reset their password. Refusing here
 	// would tell an outsider which accounts are suspended, and the login
 	// itself already turns them away.
-	FindID: func(email string) (int, bool) {
-		barber, found := storage.FindBarberByEmail(email)
-
-		return barber.ID, found
+	FindID: func(ctx context.Context, email string) (int, error) {
+		barber, err := storage.FindBarberByEmailResult(ctx, email)
+		return barber.ID, err
 	},
 
 	SetPassword: storage.SetBarberPassword,
@@ -128,7 +127,12 @@ func forgotPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 
 		view := resetView{Email: email, Sent: true}
 
-		if id, found := flow.FindID(email); found {
+		id, err := flow.FindID(r.Context(), email)
+		if err != nil && !errors.Is(err, storage.ErrNotFound) {
+			serverError(w, "look up password reset account", err)
+			return
+		}
+		if err == nil {
 			token, err := reset.New(flow.Role, id)
 			if err != nil {
 				serverError(w, "issue reset token", err)

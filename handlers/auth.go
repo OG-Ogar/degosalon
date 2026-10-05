@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"crypto/subtle"
+	"errors"
 	"net/http"
 
 	"barber-booking/models"
@@ -25,8 +26,12 @@ func requireBarber(w http.ResponseWriter, r *http.Request) (models.Barber, sessi
 		return models.Barber{}, session.Session{}, false
 	}
 
-	barber, found := storage.FindBarberByID(s.UserID)
-	if !found || !barber.IsActive() {
+	barber, err := storage.FindBarberByIDContext(r.Context(), s.UserID)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load signed-in barber", err)
+		return models.Barber{}, session.Session{}, false
+	}
+	if errors.Is(err, storage.ErrNotFound) || !barber.IsActive() {
 		session.Clear(w, r, session.RoleBarber)
 		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 
@@ -46,8 +51,12 @@ func requireCustomer(w http.ResponseWriter, r *http.Request) (models.Customer, s
 		return models.Customer{}, session.Session{}, false
 	}
 
-	customer, found := storage.FindCustomerByID(s.UserID)
-	if !found {
+	customer, err := storage.FindCustomerByIDResult(r.Context(), s.UserID)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load signed-in customer", err)
+		return models.Customer{}, session.Session{}, false
+	}
+	if errors.Is(err, storage.ErrNotFound) {
 		session.Clear(w, r, session.RoleCustomer)
 		http.Redirect(w, r, "/customer/login", http.StatusSeeOther)
 

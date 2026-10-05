@@ -79,6 +79,12 @@ type bookingRow struct {
 
 // describeBooking fills in the barber and hairstyle details for display.
 func describeBooking(ctx context.Context, booking models.Booking) (bookingRow, error) {
+	if err := ctx.Err(); err != nil {
+		return bookingRow{}, err
+	}
+	if booking.ServiceDuration > 0 {
+		return bookingRow{Booking: booking, BarberName: booking.BarberName, ShopName: booking.ShopName, HairstyleName: booking.ServiceName, Price: booking.ServicePrice, Duration: booking.ServiceDuration}, nil
+	}
 	row := bookingRow{
 		Booking: booking,
 	}

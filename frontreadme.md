@@ -507,7 +507,7 @@ This inventory is based on the repository tree on `main` immediately after PR #2
 
 - [x] `templates/home.html` — landing/home. Forest/cream/gold visual foundation implemented; responsive landing structure complete.
 - [x] `templates/explore.html` — public location/discovery entry. Forest discovery UI, responsive location search, result cards and empty states implemented.
-- [ ] `templates/explore-barber.html` — public barber exploration/result surface.
+- [x] `templates/explore-barber.html` — public barber profile. Shop/barber identity, services, products, verified reviews and responsive CTAs modernized.
 
 ### Customer authentication
 

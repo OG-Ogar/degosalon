@@ -95,9 +95,13 @@ func CancelBookingHandler(
 		return
 	}
 
-	err := storage.SetBookingStatus(id, models.StatusCancelled, 0, customer.ID)
+	err := storage.TransitionBookingStatus(id, models.StatusCancelled, []string{models.StatusPending, models.StatusAccepted}, 0, customer.ID)
 
 	switch {
+	case errors.Is(err, storage.ErrInvalidTransition):
+		http.Error(w, "That booking changed before cancellation completed. Refresh your bookings and try again.", http.StatusConflict)
+		return
+
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
 		http.Error(w, "Booking not found.", http.StatusNotFound)
 

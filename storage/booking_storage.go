@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"sort"
 	"strings"
+	"fmt"
+	"strconv"
 
 	"barber-booking/models"
 )
@@ -13,18 +15,70 @@ import (
 // not open for booking, or the barber is suspended.
 var ErrUnavailable = errors.New("that hairstyle is not available for booking")
 
+// ErrSlotConflict is returned when the requested appointment overlaps an
+// existing booking once service duration is taken into account.
+var ErrSlotConflict = errors.New("that appointment overlaps an existing booking")
+
+// ErrInvalidTransition is returned when a booking changed after it was read
+// or when the requested lifecycle move is not allowed from its current state.
+var ErrInvalidTransition = errors.New("booking status changed")
+
 // CreateBooking validates and stores a new booking.
 //
 // The barber, hairstyle, availability and slot-conflict checks all run
 // inside one write lock, so two customers submitting the same slot at
 // the same moment cannot both be accepted.
 func CreateBooking(booking models.Booking) (models.Booking, error) {
-	if databaseEnabled(){
-		var active bool;var available bool;var owner int
-		if err:=db.QueryRow("select status='Active' from public.barbers where id=$1",booking.BarberID).Scan(&active);err!=nil{return models.Booking{},ErrNotFound};if !active{return models.Booking{},ErrUnavailable}
-		if err:=db.QueryRow("select barber_id,is_available from public.hairstyles where id=$1",booking.HairstyleID).Scan(&owner,&available);err!=nil{return models.Booking{},ErrNotFound};if owner!=booking.BarberID{return models.Booking{},ErrForbidden};if !available{return models.Booking{},ErrUnavailable}
-		err:=db.QueryRow("insert into public.bookings(barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date,booking_time,notes,status,created_at) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id",booking.BarberID,booking.HairstyleID,booking.CustomerID,booking.CustomerName,booking.CustomerPhone,booking.CustomerEmail,booking.Date,booking.Time,booking.Notes,booking.Status,booking.CreatedAt).Scan(&booking.ID)
-		if err!=nil{if strings.Contains(strings.ToLower(err.Error()),"bookings_open_slot_unique"){return models.Booking{},ErrSlotTaken};return models.Booking{},err};return booking,nil
+	if databaseEnabled() {
+		tx, err := db.Begin()
+		if err != nil { return models.Booking{}, err }
+		defer tx.Rollback()
+
+		// Serialize booking decisions for one barber so the overlap check and
+		// insert are one atomic decision even when two requests arrive together.
+		if _, err = tx.Exec("select pg_advisory_xact_lock($1)", booking.BarberID); err != nil {
+			return models.Booking{}, err
+		}
+
+		var active bool
+		if err = tx.QueryRow("select status='Active' from public.barbers where id=$1", booking.BarberID).Scan(&active); err != nil {
+			if errors.Is(err, sql.ErrNoRows) { return models.Booking{}, ErrNotFound }
+			return models.Booking{}, err
+		}
+		if !active { return models.Booking{}, ErrUnavailable }
+
+		var available bool
+		var owner, duration int
+		if err = tx.QueryRow("select barber_id,is_available,duration from public.hairstyles where id=$1", booking.HairstyleID).Scan(&owner,&available,&duration); err != nil {
+			if errors.Is(err, sql.ErrNoRows) { return models.Booking{}, ErrNotFound }
+			return models.Booking{}, err
+		}
+		if owner != booking.BarberID { return models.Booking{}, ErrForbidden }
+		if !available { return models.Booking{}, ErrUnavailable }
+
+		var conflict bool
+		err = tx.QueryRow(`
+			select exists (
+				select 1
+				from public.bookings b
+				join public.hairstyles h on h.id=b.hairstyle_id
+				where b.barber_id=$1 and b.booking_date=$2
+				  and b.status in ('Pending','Accepted','Completed')
+				  and b.booking_time < $3::time + ($4 * interval '1 minute')
+				  and $3::time < b.booking_time + (h.duration * interval '1 minute')
+			)`,
+			booking.BarberID, booking.Date, booking.Time, duration,
+		).Scan(&conflict)
+		if err != nil { return models.Booking{}, err }
+		if conflict { return models.Booking{}, ErrSlotConflict }
+
+		err = tx.QueryRow("insert into public.bookings(barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date,booking_time,notes,status,created_at) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id",booking.BarberID,booking.HairstyleID,booking.CustomerID,booking.CustomerName,booking.CustomerPhone,booking.CustomerEmail,booking.Date,booking.Time,booking.Notes,booking.Status,booking.CreatedAt).Scan(&booking.ID)
+		if err != nil {
+			if strings.Contains(strings.ToLower(err.Error()),"bookings_open_slot_unique") { return models.Booking{},ErrSlotTaken }
+			return models.Booking{},err
+		}
+		if err = tx.Commit(); err != nil { return models.Booking{}, err }
+		return booking,nil
 	}
 	mu.Lock()
 	defer mu.Unlock()
@@ -52,12 +106,16 @@ func CreateBooking(booking models.Booking) (models.Booking, error) {
 	}
 
 	for _, existing := range bookings {
-		if existing.BarberID == booking.BarberID &&
-			existing.Date == booking.Date &&
-			existing.Time == booking.Time &&
-			existing.IsOpen() {
-
+		if existing.BarberID != booking.BarberID || existing.Date != booking.Date || !existing.IsOpen() {
+			continue
+		}
+		if existing.Time == booking.Time {
 			return models.Booking{}, ErrSlotTaken
+		}
+		existingStyle, found := findHairstyleByID(existing.HairstyleID)
+		if !found { continue }
+		if bookingIntervalsOverlap(booking.Time, hairstyle.Duration, existing.Time, existingStyle.Duration) {
+			return models.Booking{}, ErrSlotConflict
 		}
 	}
 
@@ -124,6 +182,49 @@ func ListBookingsByCustomer(customerID int) []models.Booking {
 	}
 
 	return sortBySlot(owned)
+}
+
+// TransitionBookingStatus changes a booking only when its current status is
+// one of the allowed source states. The check and write happen atomically.
+func TransitionBookingStatus(id int, status string, allowedFrom []string, barberID, customerID int) error {
+	if len(allowedFrom) == 0 { return ErrInvalidTransition }
+	if databaseEnabled() {
+		q := "update public.bookings set status=$1 where id=$2"
+		args := []any{status,id}
+		next := 3
+		if barberID != 0 { q += fmt.Sprintf(" and barber_id=$%d", next); args=append(args,barberID); next++ }
+		if customerID != 0 { q += fmt.Sprintf(" and customer_id=$%d", next); args=append(args,customerID); next++ }
+		placeholders := make([]string,len(allowedFrom))
+		for i,v := range allowedFrom { placeholders[i]=fmt.Sprintf("$%d",next); args=append(args,v); next++ }
+		q += " and status in (" + strings.Join(placeholders,",") + ")"
+		result,err:=db.Exec(q,args...); if err!=nil{return err}
+		n,_:=result.RowsAffected(); if n==1{return nil}
+		var ownerBarber,ownerCustomer int; var current string
+		err=db.QueryRow("select barber_id,customer_id,status from public.bookings where id=$1",id).Scan(&ownerBarber,&ownerCustomer,&current)
+		if errors.Is(err,sql.ErrNoRows){return ErrNotFound}; if err!=nil{return err}
+		if barberID!=0 && ownerBarber!=barberID{return ErrForbidden}; if customerID!=0 && ownerCustomer!=customerID{return ErrForbidden}
+		return ErrInvalidTransition
+	}
+	mu.Lock(); defer mu.Unlock()
+	for i := range bookings {
+		if bookings[i].ID != id { continue }
+		if barberID != 0 && bookings[i].BarberID != barberID { return ErrForbidden }
+		if customerID != 0 && bookings[i].CustomerID != customerID { return ErrForbidden }
+		allowed:=false; for _,from:=range allowedFrom { if bookings[i].Status==from {allowed=true;break} }
+		if !allowed { return ErrInvalidTransition }
+		bookings[i].Status=status; return nil
+	}
+	return ErrNotFound
+}
+
+func bookingIntervalsOverlap(aTime string, aDuration int, bTime string, bDuration int) bool {
+	parse := func(value string) (int,bool) {
+		parts:=strings.Split(value,":"); if len(parts)<2{return 0,false}
+		h,err1:=strconv.Atoi(parts[0]); m,err2:=strconv.Atoi(parts[1]); if err1!=nil||err2!=nil{return 0,false}
+		return h*60+m,true
+	}
+	a,okA:=parse(aTime); b,okB:=parse(bTime); if !okA||!okB{return false}
+	return a < b+bDuration && b < a+aDuration
 }
 
 // SetBookingStatus moves a booking to a new status. The caller passes

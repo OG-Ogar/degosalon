@@ -220,3 +220,60 @@ func TestFindHairstyleOwnedByRefusesOtherBarber(t *testing.T) {
 		t.Fatalf("owner read: %v", err)
 	}
 }
+
+
+func TestCreateBookingRejectsDurationOverlap(t *testing.T) {
+	Reset()
+	barber := newBarber(t, "overlap@example.com")
+	style := newHairstyle(t, barber.ID)
+	first := newCustomer(t, "overlap-first@example.com")
+	second := newCustomer(t, "overlap-second@example.com")
+
+	booking := newBooking(first, barber.ID, style.ID)
+	booking.Time = "10:00"
+	if _, err := CreateBooking(booking); err != nil {
+		t.Fatalf("first CreateBooking: %v", err)
+	}
+	overlap := newBooking(second, barber.ID, style.ID)
+	overlap.Time = "10:15"
+	if _, err := CreateBooking(overlap); err != ErrSlotConflict {
+		t.Fatalf("overlapping CreateBooking: got %v, want ErrSlotConflict", err)
+	}
+}
+
+func TestCreateBookingAllowsAdjacentIntervals(t *testing.T) {
+	Reset()
+	barber := newBarber(t, "adjacent@example.com")
+	style := newHairstyle(t, barber.ID)
+	first := newCustomer(t, "adjacent-first@example.com")
+	second := newCustomer(t, "adjacent-second@example.com")
+
+	if _, err := CreateBooking(newBooking(first, barber.ID, style.ID)); err != nil {
+		t.Fatalf("first CreateBooking: %v", err)
+	}
+	adjacent := newBooking(second, barber.ID, style.ID)
+	adjacent.Time = "10:30"
+	if _, err := CreateBooking(adjacent); err != nil {
+		t.Fatalf("adjacent CreateBooking: %v", err)
+	}
+}
+
+func TestTransitionBookingStatusRejectsStaleSourceState(t *testing.T) {
+	Reset()
+	barber := newBarber(t, "transition@example.com")
+	style := newHairstyle(t, barber.ID)
+	customer := newCustomer(t, "transition-customer@example.com")
+	booking, err := CreateBooking(newBooking(customer, barber.ID, style.ID))
+	if err != nil { t.Fatalf("CreateBooking: %v", err) }
+
+	if err := TransitionBookingStatus(booking.ID, models.StatusAccepted, []string{models.StatusPending}, barber.ID, 0); err != nil {
+		t.Fatalf("accept pending booking: %v", err)
+	}
+	if err := TransitionBookingStatus(booking.ID, models.StatusRejected, []string{models.StatusPending}, barber.ID, 0); err != ErrInvalidTransition {
+		t.Fatalf("stale transition: got %v, want ErrInvalidTransition", err)
+	}
+	stored, found := FindBookingByID(booking.ID)
+	if !found || stored.Status != models.StatusAccepted {
+		t.Fatalf("status after stale transition = %q, want Accepted", stored.Status)
+	}
+}

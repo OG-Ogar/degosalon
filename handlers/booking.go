@@ -58,14 +58,22 @@ func readBookingRequest(r *http.Request) (bookingRequest, string) {
 	if dateText == "" {
 		return request, "Choose a booking date."
 	}
-
+	dateText, problem := validBookingDate(dateText)
+	if problem != "" {
+		return request, problem
+	}
 	request.Date = dateText
+	request.values["date"] = dateText
 
 	if timeText == "" {
 		return request, "Choose a booking time."
 	}
-
+	timeText, problem = validBookingTime(timeText)
+	if problem != "" {
+		return request, problem
+	}
 	request.Time = timeText
+	request.values["time"] = timeText
 
 	return request, ""
 }
@@ -109,7 +117,16 @@ func BookHairstyleHandler(
 			request.values,
 			problem,
 		)
+		return
+	}
 
+	hairstyle, found := storage.FindHairstyleByID(request.HairstyleID)
+	if !found || hairstyle.BarberID != barber.ID || !hairstyle.IsAvailable {
+		renderBarberDetail(w, s, barber, customer.ID, request.HairstyleID, request.values, "That hairstyle is not available for booking right now.")
+		return
+	}
+	if problem = validBookingInterval(request.Date, request.Time, hairstyle.Duration); problem != "" {
+		renderBarberDetail(w, s, barber, customer.ID, request.HairstyleID, request.values, problem)
 		return
 	}
 
@@ -245,8 +262,9 @@ func bookingProblem(err error) string {
 	case err == nil:
 		return ""
 
-	case errors.Is(err, storage.ErrSlotTaken):
-		return "That time is already taken. Please choose another slot."
+	case errors.Is(err, storage.ErrSlotTaken),
+		errors.Is(err, storage.ErrSlotConflict):
+		return "That time overlaps another appointment. Please choose another slot."
 
 	case errors.Is(err, storage.ErrUnavailable):
 		return "That hairstyle is not available for booking right now."

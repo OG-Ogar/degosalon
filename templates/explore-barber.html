@@ -1,27 +1,38 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>{{.Barber.ShopName}} - De Go Salon</title><link rel="stylesheet" href="/static/customer-barber-profile.css"></head>
-<body><div class="barber-page">
-<header class="barber-header"><a class="brand-box" href="/"><span class="brand-title">De Go Salon</span><span class="brand-subtitle">Barber Multiverse</span></a><nav class="customer-navigation"><a class="nav-box" href="/explore"><span class="nav-text">Find Barbers</span></a><a class="nav-box" href="/customer/login"><span class="nav-text">Customer Login</span></a></nav></header>
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#091613">
+<title>{{.Barber.ShopName}} - De Go Salon</title>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/customer-barber-profile.css">
+</head>
+<body class="public-profile-page"><div class="barber-page">
+<header class="barber-header">
+<a class="brand-box" href="/" aria-label="De Go Salon home"><span class="brand-mark" aria-hidden="true">DG</span><span><span class="brand-title">De Go Salon</span><span class="brand-subtitle">Barber Multiverse</span></span></a>
+<nav class="customer-navigation" aria-label="Public navigation"><a class="nav-box" href="/explore">Find Barbers</a><a class="nav-box nav-primary" href="/customer/login">Customer Login <span aria-hidden="true">→</span></a></nav>
+</header>
 <main class="barber-main">
 <a class="back-link" href="/explore">← Back to barber results</a>
 <section class="barber-card shop-hero">
 <div class="barber-photo">{{if .Barber.ProfileImage}}<img src="{{.Barber.ProfileImage}}" alt="{{.Barber.ShopName}}">{{else if .Barber.PersonalImage}}<img src="{{.Barber.PersonalImage}}" alt="{{.Barber.FullName}}">{{else}}<span class="photo-placeholder">DG</span>{{end}}</div>
-<div class="barber-details"><p class="eyebrow">You found your barber</p><h1>{{.Barber.ShopName}}</h1><p class="barber-name">{{.Barber.FullName}}</p><p class="barber-address"><span>+</span>{{.Barber.ShopAddress}} · {{.Barber.LocalArea}}, {{.Barber.State}}</p>
+<div class="barber-details"><p class="eyebrow"><span></span> Barber profile</p><h1>{{.Barber.ShopName}}</h1>
+<div class="barber-identity">{{if .Barber.PersonalImage}}<img class="avatar" src="{{.Barber.PersonalImage}}" alt="{{.Barber.FullName}}">{{else}}<span class="avatar avatar-placeholder" aria-hidden="true">DG</span>{{end}}<div><small>Your barber</small><p class="barber-name">{{.Barber.FullName}}</p></div></div>
+<p class="barber-address"><span aria-hidden="true">⌖</span>{{if .Barber.ShopAddress}}{{.Barber.ShopAddress}} · {{end}}{{.Barber.LocalArea}}, {{.Barber.State}}</p>
 <div class="shop-trust-row">{{if .ReviewCount}}<strong>★ {{printf "%.1f" .Rating}}</strong><small>{{.ReviewCount}} verified booking reviews</small>{{else}}<strong>New on De Go Salon</strong><small>No reviews yet</small>{{end}}</div>
-<div class="barber-actions"><a class="book-button" href="/customer/login">Book this barber →</a><a class="message-button" href="/customer/login">Message barber</a></div>
-<p class="signin-note">Already decided? Sign in to continue your booking or conversation.</p></div>
+<div class="barber-actions"><a class="book-button" href="/customer/login">Book this barber <span aria-hidden="true">→</span></a><a class="message-button" href="/customer/login">Message barber</a></div>
+<p class="signin-note">Sign in to continue your booking or start a conversation.</p></div>
 </section>
 
-<section class="shop-jumpbar" aria-label="Barber profile sections"><a href="#handwork">Handwork & prices</a>{{if .Products}}<a href="#products">Products</a>{{end}}<a href="#reviews">Reviews</a></section>
+<nav class="shop-jumpbar" aria-label="Barber profile sections"><a href="#handwork">Handwork & prices</a>{{if .Products}}<a href="#products">Products</a>{{end}}<a href="#reviews">Reviews</a></nav>
 
-<section class="hairstyles-section" id="handwork"><div class="section-title"><div><p class="eyebrow">Handwork & services</p><h2>Choose the look you want</h2></div><span class="count">{{len .Hairstyles}} services</span></div>
-<div class="public-style-grid">{{range .Hairstyles}}<article class="public-style-card">{{if .ImagePath}}<div class="public-style-image"><img src="{{.ImagePath}}" alt="{{.Name}}"></div>{{end}}<div class="public-style-copy"><p class="eyebrow">{{.Category}}</p><h3>{{.Name}}</h3>{{if .Description}}<p>{{.Description}}</p>{{end}}<div class="style-meta"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Duration}} min</span></div></div></article>{{else}}<div class="empty-state"><h2>No handwork listed yet.</h2><p>This barber has not published services yet.</p></div>{{end}}</div>
+<section class="hairstyles-section" id="handwork"><div class="section-title"><div><p class="eyebrow"><span></span> Handwork & services</p><h2>Choose the look you want</h2></div><span class="count">{{len .Hairstyles}} services</span></div>
+<div class="public-style-grid">{{range .Hairstyles}}<article class="public-style-card">{{if .ImagePath}}<div class="public-style-image"><img src="{{.ImagePath}}" alt="{{.Name}}" loading="lazy"></div>{{end}}<div class="public-style-copy"><p class="eyebrow">{{.Category}}</p><h3>{{.Name}}</h3>{{if .Description}}<p>{{.Description}}</p>{{end}}<div class="style-meta"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Duration}} min</span></div></div></article>{{else}}<div class="empty-state"><div class="empty-icon">DG</div><h2>No handwork listed yet.</h2><p>This barber has not published services yet.</p></div>{{end}}</div>
 </section>
 
-{{if .Products}}<section class="hairstyles-section" id="products"><div class="section-title"><div><p class="eyebrow">Barber shop</p><h2>Products from this barber</h2></div><span class="count">{{len .Products}} available</span></div><div class="public-product-grid">{{range .Products}}<article class="public-product-card"><div><p class="eyebrow">{{.Category}}</p><h3>{{.Name}}</h3></div><div class="product-price"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Quantity}} in stock</span></div></article>{{end}}</div><p class="section-cta-note">Sign in to shop from this barber.</p></section>{{end}}
+{{if .Products}}<section class="hairstyles-section" id="products"><div class="section-title"><div><p class="eyebrow"><span></span> Barber shop</p><h2>Products from this barber</h2></div><span class="count">{{len .Products}} available</span></div><div class="public-product-grid">{{range .Products}}<article class="public-product-card"><div><p class="eyebrow">{{.Category}}</p><h3>{{.Name}}</h3></div><div class="product-price"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Quantity}} in stock</span></div></article>{{end}}</div><p class="section-cta-note">Sign in to shop from this barber.</p></section>{{end}}
 
-<section class="hairstyles-section" id="reviews"><div class="section-title"><div><p class="eyebrow">Completed appointments</p><h2>Verified customer reviews</h2></div>{{if .ReviewCount}}<span class="count">★ {{printf "%.1f" .Rating}} · {{.ReviewCount}}</span>{{end}}</div><div class="public-review-list">{{range .Reviews}}<article class="public-review-card"><div class="review-heading"><strong>{{.CustomerName}}</strong><span>{{.Rating}}/5 ★</span></div>{{if .Comment}}<p>{{.Comment}}</p>{{end}}<small>Verified completed booking</small></article>{{else}}<div class="empty-state"><h2>No reviews yet.</h2><p>Reviews appear here after customers complete appointments.</p></div>{{end}}</div></section>
+<section class="hairstyles-section" id="reviews"><div class="section-title"><div><p class="eyebrow"><span></span> Completed appointments</p><h2>Verified customer reviews</h2></div>{{if .ReviewCount}}<span class="count">★ {{printf "%.1f" .Rating}} · {{.ReviewCount}}</span>{{end}}</div><div class="public-review-list">{{range .Reviews}}<article class="public-review-card"><div class="review-heading"><strong>{{.CustomerName}}</strong><span>{{.Rating}}/5 ★</span></div>{{if .Comment}}<p>{{.Comment}}</p>{{end}}<small>Verified completed booking</small></article>{{else}}<div class="empty-state"><div class="empty-icon">★</div><h2>No reviews yet.</h2><p>Reviews appear here after customers complete appointments.</p></div>{{end}}</div></section>
 
-<section class="shop-final-cta"><p class="eyebrow">Ready for your cut?</p><h2>Book {{.Barber.ShopName}}</h2><p>Sign in to choose a service and appointment time, or message the barber first.</p><div class="barber-actions"><a class="book-button" href="/customer/login">Sign in to Book →</a><a class="message-button" href="/customer/register">Create Account</a></div></section>
+<section class="shop-final-cta"><p class="eyebrow">Ready for your cut?</p><h2>Book {{.Barber.ShopName}}</h2><p>Sign in to choose a service and appointment time, or message the barber first.</p><div class="barber-actions"><a class="book-button" href="/customer/login">Sign in to Book <span aria-hidden="true">→</span></a><a class="message-button" href="/customer/register">Create Account</a></div></section>
 </main></div></body></html>

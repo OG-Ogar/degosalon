@@ -63,3 +63,15 @@ linear-gradient(180deg,#091613 0%,#10221d 48%,#091613 100%)}
 @media(max-width:380px){.barber-header,.barber-main{width:calc(100% - 26px)}.brand-title{font-size:1rem}.page-intro h1{font-size:2.8rem}.location-panel{padding:16px}.barber-image{height:230px}.barber-information{padding:17px}}
 @media(prefers-reduced-motion:reduce){.nav-box,.book-button,.back-button,.barber-card,.barber-image img{transition:none!important}}
 @media(prefers-reduced-transparency:reduce){.location-panel,.barber-card,.discovery-guide>div,.view-cue{backdrop-filter:none;background:var(--surface)}}
+
+/* Customer barber discovery refinement */
+.customer-location-panel{margin-top:38px}
+.barber-filter-panel{margin:24px 0 0}
+.barber-filter-box{max-width:520px;padding:16px;border:1px solid rgba(82,116,102,.38);border-radius:14px;background:rgba(25,49,41,.34)}
+.barber-filter-box label{display:block;margin-bottom:8px;color:var(--ink-muted);font-size:.74rem;font-weight:800}
+.barber-filter-box input{width:100%;min-height:48px;padding:0 14px;border:1px solid var(--border);border-radius:10px;background:var(--base);color:var(--ink);font:inherit}
+.barber-filter-box input:focus{outline:0;border-color:var(--signal);box-shadow:0 0 0 3px rgba(244,203,120,.12)}
+.barber-card .barber-image{height:auto;aspect-ratio:4/3;background:linear-gradient(145deg,var(--surface),var(--surface-hi))}
+.barber-card .barber-card-photo{width:100%;height:100%;object-fit:cover;object-position:center;image-orientation:from-image}
+.barber-card .view-cue{pointer-events:none}
+@media(max-width:760px){.customer-location-panel{padding:20px}.customer-location-panel .location-form{grid-template-columns:1fr}.barber-filter-box{max-width:none}.barber-card .barber-image{aspect-ratio:16/11}}

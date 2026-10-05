@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"sort"
 	"strings"
 
 	"barber-booking/models"
@@ -60,12 +61,12 @@ func BrowseBarbersHandler(
 			seen[strings.ToLower(b.State)] = true
 		}
 	}
+	sort.Strings(states)
 	cards := make([]barberCard, 0, len(barbers))
 
 	for _, barber := range barbers {
-		// Show all active barbers until the customer chooses a location.
-		// Once selected, state and area narrow the marketplace results.
-		if state != "" && !strings.EqualFold(barber.State, state) {
+		// Both discovery surfaces require a selected state before listing shops.
+		if state == "" || !strings.EqualFold(barber.State, state) {
 			continue
 		}
 		if area != "" && !strings.EqualFold(barber.LocalArea, area) {
@@ -103,9 +104,12 @@ func BrowseBarbersHandler(
 // barberDetailView is one barber's shop as a customer sees it: their
 // details, what they offer, and the form to book it.
 type barberDetailView struct {
-	Barber     models.Barber
-	Hairstyles []models.Hairstyle
-	Products   []models.Product
+	ResultsLink   string
+	SelectedState string
+	SelectedArea  string
+	Barber        models.Barber
+	Hairstyles    []models.Hairstyle
+	Products      []models.Product
 
 	// Selected pre-picks a style when the customer arrived from a link.
 	Selected int
@@ -227,21 +231,24 @@ func renderBarberDetail(
 	}
 	canReview := reviewErr == nil
 	renderStatus(w, status, "customer/barber-detail.html", barberDetailView{
-		Barber:      barber,
-		Hairstyles:  styles,
-		Products:    products,
-		Selected:    selected,
-		Today:       today(),
-		Opening:     formatHour(openingHour),
-		Closing:     formatHour(closingHour),
-		ChatLink:    chatPath("/customer/chats/", barber.ID),
-		CSRF:        s.CSRFToken,
-		Error:       problem,
-		Values:      values,
-		Reviews:     reviews,
-		Rating:      rating,
-		ReviewCount: count,
-		CanReview:   canReview,
+		Barber:        barber,
+		ResultsLink:   discoveryPath("/customer/barbers", discoveryQuery(r)),
+		SelectedState: discoveryQuery(r).Get("state"),
+		SelectedArea:  discoveryQuery(r).Get("area"),
+		Hairstyles:    styles,
+		Products:      products,
+		Selected:      selected,
+		Today:         today(),
+		Opening:       formatHour(openingHour),
+		Closing:       formatHour(closingHour),
+		ChatLink:      chatPath("/customer/chats/", barber.ID),
+		CSRF:          s.CSRFToken,
+		Error:         problem,
+		Values:        values,
+		Reviews:       reviews,
+		Rating:        rating,
+		ReviewCount:   count,
+		CanReview:     canReview,
 	})
 }
 

@@ -40,14 +40,14 @@
 <div class="barber-grid">
 {{range .Items}}
 <article class="barber-card">
-<a class="barber-image" href="/explore/{{.ID}}">{{if .ProfileImage}}<img src="{{.ProfileImage}}" alt="{{.ShopName}}" loading="lazy">{{else if .PersonalImage}}<img src="{{.PersonalImage}}" alt="{{.FullName}}" loading="lazy">{{else}}<span class="image-placeholder">DG</span>{{end}}<span class="view-cue">View profile ↗</span></a>
+<a class="barber-image" href="/explore/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">{{if .ProfileImage}}<img src="{{.ProfileImage}}" alt="{{.ShopName}}" loading="lazy">{{else if .PersonalImage}}<img src="{{.PersonalImage}}" alt="{{.FullName}}" loading="lazy">{{else}}<span class="image-placeholder">DG</span>{{end}}<span class="view-cue">View profile ↗</span></a>
 <div class="barber-information">
 <div class="card-topline"><p class="card-label">BARBER SHOP</p>{{if .ReviewCount}}<span class="rating-badge">★ {{printf "%.1f" .Rating}}</span>{{else}}<span class="new-badge">New</span>{{end}}</div>
-<h3><a href="/explore/{{.ID}}">{{.ShopName}}</a></h3>
+<h3><a href="/explore/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">{{.ShopName}}</a></h3>
 <p class="barber-name">with {{.FullName}}</p>
 <div class="barber-location"><span class="location-icon" aria-hidden="true">⌖</span><span>{{if .ShopAddress}}{{.ShopAddress}}<br>{{end}}<strong>{{.LocalArea}}, {{.State}}</strong></span></div>
 <div class="barber-details"><div class="detail-item"><strong>{{.Hairstyles}}</strong><span>Services</span></div><div class="detail-divider"></div><div class="detail-item">{{if .Hairstyles}}<strong>{{printf "%.2f" .FromPrice}}</strong><span>Starting price</span>{{else}}<strong>—</strong><span>Prices coming soon</span>{{end}}</div>{{if .ReviewCount}}<div class="detail-divider"></div><div class="detail-item"><strong>{{.ReviewCount}}</strong><span>Reviews</span></div>{{end}}</div>
-<div class="barber-actions"><a class="book-button" href="/explore/{{.ID}}">See handwork & prices <span aria-hidden="true">→</span></a></div>
+<div class="barber-actions"><a class="book-button" href="/explore/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">See handwork & prices <span aria-hidden="true">→</span></a></div>
 </div>
 </article>
 {{end}}

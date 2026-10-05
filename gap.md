@@ -291,3 +291,10 @@ Acceptance: shared memory/PostgreSQL cases cover simultaneous identical requests
 The booking form now renders its supplied minimum date and opening/closing time bounds. Server-side date, interval, timezone, and duration validation remains authoritative. The duplicate customer review route and duplicate review-reset assignments are removed. These changes carry the remaining applicable local audit repairs into the remote implementation while leaving the original uncommitted checkout untouched.
 
 Acceptance: the existing real-template/application suite verifies the affected pages and flows; available-slot selection and per-barber schedule policy remain BE-02.
+
+
+## Thirteenth implementation: discovery/auth continuation (FE-08/09 / part of FE-17/18)
+
+Both public and customer discovery require a selected state before listing shops, sort available state choices, and provide a broader state search. Shop links and profile back links retain state/local-area filters. Public service actions preserve the selected service through login, failed credentials, account creation, and the booking form; rejected booking forms also retain location. Customer return URLs allow only workspace GET destinations and reject external URLs, traversal/encoded paths, authentication loops, and mutation endpoints.
+
+Public profile navigation now shows the dashboard for a signed-in customer. Portfolio shopping continues to a selected-seller catalogue, including after auth, and adding a product retains that seller filter. Tests render the real pages and exercise failed login/signup, successful signup/login continuation, selected service, initial location policy, signed-in public navigation, seller filtering, and unsafe return URLs. Canonical geography (FE-10), landing-page account navigation, media/enlargement, shared navigation, and browser verification remain separately tracked.

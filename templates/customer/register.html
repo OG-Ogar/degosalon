@@ -37,6 +37,7 @@
               method="post"
               action="/customer/register"
               enctype="multipart/form-data">
+ <input type="hidden" name="next" value="{{index .Values "next"}}">
 
             <div class="auth-field">
 
@@ -162,7 +163,7 @@
 
             <span>Already have an account?</span>
 
-            <a href="/customer/login">
+            <a href="/customer/login?next={{urlquery (index .Values "next")}}">
                 Sign In
             </a>
 

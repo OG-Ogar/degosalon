@@ -13,6 +13,7 @@ import (
 // customerForm is the validated content of the customer signup and
 // profile forms.
 type customerForm struct {
+	Next     string
 	FullName string
 	Phone    string
 	Email    string
@@ -21,6 +22,7 @@ type customerForm struct {
 // readCustomerForm parses the shared customer fields.
 func readCustomerForm(r *http.Request) (customerForm, string) {
 	form := customerForm{
+		Next:     safeCustomerNext(r.PostFormValue("next")),
 		FullName: trimmedField(r.PostFormValue("fullname")),
 		Phone:    trimmedField(r.PostFormValue("phone")),
 		Email:    normalisedEmail(r.PostFormValue("email")),
@@ -36,6 +38,7 @@ func readCustomerForm(r *http.Request) (customerForm, string) {
 // values feeds the form back to the template after a rejection.
 func (f customerForm) values() map[string]string {
 	return map[string]string{
+		"next":     f.Next,
 		"fullname": f.FullName,
 		"phone":    f.Phone,
 		"email":    f.Email,
@@ -47,7 +50,9 @@ func CustomerRegisterHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 
 	case http.MethodGet:
-		render(w, "customer/register.html", newFormView(""))
+		view := newFormView("")
+		view.Values["next"] = safeCustomerNext(r.URL.Query().Get("next"))
+		render(w, "customer/register.html", view)
 
 	case http.MethodPost:
 		limitRequestBodyFor(w, r, 1)
@@ -155,12 +160,11 @@ func CustomerRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		http.Redirect(
-			w,
-			r,
-			"/customer/dashboard",
-			http.StatusSeeOther,
-		)
+		destination := form.Next
+		if destination == "" {
+			destination = "/customer/dashboard"
+		}
+		http.Redirect(w, r, destination, http.StatusSeeOther)
 
 	default:
 		methodNotAllowed(w, http.MethodGet, http.MethodPost)

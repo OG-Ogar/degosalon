@@ -6,6 +6,9 @@ import (
 	"barber-booking/storage"
 	"errors"
 	"net/http"
+	"net/url"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -22,6 +25,11 @@ type exploreView struct {
 	SelectedState, SelectedArea string
 }
 type publicBarberView struct {
+	ResultsLink      string
+	LoginLink        string
+	RegisterLink     string
+	ServiceLinks     map[int]string
+	ShopLink         string
 	Barber           models.Barber
 	Hairstyles       []models.Hairstyle
 	Products         []models.Product
@@ -89,6 +97,7 @@ func ExploreBarbersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		cards = append(cards, card)
 	}
+	sort.Strings(states)
 	render(w, "explore.html", exploreView{Items: cards, States: states, SelectedState: state, SelectedArea: area})
 }
 
@@ -142,11 +151,26 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		}
 		signedIn = err == nil
 	}
-	bookLink := "/customer/login?next=/customer/barbers/" + idSegment + "%23booking"
-	messageLink := "/customer/login?next=/customer/chats/" + idSegment
+	query := discoveryQuery(r)
+	bookingPath := customerBookingPath(id, 0, query)
+	loginLink := customerLoginPath(bookingPath)
+	registerLink := discoveryPath("/customer/register", url.Values{"next": {bookingPath}})
+	bookLink := loginLink
+	messageLink := customerLoginPath("/customer/chats/" + idSegment)
+	shopPath := discoveryPath("/customer/products", url.Values{"barber": {strconv.Itoa(id)}})
+	shopLink := customerLoginPath(shopPath)
 	if signedIn {
-		bookLink = "/customer/barbers/" + idSegment + "#booking"
+		bookLink = bookingPath
 		messageLink = "/customer/chats/" + idSegment
+		shopLink = shopPath
 	}
-	render(w, "explore-barber.html", publicBarberView{Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
+	serviceLinks := map[int]string{}
+	for _, style := range styles {
+		destination := customerBookingPath(id, style.ID, query)
+		if !signedIn {
+			destination = customerLoginPath(destination)
+		}
+		serviceLinks[style.ID] = destination
+	}
+	render(w, "explore-barber.html", publicBarberView{ResultsLink: discoveryPath("/explore", query), LoginLink: loginLink, RegisterLink: registerLink, ServiceLinks: serviceLinks, ShopLink: shopLink, Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
 }

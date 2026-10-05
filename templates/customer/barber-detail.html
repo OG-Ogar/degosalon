@@ -51,7 +51,7 @@
          aria-label="Customer navigation">
 
         <a class="nav-box"
-           href="/customer/barbers">
+           href="{{.ResultsLink}}">
 
             <span class="nav-number">
                 01
@@ -110,7 +110,7 @@
 <main class="barber-main">
 
     <a class="back-link"
-       href="/customer/barbers">
+       href="{{.ResultsLink}}">
 
         &larr; Back to barbers
 
@@ -283,6 +283,8 @@
                   method="post"
                   action="/customer/book"
                   id="booking">
+ <input type="hidden" name="state" value="{{.SelectedState}}">
+ <input type="hidden" name="area" value="{{.SelectedArea}}">
 
                 <input
                     type="hidden"

@@ -3,7 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"strings"
 
 	"barber-booking/security"
 	"barber-booking/session"
@@ -37,6 +36,7 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 				"customer/login.html",
 				email,
 				"Email and password are both required.",
+				next,
 			)
 
 			return
@@ -58,6 +58,7 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 				"customer/login.html",
 				email,
 				"Invalid email or password.",
+				next,
 			)
 
 			return
@@ -72,6 +73,7 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 				"customer/login.html",
 				email,
 				"Invalid email or password.",
+				next,
 			)
 
 			return
@@ -126,12 +128,4 @@ func CustomerLogoutHandler(
 		"/",
 		http.StatusSeeOther,
 	)
-}
-
-func safeCustomerNext(next string) string {
-	next = strings.TrimSpace(next)
-	if !strings.HasPrefix(next, "/customer/") || strings.HasPrefix(next, "//") {
-		return ""
-	}
-	return next
 }

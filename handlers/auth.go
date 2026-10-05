@@ -46,7 +46,11 @@ func requireBarber(w http.ResponseWriter, r *http.Request) (models.Barber, sessi
 func requireCustomer(w http.ResponseWriter, r *http.Request) (models.Customer, session.Session, bool) {
 	s, ok := session.FromRequest(r, session.RoleCustomer)
 	if !ok {
-		http.Redirect(w, r, "/customer/login", http.StatusSeeOther)
+		destination := "/customer/login"
+		if r.Method == http.MethodGet {
+			destination = customerLoginPath(r.URL.RequestURI())
+		}
+		http.Redirect(w, r, destination, http.StatusSeeOther)
 
 		return models.Customer{}, session.Session{}, false
 	}
@@ -58,7 +62,11 @@ func requireCustomer(w http.ResponseWriter, r *http.Request) (models.Customer, s
 	}
 	if errors.Is(err, storage.ErrNotFound) {
 		session.Clear(w, r, session.RoleCustomer)
-		http.Redirect(w, r, "/customer/login", http.StatusSeeOther)
+		destination := "/customer/login"
+		if r.Method == http.MethodGet {
+			destination = customerLoginPath(r.URL.RequestURI())
+		}
+		http.Redirect(w, r, destination, http.StatusSeeOther)
 
 		return models.Customer{}, session.Session{}, false
 	}
@@ -104,10 +112,13 @@ func requireCSRF(w http.ResponseWriter, r *http.Request, s session.Session) bool
 // loginError re-renders a login form with the reason it was rejected.
 // The message never distinguishes an unknown account from a wrong
 // password, so it cannot be used to enumerate registered emails.
-func loginError(w http.ResponseWriter, template, email, message string) {
+func loginError(w http.ResponseWriter, template, email, message string, next ...string) {
 	view := newFormView("")
 	view.Error = message
 	view.Values["email"] = email
+	if len(next) > 0 {
+		view.Values["next"] = safeCustomerNext(next[0])
+	}
 
 	renderStatus(w, http.StatusUnauthorized, template, view)
 }

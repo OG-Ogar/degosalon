@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"database/sql"
 	"errors"
 	"sort"
 	"time"
@@ -23,9 +24,8 @@ var (
 	lastProductOrderItemID int
 )
 
+type CheckoutError struct{ Message string }
 
-
-type CheckoutError struct { Message string }
 func (e CheckoutError) Error() string { return e.Message }
 
 // CheckoutCart atomically converts a customer's cart into one order. Stock is
@@ -130,20 +130,26 @@ func FindProductOrderByID(id int) (models.ProductOrder, bool) {
 }
 
 // ListProductOrderItems returns all items belonging to an order.
-func ListProductOrderItems(orderID int) []models.ProductOrderItem {
-	if databaseEnabled(){rows,err:=db.Query("select id,order_id,product_id,barber_id,product_name,price,quantity,subtotal from public.product_order_items where order_id=$1 order by id",orderID);if err==nil{defer rows.Close();var out []models.ProductOrderItem;for rows.Next(){var v models.ProductOrderItem;if rows.Scan(&v.ID,&v.OrderID,&v.ProductID,&v.BarberID,&v.ProductName,&v.Price,&v.Quantity,&v.Subtotal)==nil{out=append(out,v)}};return out}}
+func ListProductOrderItems(ctx context.Context, orderID int) ([]models.ProductOrderItem, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
+	if databaseEnabled() {
+		return queryRecords(ctx, "select id,order_id,product_id,barber_id,product_name,price,quantity,subtotal from public.product_order_items where order_id=$1 order by id", func(rows *sql.Rows) (models.ProductOrderItem, error) {
+			var v models.ProductOrderItem
+			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal)
+			return v, err
+		}, orderID)
+	}
 	mu.RLock()
 	defer mu.RUnlock()
-
-	items := make([]models.ProductOrderItem, 0)
-
-	for _, item := range productOrderItems {
-		if item.OrderID == orderID {
-			items = append(items, item)
+	out := make([]models.ProductOrderItem, 0)
+	for _, v := range productOrderItems {
+		if v.OrderID == orderID {
+			out = append(out, v)
 		}
 	}
-
-	return items
+	return out, nil
 }
 
 // ListProductOrdersByCustomer returns all orders belonging to a customer.
@@ -181,27 +187,51 @@ func ListProductOrdersByCustomer(ctx context.Context, customerID int) ([]models.
 
 // ListProductOrderItemsByBarber returns all purchased product items
 // belonging to a specific barber.
-func ListProductOrderItemsByBarber(barberID int) []models.ProductOrderItem {
+func ListProductOrderItemsByBarber(ctx context.Context, barberID int) ([]models.ProductOrderItem, error) {
+	if err := ctx.Err(); err != nil {
+		return nil, err
+	}
 	if databaseEnabled() {
-		rows,err:=db.Query(`select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status
-			from public.product_order_items i join public.product_orders o on o.id=i.order_id
-			where i.barber_id=$1 order by i.id desc`,barberID)
-		if err==nil {
-			defer rows.Close(); var out []models.ProductOrderItem
-			for rows.Next(){var v models.ProductOrderItem;if rows.Scan(&v.ID,&v.OrderID,&v.ProductID,&v.BarberID,&v.ProductName,&v.Price,&v.Quantity,&v.Subtotal,&v.CustomerName,&v.CustomerPhone,&v.CustomerEmail,&v.OrderStatus)==nil{out=append(out,v)}}
-			return out
-		}
+		return queryRecords(ctx, `select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status from public.product_order_items i join public.product_orders o on o.id=i.order_id where i.barber_id=$1 order by i.id desc`, func(rows *sql.Rows) (models.ProductOrderItem, error) {
+			var v models.ProductOrderItem
+			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.OrderStatus)
+			return v, err
+		}, barberID)
 	}
 	mu.RLock()
 	defer mu.RUnlock()
-
-	items := make([]models.ProductOrderItem, 0)
-
-	for _, item := range productOrderItems {
-		if item.BarberID == barberID {
-			items = append(items, item)
+	out := make([]models.ProductOrderItem, 0)
+	for _, v := range productOrderItems {
+		if v.BarberID != barberID {
+			continue
 		}
+		for _, order := range productOrders {
+			if order.ID == v.OrderID {
+				v.CustomerName = order.CustomerName
+				v.CustomerPhone = order.CustomerPhone
+				v.CustomerEmail = order.CustomerEmail
+				v.OrderStatus = order.Status
+				break
+			}
+		}
+		out = append(out, v)
 	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ID > out[j].ID })
+	return out, nil
+}
 
-	return items
+func FindProductOrderByIDResult(ctx context.Context, id int) (models.ProductOrder, error) {
+	if err := ctx.Err(); err != nil {
+		return models.ProductOrder{}, err
+	}
+	if databaseEnabled() {
+		var v models.ProductOrder
+		err := db.QueryRowContext(ctx, "select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where id=$1", id).Scan(&v.ID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.TotalAmount, &v.Status, &v.CreatedAt)
+		return v, recordError(err)
+	}
+	v, ok := FindProductOrderByID(id)
+	if !ok {
+		return models.ProductOrder{}, ErrNotFound
+	}
+	return v, nil
 }

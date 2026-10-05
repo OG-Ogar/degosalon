@@ -37,6 +37,12 @@ Regression coverage exercises query errors, invalid rows, missing rows, case-ins
 
 A further recovery defect was confirmed while tracing these paths: `SetCustomerPassword` and `SetBarberPassword` still write only to memory. Persistent password updates must be included in the recovery completion work (BE-11), alongside mail delivery and durable tokens.
 
+### Third implementation: commerce read errors (BE-09)
+
+Catalogue, seller inventory, cart lists/counts, order confirmation/items, portfolio products, and seller sales now return query/scan/iteration errors and use request contexts. Seller sales hydrate customer details consistently in both storage modes. Product ownership/deletion and add-to-cart preserve real database errors rather than relabeling every failure as missing records or stock conflicts.
+
+Tests cover query/scan failures, interruption after a valid row without partial success, scoped seller sales, and failed commerce requests. Booking, discovery, reviews, messaging, and admin list/record reads remain to migrate before closing BE-09.
+
 ### Remaining sequence
 
 1. Continue database error propagation through remaining core record/list reads (BE-09). Authentication lookup failures now preserve sessions; other boolean/list APIs still need migration.

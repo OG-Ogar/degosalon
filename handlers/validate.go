@@ -23,6 +23,7 @@ const (
 var (
 	openingHour = 8
 	closingHour = 20
+	bookingLocation = time.Local
 )
 
 // passwordTooShortMessage is shown when a new password is rejected.
@@ -54,7 +55,7 @@ func validBookingDate(value string) (string, string) {
 
 	// ISO dates sort the same as they compare, so string comparison is
 	// enough here and avoids timezone arithmetic.
-	if normalised < time.Now().Format("2006-01-02") {
+	if normalised < time.Now().In(bookingLocation).Format("2006-01-02") {
 		return "", "That date has already passed."
 	}
 
@@ -88,8 +89,21 @@ func validBookingTime(value string) (string, string) {
 
 // today is the earliest date a booking form will accept, used as the min
 // attribute on the date input.
+func validBookingInterval(dateText, timeText string, duration int) string {
+	start, err := time.ParseInLocation("2006-01-02 15:04", dateText+" "+timeText, bookingLocation)
+	if err != nil { return "Choose a valid appointment date and time." }
+	if !start.After(time.Now().In(bookingLocation)) {
+		return "That appointment time has already passed."
+	}
+	closing := time.Date(start.Year(), start.Month(), start.Day(), closingHour, 0, 0, 0, bookingLocation)
+	if start.Add(time.Duration(duration)*time.Minute).After(closing) {
+		return fmt.Sprintf("That service would finish after closing time at %s.", formatHour(closingHour))
+	}
+	return ""
+}
+
 func today() string {
-	return time.Now().Format("2006-01-02")
+	return time.Now().In(bookingLocation).Format("2006-01-02")
 }
 
 // formatHour renders an opening-hours bound as HH:MM.

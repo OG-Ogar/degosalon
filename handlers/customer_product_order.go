@@ -19,16 +19,18 @@ func CustomerProductOrderHandler(
 		methodNotAllowed(w, http.MethodPost)
 		return
 	}
-	if !requireCSRF(w, r, s) { return }
+	if !requireCSRF(w, r, s) {
+		return
+	}
 
-	order, err := storage.CheckoutCart(customer)
+	order, err := storage.CheckoutCartContext(r.Context(), customer)
 	if err != nil {
 		var checkoutErr storage.CheckoutError
 		switch {
 		case errors.Is(err, storage.ErrNotFound):
 			http.Redirect(w, r, "/customer/cart", http.StatusSeeOther)
 		case errors.As(err, &checkoutErr):
-			http.Error(w, checkoutErr.Error(), http.StatusConflict)
+			renderCustomerCart(w, r, customer, s, http.StatusConflict, checkoutErr.Error())
 		default:
 			serverError(w, "checkout customer cart", err)
 		}

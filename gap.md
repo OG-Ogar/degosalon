@@ -263,3 +263,10 @@ Acceptance: shared memory and live PostgreSQL cases check stale-profile protecti
 Review eligibility and insertion are atomic in memory; PostgreSQL uses an eligible owned completed-booking insert and its unique booking key with a controlled conflict result. Concurrent duplicate submissions cannot create multiple reviews or expose raw uniqueness failures. Customer names come from the owned account, and comment limits preserve complete Unicode characters.
 
 Acceptance: shared memory/PostgreSQL cases exercise pending and unowned booking rejection, two simultaneous submissions, one stored review, trusted name snapshots, Unicode limits, and request cancellation. Full styled error presentation remains FE-19.
+
+
+## Ninth implementation: cart editing and serialized checkout (BE-05 / part of BE-04/08)
+
+Customer cart lines now have quantity and remove forms with CSRF protection, ownership checks, integer/stock validation, and stock-conflict feedback rendered within the cart at the correct HTTP status. Unavailable or suspended-seller items can always be removed. Stock is reserved only at checkout. Product-stock failures have their own error, rather than a booking-slot error.
+
+All PostgreSQL cart writes and checkout lock the customer row before touching cart rows, including empty carts and newly added product lines. Product/seller eligibility reads hold locks until transaction completion. Checkout and cart changes accept request contexts. A PostgreSQL fault-delay test overlaps a new product addition with checkout and checks that the addition survives; shared memory/PostgreSQL editing tests verify ownership, stock, removal, and cancellation. HTTP tests cover rendered controls, CSRF, validation, stock recovery, and removal with an invalid quantity field. Explicit checkout replay keys, payment/fulfillment policy, and browser acceptance remain open.

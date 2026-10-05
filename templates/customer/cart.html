@@ -63,6 +63,8 @@
 
     </div>
 
+    {{if .Problem}}<p class="cart-problem" role="alert">{{.Problem}}</p>{{end}}
+
     {{if .Items}}
 
         <section class="cart-list">
@@ -138,6 +140,15 @@
                                 {{.Quantity}}
                             </strong>
                         </p>
+
+                        <form class="cart-quantity-form" method="post" action="/customer/cart/{{.Product.ID}}/update">
+                            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+                            <label for="quantity-{{.Product.ID}}">Quantity for {{.Product.Name}}</label>
+                            <input id="quantity-{{.Product.ID}}" name="quantity" type="number" min="0" max="2147483647" step="1" value="{{.Quantity}}" required inputmode="numeric">
+                            <button type="submit">Update quantity</button>
+                            <button type="submit" name="remove" value="yes" formnovalidate>Remove item</button>
+                        </form>
+                        <p>Available stock: {{.Product.Quantity}}</p>
 
                         <p class="cart-item-subtotal">
                             Subtotal:

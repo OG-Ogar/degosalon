@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"strconv"
 
 	"barber-booking/models"
 	"barber-booking/storage"
@@ -30,33 +31,15 @@ func AddToCartHandler(
 		return
 	}
 
-	product, err := storage.FindProductByIDResult(r.Context(), id)
+	_, err := storage.AddToCartContext(r.Context(), customer.ID, id)
+	if errors.Is(err, storage.ErrInsufficientStock) || errors.Is(err, storage.ErrUnavailable) {
+		renderCustomerCart(w, r, customer, s, http.StatusConflict, "This product is unavailable or does not have enough stock. Adjust or remove it below, or continue shopping.")
+		return
+	}
 	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)
 		return
 	}
-	if err != nil {
-		serverError(w, "load product for cart", err)
-		return
-	}
-
-	if !product.IsAvailable {
-		http.Error(w, "This product is not available.", http.StatusConflict)
-		return
-	}
-
-	if product.Quantity <= 0 {
-		http.Error(w, "This product is out of stock.", http.StatusConflict)
-		return
-	}
-
-	_, err = storage.AddToCart(customer.ID, product.ID)
-
-	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
-		return
-	}
-
 	if err != nil {
 		serverError(w, "add product to cart", err)
 		return
@@ -73,9 +56,10 @@ type customerCartItem struct {
 }
 
 type customerCartView struct {
-	Items []customerCartItem
-	Total float64
-	CSRF  string
+	Items   []customerCartItem
+	Total   float64
+	CSRF    string
+	Problem string
 }
 
 func CustomerCartHandler(
@@ -89,6 +73,10 @@ func CustomerCartHandler(
 		return
 	}
 
+	renderCustomerCart(w, r, customer, s, http.StatusOK, "")
+}
+
+func renderCustomerCart(w http.ResponseWriter, r *http.Request, customer models.Customer, s sessionData, status int, problem string) {
 	cartItems, err := storage.ListCartItems(r.Context(), customer.ID)
 	if err != nil {
 		serverError(w, "load customer cart", err)
@@ -131,10 +119,51 @@ func CustomerCartHandler(
 	}
 
 	view := customerCartView{
-		Items: items,
-		Total: total,
-		CSRF:  s.CSRFToken,
+		Items:   items,
+		Total:   total,
+		CSRF:    s.CSRFToken,
+		Problem: problem,
 	}
 
-	render(w, "customer/cart.html", view)
+	renderStatus(w, status, "customer/cart.html", view)
+}
+
+func UpdateCartItemHandler(w http.ResponseWriter, r *http.Request, customer models.Customer, s sessionData, idSegment string) {
+	if r.Method != http.MethodPost {
+		methodNotAllowed(w, http.MethodPost)
+		return
+	}
+	if !requireCSRF(w, r, s) {
+		return
+	}
+	id, ok := parseID(idSegment)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	quantity, err := strconv.Atoi(r.PostFormValue("quantity"))
+	if r.PostFormValue("remove") == "yes" {
+		quantity = 0
+		err = nil
+	}
+	if err != nil || quantity < 0 || quantity > 2147483647 {
+		renderCustomerCart(w, r, customer, s, http.StatusBadRequest, "Choose a whole-number quantity of zero or more.")
+		return
+	}
+	err = storage.SetCartQuantity(r.Context(), customer.ID, id, quantity)
+	switch {
+	case errors.Is(err, storage.ErrNotFound):
+		renderCustomerCart(w, r, customer, s, http.StatusNotFound, "That item is no longer in your cart.")
+		return
+	case errors.Is(err, storage.ErrUnavailable):
+		renderCustomerCart(w, r, customer, s, http.StatusConflict, "This item is no longer available. Remove it to continue.")
+		return
+	case errors.Is(err, storage.ErrInsufficientStock):
+		renderCustomerCart(w, r, customer, s, http.StatusConflict, "There is not enough stock for that quantity. Choose a smaller quantity or remove the item.")
+		return
+	case err != nil:
+		serverError(w, "update cart quantity", err)
+		return
+	}
+	http.Redirect(w, r, "/customer/cart", http.StatusSeeOther)
 }

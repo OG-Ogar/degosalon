@@ -23,6 +23,14 @@ type Booking struct {
 	HairstyleID int
 	CustomerID  int
 
+	// Service/shop metadata is frozen when the appointment is created.
+	BarberName      string
+	ShopName        string
+	ShopAddress     string
+	ServiceName     string
+	ServicePrice    float64
+	ServiceDuration int
+
 	// Contact details are copied from the customer when the booking is
 	// made, so the barber keeps a record even if the customer later
 	// edits their profile.

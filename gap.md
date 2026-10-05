@@ -272,7 +272,7 @@ Customer cart lines now have quantity and remove forms with CSRF protection, own
 All PostgreSQL cart writes and checkout lock the customer row before touching cart rows, including empty carts and newly added product lines. Product/seller eligibility reads hold locks until transaction completion. Checkout and cart changes accept request contexts. A PostgreSQL fault-delay test overlaps a new product addition with checkout and checks that the addition survives; shared memory/PostgreSQL editing tests verify ownership, stock, removal, and cancellation. HTTP tests cover rendered controls, CSRF, validation, stock recovery, and removal with an invalid quantity field. Explicit checkout replay keys, payment/fulfillment policy, and browser acceptance remain open.
 
 
-## Tenth implementation: versioned database migrations (BE-19)
+## Tenth implementation: versioned database migrations (BE-21)
 
 A CLI-created immutable baseline and embedded Go migration runner replace unrecorded startup DDL. The runner records checksums in a private RLS-protected ledger, serializes concurrent commands, and commits schema/history atomically. App startup verifies applied versions and checksums without changing the schema. Render builds the runner and executes it before starting the app; other deployments have an explicit documented migration command. No production database is directly changed by the development tools.
 
@@ -283,7 +283,7 @@ Acceptance: PostgreSQL CI tests fresh and simultaneous migration commands, exist
 
 Cart checkout forms carry a cryptographically random request key. The customer-scoped key is saved with the order in the same transaction as items, stock, and cart removal. A duplicate request returns its original order before reading the current cart, including after storage reconnect; later cart additions remain untouched. Failed requests do not claim keys. Missing/malformed keys return a recoverable cart form, and the database enforces key format and per-customer uniqueness through a new versioned migration. Legacy pre-key orders remain valid.
 
-Acceptance: shared memory/PostgreSQL cases cover simultaneous identical requests, one order/stock change, replay with a new cart, customer isolation, invalid keys, and retry after stock failure. PostgreSQL verifies replay after reconnect. HTTP coverage extracts the real form key, checks missing-key recovery, repeats the checkout, verifies identical confirmation destinations, and proves client-supplied totals are ignored. Payment/fulfillment policy and money representation remain BE-07/17.
+Acceptance: shared memory/PostgreSQL cases cover simultaneous identical requests, one order/stock change, replay with a new cart, customer isolation, invalid keys, and retry after stock failure. PostgreSQL verifies replay after reconnect. HTTP coverage extracts the real form key, checks missing-key recovery, repeats the checkout, verifies identical confirmation destinations, and proves client-supplied totals are ignored. Payment/fulfillment policy and money representation remain BE-07/16.
 
 
 ## Twelfth implementation: preserved audit repairs (FE-07 / BE-24)
@@ -298,3 +298,10 @@ Acceptance: the existing real-template/application suite verifies the affected p
 Both public and customer discovery require a selected state before listing shops, sort available state choices, and provide a broader state search. Shop links and profile back links retain state/local-area filters. Public service actions preserve the selected service through login, failed credentials, account creation, and the booking form; rejected booking forms also retain location. Customer return URLs allow only workspace GET destinations and reject external URLs, traversal/encoded paths, authentication loops, and mutation endpoints.
 
 Public profile navigation now shows the dashboard for a signed-in customer. Portfolio shopping continues to a selected-seller catalogue, including after auth, and adding a product retains that seller filter. Tests render the real pages and exercise failed login/signup, successful signup/login continuation, selected service, initial location policy, signed-in public navigation, seller filtering, and unsafe return URLs. Canonical geography (FE-10), landing-page account navigation, media/enlargement, shared navigation, and browser verification remain separately tracked.
+
+
+## Fourteenth implementation: immutable booking metadata (BE-02 / part of BE-15)
+
+New bookings snapshot service name, price, duration, barber name, shop name, and address inside the same atomic decision as availability/overlap checks. Service and seller reads hold row locks until insertion, and creation accepts the request context. Overlap checks use existing appointments' recorded durations, so editing a service cannot shorten occupied intervals retroactively. Confirmation/history rendering uses these immutable text/price/duration fields rather than depending on current service/shop records.
+
+The versioned migration backfills existing appointments from retained metadata; it cannot reconstruct changes made before snapshotting existed. Shared memory/PostgreSQL cases verify server-owned fields, edits that leave original history/intervals intact, new appointments using new metadata, and cancellation. Real-template tests verify original confirmation/history details after edits. Archival/retention and immutable order seller details remain BE-15; per-barber schedules/available-slot selection remain BE-02.

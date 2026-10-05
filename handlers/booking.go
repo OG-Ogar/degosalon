@@ -134,7 +134,7 @@ func BookHairstyleHandler(
 		return
 	}
 
-	booking, err := storage.CreateBooking(models.Booking{
+	booking, err := storage.CreateBookingContext(r.Context(), models.Booking{
 		BarberID:      barber.ID,
 		HairstyleID:   request.HairstyleID,
 		CustomerID:    customer.ID,
@@ -231,6 +231,10 @@ func BookingConfirmationHandler(
 		return
 	}
 
+	if booking.ServiceDuration > 0 {
+		render(w, "customer/booking-confirmation.html", bookingConfirmationView{CSRF: s.CSRFToken, Booking: booking, Barber: models.Barber{ID: booking.BarberID, FullName: booking.BarberName, ShopName: booking.ShopName, ShopAddress: booking.ShopAddress}, Hairstyle: models.Hairstyle{ID: booking.HairstyleID, Name: booking.ServiceName, Price: booking.ServicePrice, Duration: booking.ServiceDuration}})
+		return
+	}
 	barber, err := storage.FindBarberByIDContext(r.Context(), booking.BarberID)
 	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)

@@ -27,7 +27,7 @@ type resetFlow struct {
 	FindID func(ctx context.Context, email string) (int, error)
 
 	// SetPassword stores an already hashed password.
-	SetPassword func(id int, hash string) error
+	SetPassword func(ctx context.Context, id int, hash string) error
 }
 
 var customerResetFlow = resetFlow{
@@ -41,7 +41,7 @@ var customerResetFlow = resetFlow{
 		return customer.ID, err
 	},
 
-	SetPassword: storage.SetCustomerPassword,
+	SetPassword: storage.SetCustomerPasswordContext,
 }
 
 var barberResetFlow = resetFlow{
@@ -58,7 +58,7 @@ var barberResetFlow = resetFlow{
 		return barber.ID, err
 	},
 
-	SetPassword: storage.SetBarberPassword,
+	SetPassword: storage.SetBarberPasswordContext,
 }
 
 // resetView backs both forgotten-password pages.
@@ -233,7 +233,7 @@ func resetPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 			return
 		}
 
-		if err := flow.SetPassword(id, hash); err != nil {
+		if err := flow.SetPassword(r.Context(), id, hash); err != nil {
 			serverError(w, "store reset password", err)
 
 			return

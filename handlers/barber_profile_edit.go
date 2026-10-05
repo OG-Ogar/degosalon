@@ -70,7 +70,7 @@ func EditProfileHandler(
 		barber.ProfileImage = shop
 		barber.PersonalImage = personal
 
-		err = storage.UpdateBarber(barber)
+		err = storage.UpdateBarberProfile(r.Context(), barber)
 
 		if errors.Is(err, storage.ErrEmailTaken) {
 			removeImageIgnoringError(addedShop)

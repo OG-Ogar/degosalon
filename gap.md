@@ -249,3 +249,10 @@ This is a bounded start on confirmed backend defects. Checkout, availability, mi
 ## Release decision
 
 The public design direction is worth keeping, but the repository should not be described as a fully consistent or production-verified platform. Prioritize integrity and interrupted journeys, then consolidate components. Close a gap only after its stated acceptance behavior is demonstrated; a palette change, checked planning checkbox or passing helper test is insufficient.
+
+
+## Seventh implementation: durable account writes
+
+Password replacement now writes PostgreSQL for both account roles. Customer profile edits and barber status changes also persist, and their production callers pass the request context. Profile writes explicitly exclude passwords and barber account status, so stale copies cannot undo a concurrent reset or suspension. SQL errors remain errors; missing rows and duplicate emails retain their separate meanings.
+
+Acceptance: shared memory and live PostgreSQL cases check stale-profile protection, password replacement, suspension, duplicate emails, missing accounts, and canceled requests. The PostgreSQL CI suite added in PR #54 passed before that PR merged. Durable reset tokens, sessions, delivery, broader profile validation, and account archival remain separate gaps.

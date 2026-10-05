@@ -63,7 +63,7 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if _, err := session.Start(w, session.RoleBarber, barber.ID); err != nil {
+		if _, err := session.StartContext(r.Context(), w, session.RoleBarber, barber.ID); err != nil {
 			serverError(w, "start barber session", err)
 
 			return
@@ -91,7 +91,10 @@ func BarberLogoutHandler(w http.ResponseWriter, r *http.Request, s sessionData) 
 		return
 	}
 
-	session.Clear(w, r, session.RoleBarber)
+	if err := session.ClearContext(w, r, session.RoleBarber); err != nil {
+		serverError(w, "end barber session", err)
+		return
+	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

@@ -144,7 +144,7 @@ func CustomerRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Signing them straight in saves a pointless second form.
-		if _, err := session.Start(
+		if _, err := session.StartContext(r.Context(),
 			w,
 			session.RoleCustomer,
 			customer.ID,

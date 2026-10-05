@@ -19,8 +19,12 @@ type sessionData = session.Session
 // the login page. A barber whose account was deleted or suspended while
 // they were signed in is logged straight out.
 func requireBarber(w http.ResponseWriter, r *http.Request) (models.Barber, session.Session, bool) {
-	s, ok := session.FromRequest(r, session.RoleBarber)
-	if !ok {
+	s, sessionErr := session.FromRequestContext(r, session.RoleBarber)
+	if sessionErr != nil && !errors.Is(sessionErr, session.ErrNotFound) {
+		serverError(w, "load barber session", sessionErr)
+		return models.Barber{}, session.Session{}, false
+	}
+	if sessionErr != nil {
 		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 
 		return models.Barber{}, session.Session{}, false
@@ -32,7 +36,10 @@ func requireBarber(w http.ResponseWriter, r *http.Request) (models.Barber, sessi
 		return models.Barber{}, session.Session{}, false
 	}
 	if errors.Is(err, storage.ErrNotFound) || !barber.IsActive() {
-		session.Clear(w, r, session.RoleBarber)
+		if err := session.ClearContext(w, r, session.RoleBarber); err != nil {
+			serverError(w, "revoke barber session", err)
+			return models.Barber{}, session.Session{}, false
+		}
 		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 
 		return models.Barber{}, session.Session{}, false
@@ -44,8 +51,12 @@ func requireBarber(w http.ResponseWriter, r *http.Request) (models.Barber, sessi
 // requireCustomer resolves the signed-in customer or sends the visitor
 // to the customer login page.
 func requireCustomer(w http.ResponseWriter, r *http.Request) (models.Customer, session.Session, bool) {
-	s, ok := session.FromRequest(r, session.RoleCustomer)
-	if !ok {
+	s, sessionErr := session.FromRequestContext(r, session.RoleCustomer)
+	if sessionErr != nil && !errors.Is(sessionErr, session.ErrNotFound) {
+		serverError(w, "load customer session", sessionErr)
+		return models.Customer{}, session.Session{}, false
+	}
+	if sessionErr != nil {
 		destination := "/customer/login"
 		if r.Method == http.MethodGet {
 			destination = customerLoginPath(r.URL.RequestURI())
@@ -61,7 +72,10 @@ func requireCustomer(w http.ResponseWriter, r *http.Request) (models.Customer, s
 		return models.Customer{}, session.Session{}, false
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		session.Clear(w, r, session.RoleCustomer)
+		if err := session.ClearContext(w, r, session.RoleCustomer); err != nil {
+			serverError(w, "revoke customer session", err)
+			return models.Customer{}, session.Session{}, false
+		}
 		destination := "/customer/login"
 		if r.Method == http.MethodGet {
 			destination = customerLoginPath(r.URL.RequestURI())
@@ -78,8 +92,12 @@ func requireCustomer(w http.ResponseWriter, r *http.Request) (models.Customer, s
 // only redirected on success without creating any session, which left
 // every /admin/ URL reachable by anyone.
 func requireAdmin(w http.ResponseWriter, r *http.Request) (session.Session, bool) {
-	s, ok := session.FromRequest(r, session.RoleAdmin)
-	if !ok {
+	s, sessionErr := session.FromRequestContext(r, session.RoleAdmin)
+	if sessionErr != nil && !errors.Is(sessionErr, session.ErrNotFound) {
+		serverError(w, "load admin session", sessionErr)
+		return session.Session{}, false
+	}
+	if sessionErr != nil {
 		http.Redirect(w, r, "/admin/login", http.StatusSeeOther)
 
 		return session.Session{}, false

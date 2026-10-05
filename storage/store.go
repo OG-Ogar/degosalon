@@ -10,6 +10,7 @@ import (
 
 	"barber-booking/internal/dbmigrate"
 	"barber-booking/models"
+	"barber-booking/session"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -65,6 +66,7 @@ func InitDatabase() error {
 		return err
 	}
 	db = conn
+	session.ConfigureDatabase(conn)
 	return nil
 }
 
@@ -72,6 +74,7 @@ func CloseDatabase() error {
 	if db == nil {
 		return nil
 	}
+	session.ConfigureDatabase(nil)
 	err := db.Close()
 	db = nil
 	return err

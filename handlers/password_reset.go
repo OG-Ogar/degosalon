@@ -242,7 +242,10 @@ func resetPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 		// Whoever asked for the reset may have been locked out by
 		// somebody else already signed in as them, so every session the
 		// account has open goes as well.
-		session.DeleteForUser(flow.Role, id)
+		if err := session.DeleteForUserContext(r.Context(), flow.Role, id); err != nil {
+			serverError(w, "revoke reset account sessions", err)
+			return
+		}
 
 		http.Redirect(w, r, flow.Prefix+"/login?reset=1", http.StatusSeeOther)
 

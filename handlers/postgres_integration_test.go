@@ -75,3 +75,63 @@ func TestPostgresAuthenticationSurvivesQueryFailure(t *testing.T) {
 		})
 	}
 }
+
+func TestPostgresSessionOutagePreservesAuthentication(t *testing.T) {
+	databaseURL := testdb.New(t, "../supabase/schema.sql")
+	t.Setenv("DATABASE_URL", databaseURL)
+	if err := storage.InitDatabase(); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { storage.CloseDatabase() })
+	connection, err := sql.Open("pgx", databaseURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { connection.Close() })
+	customer, err := storage.CreateCustomer(models.Customer{Email: "session_outage@example.com"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	s, err := session.New(session.RoleCustomer, customer.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest(http.MethodGet, "/customer/dashboard", nil)
+	request.AddCookie(&http.Cookie{Name: session.CookieName(session.RoleCustomer), Value: s.ID})
+	if _, err := connection.Exec("alter table degosalon_internal.auth_sessions rename to unavailable_sessions"); err != nil {
+		t.Fatal(err)
+	}
+	failed := httptest.NewRecorder()
+	if checkAccountSession(session.RoleCustomer, failed, request) || failed.Code != 500 || len(failed.Result().Cookies()) != 0 {
+		t.Fatalf("session outage response: %d", failed.Code)
+	}
+	logoutRequest := authFormRequest("/customer/logout", url.Values{"csrf_token": {"test"}})
+	logoutRequest.AddCookie(&http.Cookie{Name: session.CookieName(session.RoleCustomer), Value: s.ID})
+	s.CSRFToken = "test"
+	logout := httptest.NewRecorder()
+	CustomerLogoutHandler(logout, logoutRequest, s)
+	if logout.Code != 500 || len(logout.Result().Cookies()) != 0 {
+		t.Fatalf("failed logout: %d", logout.Code)
+	}
+	if _, err := connection.Exec("alter table degosalon_internal.unavailable_sessions rename to auth_sessions"); err != nil {
+		t.Fatal(err)
+	}
+	if !checkAccountSession(session.RoleCustomer, httptest.NewRecorder(), request) {
+		t.Fatal("session unusable after outage")
+	}
+	storage.CloseDatabase()
+	if err := storage.InitDatabase(); err != nil {
+		t.Fatal(err)
+	}
+	if !checkAccountSession(session.RoleCustomer, httptest.NewRecorder(), request) {
+		t.Fatal("session lost on storage reconnect")
+	}
+	logout = httptest.NewRecorder()
+	CustomerLogoutHandler(logout, logoutRequest, s)
+	if logout.Code != 303 || len(logout.Result().Cookies()) != 1 {
+		t.Fatalf("recovered logout: %d", logout.Code)
+	}
+	if _, ok := session.Get(s.ID); ok {
+		t.Fatal("logout failed to revoke durable session")
+	}
+}

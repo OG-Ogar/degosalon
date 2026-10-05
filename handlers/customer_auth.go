@@ -79,7 +79,7 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if _, err := session.Start(
+		if _, err := session.StartContext(r.Context(),
 			w,
 			session.RoleCustomer,
 			customer.ID,
@@ -120,7 +120,10 @@ func CustomerLogoutHandler(
 		return
 	}
 
-	session.Clear(w, r, session.RoleCustomer)
+	if err := session.ClearContext(w, r, session.RoleCustomer); err != nil {
+		serverError(w, "end customer session", err)
+		return
+	}
 
 	http.Redirect(
 		w,

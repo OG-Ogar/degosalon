@@ -1,14 +1,14 @@
-// Package session keeps signed-in users in memory and owns the cookie
-// contract used by the admin, barber and customer logins.
-//
-// Every role gets its own cookie name, so one browser can be signed in
-// as a barber and a customer at the same time. Sessions carry a CSRF
-// token that state-changing requests must echo back.
+// Package session owns role-isolated authentication cookies and CSRF tokens.
+// Production sessions persist in PostgreSQL; local development can use memory.
 package session
 
 import (
+	"context"
 	"crypto/rand"
+	"crypto/sha256"
+	"database/sql"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -16,7 +16,6 @@ import (
 	"time"
 )
 
-// Role identifies which part of the site a session belongs to.
 type Role string
 
 const (
@@ -24,11 +23,10 @@ const (
 	RoleBarber   Role = "barber"
 	RoleCustomer Role = "customer"
 )
-
-// Lifetime is how long a session stays valid after it is created.
 const Lifetime = 12 * time.Hour
 
-// Session is one signed-in user.
+var ErrNotFound = errors.New("session not found")
+
 type Session struct {
 	ID        string
 	Role      Role
@@ -40,157 +38,187 @@ type Session struct {
 var (
 	mu       sync.Mutex
 	sessions = map[string]Session{}
+	database *sql.DB
 )
 
-// CookieName is the cookie that carries the session ID for a role.
-func CookieName(role Role) string {
-	return string(role) + "_session"
-}
-
-// secureCookies reports whether cookies should be marked Secure. It is
-// off by default because the development server speaks plain HTTP; set
-// SECURE_COOKIES=1 when serving the site over HTTPS.
-func secureCookies() bool {
-	return os.Getenv("SECURE_COOKIES") == "1"
-}
-
-// randomID returns a 32 character cryptographically random hex string.
+// ConfigureDatabase is called at startup, before serving requests. Passing nil
+// selects the development store. A configured SQL failure never falls back.
+func ConfigureDatabase(conn *sql.DB) { database = conn }
+func CookieName(role Role) string    { return string(role) + "_session" }
+func secureCookies() bool            { return os.Getenv("SECURE_COOKIES") == "1" }
 func randomID() (string, error) {
-	buf := make([]byte, 16)
-
+	buf := make([]byte, 32)
 	if _, err := rand.Read(buf); err != nil {
 		return "", fmt.Errorf("read random bytes: %w", err)
 	}
-
 	return hex.EncodeToString(buf), nil
 }
+func digest(id string) string { sum := sha256.Sum256([]byte(id)); return hex.EncodeToString(sum[:]) }
+func validIdentity(role Role, userID int) bool {
+	return (role == RoleAdmin && userID == 0) || ((role == RoleBarber || role == RoleCustomer) && userID > 0)
+}
+func bounded(ctx context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(ctx, 5*time.Second)
+}
 
-// New creates and stores a session for the given role and user ID.
 func New(role Role, userID int) (Session, error) {
+	return NewContext(context.Background(), role, userID)
+}
+func NewContext(ctx context.Context, role Role, userID int) (Session, error) {
+	ctx, cancel := bounded(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return Session{}, err
+	}
+	if !validIdentity(role, userID) {
+		return Session{}, errors.New("invalid session identity")
+	}
 	id, err := randomID()
 	if err != nil {
 		return Session{}, err
 	}
-
 	token, err := randomID()
 	if err != nil {
 		return Session{}, err
 	}
-
-	s := Session{
-		ID:        id,
-		Role:      role,
-		UserID:    userID,
-		CSRFToken: token,
-		ExpiresAt: time.Now().Add(Lifetime),
+	s := Session{ID: id, Role: role, UserID: userID, CSRFToken: token, ExpiresAt: time.Now().Add(Lifetime)}
+	if database != nil {
+		if _, err := database.ExecContext(ctx, "delete from degosalon_internal.auth_sessions where id_digest in (select id_digest from degosalon_internal.auth_sessions where expires_at<=now() order by expires_at limit 100)"); err != nil {
+			return Session{}, err
+		}
+		_, err := database.ExecContext(ctx, "insert into degosalon_internal.auth_sessions(id_digest,role,user_id,csrf_token,expires_at) values($1,$2,$3,$4,$5)", digest(id), role, userID, token, s.ExpiresAt)
+		if err != nil {
+			return Session{}, err
+		}
+		return s, nil
 	}
-
 	mu.Lock()
 	defer mu.Unlock()
-
-	// Opportunistically drop anything that has already expired so the
-	// map does not grow without bound.
 	for key, existing := range sessions {
-		if time.Now().After(existing.ExpiresAt) {
+		if !time.Now().Before(existing.ExpiresAt) {
 			delete(sessions, key)
 		}
 	}
-
-	sessions[id] = s
-
+	sessions[digest(id)] = s
 	return s, nil
 }
-
-// Get returns the session with the given ID. Expired sessions are
-// removed and reported as missing.
 func Get(id string) (Session, bool) {
+	s, err := GetContext(context.Background(), id)
+	return s, err == nil
+}
+func GetContext(ctx context.Context, id string) (Session, error) {
+	ctx, cancel := bounded(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return Session{}, err
+	}
+	if len(id) != 64 {
+		return Session{}, ErrNotFound
+	}
+	if _, err := hex.DecodeString(id); err != nil {
+		return Session{}, ErrNotFound
+	}
+	if database != nil {
+		var s Session
+		err := database.QueryRowContext(ctx, "select role,user_id,csrf_token,expires_at from degosalon_internal.auth_sessions where id_digest=$1 and expires_at>now()", digest(id)).Scan(&s.Role, &s.UserID, &s.CSRFToken, &s.ExpiresAt)
+		if errors.Is(err, sql.ErrNoRows) {
+			return Session{}, ErrNotFound
+		}
+		if err != nil {
+			return Session{}, err
+		}
+		s.ID = id
+		return s, nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
-
-	s, found := sessions[id]
-	if !found {
-		return Session{}, false
+	s, ok := sessions[digest(id)]
+	if !ok {
+		return Session{}, ErrNotFound
 	}
-
-	if time.Now().After(s.ExpiresAt) {
-		delete(sessions, id)
-		return Session{}, false
+	if !time.Now().Before(s.ExpiresAt) {
+		delete(sessions, digest(id))
+		return Session{}, ErrNotFound
 	}
-
-	return s, true
+	return s, nil
 }
-
-// Delete removes a single session, used on logout.
-func Delete(id string) {
+func Delete(id string) { _ = DeleteContext(context.Background(), id) }
+func DeleteContext(ctx context.Context, id string) error {
+	ctx, cancel := bounded(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if database != nil {
+		_, err := database.ExecContext(ctx, "delete from degosalon_internal.auth_sessions where id_digest=$1", digest(id))
+		return err
+	}
 	mu.Lock()
 	defer mu.Unlock()
-
-	delete(sessions, id)
+	delete(sessions, digest(id))
+	return nil
 }
-
-// DeleteForUser removes every session belonging to one account. The
-// admin calls this after suspending or deleting a barber so that any
-// browser already signed in as that barber is signed straight out.
 func DeleteForUser(role Role, userID int) {
+	_ = DeleteForUserContext(context.Background(), role, userID)
+}
+func DeleteForUserContext(ctx context.Context, role Role, userID int) error {
+	ctx, cancel := bounded(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if database != nil {
+		_, err := database.ExecContext(ctx, "delete from degosalon_internal.auth_sessions where role=$1 and user_id=$2", role, userID)
+		return err
+	}
 	mu.Lock()
 	defer mu.Unlock()
-
 	for id, s := range sessions {
 		if s.Role == role && s.UserID == userID {
 			delete(sessions, id)
 		}
 	}
+	return nil
 }
-
-// Start creates a session and writes its cookie to the response.
 func Start(w http.ResponseWriter, role Role, userID int) (Session, error) {
-	s, err := New(role, userID)
+	return StartContext(context.Background(), w, role, userID)
+}
+func StartContext(ctx context.Context, w http.ResponseWriter, role Role, userID int) (Session, error) {
+	s, err := NewContext(ctx, role, userID)
 	if err != nil {
 		return Session{}, err
 	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     CookieName(role),
-		Value:    s.ID,
-		Path:     "/",
-		MaxAge:   int(Lifetime.Seconds()),
-		HttpOnly: true,
-		Secure:   secureCookies(),
-		SameSite: http.SameSiteLaxMode,
-	})
-
+	http.SetCookie(w, &http.Cookie{Name: CookieName(role), Value: s.ID, Path: "/", MaxAge: int(Lifetime.Seconds()), HttpOnly: true, Secure: secureCookies(), SameSite: http.SameSiteLaxMode})
 	return s, nil
 }
-
-// Clear deletes the session named by the role's cookie and expires the
-// cookie in the browser.
-func Clear(w http.ResponseWriter, r *http.Request, role Role) {
+func Clear(w http.ResponseWriter, r *http.Request, role Role) { _ = ClearContext(w, r, role) }
+func ClearContext(w http.ResponseWriter, r *http.Request, role Role) error {
 	if cookie, err := r.Cookie(CookieName(role)); err == nil {
-		Delete(cookie.Value)
+		if err := DeleteContext(r.Context(), cookie.Value); err != nil {
+			return err
+		}
 	}
-
-	http.SetCookie(w, &http.Cookie{
-		Name:     CookieName(role),
-		Value:    "",
-		Path:     "/",
-		MaxAge:   -1,
-		HttpOnly: true,
-		Secure:   secureCookies(),
-		SameSite: http.SameSiteLaxMode,
-	})
+	http.SetCookie(w, &http.Cookie{Name: CookieName(role), Value: "", Path: "/", MaxAge: -1, HttpOnly: true, Secure: secureCookies(), SameSite: http.SameSiteLaxMode})
+	return nil
 }
-
-// FromRequest reads the cookie for a role and returns its session.
 func FromRequest(r *http.Request, role Role) (Session, bool) {
+	s, err := FromRequestContext(r, role)
+	return s, err == nil
+}
+func FromRequestContext(r *http.Request, role Role) (Session, error) {
 	cookie, err := r.Cookie(CookieName(role))
+	if errors.Is(err, http.ErrNoCookie) {
+		return Session{}, ErrNotFound
+	}
 	if err != nil {
-		return Session{}, false
+		return Session{}, err
 	}
-
-	s, found := Get(cookie.Value)
-	if !found || s.Role != role {
-		return Session{}, false
+	s, err := GetContext(r.Context(), cookie.Value)
+	if err != nil {
+		return Session{}, err
 	}
-
-	return s, true
+	if s.Role != role {
+		return Session{}, ErrNotFound
+	}
+	return s, nil
 }

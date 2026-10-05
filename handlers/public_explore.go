@@ -143,7 +143,12 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 	}
 
 	signedIn := false
-	if s, ok := session.FromRequest(r, session.RoleCustomer); ok {
+	s, sessionErr := session.FromRequestContext(r, session.RoleCustomer)
+	if sessionErr != nil && !errors.Is(sessionErr, session.ErrNotFound) {
+		serverError(w, "load public account session", sessionErr)
+		return
+	}
+	if sessionErr == nil {
 		_, err := storage.FindCustomerByIDResult(r.Context(), s.UserID)
 		if err != nil && !errors.Is(err, storage.ErrNotFound) {
 			serverError(w, "load public account context", err)

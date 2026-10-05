@@ -22,8 +22,8 @@
     <header class="barber-header">
 
         <a class="brand-box" href="/customer/dashboard">
-            <span class="brand-title">Barber</span>
-            <span class="brand-subtitle">Booking</span>
+            <span class="brand-title">De Go Salon</span>
+            <span class="brand-subtitle">Barber Multiverse</span>
         </a>
 
         <nav class="customer-navigation" aria-label="Customer navigation">
@@ -60,17 +60,7 @@
     <main class="barber-main">
 
         <!-- Dashboard link -->
-        <a class="dashboard-box"
-           href="/customer/dashboard">
-
-            <span class="dashboard-arrow">&larr;</span>
-
-            <span>
-                <small>Customer Dashboard</small>
-                <strong>Back to Dashboard</strong>
-            </span>
-
-        </a>
+        <a class="dashboard-box" href="/customer/dashboard"><span class="dashboard-arrow">&larr;</span><span><small>Your account</small><strong>Dashboard</strong></span></a>
 
 
         <!-- Page introduction -->
@@ -92,25 +82,26 @@
         </section>
 
 
-        <section class="search-section">
-            <form class="search-box" method="get" action="/customer/barbers">
-                <label for="state">Choose your location</label>
+        <section class="location-panel customer-location-panel">
+            <div class="location-copy"><span class="step-number">01</span><div><p class="eyebrow">Location first</p><h2>Where do you need a barber?</h2><p>Choose your state and optionally narrow the results to your LGA or local area.</p></div></div>
+            <form class="location-form" method="get" action="/customer/barbers">
+                <div class="location-field"><label for="state">State</label>
                 <select id="state" name="state" required>
                     <option value="">Select state</option>
                     {{$selected := .SelectedState}}{{range .States}}<option value="{{.}}" {{if eq . $selected}}selected{{end}}>{{.}}</option>{{end}}
-                </select>
-                <label for="area">LGA / local area</label>
-                <input id="area" name="area" value="{{.SelectedArea}}" placeholder="e.g. Ikeja">
-                <button class="book-button" type="submit">Show barbers <span>&rarr;</span></button>
+                </select></div>
+                <div class="location-field"><label for="area">LGA / local area <span>Optional</span></label>
+                <input id="area" name="area" value="{{.SelectedArea}}" placeholder="e.g. Ikeja"></div>
+                <button class="book-button find-submit" type="submit">Find barbers <span>&rarr;</span></button>
             </form>
         </section>
 
         {{if .Items}}
 
             <!-- Search -->
-            <section class="search-section">
+            <section class="barber-filter-panel">
 
-                <div class="search-box">
+                <div class="barber-filter-box">
 
                     <label for="filter">
                         Search barbers
@@ -163,8 +154,10 @@
                                 {{if .ProfileImage}}
 
                                 <img
-                                    class="fullscreen-image"
+                                    class="fullscreen-image barber-card-photo"
                                     src="{{.ProfileImage}}"
+                                    loading="lazy"
+                                    decoding="async"
                                     alt="{{.ShopName}}"
                                     data-fullscreen-image
                                 >
@@ -172,8 +165,10 @@
                                 {{else if .PersonalImage}}
 
                                    <img
-                                       class="fullscreen-image"
+                                       class="fullscreen-image barber-card-photo"
                                        src="{{.PersonalImage}}"
+                                       loading="lazy"
+                                       decoding="async"
                                        alt="{{.FullName}}"
                                        data-fullscreen-image
                                      >
@@ -186,7 +181,7 @@
 
                                 {{end}}
 
-                            </a>
+                            <span class="view-cue">View profile</span></a>
 
 
                             <!-- Barber information -->

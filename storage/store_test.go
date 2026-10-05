@@ -277,3 +277,30 @@ func TestTransitionBookingStatusRejectsStaleSourceState(t *testing.T) {
 		t.Fatalf("status after stale transition = %q, want Accepted", stored.Status)
 	}
 }
+
+
+func TestCartDoesNotConsumeStockUntilCheckout(t *testing.T) {
+	Reset()
+	barber:=newBarber(t,"cart-stock@example.com")
+	customer:=newCustomer(t,"cart-stock-customer@example.com")
+	product,err:=CreateProduct(models.Product{BarberID:barber.ID,Name:"Pomade",Price:2500,Quantity:2,IsAvailable:true})
+	if err!=nil{t.Fatal(err)}
+	if _,err=AddToCart(customer.ID,product.ID);err!=nil{t.Fatal(err)}
+	stored,_:=FindProductByID(product.ID)
+	if stored.Quantity!=2{t.Fatalf("stock after add-to-cart=%d, want 2",stored.Quantity)}
+	if _,err=CheckoutCart(customer);err!=nil{t.Fatal(err)}
+	stored,_=FindProductByID(product.ID)
+	if stored.Quantity!=1{t.Fatalf("stock after checkout=%d, want 1",stored.Quantity)}
+}
+
+func TestCheckoutRejectsInactiveSellerWithoutMutatingCartOrStock(t *testing.T) {
+	Reset()
+	barber:=newBarber(t,"inactive-seller@example.com")
+	customer:=newCustomer(t,"inactive-seller-customer@example.com")
+	product,err:=CreateProduct(models.Product{BarberID:barber.ID,Name:"Oil",Price:1500,Quantity:3,IsAvailable:true});if err!=nil{t.Fatal(err)}
+	if _,err=AddToCart(customer.ID,product.ID);err!=nil{t.Fatal(err)}
+	for i:=range barbers{if barbers[i].ID==barber.ID{barbers[i].Status=models.BarberSuspended}}
+	if _,err=CheckoutCart(customer);err==nil{t.Fatal("checkout succeeded for inactive seller")}
+	if CartItemCount(customer.ID)!=1{t.Fatal("failed checkout cleared cart")}
+	stored,_:=FindProductByID(product.ID);if stored.Quantity!=3{t.Fatalf("failed checkout changed stock to %d",stored.Quantity)}
+}

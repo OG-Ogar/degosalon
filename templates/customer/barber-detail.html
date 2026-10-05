@@ -243,21 +243,6 @@
     </section>
 
     <section class="hairstyles-section">
-        <div class="section-title"><div><p class="eyebrow">From this barber</p><h2>Products for sale</h2></div><span class="count">{{len .Products}} available</span></div>
-        <div class="hairstyle-list">
-        {{range .Products}}
-            <article class="hairstyle-option" style="padding:1rem;margin-bottom:.75rem">
-                {{if .Image}}<div class="style-image"><img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}" data-fullscreen-image></div>{{end}}
-                <div class="style-info"><h3>{{.Name}}</h3><p>{{.Category}}</p>{{if .Description}}<span>{{.Description}}</span>{{end}}</div>
-                <div class="style-price"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Quantity}} in stock</span></div>
-            </article>
-        {{end}}
-        </div>
-        <a class="message-button" href="/customer/products">Shop products</a>
-    </section>
-    {{end}}
-
-    <section class="hairstyles-section">
 
         <div class="section-title">
 
@@ -541,6 +526,20 @@
 
     <!-- Products follow handwork so services and prices remain the primary booking journey. -->
     {{if .Products}}
+    <section class="hairstyles-section">
+        <div class="section-title"><div><p class="eyebrow">From this barber</p><h2>Products for sale</h2></div><span class="count">{{len .Products}} available</span></div>
+        <div class="hairstyle-list">
+        {{range .Products}}
+            <article class="hairstyle-option" style="padding:1rem;margin-bottom:.75rem">
+                {{if .Image}}<div class="style-image"><img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}" data-fullscreen-image></div>{{end}}
+                <div class="style-info"><h3>{{.Name}}</h3><p>{{.Category}}</p>{{if .Description}}<span>{{.Description}}</span>{{end}}</div>
+                <div class="style-price"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Quantity}} in stock</span></div>
+            </article>
+        {{end}}
+        </div>
+        <a class="message-button" href="/customer/products">Shop products</a>
+    </section>
+    {{end}}
 
 </main>
 

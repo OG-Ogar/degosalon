@@ -5,7 +5,7 @@ Audit date: 5 October 2026. Baseline: local `main` checkout, initially clean.
 
 ## Remote reconciliation — 5 October 2026
 
-Compared the supplied audit with remote `main` at `f522711` (merged PRs #46 and #47). The original findings below describe the earlier local baseline and must be read with this status update. Local uncommitted changes were preserved in the original checkout; implementation uses an isolated remote-based worktree.
+Compared the supplied audit with remote `main` at `8e90e7c` (merged PRs #46, #47, and #48). The original findings below describe the earlier local baseline and must be read with this status update. Local uncommitted changes were preserved in the original checkout; implementation uses an isolated remote-based worktree.
 
 | Gap | Remote status | Remaining acceptance work |
 | --- | --- | --- |
@@ -16,12 +16,12 @@ Compared the supplied audit with remote `main` at `f522711` (merged PRs #46 and 
 | BE-05 | Partial: adding to cart no longer consumes inventory. | Quantity editing and removal. |
 | BE-06 | Partial on remote: database listing exists, but dashboard never assigns orders and query failures can fall back to memory. | First change below wires the dashboard and propagates query/scan/iteration errors. Live database restart verification remains open. |
 | BE-08 | Partial: checkout rechecks seller/product eligibility; add-to-cart checks eligibility. | Recoverable styled stock responses, stock-specific error semantics, and concurrent seller suspension verification. |
-| BE-09 | Open across storage/authentication. | The first change fixes customer order listing only; other reads still hide query/scan failures or fall back to memory. |
+| BE-09 | Partial: PR #48 adds error-returning barber/hairstyle/product ID lookups and uses them in booking/cart handlers. Authentication and many list reads remain open. | The first change fixes customer order listing; remaining reads must stop hiding query/scan failures or falling back to memory. |
 | BE-23 | Partial: committed GitHub Actions workflow runs TypeScript checks/build and Go tests. | Go vet/race checks in CI, PostgreSQL integration, browser coverage, session/security tests, and fixing the discovery negative-test fixture. |
 | FE-07 | Remote booking form still needs the date/hour HTML constraints from the local audit patch. | Apply the preserved local change in a separate focused PR. |
 | BE-24 | Local duplicate-route repair is not part of merged remote changes. | Carry the preserved fix separately; redundant reset assignments remain. |
 
-The remote changes touch 12 files; templates, frontend scripts, authentication, media, schema, and the remaining storage modules have not changed since the supplied audit baseline. Their unresolved findings remain the backlog, subject to the original evidence limits. No production, live PostgreSQL, provider configuration, or browser acceptance is claimed here.
+The remote changes touch 16 files; templates, frontend scripts, authentication, media, schema, and storage modules outside booking/cart/orders and the new barber/hairstyle/product lookup helpers have not changed since the supplied audit baseline. Their unresolved findings remain the backlog, subject to the original evidence limits. No production, live PostgreSQL, provider configuration, or browser acceptance is claimed here.
 
 ### First implementation: customer-owned order history (BE-06)
 

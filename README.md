@@ -299,3 +299,6 @@ Discovery is location-first for visitors and signed-in customers: choose a state
 
 
 New appointments preserve their service name, price, duration, and shop contact metadata at booking time. Later service edits affect new bookings; they do not change existing appointment intervals or displayed history. Existing appointments are backfilled from the metadata retained when the snapshot migration runs; earlier changes cannot be reconstructed.
+
+
+Barbers manage weekly hours, breaks, and time off at `/barber/schedule` (linked from appointments). Calendars support named timezones, minimum notice, and up to 365 days of advance booking. Customers choose a service and date, select an available start time, and submit an appointment request; availability is rechecked on submission. New bookings record the calendar timezone. Schedule changes conflicting with existing future appointments must wait until those appointments are resolved.

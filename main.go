@@ -60,6 +60,9 @@ func main() {
 		log.Fatalf("booking hours: %v", err)
 	}
 
+	openingDefault, closingDefault := handlers.BookingHours()
+	storage.ConfigureCalendarDefaults(handlers.BookingTimezone(), openingDefault, closingDefault)
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/explore", handlers.ExploreRouter)

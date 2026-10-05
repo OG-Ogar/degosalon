@@ -68,9 +68,13 @@ func AdminUsername() string {
 // rather than editing the source.
 func InitBookingHours() error {
 	zone := strings.TrimSpace(os.Getenv("BOOKING_TIMEZONE"))
-	if zone == "" { zone = "Africa/Lagos" }
+	if zone == "" {
+		zone = "Africa/Lagos"
+	}
 	location, err := time.LoadLocation(zone)
-	if err != nil { return fmt.Errorf("BOOKING_TIMEZONE %q is invalid: %w", zone, err) }
+	if err != nil {
+		return fmt.Errorf("BOOKING_TIMEZONE %q is invalid: %w", zone, err)
+	}
 	bookingLocation = location
 
 	from, err := hourFromEnv("BOOKING_OPEN", openingHour)
@@ -131,3 +135,5 @@ func validAdminCredentials(username, password string) bool {
 
 	return nameMatches && passwordMatches
 }
+
+func BookingTimezone() string { return bookingLocation.String() }

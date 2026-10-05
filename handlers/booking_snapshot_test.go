@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"barber-booking/models"
 	"barber-booking/storage"
@@ -27,7 +28,7 @@ func TestBookingConfirmationUsesOriginalServiceAndShop(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	booking, err := storage.CreateBooking(models.Booking{BarberID: barber.ID, CustomerID: customer.ID, HairstyleID: style.ID, Date: "2030-01-01", Time: "10:00", Status: models.StatusPending})
+	booking, err := storage.CreateBooking(models.Booking{BarberID: barber.ID, CustomerID: customer.ID, HairstyleID: style.ID, Date: time.Now().AddDate(0, 0, 7).Format("2006-01-02"), Time: "10:00", Status: models.StatusPending})
 	if err != nil {
 		t.Fatal(err)
 	}

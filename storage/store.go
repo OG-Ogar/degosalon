@@ -91,6 +91,7 @@ func Reset() {
 	messages = nil
 	products = nil
 	carts = make(map[int]map[int]int)
+	calendars = make(map[int]models.Calendar)
 	productOrders = nil
 	productOrderItems = nil
 	lastProductOrderID = 0

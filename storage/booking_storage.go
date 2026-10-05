@@ -8,6 +8,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"barber-booking/models"
 )
@@ -76,7 +77,15 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 			return models.Booking{}, ErrUnavailable
 		}
 
+		calendar, err := readCalendar(ctx, tx, booking.BarberID)
+		if err != nil {
+			return models.Booking{}, err
+		}
+		if !calendarAllows(calendar, booking.Date, booking.Time, duration, time.Now(), true) {
+			return models.Booking{}, ErrOutsideSchedule
+		}
 		booking.ServiceDuration = duration
+		booking.BookingTimezone = calendar.Timezone
 		var conflict bool
 		err = tx.QueryRowContext(ctx, `
 			select exists (
@@ -96,7 +105,7 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 			return models.Booking{}, ErrSlotConflict
 		}
 
-		err = tx.QueryRowContext(ctx, "insert into public.bookings(barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date,booking_time,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17) returning id", booking.BarberID, booking.HairstyleID, booking.CustomerID, booking.CustomerName, booking.CustomerPhone, booking.CustomerEmail, booking.Date, booking.Time, booking.Notes, booking.Status, booking.CreatedAt, booking.BarberName, booking.ShopName, booking.ShopAddress, booking.ServiceName, booking.ServicePrice, booking.ServiceDuration).Scan(&booking.ID)
+		err = tx.QueryRowContext(ctx, "insert into public.bookings(barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date,booking_time,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,booking_timezone) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) returning id", booking.BarberID, booking.HairstyleID, booking.CustomerID, booking.CustomerName, booking.CustomerPhone, booking.CustomerEmail, booking.Date, booking.Time, booking.Notes, booking.Status, booking.CreatedAt, booking.BarberName, booking.ShopName, booking.ShopAddress, booking.ServiceName, booking.ServicePrice, booking.ServiceDuration, booking.BookingTimezone).Scan(&booking.ID)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "bookings_open_slot_unique") {
 				return models.Booking{}, ErrSlotTaken
@@ -133,12 +142,20 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 		return models.Booking{}, ErrUnavailable
 	}
 
+	calendar, found := calendars[booking.BarberID]
+	if !found {
+		calendar = calendarDefault
+	}
+	if !calendarAllows(calendar, booking.Date, booking.Time, hairstyle.Duration, time.Now(), true) {
+		return models.Booking{}, ErrOutsideSchedule
+	}
 	booking.BarberName = barber.FullName
 	booking.ShopName = barber.ShopName
 	booking.ShopAddress = barber.ShopAddress
 	booking.ServiceName = hairstyle.Name
 	booking.ServicePrice = hairstyle.Price
 	booking.ServiceDuration = hairstyle.Duration
+	booking.BookingTimezone = calendar.Timezone
 	for _, existing := range bookings {
 		if existing.BarberID != booking.BarberID || existing.Date != booking.Date || !existing.IsOpen() {
 			continue
@@ -168,7 +185,7 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 func FindBookingByID(id int) (models.Booking, bool) {
 	if databaseEnabled() {
 		var v models.Booking
-		err := db.QueryRow("select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration from public.bookings where id=$1", id).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration)
+		err := db.QueryRow("select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where id=$1", id).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 		return v, err == nil
 	}
 	mu.RLock()
@@ -402,7 +419,7 @@ func sortBySlot(list []models.Booking) []models.Booking {
 }
 
 func listBookingsDB(field string, id int) []models.Booking {
-	q := "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration from public.bookings"
+	q := "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings"
 	var rows *sql.Rows
 	var err error
 	if field != "" {
@@ -418,7 +435,7 @@ func listBookingsDB(field string, id int) []models.Booking {
 	var out []models.Booking
 	for rows.Next() {
 		var v models.Booking
-		if rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration) == nil {
+		if rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone) == nil {
 			out = append(out, v)
 		}
 	}

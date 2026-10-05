@@ -83,9 +83,9 @@ func ListBookingsResult(ctx context.Context) ([]models.Booking, error) {
 	if !databaseEnabled() {
 		return ListBookings(), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration from public.bookings order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
+	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
 		var v models.Booking
-		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration)
+		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 		return v, err
 	})
 }
@@ -97,9 +97,9 @@ func ListBookingsByBarberResult(ctx context.Context, id int) ([]models.Booking, 
 	if !databaseEnabled() {
 		return ListBookingsByBarber(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration from public.bookings where barber_id=$1 order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
+	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where barber_id=$1 order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
 		var v models.Booking
-		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration)
+		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 		return v, err
 	}, id)
 }
@@ -111,9 +111,9 @@ func ListBookingsByCustomerResult(ctx context.Context, id int) ([]models.Booking
 	if !databaseEnabled() {
 		return ListBookingsByCustomer(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration from public.bookings where customer_id=$1 order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
+	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where customer_id=$1 order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
 		var v models.Booking
-		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration)
+		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 		return v, err
 	}, id)
 }
@@ -144,7 +144,7 @@ func FindBookingByIDResult(ctx context.Context, id int) (models.Booking, error) 
 		return v, nil
 	}
 	var v models.Booking
-	err := db.QueryRowContext(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration from public.bookings where id=$1", id).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration)
+	err := db.QueryRowContext(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where id=$1", id).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 	return v, recordError(err)
 }
 
@@ -174,9 +174,9 @@ func CanCustomerReviewResult(ctx context.Context, customerID, barberID int) (mod
 		return booking, nil
 	}
 	var v models.Booking
-	err := db.QueryRowContext(ctx, `select b.id,b.barber_id,b.hairstyle_id,b.customer_id,b.customer_name,b.customer_phone,b.customer_email,b.booking_date::text,b.booking_time::text,b.notes,b.status,b.created_at,b.barber_name,b.shop_name,b.shop_address,b.service_name,b.service_price,b.service_duration
+	err := db.QueryRowContext(ctx, `select b.id,b.barber_id,b.hairstyle_id,b.customer_id,b.customer_name,b.customer_phone,b.customer_email,b.booking_date::text,b.booking_time::text,b.notes,b.status,b.created_at,b.barber_name,b.shop_name,b.shop_address,b.service_name,b.service_price,b.service_duration,coalesce(b.booking_timezone,'')
  from public.bookings b where b.customer_id=$1 and b.barber_id=$2 and b.status='Completed'
  and not exists(select 1 from public.reviews r where r.booking_id=b.id)
- order by b.booking_date,b.booking_time,b.id limit 1`, customerID, barberID).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration)
+ order by b.booking_date,b.booking_time,b.id limit 1`, customerID, barberID).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 	return v, recordError(err)
 }

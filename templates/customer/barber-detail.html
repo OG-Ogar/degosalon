@@ -279,6 +279,14 @@
 
         {{if .Hairstyles}}
 
+            <form method="get" action="/customer/barbers/{{.Barber.ID}}#booking" class="availability-form">
+ <input type="hidden" name="state" value="{{.SelectedState}}"><input type="hidden" name="area" value="{{.SelectedArea}}">
+ <label for="availability-service">Service</label><select id="availability-service" name="hairstyle">{{range .Hairstyles}}<option value="{{.ID}}" {{if eq $.Selected .ID}}selected{{end}}>{{.Name}} · {{.Duration}} minutes</option>{{end}}</select>
+ <label for="availability-date">Date ({{.Timezone}})</label><input id="availability-date" name="date" type="date" value="{{index .Values "date"}}" min="{{.Today}}" max="{{.DateMax}}" required>
+ <button type="submit">Show available times</button>
+ </form>
+ <p>Times use {{.Timezone}}. Availability is checked again when you submit.</p>
+ {{if not .Slots}}<p role="status">No start times are available for this service and date. Choose another date above.</p>{{end}}
             <form class="booking-form"
                   method="post"
                   action="/customer/book"
@@ -305,7 +313,7 @@
 
                     {{$view := .}}
 
-                    {{range .Hairstyles}}
+                    {{range .Hairstyles}}{{if eq $.Selected .ID}}
 
                         <div class="hairstyle-option">
 
@@ -384,7 +392,7 @@
 
                         </div>
 
-                    {{end}}
+                    {{end}}{{end}}
 
                 </fieldset>
 
@@ -421,6 +429,7 @@
                                 type="date"
                                 name="date"
                                 min="{{.Today}}"
+                                max="{{.DateMax}}" readonly
                                 value="{{index .Values "date"}}"
                                 required>
 
@@ -433,14 +442,7 @@
                                 Time
                             </label>
 
-                            <input
-                                id="time"
-                                type="time"
-                                name="time"
-                                min="{{.Opening}}"
-                                max="{{.Closing}}"
-                                value="{{index .Values "time"}}"
-                                required>
+ <select id="time" name="time" required><option value="">Choose an available time</option>{{range .Slots}}<option value="{{.}}" {{if eq (index $.Values "time") .}}selected{{end}}>{{.}}</option>{{end}}</select>
 
                         </div>
 

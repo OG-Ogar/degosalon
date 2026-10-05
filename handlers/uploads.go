@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
+	"bytes"
+	"net/url"
 	"log"
 	"net/http"
 	"os"
@@ -196,15 +197,50 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("resize image: %w", err)
 	}
 
-	if os.Getenv("DATABASE_URL") != "" {
+	if storageURL := strings.TrimRight(os.Getenv("SUPABASE_URL"), "/"); storageURL != "" {
 		data, err := os.ReadFile(path)
-		if err != nil { return "", fmt.Errorf("read stored image: %w", err) }
+		if err != nil {
+			return "", fmt.Errorf("read stored image: %w", err)
+		}
 		kind := http.DetectContentType(data)
+		objectPath := strings.TrimPrefix(store.urlPath, "/uploads/") + name
+		if err := uploadSupabaseMedia(storageURL, objectPath, kind, data); err != nil {
+			return "", err
+		}
 		_ = os.Remove(path)
-		return "data:" + kind + ";base64," + base64.StdEncoding.EncodeToString(data), nil
+		return storageURL + "/storage/v1/object/public/degosalon-media/" + escapeObjectPath(objectPath), nil
 	}
 
 	return store.urlPath + name, nil
+}
+
+
+func escapeObjectPath(path string) string {
+	parts := strings.Split(path, "/")
+	for i := range parts { parts[i] = url.PathEscape(parts[i]) }
+	return strings.Join(parts, "/")
+}
+
+func uploadSupabaseMedia(baseURL, objectPath, contentType string, data []byte) error {
+	key := strings.TrimSpace(os.Getenv("SUPABASE_SERVICE_ROLE_KEY"))
+	if key == "" {
+		return errors.New("SUPABASE_SERVICE_ROLE_KEY is required when SUPABASE_URL is configured")
+	}
+	u := baseURL + "/storage/v1/object/degosalon-media/" + escapeObjectPath(objectPath)
+	req, err := http.NewRequest(http.MethodPost, u, bytes.NewReader(data))
+	if err != nil { return fmt.Errorf("create storage request: %w", err) }
+	req.Header.Set("Authorization", "Bearer "+key)
+	req.Header.Set("apikey", key)
+	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("x-upsert", "true")
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil { return fmt.Errorf("upload image to Supabase Storage: %w", err) }
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
+		return fmt.Errorf("upload image to Supabase Storage: %s: %s", resp.Status, strings.TrimSpace(string(body)))
+	}
+	return nil
 }
 
 func (store videoStore) save(r *http.Request, field string) (string, error) {

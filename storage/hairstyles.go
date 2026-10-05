@@ -22,6 +22,18 @@ func ListHairstylesByBarber(barberID int) []models.Hairstyle {
 // ListAvailableHairstylesByBarber returns only the hairstyles a
 // customer is allowed to book.
 func ListAvailableHairstylesByBarber(barberID int) []models.Hairstyle {
+	if databaseEnabled() {
+		rows, err := db.Query("select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where barber_id=$1 and is_available=true order by id", barberID)
+		if err == nil {
+			defer rows.Close()
+			var out []models.Hairstyle
+			for rows.Next() {
+				var v models.Hairstyle
+				if rows.Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Duration,&v.Image,&v.Video,&v.IsAvailable)==nil { out=append(out,v) }
+			}
+			return out
+		}
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -59,6 +71,13 @@ func findHairstyleByID(id int) (models.Hairstyle, bool) {
 // FindHairstyleOwnedBy returns the hairstyle only when barberID owns it,
 // so a barber cannot reach another barber's records by guessing IDs.
 func FindHairstyleOwnedBy(id, barberID int) (models.Hairstyle, error) {
+	if databaseEnabled() {
+		var v models.Hairstyle
+		err:=db.QueryRow("select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where id=$1",id).Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Duration,&v.Image,&v.Video,&v.IsAvailable)
+		if err != nil { return models.Hairstyle{}, ErrNotFound }
+		if v.BarberID != barberID { return models.Hairstyle{}, ErrForbidden }
+		return v,nil
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 
@@ -90,6 +109,10 @@ func CreateHairstyle(hairstyle models.Hairstyle) (models.Hairstyle, error) {
 // UpdateHairstyle overwrites the stored hairstyle that shares its ID,
 // refusing to write across barbers.
 func UpdateHairstyle(hairstyle models.Hairstyle) error {
+	if databaseEnabled() {
+		result,err:=db.Exec("update public.hairstyles set name=$1,category=$2,description=$3,price=$4,duration=$5,image=$6,video=$7,is_available=$8 where id=$9 and barber_id=$10",hairstyle.Name,hairstyle.Category,hairstyle.Description,hairstyle.Price,hairstyle.Duration,hairstyle.Image,hairstyle.Video,hairstyle.IsAvailable,hairstyle.ID,hairstyle.BarberID)
+		if err!=nil{return err}; n,_:=result.RowsAffected(); if n==0{return ErrNotFound}; return nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 
@@ -113,6 +136,11 @@ func UpdateHairstyle(hairstyle models.Hairstyle) error {
 // DeleteHairstyle removes one hairstyle owned by barberID and returns
 // its image path so the caller can delete the file from disk.
 func DeleteHairstyle(id, barberID int) (string, error) {
+	if databaseEnabled() {
+		var image string
+		err:=db.QueryRow("delete from public.hairstyles where id=$1 and barber_id=$2 returning image",id,barberID).Scan(&image)
+		if err!=nil{return "",ErrNotFound}; return image,nil
+	}
 	mu.Lock()
 	defer mu.Unlock()
 

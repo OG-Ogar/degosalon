@@ -58,14 +58,22 @@ func readBookingRequest(r *http.Request) (bookingRequest, string) {
 	if dateText == "" {
 		return request, "Choose a booking date."
 	}
-
+	dateText, problem := validBookingDate(dateText)
+	if problem != "" {
+		return request, problem
+	}
 	request.Date = dateText
+	request.values["date"] = dateText
 
 	if timeText == "" {
 		return request, "Choose a booking time."
 	}
-
+	timeText, problem = validBookingTime(timeText)
+	if problem != "" {
+		return request, problem
+	}
 	request.Time = timeText
+	request.values["time"] = timeText
 
 	return request, ""
 }

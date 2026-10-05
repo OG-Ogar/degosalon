@@ -49,9 +49,15 @@ Booking lists/actions/confirmation, appointment descriptions, barber/service dis
 
 Regression coverage exercises storage query/scan failures and failed GET/POST handlers. Messaging reads remain to migrate before closing BE-09; live database concurrency/transaction verification stays open.
 
+### Fifth implementation: scoped messaging queries (BE-09 / part of BE-18)
+
+Message threads, conversation summaries, message writes, and dashboard conversation counts now use request contexts and propagate errors. Conversation SQL filters by the signed-in account before choosing the latest message and counting each pair; it no longer loads all platform messages into Go. Participant lookup failures also stop rendering. Tests cover SQL scope, pair isolation, ordering/counts, database failures, and failed thread/list rendering.
+
+All request paths now use error-aware reads; legacy boolean/list helpers remain only as memory bridges/test APIs and must not be introduced into new request handlers. Remaining BE-09 acceptance is live database outage verification and any database mutations encountered in later integrity work. Message pagination, incremental receipt/unread behavior, and query bounds remain in BE-18 / FE-23.
+
 ### Remaining sequence
 
-1. Continue database error propagation through remaining core record/list reads (BE-09). Authentication lookup failures now preserve sessions; other boolean/list APIs still need migration.
+1. Add PostgreSQL integration/CI coverage and verify database outage behavior (BE-09/23). Request reads now propagate errors; continue removing legacy storage fallbacks and checking mutations during integrity work.
 2. Make checkout retries replayable and verify transactional failure/concurrency against PostgreSQL (BE-04/08).
 3. Add cart quantity editing/removal (BE-05).
 4. Finish scheduling/available slots (BE-02), preserving guarded transitions.

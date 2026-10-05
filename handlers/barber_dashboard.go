@@ -67,13 +67,18 @@ func BarberDashboardHandler(
 		return
 	}
 
+	conversations, err := storage.ConversationsForBarber(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load dashboard conversations", err)
+		return
+	}
 	render(w, "barber/dashboard.html", barberDashboardView{
 		Barber:           barber,
 		CSRF:             s.CSRFToken,
 		Hairstyles:       len(styles),
 		PendingBookings:  pending,
 		UpcomingBookings: upcoming,
-		Conversations:    len(storage.ConversationsForBarber(barber.ID)),
+		Conversations:    len(conversations),
 		ProductOrders:    orderItems,
 	})
 }

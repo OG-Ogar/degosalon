@@ -67,12 +67,17 @@ func CustomerDashboardHandler(
 		serverError(w, "load dashboard bookings", err)
 		return
 	}
+	conversations, err := storage.ConversationsForCustomer(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load dashboard conversations", err)
+		return
+	}
 	view := customerDashboardView{
 		Customer:        customer,
 		ProductOrders:   orders,
 		CSRF:            s.CSRFToken,
 		Barbers:         len(barbers),
-		Conversations:   len(storage.ConversationsForCustomer(customer.ID)),
+		Conversations:   len(conversations),
 		CartCount:       cartCount,
 		BackgroundImage: currentCustomerLandingImage(),
 	}

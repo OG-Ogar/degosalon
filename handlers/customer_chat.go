@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"barber-booking/models"
@@ -20,7 +21,12 @@ func CustomerChatsHandler(
 		return
 	}
 
-	conversations := storage.ConversationsForCustomer(customer.ID)
+	conversations, err := storage.ConversationsForCustomer(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load customer conversations", err)
+		return
+	}
+
 	rows := make([]chatRow, 0, len(conversations))
 
 	for _, conversation := range conversations {
@@ -33,7 +39,12 @@ func CustomerChatsHandler(
 			Count:      conversation.Count,
 		}
 
-		if barber, found := storage.FindBarberByID(conversation.BarberID); found {
+		barber, err := storage.FindBarberByIDContext(r.Context(), conversation.BarberID)
+		if err != nil && !errors.Is(err, storage.ErrNotFound) {
+			serverError(w, "load conversation participant", err)
+			return
+		}
+		if err == nil {
 			row.Name = barber.FullName
 			row.Detail = barber.ShopName
 			row.BarberImage = barber.PersonalImage
@@ -66,7 +77,7 @@ func CustomerChatHandler(
 	switch r.Method {
 
 	case http.MethodGet:
-		renderCustomerChat(w, s, customer, barber, "")
+		renderCustomerChat(w, r, s, customer, barber, "")
 
 	case http.MethodPost:
 		if !requireCSRF(w, r, s) {
@@ -75,12 +86,12 @@ func CustomerChatHandler(
 
 		text, problem := readMessage(r)
 		if problem != "" {
-			renderCustomerChat(w, s, customer, barber, problem)
+			renderCustomerChat(w, r, s, customer, barber, problem)
 
 			return
 		}
 
-		_, err := storage.AddMessage(models.Message{
+		_, err := storage.AddMessage(r.Context(), models.Message{
 			BarberID:   barber.ID,
 			CustomerID: customer.ID,
 			SenderRole: models.SenderCustomer,
@@ -109,6 +120,7 @@ func CustomerChatHandler(
 // renderCustomerChat draws the customer's side of a thread.
 func renderCustomerChat(
 	w http.ResponseWriter,
+	r *http.Request,
 	s sessionData,
 	customer models.Customer,
 	barber models.Barber,
@@ -120,15 +132,17 @@ func renderCustomerChat(
 		status = http.StatusBadRequest
 	}
 
+	messages, err := storage.ListConversation(r.Context(), barber.ID, customer.ID)
+	if err != nil {
+		serverError(w, "load conversation messages", err)
+		return
+	}
 	renderStatus(
 		w,
 		status,
 		"customer/chat.html",
 		chatView{
-			Messages: storage.ListConversation(
-				barber.ID,
-				customer.ID,
-			),
+			Messages:    messages,
 			Title:       barber.FullName,
 			Subtitle:    barber.ShopName,
 			BarberImage: barber.PersonalImage,

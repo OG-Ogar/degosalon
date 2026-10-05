@@ -93,6 +93,16 @@ func ListProductOrdersByCustomer(customerID int) []models.ProductOrder {
 // ListProductOrderItemsByBarber returns all purchased product items
 // belonging to a specific barber.
 func ListProductOrderItemsByBarber(barberID int) []models.ProductOrderItem {
+	if databaseEnabled() {
+		rows,err:=db.Query(`select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status
+			from public.product_order_items i join public.product_orders o on o.id=i.order_id
+			where i.barber_id=$1 order by i.id desc`,barberID)
+		if err==nil {
+			defer rows.Close(); var out []models.ProductOrderItem
+			for rows.Next(){var v models.ProductOrderItem;if rows.Scan(&v.ID,&v.OrderID,&v.ProductID,&v.BarberID,&v.ProductName,&v.Price,&v.Quantity,&v.Subtotal,&v.CustomerName,&v.CustomerPhone,&v.CustomerEmail,&v.OrderStatus)==nil{out=append(out,v)}}
+			return out
+		}
+	}
 	mu.RLock()
 	defer mu.RUnlock()
 

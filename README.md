@@ -310,3 +310,5 @@ Authentication sessions persist in PostgreSQL when `DATABASE_URL` is configured.
 
 
 Customer/barber login and customer registration recheck the verified password and current barber status inside session creation. PostgreSQL holds the account row lock until the session commits. A concurrent password reset either revokes the already-created session or causes the stale login to fail without a cookie. Registration keeps committed profile media if automatic login fails.
+
+Production mode is selected by `APP_ENV=production` or Render's `RENDER=true`. Startup requires `DATABASE_URL`, a nonempty `ADMIN_USERNAME`, and an `ADMIN_PASSWORD` of 12–72 bytes; it never generates a production administrator password or uses memory storage. Production cookies are always Secure. Explicit `SECURE_COOKIES=0` or `SHOW_RESET_LINKS=1` stops startup, and reset links remain hidden even when the handler is invoked directly. The Blueprint sets production mode and secure cookies. Local development without these production markers may use memory storage, generated administrator credentials, and explicit demo reset links. Configuration errors name settings without printing secret values.

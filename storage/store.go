@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"barber-booking/internal/dbmigrate"
+	"barber-booking/internal/runtimeconfig"
 	"barber-booking/models"
 	"barber-booking/reset"
 	"barber-booking/session"
@@ -49,6 +50,9 @@ var (
 func InitDatabase() error {
 	url := os.Getenv("DATABASE_URL")
 	if url == "" {
+		if runtimeconfig.Production() {
+			return errors.New("DATABASE_URL is required in production")
+		}
 		return nil
 	}
 	conn, err := sql.Open("pgx", url)

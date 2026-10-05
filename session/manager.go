@@ -3,6 +3,7 @@
 package session
 
 import (
+	"barber-booking/internal/runtimeconfig"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -48,7 +49,7 @@ var (
 func ConfigureDatabase(conn *sql.DB) { database = conn }
 func DatabaseConfigured() bool       { return database != nil }
 func CookieName(role Role) string    { return string(role) + "_session" }
-func secureCookies() bool            { return os.Getenv("SECURE_COOKIES") == "1" }
+func secureCookies() bool            { return runtimeconfig.Production() || os.Getenv("SECURE_COOKIES") == "1" }
 func randomID() (string, error) {
 	buf := make([]byte, 32)
 	if _, err := rand.Read(buf); err != nil {

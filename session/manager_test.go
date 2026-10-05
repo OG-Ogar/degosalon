@@ -73,3 +73,33 @@ func TestSessionCookiesIsolationAndRevocation(t *testing.T) {
 		}
 	}
 }
+
+func TestProductionForcesSecureCookies(t *testing.T) {
+	for _, render := range []bool{false, true} {
+		t.Setenv("APP_ENV", "production")
+		t.Setenv("RENDER", "")
+		if render {
+			t.Setenv("APP_ENV", "development")
+			t.Setenv("RENDER", "true")
+		}
+		t.Setenv("SECURE_COOKIES", "0")
+		w := httptest.NewRecorder()
+		s, err := StartContext(context.Background(), w, RoleCustomer, 22)
+		if err != nil {
+			t.Fatal(err)
+		}
+		Delete(s.ID)
+		if !w.Result().Cookies()[0].Secure {
+			t.Fatal("production session cookie was insecure")
+		}
+		request := httptest.NewRequest(http.MethodPost, "/logout", nil)
+		request.AddCookie(w.Result().Cookies()[0])
+		cleared := httptest.NewRecorder()
+		if err := ClearContext(cleared, request, RoleCustomer); err != nil {
+			t.Fatal(err)
+		}
+		if !cleared.Result().Cookies()[0].Secure {
+			t.Fatal("production logout cookie was insecure")
+		}
+	}
+}

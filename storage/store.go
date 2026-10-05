@@ -103,8 +103,6 @@ func Reset() {
 	lastProductID = 0
 	reviews = nil
 	lastReviewID = 0
-	reviews = nil
-	lastReviewID = 0
 }
 
 func nextID(last *int) int { *last++; return *last }

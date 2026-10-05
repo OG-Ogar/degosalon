@@ -13,8 +13,8 @@ import (
 	"testing"
 	"time"
 
-	"barber-booking/storage"
 	"barber-booking/models"
+	"barber-booking/storage"
 )
 
 // TestMain parses the real templates once.
@@ -144,25 +144,34 @@ func mustContain(t *testing.T, what, body, want string) {
 	}
 }
 
-
 func TestPublicExploreRequiresLocationAndShowsMatchingBarber(t *testing.T) {
 	storage.Reset()
-	_,err:=storage.CreateBarber(models.Barber{FullName:"Ada",PhoneNumber:"1",Email:"ada@example.com",PasswordHash:"x",ShopName:"Ada Cuts",ShopAddress:"12 Road",State:"Lagos",LocalArea:"Ikeja",Status:models.BarberActive})
-	if err!=nil{t.Fatal(err)}
-	server:=newServer(t)
-	_,err=storage.CreateBarber(models.Barber{FullName:"Ada",PhoneNumber:"1",Email:"ada@example.com",PasswordHash:"x",ShopName:"Ada Cuts",ShopAddress:"12 Road",State:"Lagos",LocalArea:"Ikeja",Status:models.BarberActive})
-	if err!=nil{t.Fatal(err)}
-	browser:=newBrowser(t)
-	body:=get(t,browser,server.URL+"/explore")
-	mustContain(t,"explore",body,"Where do you need a barber?")
-	body=get(t,browser,server.URL+"/explore?state=Lagos&area=Ikeja")
-	mustContain(t,"filtered explore",body,"Ada Cuts")
+	_, err := storage.CreateBarber(models.Barber{FullName: "Ada", PhoneNumber: "1", Email: "ada@example.com", PasswordHash: "x", ShopName: "Ada Cuts", ShopAddress: "12 Road", State: "Lagos", LocalArea: "Ikeja", Status: models.BarberActive})
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := newServer(t)
+	_, err = storage.CreateBarber(models.Barber{FullName: "Ada", PhoneNumber: "1", Email: "ada@example.com", PasswordHash: "x", ShopName: "Ada Cuts", ShopAddress: "12 Road", State: "Lagos", LocalArea: "Ikeja", Status: models.BarberActive})
+	if err != nil {
+		t.Fatal(err)
+	}
+	browser := newBrowser(t)
+	body := get(t, browser, server.URL+"/explore")
+	mustContain(t, "explore", body, "Where do you need a barber?")
+	body = get(t, browser, server.URL+"/explore?state=Lagos&area=Ikeja")
+	mustContain(t, "filtered explore", body, "Ada Cuts")
 }
 
 func TestPublicExploreHidesBarberOutsideLocation(t *testing.T) {
-	storage.Reset()
-	_,_ = storage.CreateBarber(models.Barber{FullName:"Ada",PhoneNumber:"1",Email:"ada@example.com",PasswordHash:"x",ShopName:"Ada Cuts",ShopAddress:"12 Road",State:"Lagos",LocalArea:"Ikeja",Status:models.BarberActive})
-	server:=newServer(t); browser:=newBrowser(t)
-	body:=get(t,browser,server.URL+"/explore?state=Osun&area=Osogbo")
-	if strings.Contains(body,"Ada Cuts"){t.Fatal("barber outside selected location was shown")}
+	server := newServer(t)
+	if _, err := storage.CreateBarber(models.Barber{FullName: "Ada", PhoneNumber: "1", Email: "ada@example.com", PasswordHash: "x", ShopName: "Ada Cuts", ShopAddress: "12 Road", State: "Lagos", LocalArea: "Ikeja", Status: models.BarberActive}); err != nil {
+		t.Fatal(err)
+	}
+	browser := newBrowser(t)
+	matching := get(t, browser, server.URL+"/explore?state=Lagos&area=Ikeja")
+	mustContain(t, "matching location fixture", matching, "Ada Cuts")
+	outside := get(t, browser, server.URL+"/explore?state=Osun&area=Osogbo")
+	if strings.Contains(outside, "Ada Cuts") {
+		t.Fatal("barber outside selected location was shown")
+	}
 }

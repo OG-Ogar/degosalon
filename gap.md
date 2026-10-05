@@ -55,6 +55,12 @@ Message threads, conversation summaries, message writes, and dashboard conversat
 
 All request paths now use error-aware reads; legacy boolean/list helpers remain only as memory bridges/test APIs and must not be introduced into new request handlers. Remaining BE-09 acceptance is live database outage verification and any database mutations encountered in later integrity work. Message pagination, incremental receipt/unread behavior, and query bounds remain in BE-18 / FE-23.
 
+### Sixth implementation: PostgreSQL integrity verification (BE-23 / acceptance for BE-02/03/04/06/09)
+
+CI now adds Go vet/race checks and a dedicated PostgreSQL 17 job with isolated temporary databases. Integration tests exercise real booking/transition races, transactional checkout fault injection after an earlier item write, concurrent checkout and stock competition, storage reconnect history, scoped message SQL, foreign-key protection, RLS presence, and authentication sessions after injected SQL errors. The discovery negative fixture now proves the seeded barber appears in the matching region before checking exclusion.
+
+Local unit/vet checks pass; live PostgreSQL results are established by the PR's dedicated CI job before merge. Integration tests skip locally when no test server is configured. Browser journeys, production provider settings, backup recovery, and the remaining scheduling/checkout idempotency behavior still need their own acceptance evidence.
+
 ### Remaining sequence
 
 1. Add PostgreSQL integration/CI coverage and verify database outage behavior (BE-09/23). Request reads now propagate errors; continue removing legacy storage fallbacks and checking mutations during integrity work.

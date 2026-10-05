@@ -3,6 +3,8 @@ package handlers
 import (
 	"barber-booking/models"
 	"barber-booking/storage"
+	"context"
+	"errors"
 )
 
 // formView backs every page that renders a form. Values holds what the
@@ -76,35 +78,47 @@ type bookingRow struct {
 }
 
 // describeBooking fills in the barber and hairstyle details for display.
-func describeBooking(booking models.Booking) bookingRow {
+func describeBooking(ctx context.Context, booking models.Booking) (bookingRow, error) {
 	row := bookingRow{
 		Booking: booking,
 	}
 
-	if barber, found := storage.FindBarberByID(booking.BarberID); found {
+	barber, err := storage.FindBarberByIDContext(ctx, booking.BarberID)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		return bookingRow{}, err
+	}
+	if err == nil {
 		row.BarberName = barber.FullName
 		row.ShopName = barber.ShopName
 	}
 
-	if hairstyle, found := storage.FindHairstyleByID(booking.HairstyleID); found {
+	hairstyle, err := storage.FindHairstyleByIDResult(ctx, booking.HairstyleID)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		return bookingRow{}, err
+	}
+	if err == nil {
 		row.HairstyleName = hairstyle.Name
 		row.HairstyleImage = hairstyle.Image
 		row.Price = hairstyle.Price
 		row.Duration = hairstyle.Duration
 	}
 
-	return row
+	return row, nil
 }
 
 // describeBookings maps describeBooking over a slice.
-func describeBookings(bookings []models.Booking) []bookingRow {
+func describeBookings(ctx context.Context, bookings []models.Booking) ([]bookingRow, error) {
 	rows := make([]bookingRow, 0, len(bookings))
 
 	for _, booking := range bookings {
-		rows = append(rows, describeBooking(booking))
+		row, err := describeBooking(ctx, booking)
+		if err != nil {
+			return nil, err
+		}
+		rows = append(rows, row)
 	}
 
-	return rows
+	return rows, nil
 }
 
 // chatRow is one entry in a list of conversations. Name is the person on
@@ -133,8 +147,8 @@ type chatView struct {
 	Messages []models.Message
 
 	// Title names the person on the other side of the chat.
-	Title      string
-	Subtitle   string
+	Title       string
+	Subtitle    string
 	BarberImage string
 
 	// BackLink returns to the dashboard of whichever role is viewing.

@@ -32,7 +32,7 @@ func ConfirmDeleteHairstyleHandler(
 		return
 	}
 
-	hairstyle, ok := ownedHairstyle(w, barber, idSegment)
+	hairstyle, ok := ownedHairstyle(w, r, barber, idSegment)
 	if !ok {
 		return
 	}

@@ -213,11 +213,11 @@ func TestFindHairstyleOwnedByRefusesOtherBarber(t *testing.T) {
 	other := newBarber(t, "other@example.com")
 	hairstyle := newHairstyle(t, owner.ID)
 
-	if _, err := FindHairstyleOwnedBy(hairstyle.ID, other.ID); err != ErrForbidden {
+	if _, err := FindHairstyleOwnedBy(context.Background(),hairstyle.ID, other.ID); err != ErrForbidden {
 		t.Fatalf("cross-barber read: got %v, want ErrForbidden", err)
 	}
 
-	if _, err := FindHairstyleOwnedBy(hairstyle.ID, owner.ID); err != nil {
+	if _, err := FindHairstyleOwnedBy(context.Background(),hairstyle.ID, owner.ID); err != nil {
 		t.Fatalf("owner read: %v", err)
 	}
 }

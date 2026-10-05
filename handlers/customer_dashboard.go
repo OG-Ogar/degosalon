@@ -57,11 +57,21 @@ func CustomerDashboardHandler(
 		serverError(w, "load dashboard cart count", err)
 		return
 	}
+	barbers, err := storage.ListActiveBarbersResult(r.Context())
+	if err != nil {
+		serverError(w, "load dashboard barbers", err)
+		return
+	}
+	bookings, err := storage.ListBookingsByCustomerResult(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load dashboard bookings", err)
+		return
+	}
 	view := customerDashboardView{
 		Customer:        customer,
 		ProductOrders:   orders,
 		CSRF:            s.CSRFToken,
-		Barbers:         len(storage.ListActiveBarbers()),
+		Barbers:         len(barbers),
 		Conversations:   len(storage.ConversationsForCustomer(customer.ID)),
 		CartCount:       cartCount,
 		BackgroundImage: currentCustomerLandingImage(),
@@ -69,7 +79,13 @@ func CustomerDashboardHandler(
 
 	view.Customer.PasswordHash = ""
 
-	for _, booking := range storage.ListBookingsByCustomer(customer.ID) {
+	for _, booking := range bookings {
+		row, err := describeBooking(r.Context(), booking)
+		if err != nil {
+			serverError(w, "load dashboard appointment", err)
+			return
+		}
+
 		switch booking.Status {
 
 		case models.StatusPending:
@@ -77,13 +93,13 @@ func CustomerDashboardHandler(
 
 			view.Upcoming = append(
 				view.Upcoming,
-				describeBooking(booking),
+				row,
 			)
 
 		case models.StatusAccepted:
 			view.Upcoming = append(
 				view.Upcoming,
-				describeBooking(booking),
+				row,
 			)
 		}
 	}

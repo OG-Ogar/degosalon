@@ -4,6 +4,7 @@ import (
 	"barber-booking/models"
 	"barber-booking/session"
 	"barber-booking/storage"
+	"errors"
 	"net/http"
 	"strings"
 )
@@ -32,25 +33,63 @@ type publicBarberView struct {
 	MessageLink      string
 }
 
-func ExploreRouter(w http.ResponseWriter,r *http.Request){
-	parts:=pathParts(r.URL.Path)
-	if len(parts)==1 { ExploreBarbersHandler(w,r); return }
-	if len(parts)==2 { ExploreBarberHandler(w,r,parts[1]); return }
-	http.NotFound(w,r)
+func ExploreRouter(w http.ResponseWriter, r *http.Request) {
+	parts := pathParts(r.URL.Path)
+	if len(parts) == 1 {
+		ExploreBarbersHandler(w, r)
+		return
+	}
+	if len(parts) == 2 {
+		ExploreBarberHandler(w, r, parts[1])
+		return
+	}
+	http.NotFound(w, r)
 }
 
-func ExploreBarbersHandler(w http.ResponseWriter,r *http.Request){
-	if r.Method!=http.MethodGet{methodNotAllowed(w,http.MethodGet);return}
-	all:=storage.ListActiveBarbers();state:=strings.TrimSpace(r.URL.Query().Get("state"));area:=strings.TrimSpace(r.URL.Query().Get("area"))
-	seen:=map[string]bool{};var states []string;var cards []exploreCard
-	for _,b:=range all{
-		if b.State!=""&&!seen[strings.ToLower(b.State)]{states=append(states,b.State);seen[strings.ToLower(b.State)]=true}
-		if state==""||!strings.EqualFold(b.State,state)||(area!=""&&!strings.EqualFold(b.LocalArea,area)){continue}
-		b.PasswordHash="";card:=exploreCard{Barber:b}
-		for _,style:=range storage.ListAvailableHairstylesByBarber(b.ID){card.Hairstyles++;if card.Hairstyles==1||style.Price<card.FromPrice{card.FromPrice=style.Price}}
-		card.Rating,card.ReviewCount=storage.ReviewSummary(b.ID);cards=append(cards,card)
+func ExploreBarbersHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+		return
 	}
-	render(w,"explore.html",exploreView{Items:cards,States:states,SelectedState:state,SelectedArea:area})
+	all, err := storage.ListActiveBarbersResult(r.Context())
+	if err != nil {
+		serverError(w, "load public discovery", err)
+		return
+	}
+	state := strings.TrimSpace(r.URL.Query().Get("state"))
+	area := strings.TrimSpace(r.URL.Query().Get("area"))
+	seen := map[string]bool{}
+	var states []string
+	var cards []exploreCard
+	for _, b := range all {
+		if b.State != "" && !seen[strings.ToLower(b.State)] {
+			states = append(states, b.State)
+			seen[strings.ToLower(b.State)] = true
+		}
+		if state == "" || !strings.EqualFold(b.State, state) || (area != "" && !strings.EqualFold(b.LocalArea, area)) {
+			continue
+		}
+		b.PasswordHash = ""
+		card := exploreCard{Barber: b}
+		styles, err := storage.ListAvailableHairstylesByBarberResult(r.Context(), b.ID)
+		if err != nil {
+			serverError(w, "load public services", err)
+			return
+		}
+		for _, style := range styles {
+			card.Hairstyles++
+			if card.Hairstyles == 1 || style.Price < card.FromPrice {
+				card.FromPrice = style.Price
+			}
+		}
+		card.Rating, card.ReviewCount, err = storage.ReviewSummaryResult(r.Context(), b.ID)
+		if err != nil {
+			serverError(w, "load public rating", err)
+			return
+		}
+		cards = append(cards, card)
+	}
+	render(w, "explore.html", exploreView{Items: cards, States: states, SelectedState: state, SelectedArea: area})
 }
 
 func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment string) {
@@ -63,8 +102,12 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		http.NotFound(w, r)
 		return
 	}
-	b, found := storage.FindBarberByID(id)
-	if !found || !b.IsActive() {
+	b, err := storage.FindBarberByIDContext(r.Context(), id)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load public barber", err)
+		return
+	}
+	if errors.Is(err, storage.ErrNotFound) || !b.IsActive() {
 		http.NotFound(w, r)
 		return
 	}
@@ -74,10 +117,30 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		serverError(w, "load public portfolio products", err)
 		return
 	}
-	rating, count := storage.ReviewSummary(id)
+	rating, count, err := storage.ReviewSummaryResult(r.Context(), id)
+	if err != nil {
+		serverError(w, "load public portfolio rating", err)
+		return
+	}
+	styles, err := storage.ListAvailableHairstylesByBarberResult(r.Context(), id)
+	if err != nil {
+		serverError(w, "load public portfolio services", err)
+		return
+	}
+	reviews, err := storage.ListReviewsByBarberResult(r.Context(), id)
+	if err != nil {
+		serverError(w, "load public portfolio reviews", err)
+		return
+	}
+
 	signedIn := false
 	if s, ok := session.FromRequest(r, session.RoleCustomer); ok {
-		_, signedIn = storage.FindCustomerByID(s.UserID)
+		_, err := storage.FindCustomerByIDResult(r.Context(), s.UserID)
+		if err != nil && !errors.Is(err, storage.ErrNotFound) {
+			serverError(w, "load public account context", err)
+			return
+		}
+		signedIn = err == nil
 	}
 	bookLink := "/customer/login?next=/customer/barbers/" + idSegment + "%23booking"
 	messageLink := "/customer/login?next=/customer/chats/" + idSegment
@@ -85,5 +148,5 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		bookLink = "/customer/barbers/" + idSegment + "#booking"
 		messageLink = "/customer/chats/" + idSegment
 	}
-	render(w, "explore-barber.html", publicBarberView{Barber: b, Hairstyles: storage.ListAvailableHairstylesByBarber(id), Products: products, Reviews: storage.ListReviewsByBarber(id), Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
+	render(w, "explore-barber.html", publicBarberView{Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
 }

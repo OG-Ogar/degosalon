@@ -58,7 +58,7 @@ func CustomerChatHandler(
 	s sessionData,
 	barberSegment string,
 ) {
-	barber, ok := bookableBarber(w, barberSegment)
+	barber, ok := bookableBarber(w, r, barberSegment)
 	if !ok {
 		return
 	}

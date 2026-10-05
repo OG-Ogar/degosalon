@@ -37,8 +37,17 @@ func BarberBookingsHandler(
 		ActionURL: "/barber/bookings/",
 	}
 
-	for _, booking := range storage.ListBookingsByBarber(barber.ID) {
-		row := describeBooking(booking)
+	bookings, err := storage.ListBookingsByBarberResult(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load barber bookings", err)
+		return
+	}
+	for _, booking := range bookings {
+		row, err := describeBooking(r.Context(), booking)
+		if err != nil {
+			serverError(w, "load appointment details", err)
+			return
+		}
 
 		switch booking.Status {
 		case models.StatusPending:
@@ -108,8 +117,12 @@ func BarberBookingActionHandler(
 		return
 	}
 
-	booking, found := storage.FindBookingByID(id)
-	if !found || booking.BarberID != barber.ID {
+	booking, err := storage.FindBookingByIDResult(r.Context(), id)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load booking action", err)
+		return
+	}
+	if errors.Is(err, storage.ErrNotFound) || booking.BarberID != barber.ID {
 		http.Error(w, "Booking not found.", http.StatusNotFound)
 
 		return
@@ -126,7 +139,7 @@ func BarberBookingActionHandler(
 		return
 	}
 
-	err := storage.TransitionBookingStatus(id, change.status, change.from, barber.ID, 0)
+	err = storage.TransitionBookingStatus(id, change.status, change.from, barber.ID, 0)
 
 	switch {
 	case errors.Is(err, storage.ErrInvalidTransition):

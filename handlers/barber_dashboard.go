@@ -35,7 +35,16 @@ func BarberDashboardHandler(
 		return
 	}
 
-	bookings := storage.ListBookingsByBarber(barber.ID)
+	bookings, err := storage.ListBookingsByBarberResult(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load dashboard schedule", err)
+		return
+	}
+	styles, err := storage.ListHairstylesByBarberResult(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load dashboard services", err)
+		return
+	}
 
 	pending := 0
 	upcoming := 0
@@ -61,7 +70,7 @@ func BarberDashboardHandler(
 	render(w, "barber/dashboard.html", barberDashboardView{
 		Barber:           barber,
 		CSRF:             s.CSRFToken,
-		Hairstyles:       len(storage.ListHairstylesByBarber(barber.ID)),
+		Hairstyles:       len(styles),
 		PendingBookings:  pending,
 		UpcomingBookings: upcoming,
 		Conversations:    len(storage.ConversationsForBarber(barber.ID)),

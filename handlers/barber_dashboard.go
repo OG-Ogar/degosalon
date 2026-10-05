@@ -52,6 +52,17 @@ func BarberDashboardHandler(
 	// The password hash must never reach the template.
 	barber.PasswordHash = ""
 
+	orderItems := storage.ListProductOrderItemsByBarber(barber.ID)
+	for i := range orderItems {
+		if orderItems[i].CustomerName != "" { continue }
+		if order, found := storage.FindProductOrderByID(orderItems[i].OrderID); found {
+			orderItems[i].CustomerName = order.CustomerName
+			orderItems[i].CustomerPhone = order.CustomerPhone
+			orderItems[i].CustomerEmail = order.CustomerEmail
+			orderItems[i].OrderStatus = order.Status
+		}
+	}
+
 	render(w, "barber/dashboard.html", barberDashboardView{
 		Barber:           barber,
 		CSRF:             s.CSRFToken,
@@ -59,7 +70,7 @@ func BarberDashboardHandler(
 		PendingBookings:  pending,
 		UpcomingBookings: upcoming,
 		Conversations:    len(storage.ConversationsForBarber(barber.ID)),
-		ProductOrders:    storage.ListProductOrderItemsByBarber(barber.ID),
+		ProductOrders:    orderItems,
 	})
 }
 

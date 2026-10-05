@@ -102,7 +102,7 @@ func BookHairstyleHandler(
 
 	// The barber has to resolve before anything can be redrawn, so this
 	// check comes before the validation message is reported.
-	barber, ok := bookableBarber(w, r.PostFormValue("barber_id"))
+	barber, ok := bookableBarber(w, r, r.PostFormValue("barber_id"))
 	if !ok {
 		return
 	}
@@ -120,7 +120,7 @@ func BookHairstyleHandler(
 		return
 	}
 
-	hairstyle, lookupErr := storage.FindHairstyleByIDResult(request.HairstyleID)
+	hairstyle, lookupErr := storage.FindHairstyleByIDResult(r.Context(), request.HairstyleID)
 	if lookupErr != nil && !errors.Is(lookupErr, storage.ErrNotFound) {
 		serverError(w, "load hairstyle for booking", lookupErr)
 		return
@@ -212,8 +212,12 @@ func BookingConfirmationHandler(
 		return
 	}
 
-	booking, found := storage.FindBookingByID(bookingID)
-	if !found {
+	booking, err := storage.FindBookingByIDResult(r.Context(), bookingID)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load booking confirmation", err)
+		return
+	}
+	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)
 
 		return
@@ -227,13 +231,25 @@ func BookingConfirmationHandler(
 		return
 	}
 
-	barber, err := storage.FindBarberByIDResult(booking.BarberID)
-	if errors.Is(err, storage.ErrNotFound) { http.NotFound(w, r); return }
-	if err != nil { serverError(w, "load booking barber", err); return }
+	barber, err := storage.FindBarberByIDContext(r.Context(), booking.BarberID)
+	if errors.Is(err, storage.ErrNotFound) {
+		http.NotFound(w, r)
+		return
+	}
+	if err != nil {
+		serverError(w, "load booking barber", err)
+		return
+	}
 
-	hairstyle, err := storage.FindHairstyleByIDResult(booking.HairstyleID)
-	if errors.Is(err, storage.ErrNotFound) { http.NotFound(w, r); return }
-	if err != nil { serverError(w, "load booking hairstyle", err); return }
+	hairstyle, err := storage.FindHairstyleByIDResult(r.Context(), booking.HairstyleID)
+	if errors.Is(err, storage.ErrNotFound) {
+		http.NotFound(w, r)
+		return
+	}
+	if err != nil {
+		serverError(w, "load booking hairstyle", err)
+		return
+	}
 
 	view := bookingConfirmationView{
 		CSRF:      s.CSRFToken,

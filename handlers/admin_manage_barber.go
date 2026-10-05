@@ -69,10 +69,26 @@ func ListBarbersHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 		return
 	}
 
-	barbers := storage.ListBarbers()
+	barbers, err := storage.ListBarbersResult(r.Context())
+	if err != nil {
+		serverError(w, "load admin barbers", err)
+		return
+	}
+
 	rows := make([]adminBarberRow, 0, len(barbers))
 
 	for _, barber := range barbers {
+		styles, err := storage.ListHairstylesByBarberResult(r.Context(), barber.ID)
+		if err != nil {
+			serverError(w, "load admin service counts", err)
+			return
+		}
+		bookings, err := storage.ListBookingsByBarberResult(r.Context(), barber.ID)
+		if err != nil {
+			serverError(w, "load admin booking counts", err)
+			return
+		}
+
 		rows = append(rows, adminBarberRow{
 			ID:          barber.ID,
 			FullName:    barber.FullName,
@@ -81,8 +97,8 @@ func ListBarbersHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 			ShopName:    barber.ShopName,
 			Status:      barber.Status,
 			Active:      barber.IsActive(),
-			Hairstyles:  len(storage.ListHairstylesByBarber(barber.ID)),
-			Bookings:    len(storage.ListBookingsByBarber(barber.ID)),
+			Hairstyles:  len(styles),
+			Bookings:    len(bookings),
 		})
 	}
 
@@ -136,8 +152,12 @@ func BarberProfileHandler(
 		return
 	}
 
-	barber, found := storage.FindBarberByID(id)
-	if !found {
+	barber, err := storage.FindBarberByIDContext(r.Context(), id)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load admin barber", err)
+		return
+	}
+	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)
 
 		return
@@ -145,10 +165,25 @@ func BarberProfileHandler(
 
 	barber.PasswordHash = ""
 
+	styles, err := storage.ListHairstylesByBarberResult(r.Context(), id)
+	if err != nil {
+		serverError(w, "load admin barber services", err)
+		return
+	}
+	bookings, err := storage.ListBookingsByBarberResult(r.Context(), id)
+	if err != nil {
+		serverError(w, "load admin barber schedule", err)
+		return
+	}
+	rows, err := describeBookings(r.Context(), bookings)
+	if err != nil {
+		serverError(w, "load admin booking details", err)
+		return
+	}
 	render(w, "admin/barber-profile.html", adminBarberProfileView{
 		Barber:     barber,
-		Hairstyles: storage.ListHairstylesByBarber(id),
-		Bookings:   describeBookings(storage.ListBookingsByBarber(id)),
+		Hairstyles: styles,
+		Bookings:   rows,
 		CSRF:       s.CSRFToken,
 	})
 }

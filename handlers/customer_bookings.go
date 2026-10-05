@@ -36,8 +36,17 @@ func CustomerBookingsHandler(
 		ActionURL: "/customer/bookings/",
 	}
 
-	for _, booking := range storage.ListBookingsByCustomer(customer.ID) {
-		row := describeBooking(booking)
+	bookings, err := storage.ListBookingsByCustomerResult(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load customer bookings", err)
+		return
+	}
+	for _, booking := range bookings {
+		row, err := describeBooking(r.Context(), booking)
+		if err != nil {
+			serverError(w, "load appointment details", err)
+			return
+		}
 
 		if booking.CanBeCancelled() {
 			view.Upcoming = append(view.Upcoming, row)
@@ -78,8 +87,12 @@ func CancelBookingHandler(
 		return
 	}
 
-	booking, found := storage.FindBookingByID(id)
-	if !found || booking.CustomerID != customer.ID {
+	booking, err := storage.FindBookingByIDResult(r.Context(), id)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load booking action", err)
+		return
+	}
+	if errors.Is(err, storage.ErrNotFound) || booking.CustomerID != customer.ID {
 		http.Error(w, "Booking not found.", http.StatusNotFound)
 
 		return
@@ -95,7 +108,7 @@ func CancelBookingHandler(
 		return
 	}
 
-	err := storage.TransitionBookingStatus(id, models.StatusCancelled, []string{models.StatusPending, models.StatusAccepted}, 0, customer.ID)
+	err = storage.TransitionBookingStatus(id, models.StatusCancelled, []string{models.StatusPending, models.StatusAccepted}, 0, customer.ID)
 
 	switch {
 	case errors.Is(err, storage.ErrInvalidTransition):

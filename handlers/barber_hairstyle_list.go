@@ -17,6 +17,7 @@ import (
 // hairstyle by changing the number.
 func ownedHairstyle(
 	w http.ResponseWriter,
+	r *http.Request,
 	barber models.Barber,
 	idSegment string,
 ) (models.Hairstyle, bool) {
@@ -27,7 +28,7 @@ func ownedHairstyle(
 		return models.Hairstyle{}, false
 	}
 
-	hairstyle, err := storage.FindHairstyleOwnedBy(id, barber.ID)
+	hairstyle, err := storage.FindHairstyleOwnedBy(r.Context(), id, barber.ID)
 
 	switch {
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
@@ -59,8 +60,13 @@ func ListHairstylesHandler(
 		return
 	}
 
+	styles, err := storage.ListHairstylesByBarberResult(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load seller services", err)
+		return
+	}
 	render(w, "barber/hairstyle-list.html", listView[models.Hairstyle]{
-		Items: storage.ListHairstylesByBarber(barber.ID),
+		Items: styles,
 		CSRF:  s.CSRFToken,
 	})
 }
@@ -79,7 +85,7 @@ func ViewHairstyleHandler(
 		return
 	}
 
-	hairstyle, ok := ownedHairstyle(w, barber, idSegment)
+	hairstyle, ok := ownedHairstyle(w, r, barber, idSegment)
 	if !ok {
 		return
 	}

@@ -43,6 +43,12 @@ Catalogue, seller inventory, cart lists/counts, order confirmation/items, portfo
 
 Tests cover query/scan failures, interruption after a valid row without partial success, scoped seller sales, and failed commerce requests. Booking, discovery, reviews, messaging, and admin list/record reads remain to migrate before closing BE-09.
 
+### Fourth implementation: booking, discovery, and admin read errors (BE-09)
+
+Booking lists/actions/confirmation, appointment descriptions, barber/service discovery, review lists/ratings/eligibility, and admin views now propagate lookup/query/scan/iteration failures with request contexts. Unknown records retain missing-record responses. Admin dashboard upload-error rendering also uses the same checked dashboard loader, preventing false zero counts during outages. Review creation preserves eligibility-query errors instead of misreporting them as forbidden.
+
+Regression coverage exercises storage query/scan failures and failed GET/POST handlers. Messaging reads remain to migrate before closing BE-09; live database concurrency/transaction verification stays open.
+
 ### Remaining sequence
 
 1. Continue database error propagation through remaining core record/list reads (BE-09). Authentication lookup failures now preserve sessions; other boolean/list APIs still need migration.

@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -43,7 +44,12 @@ func BrowseBarbersHandler(
 		return
 	}
 
-	barbers := storage.ListActiveBarbers()
+	barbers, err := storage.ListActiveBarbersResult(r.Context())
+	if err != nil {
+		serverError(w, "load barber discovery", err)
+		return
+	}
+
 	state := strings.TrimSpace(r.URL.Query().Get("state"))
 	area := strings.TrimSpace(r.URL.Query().Get("area"))
 	var states []string
@@ -69,7 +75,12 @@ func BrowseBarbersHandler(
 
 		card := barberCard{Barber: barber}
 
-		for _, hairstyle := range storage.ListAvailableHairstylesByBarber(barber.ID) {
+		styles, err := storage.ListAvailableHairstylesByBarberResult(r.Context(), barber.ID)
+		if err != nil {
+			serverError(w, "load discovery services", err)
+			return
+		}
+		for _, hairstyle := range styles {
 			card.Hairstyles++
 
 			if card.Hairstyles == 1 || hairstyle.Price < card.FromPrice {
@@ -77,7 +88,12 @@ func BrowseBarbersHandler(
 			}
 		}
 
-		card.Rating, card.ReviewCount = storage.ReviewSummary(barber.ID)
+		card.Rating, card.ReviewCount, err = storage.ReviewSummaryResult(r.Context(), barber.ID)
+		if err != nil {
+			serverError(w, "load discovery rating", err)
+			return
+		}
+
 		cards = append(cards, card)
 	}
 
@@ -122,7 +138,7 @@ func ViewBarberHandler(
 		return
 	}
 
-	barber, ok := bookableBarber(w, idSegment)
+	barber, ok := bookableBarber(w, r, idSegment)
 	if !ok {
 		return
 	}
@@ -135,7 +151,7 @@ func ViewBarberHandler(
 // bookableBarber resolves a barber a customer is allowed to see. A
 // suspended barber is reported as missing rather than shown, so nobody
 // can book with an account the admin has closed.
-func bookableBarber(w http.ResponseWriter, idSegment string) (models.Barber, bool) {
+func bookableBarber(w http.ResponseWriter, r *http.Request, idSegment string) (models.Barber, bool) {
 	id, ok := parseID(idSegment)
 	if !ok {
 		http.Error(w, "Barber not found.", http.StatusNotFound)
@@ -143,8 +159,16 @@ func bookableBarber(w http.ResponseWriter, idSegment string) (models.Barber, boo
 		return models.Barber{}, false
 	}
 
-	barber, found := storage.FindBarberByID(id)
-	if !found || !barber.IsActive() {
+	barber, err := storage.FindBarberByIDContext(r.Context(), id)
+	if errors.Is(err, storage.ErrNotFound) {
+		http.NotFound(w, r)
+		return models.Barber{}, false
+	}
+	if err != nil {
+		serverError(w, "load bookable barber", err)
+		return models.Barber{}, false
+	}
+	if !barber.IsActive() {
 		http.Error(w, "Barber not found.", http.StatusNotFound)
 
 		return models.Barber{}, false
@@ -181,11 +205,30 @@ func renderBarberDetail(
 		serverError(w, "load portfolio products", err)
 		return
 	}
-	rating, count := storage.ReviewSummary(barber.ID)
-	_, canReview := storage.CanCustomerReview(customerID, barber.ID)
+	rating, count, err := storage.ReviewSummaryResult(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load portfolio rating", err)
+		return
+	}
+	styles, err := storage.ListAvailableHairstylesByBarberResult(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load portfolio services", err)
+		return
+	}
+	reviews, err := storage.ListReviewsByBarberResult(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load portfolio reviews", err)
+		return
+	}
+	_, reviewErr := storage.CanCustomerReviewResult(r.Context(), customerID, barber.ID)
+	if reviewErr != nil && !errors.Is(reviewErr, storage.ErrNotFound) {
+		serverError(w, "load review eligibility", reviewErr)
+		return
+	}
+	canReview := reviewErr == nil
 	renderStatus(w, status, "customer/barber-detail.html", barberDetailView{
 		Barber:      barber,
-		Hairstyles:  storage.ListAvailableHairstylesByBarber(barber.ID),
+		Hairstyles:  styles,
 		Products:    products,
 		Selected:    selected,
 		Today:       today(),
@@ -195,7 +238,7 @@ func renderBarberDetail(
 		CSRF:        s.CSRFToken,
 		Error:       problem,
 		Values:      values,
-		Reviews:     storage.ListReviewsByBarber(barber.ID),
+		Reviews:     reviews,
 		Rating:      rating,
 		ReviewCount: count,
 		CanReview:   canReview,

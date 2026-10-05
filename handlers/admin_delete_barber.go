@@ -30,8 +30,12 @@ func ConfirmDeleteBarberHandler(
 		return
 	}
 
-	barber, found := storage.FindBarberByID(id)
-	if !found {
+	barber, err := storage.FindBarberByIDContext(r.Context(), id)
+	if err != nil && !errors.Is(err, storage.ErrNotFound) {
+		serverError(w, "load admin barber", err)
+		return
+	}
+	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)
 
 		return

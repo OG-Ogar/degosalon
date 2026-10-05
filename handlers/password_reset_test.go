@@ -56,16 +56,27 @@ func registerCustomer(
 		"fullname": {"Ada Lovelace"}, "phone": {"0700000000"}, "email": {email},
 		"password": {password}, "confirm_password": {password},
 	}) {
-		for _, value := range values { _ = writer.WriteField(key, value) }
+		for _, value := range values {
+			_ = writer.WriteField(key, value)
+		}
 	}
-	if err := writer.Close(); err != nil { t.Fatal(err) }
+	if err := writer.Close(); err != nil {
+		t.Fatal(err)
+	}
 	req, err := http.NewRequest(http.MethodPost, base+"/customer/register", strings.NewReader(body.String()))
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	req.Header.Set("Content-Type", writer.FormDataContentType())
 	response, err := browser.Do(req)
-	if err != nil { t.Fatal(err) }
+	if err != nil {
+		t.Fatal(err)
+	}
 	defer response.Body.Close()
-	if response.StatusCode != http.StatusOK { b, _ := io.ReadAll(response.Body); t.Fatalf("register: status %d\n%s", response.StatusCode, b) }
+	if response.StatusCode != http.StatusOK {
+		b, _ := io.ReadAll(response.Body)
+		t.Fatalf("register: status %d\n%s", response.StatusCode, b)
+	}
 
 	customer, found := storage.FindCustomerByEmail(email)
 	if !found {
@@ -112,8 +123,7 @@ func TestPasswordResetReplacesThePassword(t *testing.T) {
 	post(t, browser, server.URL+"/customer/forgot-password",
 		url.Values{"email": {"ada@example.com"}})
 
-	// The link itself only goes to the server log, so the test takes a
-	// token from the package that issues them.
+	// Obtain a token directly without delivering mail from this test.
 	token, err := reset.New(session.RoleCustomer, id)
 	if err != nil {
 		t.Fatalf("reset.New: %v", err)

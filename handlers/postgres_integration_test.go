@@ -1,7 +1,11 @@
 package handlers
 
 import (
+	"barber-booking/reset"
+	"barber-booking/security"
+	"context"
 	"database/sql"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -133,5 +137,103 @@ func TestPostgresSessionOutagePreservesAuthentication(t *testing.T) {
 	}
 	if _, ok := session.Get(s.ID); ok {
 		t.Fatal("logout failed to revoke durable session")
+	}
+}
+
+func TestPostgresPasswordRecoveryAfterFailedWrite(t *testing.T) {
+	databaseURL := testdb.New(t, "../supabase/schema.sql")
+	t.Setenv("DATABASE_URL", databaseURL)
+	if err := storage.InitDatabase(); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { storage.CloseDatabase() })
+	connection, err := sql.Open("pgx", databaseURL)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { connection.Close() })
+	oldHash, err := security.HashPassword("old recovery password")
+	if err != nil {
+		t.Fatal(err)
+	}
+	customer, err := storage.CreateCustomer(models.Customer{Email: "recovery_customer@example.com", PasswordHash: oldHash})
+	if err != nil {
+		t.Fatal(err)
+	}
+	barber, err := storage.CreateBarber(models.Barber{Email: "recovery_barber@example.com", PasswordHash: oldHash})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		role    session.Role
+		id      int
+		table   string
+		handler http.HandlerFunc
+	}{
+		{session.RoleCustomer, customer.ID, "customers", CustomerResetPasswordHandler},
+		{session.RoleBarber, barber.ID, "barbers", BarberResetPasswordHandler},
+	} {
+		t.Run(string(test.role), func(t *testing.T) {
+			token, err := reset.NewContext(context.Background(), test.role, test.id)
+			if err != nil {
+				t.Fatal(err)
+			}
+			s, err := session.New(test.role, test.id)
+			if err != nil {
+				t.Fatal(err)
+			}
+			page := httptest.NewRecorder()
+			test.handler(page, httptest.NewRequest(http.MethodGet, "/reset-password?token="+token, nil))
+			if page.Code != 200 || page.Header().Get("Cache-Control") != "no-store" || page.Header().Get("Referrer-Policy") != "no-referrer" {
+				t.Fatalf("reset form headers: %d", page.Code)
+			}
+			// The token table outage must be an operational error, not an expired link.
+			if _, err := connection.Exec("alter table degosalon_internal.password_resets rename to unavailable_resets"); err != nil {
+				t.Fatal(err)
+			}
+			unavailable := httptest.NewRecorder()
+			test.handler(unavailable, httptest.NewRequest(http.MethodGet, "/reset-password?token="+token, nil))
+			if unavailable.Code != 500 {
+				t.Fatalf("reset lookup outage: %d", unavailable.Code)
+			}
+			if _, err := connection.Exec("alter table degosalon_internal.unavailable_resets rename to password_resets"); err != nil {
+				t.Fatal(err)
+			}
+			if _, err := connection.Exec("alter table public." + test.table + " rename to unavailable_" + test.table); err != nil {
+				t.Fatal(err)
+			}
+			form := url.Values{"token": {token}, "password": {"new recovery password"}, "confirm_password": {"new recovery password"}}
+			failed := httptest.NewRecorder()
+			test.handler(failed, authFormRequest("/reset-password", form))
+			if failed.Code != 500 {
+				t.Fatalf("write outage: %d", failed.Code)
+			}
+			if _, err := reset.LookupContext(context.Background(), test.role, token); err != nil {
+				t.Fatalf("failed write burned token: %v", err)
+			}
+			if _, err := session.GetContext(context.Background(), s.ID); err != nil {
+				t.Fatalf("failed write revoked session: %v", err)
+			}
+			if _, err := connection.Exec("alter table public.unavailable_" + test.table + " rename to " + test.table); err != nil {
+				t.Fatal(err)
+			}
+			success := httptest.NewRecorder()
+			test.handler(success, authFormRequest("/reset-password", form))
+			if success.Code != 303 {
+				t.Fatalf("recovered reset: %d", success.Code)
+			}
+			var hash string
+			if err := connection.QueryRow("select password_hash from public."+test.table+" where id=$1", test.id).Scan(&hash); err != nil || !security.VerifyPassword(hash, "new recovery password") || security.VerifyPassword(hash, "old recovery password") {
+				t.Fatalf("password result: %v", err)
+			}
+			if _, err := session.GetContext(context.Background(), s.ID); !errors.Is(err, session.ErrNotFound) {
+				t.Fatalf("old session remains: %v", err)
+			}
+			reused := httptest.NewRecorder()
+			test.handler(reused, authFormRequest("/reset-password", form))
+			if reused.Code != 400 {
+				t.Fatalf("reused link: %d", reused.Code)
+			}
+		})
 	}
 }

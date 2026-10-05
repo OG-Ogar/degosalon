@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"errors"
-	"log"
 	"net/http"
 	"os"
 
@@ -109,6 +108,9 @@ func BarberResetPasswordHandler(w http.ResponseWriter, r *http.Request) {
 // an address is not registered would turn this form into a way of
 // finding out who has an account.
 func forgotPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
+	r.Body = http.MaxBytesReader(w, r.Body, 64<<10)
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Referrer-Policy", "no-referrer")
 	switch r.Method {
 
 	case http.MethodGet:
@@ -133,7 +135,7 @@ func forgotPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 			return
 		}
 		if err == nil {
-			token, err := reset.New(flow.Role, id)
+			token, err := reset.NewContext(r.Context(), flow.Role, id)
 			if err != nil {
 				serverError(w, "issue reset token", err)
 
@@ -141,15 +143,6 @@ func forgotPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 			}
 
 			path := flow.Prefix + "/reset-password?token=" + token
-
-			// No mail service is configured, so the link goes to the
-			// server log for the operator to pass on. It is only ever
-			// logged, never sent anywhere, so reading the host from the
-			// request cannot be used to point somebody at another site.
-			log.Printf(
-				"password reset for %s %q: http://%s%s (valid for %s)",
-				flow.Role, email, r.Host, path, reset.Lifetime,
-			)
 
 			if showResetLinks() {
 				view.Link = path
@@ -166,12 +159,19 @@ func forgotPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 // resetPassword checks a reset link and swaps the account's password for
 // the one typed on the form.
 func resetPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
+	r.Body = http.MaxBytesReader(w, r.Body, 64<<10)
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("Referrer-Policy", "no-referrer")
 	switch r.Method {
 
 	case http.MethodGet:
 		token := r.URL.Query().Get("token")
 
-		if _, ok := reset.Lookup(flow.Role, token); !ok {
+		if _, err := reset.LookupContext(r.Context(), flow.Role, token); err != nil {
+			if !errors.Is(err, reset.ErrInvalidToken) {
+				serverError(w, "look up reset token", err)
+				return
+			}
 			expiredLink(w, flow)
 
 			return
@@ -190,7 +190,11 @@ func resetPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 		// The link is checked before the password so that a link which
 		// went stale in an open tab says so, rather than complaining
 		// about the password and then failing anyway.
-		if _, ok := reset.Lookup(flow.Role, token); !ok {
+		if _, err := reset.LookupContext(r.Context(), flow.Role, token); err != nil {
+			if !errors.Is(err, reset.ErrInvalidToken) {
+				serverError(w, "look up reset token", err)
+				return
+			}
 			expiredLink(w, flow)
 
 			return
@@ -199,6 +203,8 @@ func resetPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 		problem := ""
 
 		switch {
+		case len(password) > 72:
+			problem = "Use a password of at most 72 bytes."
 		case len(password) < minPasswordLength:
 			problem = passwordTooShortMessage
 		case password != r.PostFormValue("confirm_password"):
@@ -223,27 +229,13 @@ func resetPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 			return
 		}
 
-		// Consuming the token only now, once the password is known to be
-		// acceptable, keeps a mistyped confirmation from burning the
-		// link and sending the visitor back to the start.
-		id, ok := reset.Consume(flow.Role, token)
-		if !ok {
+		_, err = reset.CompleteContext(r.Context(), flow.Role, token, hash, flow.SetPassword)
+		if errors.Is(err, reset.ErrInvalidToken) {
 			expiredLink(w, flow)
-
 			return
 		}
-
-		if err := flow.SetPassword(r.Context(), id, hash); err != nil {
-			serverError(w, "store reset password", err)
-
-			return
-		}
-
-		// Whoever asked for the reset may have been locked out by
-		// somebody else already signed in as them, so every session the
-		// account has open goes as well.
-		if err := session.DeleteForUserContext(r.Context(), flow.Role, id); err != nil {
-			serverError(w, "revoke reset account sessions", err)
+		if err != nil {
+			serverError(w, "complete password reset", err)
 			return
 		}
 

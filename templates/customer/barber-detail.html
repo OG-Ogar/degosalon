@@ -242,7 +242,6 @@
         {{end}}
     </section>
 
-    {{if .Products}}
     <section class="hairstyles-section">
         <div class="section-title"><div><p class="eyebrow">From this barber</p><h2>Products for sale</h2></div><span class="count">{{len .Products}} available</span></div>
         <div class="hairstyle-list">
@@ -538,6 +537,10 @@
         {{end}}
 
     </section>
+
+
+    <!-- Products follow handwork so services and prices remain the primary booking journey. -->
+    {{if .Products}}
 
 </main>
 

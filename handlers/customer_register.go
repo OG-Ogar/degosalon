@@ -144,12 +144,12 @@ func CustomerRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// Signing them straight in saves a pointless second form.
-		if _, err := session.StartContext(r.Context(),
-			w,
-			session.RoleCustomer,
-			customer.ID,
-		); err != nil {
-			removeImageIgnoringError(profileImage)
+		if err := startVerifiedAccountSession(w, r, session.RoleCustomer, customer.ID, hash); err != nil {
+			// The account and its image are committed; keep the image if login fails.
+			if errors.Is(err, session.ErrCredentialsChanged) {
+				http.Redirect(w, r, customerLoginPath(form.Next), http.StatusSeeOther)
+				return
+			}
 
 			serverError(
 				w,

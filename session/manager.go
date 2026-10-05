@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/subtle"
 	"database/sql"
 	"encoding/hex"
 	"errors"
@@ -26,6 +27,7 @@ const (
 const Lifetime = 12 * time.Hour
 
 var ErrNotFound = errors.New("session not found")
+var ErrCredentialsChanged = errors.New("account credentials changed")
 
 type Session struct {
 	ID        string
@@ -66,6 +68,20 @@ func New(role Role, userID int) (Session, error) {
 	return NewContext(context.Background(), role, userID)
 }
 func NewContext(ctx context.Context, role Role, userID int) (Session, error) {
+	return newSession(ctx, role, userID, nil, nil)
+}
+
+// NewVerifiedContext rechecks credentials and barber eligibility while holding
+// the account row lock until the session is committed. The memory checker runs
+// under the session lock, so account recovery cannot miss a session it creates.
+func NewVerifiedContext(ctx context.Context, role Role, userID int, verifiedHash string, checkMemory func(context.Context) error) (Session, error) {
+	if role != RoleCustomer && role != RoleBarber {
+		return Session{}, ErrCredentialsChanged
+	}
+	return newSession(ctx, role, userID, &verifiedHash, checkMemory)
+}
+
+func newSession(ctx context.Context, role Role, userID int, verifiedHash *string, checkMemory func(context.Context) error) (Session, error) {
 	ctx, cancel := bounded(ctx)
 	defer cancel()
 	if err := ctx.Err(); err != nil {
@@ -84,17 +100,50 @@ func NewContext(ctx context.Context, role Role, userID int) (Session, error) {
 	}
 	s := Session{ID: id, Role: role, UserID: userID, CSRFToken: token, ExpiresAt: time.Now().Add(Lifetime)}
 	if database != nil {
-		if _, err := database.ExecContext(ctx, "delete from degosalon_internal.auth_sessions where id_digest in (select id_digest from degosalon_internal.auth_sessions where expires_at<=now() order by expires_at limit 100)"); err != nil {
+		tx, err := database.BeginTx(ctx, nil)
+		if err != nil {
 			return Session{}, err
 		}
-		_, err := database.ExecContext(ctx, "insert into degosalon_internal.auth_sessions(id_digest,role,user_id,csrf_token,expires_at) values($1,$2,$3,$4,$5)", digest(id), role, userID, token, s.ExpiresAt)
-		if err != nil {
+		defer tx.Rollback()
+		if verifiedHash != nil {
+			var current string
+			active := true
+			if role == RoleBarber {
+				err = tx.QueryRowContext(ctx, "select password_hash,status='Active' from public.barbers where id=$1 for share", userID).Scan(&current, &active)
+			} else {
+				err = tx.QueryRowContext(ctx, "select password_hash from public.customers where id=$1 for share", userID).Scan(&current)
+			}
+			if errors.Is(err, sql.ErrNoRows) {
+				return Session{}, ErrCredentialsChanged
+			}
+			if err != nil {
+				return Session{}, err
+			}
+			if !active || subtle.ConstantTimeCompare([]byte(current), []byte(*verifiedHash)) != 1 {
+				return Session{}, ErrCredentialsChanged
+			}
+		}
+		if _, err := tx.ExecContext(ctx, "delete from degosalon_internal.auth_sessions where id_digest in (select id_digest from degosalon_internal.auth_sessions where expires_at<=now() order by expires_at limit 100)"); err != nil {
+			return Session{}, err
+		}
+		if _, err := tx.ExecContext(ctx, "insert into degosalon_internal.auth_sessions(id_digest,role,user_id,csrf_token,expires_at) values($1,$2,$3,$4,$5)", digest(id), role, userID, token, s.ExpiresAt); err != nil {
+			return Session{}, err
+		}
+		if err := tx.Commit(); err != nil {
 			return Session{}, err
 		}
 		return s, nil
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if verifiedHash != nil {
+		if checkMemory == nil {
+			return Session{}, errors.New("missing credential checker")
+		}
+		if err := checkMemory(ctx); err != nil {
+			return Session{}, err
+		}
+	}
 	for key, existing := range sessions {
 		if !time.Now().Before(existing.ExpiresAt) {
 			delete(sessions, key)
@@ -192,6 +241,17 @@ func StartContext(ctx context.Context, w http.ResponseWriter, role Role, userID 
 	http.SetCookie(w, &http.Cookie{Name: CookieName(role), Value: s.ID, Path: "/", MaxAge: int(Lifetime.Seconds()), HttpOnly: true, Secure: secureCookies(), SameSite: http.SameSiteLaxMode})
 	return s, nil
 }
+
+// StartVerifiedContext writes a cookie only after the checked session commits.
+func StartVerifiedContext(ctx context.Context, w http.ResponseWriter, role Role, userID int, verifiedHash string, checkMemory func(context.Context) error) (Session, error) {
+	s, err := NewVerifiedContext(ctx, role, userID, verifiedHash, checkMemory)
+	if err != nil {
+		return Session{}, err
+	}
+	http.SetCookie(w, &http.Cookie{Name: CookieName(role), Value: s.ID, Path: "/", MaxAge: int(Lifetime.Seconds()), HttpOnly: true, Secure: secureCookies(), SameSite: http.SameSiteLaxMode})
+	return s, nil
+}
+
 func Clear(w http.ResponseWriter, r *http.Request, role Role) { _ = ClearContext(w, r, role) }
 func ClearContext(w http.ResponseWriter, r *http.Request, role Role) error {
 	if cookie, err := r.Cookie(CookieName(role)); err == nil {

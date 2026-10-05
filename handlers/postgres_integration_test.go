@@ -237,3 +237,13 @@ func TestPostgresPasswordRecoveryAfterFailedWrite(t *testing.T) {
 		})
 	}
 }
+
+func TestPostgresVerifiedSessionCredentials(t *testing.T) {
+	databaseURL := testdb.New(t, "../supabase/schema.sql")
+	t.Setenv("DATABASE_URL", databaseURL)
+	if err := storage.InitDatabase(); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { storage.CloseDatabase() })
+	checkVerifiedSessionCredentials(t)
+}

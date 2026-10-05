@@ -63,7 +63,11 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if _, err := session.StartContext(r.Context(), w, session.RoleBarber, barber.ID); err != nil {
+		if err := startVerifiedAccountSession(w, r, session.RoleBarber, barber.ID, barber.PasswordHash); err != nil {
+			if errors.Is(err, session.ErrCredentialsChanged) {
+				loginError(w, "barber/login.html", email, "Your account changed while signing in. Try again with your current password.")
+				return
+			}
 			serverError(w, "start barber session", err)
 
 			return

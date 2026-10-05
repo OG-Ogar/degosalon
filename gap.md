@@ -29,9 +29,17 @@ The customer dashboard loads orders with the request context. Database query, sc
 
 Validation: Go tests and vet pass. New regression tests cover dashboard rendering, customer ownership, newest-first ordering, empty history, and failure of the database handle without memory fallback. A live PostgreSQL restart test has not been executed, so that acceptance requirement stays open.
 
+### Second implementation: authentication lookup failures (BE-09)
+
+Customer/barber session checks, login, and forgot-password requests now use error-returning account lookups with the request context. Query/scan failures return a generic server error and stop the request. A failed session lookup does not delete the session, expire its cookie, or redirect to login; the session remains usable when the lookup recovers. Only missing customers or missing/suspended barbers are signed out. Unknown accounts and incorrect passwords retain the generic credential rejection; unknown reset addresses retain the generic confirmation.
+
+Regression coverage exercises query errors, invalid rows, missing rows, case-insensitive memory lookups, canceled requests, session preservation/recovery, missing/suspended account rejection, credential rejection, and reset-token preservation. SQL responses are controlled test fixtures rather than a live PostgreSQL server. Real database integration and the remaining boolean/list lookups stay open; BE-09 is not fully closed.
+
+A further recovery defect was confirmed while tracing these paths: `SetCustomerPassword` and `SetBarberPassword` still write only to memory. Persistent password updates must be included in the recovery completion work (BE-11), alongside mail delivery and durable tokens.
+
 ### Remaining sequence
 
-1. Propagate database errors through authentication and core record reads (BE-09); database outages must not sign users out or produce false empty success pages.
+1. Continue database error propagation through remaining core record/list reads (BE-09). Authentication lookup failures now preserve sessions; other boolean/list APIs still need migration.
 2. Make checkout retries replayable and verify transactional failure/concurrency against PostgreSQL (BE-04/08).
 3. Add cart quantity editing/removal (BE-05).
 4. Finish scheduling/available slots (BE-02), preserving guarded transitions.

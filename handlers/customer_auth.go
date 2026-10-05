@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
@@ -41,9 +42,13 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		customer, found := storage.FindCustomerByEmail(email)
+		customer, err := storage.FindCustomerByEmailResult(r.Context(), email)
+		if err != nil && !errors.Is(err, storage.ErrNotFound) {
+			serverError(w, "look up customer login", err)
+			return
+		}
 
-		if !found {
+		if errors.Is(err, storage.ErrNotFound) {
 			// Same cost as a real verification, so response time does not
 			// reveal which emails have accounts.
 			security.DummyVerify(password)
@@ -86,7 +91,9 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if next == "" { next = "/customer/dashboard" }
+		if next == "" {
+			next = "/customer/dashboard"
+		}
 		http.Redirect(w, r, next, http.StatusSeeOther)
 
 	default:
@@ -120,7 +127,6 @@ func CustomerLogoutHandler(
 		http.StatusSeeOther,
 	)
 }
-
 
 func safeCustomerNext(next string) string {
 	next = strings.TrimSpace(next)

@@ -46,8 +46,15 @@ func CustomerDashboardHandler(
 		return
 	}
 
+	orders, err := storage.ListProductOrdersByCustomer(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load customer order history", err)
+		return
+	}
+
 	view := customerDashboardView{
 		Customer:        customer,
+		ProductOrders:   orders,
 		CSRF:            s.CSRFToken,
 		Barbers:         len(storage.ListActiveBarbers()),
 		Conversations:   len(storage.ConversationsForCustomer(customer.ID)),

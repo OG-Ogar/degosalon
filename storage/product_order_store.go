@@ -1,9 +1,12 @@
 package storage
 
 import (
-	"barber-booking/models"
+	"context"
 	"errors"
+	"sort"
 	"time"
+
+	"barber-booking/models"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -144,23 +147,36 @@ func ListProductOrderItems(orderID int) []models.ProductOrderItem {
 }
 
 // ListProductOrdersByCustomer returns all orders belonging to a customer.
-func ListProductOrdersByCustomer(customerID int) []models.ProductOrder {
+func ListProductOrdersByCustomer(ctx context.Context, customerID int) ([]models.ProductOrder, error) {
 	if databaseEnabled() {
-		rows,err:=db.Query("select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where customer_id=$1 order by id desc",customerID)
-		if err==nil { defer rows.Close(); var out []models.ProductOrder; for rows.Next(){var v models.ProductOrder;if rows.Scan(&v.ID,&v.CustomerID,&v.CustomerName,&v.CustomerPhone,&v.CustomerEmail,&v.TotalAmount,&v.Status,&v.CreatedAt)==nil{out=append(out,v)}};return out }
+		rows, err := db.QueryContext(ctx, "select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where customer_id=$1 order by id desc", customerID)
+		if err != nil {
+			return nil, err
+		}
+		defer rows.Close()
+		orders := make([]models.ProductOrder, 0)
+		for rows.Next() {
+			var order models.ProductOrder
+			if err := rows.Scan(&order.ID, &order.CustomerID, &order.CustomerName, &order.CustomerPhone, &order.CustomerEmail, &order.TotalAmount, &order.Status, &order.CreatedAt); err != nil {
+				return nil, err
+			}
+			orders = append(orders, order)
+		}
+		if err := rows.Err(); err != nil {
+			return nil, err
+		}
+		return orders, nil
 	}
 	mu.RLock()
 	defer mu.RUnlock()
-
 	orders := make([]models.ProductOrder, 0)
-
 	for _, order := range productOrders {
 		if order.CustomerID == customerID {
 			orders = append(orders, order)
 		}
 	}
-
-	return orders
+	sort.Slice(orders, func(i, j int) bool { return orders[i].ID > orders[j].ID })
+	return orders, nil
 }
 
 // ListProductOrderItemsByBarber returns all purchased product items

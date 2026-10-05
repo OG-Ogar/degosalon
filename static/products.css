@@ -663,3 +663,10 @@ RESPONSIVE
 
 /* De Go Salon commerce refinement */
 .products-header{background:#171311}.products-header-button,.products-cart-button{border-radius:999px}.products-heading h1{letter-spacing:-.045em}.product-card,.cart-item,.cart-summary{border-radius:16px;box-shadow:0 10px 30px rgba(31,24,20,.06)}@media(max-width:600px){.products-header{overflow-x:auto}.products-page{width:min(100% - 24px,1100px)}}
+
+.cart-quantity-form{display:grid;gap:.65rem;margin:1rem 0;min-width:0}
+.cart-quantity-form label{font-weight:600;overflow-wrap:anywhere}
+.cart-quantity-form input{width:100%;box-sizing:border-box;min-height:44px;padding:.6rem;background:var(--forest-950,#071f19);color:var(--cream,#f4f0df);border:1px solid var(--gold,#d6b777);border-radius:8px}
+.cart-quantity-form button{min-height:44px;padding:.6rem .85rem;border:1px solid var(--gold,#d6b777);border-radius:8px;background:var(--forest-900,#10382d);color:var(--cream,#f4f0df);cursor:pointer}
+.cart-quantity-form :focus-visible{outline:3px solid var(--gold,#d6b777);outline-offset:3px}
+.cart-problem{padding:1rem;border:1px solid var(--gold,#d6b777);border-radius:12px;color:var(--cream,#f4f0df);background:var(--forest-900,#10382d)}

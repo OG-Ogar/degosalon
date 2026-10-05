@@ -27,6 +27,7 @@ func TestPostgresIntegrity(t *testing.T) {
 
 	t.Run("account writes preserve recovery and suspension", checkProfileEditsPreserveRecovery)
 	t.Run("review ownership and concurrency", checkReviewIntegrity)
+	t.Run("cart editing and removal", checkCartEditing)
 
 	t.Run("concurrent overlapping bookings", func(t *testing.T) {
 		barber, customer, style := postgresBookingFixture(t)
@@ -128,6 +129,52 @@ func TestPostgresIntegrity(t *testing.T) {
 		stored, e := FindProductByIDResult(ctx, product.ID)
 		if e != nil || stored.Quantity != 1 {
 			t.Fatalf("stock: %+v %v", stored, e)
+		}
+	})
+	t.Run("concurrent new cart line is never lost", func(t *testing.T) {
+		barber, customer, _ := postgresBookingFixture(t)
+		first := postgresProduct(t, barber.ID, 3)
+		second := postgresProduct(t, barber.ID, 3)
+		if _, err := AddToCart(customer.ID, first.ID); err != nil {
+			t.Fatal(err)
+		}
+		// Delay order creation so an independent addition can overlap checkout.
+		name := fmt.Sprintf("delay_cart_checkout_%d", customer.ID)
+		statement := fmt.Sprintf(`create function public.%s() returns trigger language plpgsql as $$ begin perform pg_sleep(0.4); return new; end $$;
+   create trigger %s before insert on public.product_orders for each row when(new.customer_id=%d) execute function public.%s()`, name, name, customer.ID, name)
+		if _, err := db.Exec(statement); err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if _, err := db.Exec(fmt.Sprintf("drop trigger %s on public.product_orders; drop function public.%s()", name, name)); err != nil {
+				t.Error(err)
+			}
+		})
+		checkout := make(chan error, 1)
+		go func() { _, err := CheckoutCartContext(ctx, customer); checkout <- err }()
+		deadline := time.Now().Add(5 * time.Second)
+		for {
+			var sleeping bool
+			err := db.QueryRow(`select exists(select 1 from pg_stat_activity where pid<>pg_backend_pid() and wait_event='PgSleep' and query like $1)`, "insert into public.product_orders%").Scan(&sleeping)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if sleeping {
+				break
+			}
+			if time.Now().After(deadline) {
+				t.Fatal("checkout did not reach injected delay")
+			}
+			time.Sleep(5 * time.Millisecond)
+		}
+		_, addErr := AddToCartContext(ctx, customer.ID, second.ID)
+		checkoutErr := <-checkout
+		if addErr != nil || checkoutErr != nil {
+			t.Fatalf("concurrent writes: add=%v checkout=%v", addErr, checkoutErr)
+		}
+		cart, err := ListCartItems(ctx, customer.ID)
+		if err != nil || len(cart) != 1 || cart[0].ProductID != second.ID || cart[0].Quantity != 1 {
+			t.Fatalf("new cart line lost: %+v %v", cart, err)
 		}
 	})
 	t.Run("competing customers cannot oversell", func(t *testing.T) {

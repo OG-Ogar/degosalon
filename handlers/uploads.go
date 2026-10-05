@@ -208,12 +208,18 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 			return "", err
 		}
 		_ = os.Remove(path)
-		return storageURL + "/storage/v1/object/public/degosalon-media/" + url.PathEscape(objectPath), nil
+		return storageURL + "/storage/v1/object/public/degosalon-media/" + escapeObjectPath(objectPath), nil
 	}
 
 	return store.urlPath + name, nil
 }
 
+
+func escapeObjectPath(path string) string {
+	parts := strings.Split(path, "/")
+	for i := range parts { parts[i] = url.PathEscape(parts[i]) }
+	return strings.Join(parts, "/")
+}
 
 func uploadSupabaseMedia(baseURL, objectPath, contentType string, data []byte) error {
 	key := strings.TrimSpace(os.Getenv("SUPABASE_SERVICE_ROLE_KEY"))

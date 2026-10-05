@@ -84,6 +84,15 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 		parts[2] == "new":
 		NewProductHandler(w, r, barber, s)
 
+	case len(parts) == 3 && parts[1] == "products":
+		ViewProductHandler(w, r, barber, s, parts[2])
+
+	case len(parts) == 4 && parts[1] == "products" && parts[3] == "edit":
+		EditProductHandler(w, r, barber, s, parts[2])
+
+	case len(parts) == 4 && parts[1] == "products" && parts[3] == "update":
+		UpdateProductHandler(w, r, barber, s, parts[2])
+
 	case len(parts) == 4 &&
 		parts[1] == "products" &&
 		parts[3] == "delete":

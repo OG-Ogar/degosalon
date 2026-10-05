@@ -1,6 +1,11 @@
 package storage
 
-import "barber-booking/models"
+import (
+	"barber-booking/models"
+	"errors"
+
+	"github.com/jackc/pgx/v5"
+)
 
 // ListHairstylesByBarber returns everything one barber offers.
 func ListHairstylesByBarber(barberID int) []models.Hairstyle {
@@ -161,4 +166,15 @@ func DeleteHairstyle(id, barberID int) (string, error) {
 	}
 
 	return "", ErrNotFound
+}
+
+// FindHairstyleByIDResult distinguishes not-found from database failures.
+func FindHairstyleByIDResult(id int) (models.Hairstyle, error) {
+	if databaseEnabled() {
+		var v models.Hairstyle
+		err:=db.QueryRow("select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where id=$1",id).Scan(&v.ID,&v.BarberID,&v.Name,&v.Category,&v.Description,&v.Price,&v.Duration,&v.Image,&v.Video,&v.IsAvailable)
+		if errors.Is(err,pgx.ErrNoRows){return models.Hairstyle{},ErrNotFound}
+		return v,err
+	}
+	v,ok:=FindHairstyleByID(id);if !ok{return models.Hairstyle{},ErrNotFound};return v,nil
 }

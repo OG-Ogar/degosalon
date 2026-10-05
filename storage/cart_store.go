@@ -8,14 +8,14 @@ var carts = make(map[int]map[int]int)
 
 func AddToCart(customerID, productID int) (int, error) {
 	if databaseEnabled() {
-		tx,err:=db.Begin(); if err!=nil{return 0,err}; defer tx.Rollback()
-		var stock int
-		if err=tx.QueryRow("select quantity from public.products where id=$1 for update",productID).Scan(&stock);err!=nil{return 0,ErrNotFound}
-		if stock<=0{return 0,ErrSlotTaken}
+		var stock int; var available bool; var barberStatus string
+		err:=db.QueryRow(`select p.quantity,p.is_available,b.status from public.products p join public.barbers b on b.id=p.barber_id where p.id=$1`,productID).Scan(&stock,&available,&barberStatus)
+		if err!=nil{return 0,ErrNotFound};if !available||barberStatus!="Active"{return 0,ErrUnavailable}
 		var quantity int
-		err=tx.QueryRow("insert into public.carts(customer_id,product_id,quantity) values($1,$2,1) on conflict(customer_id,product_id) do update set quantity=public.carts.quantity+1 returning quantity",customerID,productID).Scan(&quantity);if err!=nil{return 0,err}
-		if _,err=tx.Exec("update public.products set quantity=quantity-1 where id=$1",productID);err!=nil{return 0,err}
-		if err=tx.Commit();err!=nil{return 0,err};return quantity,nil
+		err=db.QueryRow(`insert into public.carts(customer_id,product_id,quantity) values($1,$2,1)
+			on conflict(customer_id,product_id) do update set quantity=public.carts.quantity+1
+			where public.carts.quantity < $3 returning quantity`,customerID,productID,stock).Scan(&quantity)
+		if err!=nil{return 0,ErrSlotTaken};return quantity,nil
 	}
 	mu.Lock()
 	defer mu.Unlock()
@@ -25,23 +25,17 @@ func AddToCart(customerID, productID int) (int, error) {
 		return 0, ErrNotFound
 	}
 
-	if product.Quantity <= 0 {
-		return 0, ErrSlotTaken
-	}
+	if !product.IsAvailable { return 0, ErrUnavailable }
+	barber, found := findBarberByID(product.BarberID)
+	if !found || !barber.IsActive() { return 0, ErrUnavailable }
+	if product.Quantity <= 0 { return 0, ErrSlotTaken }
 
 	if carts[customerID] == nil {
 		carts[customerID] = make(map[int]int)
 	}
 
+	if carts[customerID][productID] >= product.Quantity { return 0, ErrSlotTaken }
 	carts[customerID][productID]++
-
-	for i := range products {
-		if products[i].ID == productID {
-			products[i].Quantity--
-			break
-		}
-	}
-
 	return carts[customerID][productID], nil
 }
 

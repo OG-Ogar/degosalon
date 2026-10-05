@@ -31,6 +31,7 @@ func TestPostgresIntegrity(t *testing.T) {
 	t.Run("checkout request replay", checkCheckoutReplay)
 	t.Run("immutable booking service and shop snapshots", checkBookingSnapshots)
 	t.Run("per-barber calendar and available times", checkCalendarAvailability)
+	t.Run("booking lifecycle domain graph", checkBookingLifecycle)
 
 	t.Run("concurrent overlapping bookings", func(t *testing.T) {
 		barber, customer, style := postgresBookingFixture(t)

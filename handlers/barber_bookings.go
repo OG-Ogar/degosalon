@@ -139,7 +139,7 @@ func BarberBookingActionHandler(
 		return
 	}
 
-	err = storage.TransitionBookingStatus(id, change.status, change.from, barber.ID, 0)
+	err = storage.TransitionBookingStatusContext(r.Context(), id, change.status, change.from, barber.ID, 0)
 
 	switch {
 	case errors.Is(err, storage.ErrInvalidTransition):

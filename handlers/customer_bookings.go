@@ -108,7 +108,7 @@ func CancelBookingHandler(
 		return
 	}
 
-	err = storage.TransitionBookingStatus(id, models.StatusCancelled, []string{models.StatusPending, models.StatusAccepted}, 0, customer.ID)
+	err = storage.TransitionBookingStatusContext(r.Context(), id, models.StatusCancelled, []string{models.StatusPending, models.StatusAccepted}, 0, customer.ID)
 
 	switch {
 	case errors.Is(err, storage.ErrInvalidTransition):

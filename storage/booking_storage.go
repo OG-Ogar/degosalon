@@ -35,6 +35,12 @@ func CreateBooking(booking models.Booking) (models.Booking, error) {
 }
 
 func CreateBookingContext(ctx context.Context, booking models.Booking) (models.Booking, error) {
+	if booking.Status == "" {
+		booking.Status = models.StatusPending
+	}
+	if booking.Status != models.StatusPending {
+		return models.Booking{}, ErrInvalidTransition
+	}
 	if err := ctx.Err(); err != nil {
 		return models.Booking{}, err
 	}
@@ -252,6 +258,27 @@ func ListBookingsByCustomer(customerID int) []models.Booking {
 // TransitionBookingStatus changes a booking only when its current status is
 // one of the allowed source states. The check and write happen atomically.
 func TransitionBookingStatus(id int, status string, allowedFrom []string, barberID, customerID int) error {
+	return TransitionBookingStatusContext(context.Background(), id, status, allowedFrom, barberID, customerID)
+}
+
+func TransitionBookingStatusContext(ctx context.Context, id int, status string, allowedFrom []string, barberID, customerID int) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	domain, err := bookingTransitionSources(status, barberID, customerID)
+	if err != nil {
+		return err
+	}
+	var constrained []string
+	for _, source := range domain {
+		for _, requested := range allowedFrom {
+			if source == requested {
+				constrained = append(constrained, source)
+				break
+			}
+		}
+	}
+	allowedFrom = constrained
 	if len(allowedFrom) == 0 {
 		return ErrInvalidTransition
 	}
@@ -276,7 +303,7 @@ func TransitionBookingStatus(id int, status string, allowedFrom []string, barber
 			next++
 		}
 		q += " and status in (" + strings.Join(placeholders, ",") + ")"
-		result, err := db.Exec(q, args...)
+		result, err := db.ExecContext(ctx, q, args...)
 		if err != nil {
 			return err
 		}
@@ -286,7 +313,7 @@ func TransitionBookingStatus(id int, status string, allowedFrom []string, barber
 		}
 		var ownerBarber, ownerCustomer int
 		var current string
-		err = db.QueryRow("select barber_id,customer_id,status from public.bookings where id=$1", id).Scan(&ownerBarber, &ownerCustomer, &current)
+		err = db.QueryRowContext(ctx, "select barber_id,customer_id,status from public.bookings where id=$1", id).Scan(&ownerBarber, &ownerCustomer, &current)
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrNotFound
 		}
@@ -350,54 +377,36 @@ func bookingIntervalsOverlap(aTime string, aDuration int, bTime string, bDuratio
 	return a < b+bDuration && b < a+aDuration
 }
 
-// SetBookingStatus moves a booking to a new status. The caller passes
-// the ID it is allowed to act on: barberID for the barber's own
-// schedule, customerID for the customer's own appointments. Passing 0
-// skips that check, which only the admin does.
+// bookingTransitionSources defines the lifecycle and the actor allowed to move it.
+// Every mutation requires exactly one authenticated owner; there is no implicit
+// administrator bypass or terminal-state reopening.
+func bookingTransitionSources(status string, barberID, customerID int) ([]string, error) {
+	if (barberID > 0) == (customerID > 0) || barberID < 0 || customerID < 0 {
+		return nil, ErrForbidden
+	}
+	if customerID > 0 {
+		if status == models.StatusCancelled {
+			return []string{models.StatusPending, models.StatusAccepted}, nil
+		}
+		return nil, ErrInvalidTransition
+	}
+	switch status {
+	case models.StatusAccepted, models.StatusRejected:
+		return []string{models.StatusPending}, nil
+	case models.StatusCompleted:
+		return []string{models.StatusAccepted}, nil
+	default:
+		return nil, ErrInvalidTransition
+	}
+}
+
+// SetBookingStatus retains the legacy API while enforcing the same lifecycle.
 func SetBookingStatus(id int, status string, barberID, customerID int) error {
-	if databaseEnabled() {
-		q := "update public.bookings set status=$1 where id=$2"
-		args := []any{status, id}
-		if barberID != 0 {
-			q += " and barber_id=$3"
-			args = append(args, barberID)
-		}
-		if customerID != 0 {
-			q += " and customer_id=$3"
-			args = append(args, customerID)
-		}
-		result, err := db.Exec(q, args...)
-		if err != nil {
-			return err
-		}
-		n, _ := result.RowsAffected()
-		if n == 0 {
-			return ErrForbidden
-		}
-		return nil
+	sources, err := bookingTransitionSources(status, barberID, customerID)
+	if err != nil {
+		return err
 	}
-	mu.Lock()
-	defer mu.Unlock()
-
-	for i := range bookings {
-		if bookings[i].ID != id {
-			continue
-		}
-
-		if barberID != 0 && bookings[i].BarberID != barberID {
-			return ErrForbidden
-		}
-
-		if customerID != 0 && bookings[i].CustomerID != customerID {
-			return ErrForbidden
-		}
-
-		bookings[i].Status = status
-
-		return nil
-	}
-
-	return ErrNotFound
+	return TransitionBookingStatus(id, status, sources, barberID, customerID)
 }
 
 // sortBySlot orders bookings by appointment date then time, earliest

@@ -79,11 +79,11 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if _, err := session.StartContext(r.Context(),
-			w,
-			session.RoleCustomer,
-			customer.ID,
-		); err != nil {
+		if err := startVerifiedAccountSession(w, r, session.RoleCustomer, customer.ID, customer.PasswordHash); err != nil {
+			if errors.Is(err, session.ErrCredentialsChanged) {
+				loginError(w, "customer/login.html", email, "Your account changed while signing in. Try again with your current password.", next)
+				return
+			}
 			serverError(
 				w,
 				"start customer session",

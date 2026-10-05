@@ -226,7 +226,7 @@ func uploadSupabaseMedia(baseURL, objectPath, contentType string, data []byte) e
 	if key == "" {
 		return errors.New("SUPABASE_SERVICE_ROLE_KEY is required when SUPABASE_URL is configured")
 	}
-	u := baseURL + "/storage/v1/object/degosalon-media/" + url.PathEscape(objectPath)
+	u := baseURL + "/storage/v1/object/degosalon-media/" + escapeObjectPath(objectPath)
 	req, err := http.NewRequest(http.MethodPost, u, bytes.NewReader(data))
 	if err != nil { return fmt.Errorf("create storage request: %w", err) }
 	req.Header.Set("Authorization", "Bearer "+key)

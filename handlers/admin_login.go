@@ -33,7 +33,7 @@ func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		if _, err := session.Start(w, session.RoleAdmin, 0); err != nil {
+		if _, err := session.StartContext(r.Context(), w, session.RoleAdmin, 0); err != nil {
 			serverError(w, "start admin session", err)
 
 			return
@@ -68,7 +68,10 @@ func AdminLogoutHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 		return
 	}
 
-	session.Clear(w, r, session.RoleAdmin)
+	if err := session.ClearContext(w, r, session.RoleAdmin); err != nil {
+		serverError(w, "end admin session", err)
+		return
+	}
 
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

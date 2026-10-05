@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 
 	"barber-booking/session"
@@ -32,9 +33,24 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	_, barberIn := session.FromRequest(r, session.RoleBarber)
-	_, customerIn := session.FromRequest(r, session.RoleCustomer)
-	_, adminIn := session.FromRequest(r, session.RoleAdmin)
+	_, barberErr := session.FromRequestContext(r, session.RoleBarber)
+	if barberErr != nil && !errors.Is(barberErr, session.ErrNotFound) {
+		serverError(w, "load home session", barberErr)
+		return
+	}
+	barberIn := barberErr == nil
+	_, customerErr := session.FromRequestContext(r, session.RoleCustomer)
+	if customerErr != nil && !errors.Is(customerErr, session.ErrNotFound) {
+		serverError(w, "load home session", customerErr)
+		return
+	}
+	customerIn := customerErr == nil
+	_, adminErr := session.FromRequestContext(r, session.RoleAdmin)
+	if adminErr != nil && !errors.Is(adminErr, session.ErrNotFound) {
+		serverError(w, "load home session", adminErr)
+		return
+	}
+	adminIn := adminErr == nil
 
 	render(w, "home.html", homeView{
 		BarberSignedIn:   barberIn,

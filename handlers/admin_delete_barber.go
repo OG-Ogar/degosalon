@@ -97,7 +97,10 @@ func DeleteBarberHandler(
 		}
 	}
 
-	session.DeleteForUser(session.RoleBarber, id)
+	if err := session.DeleteForUserContext(r.Context(), session.RoleBarber, id); err != nil {
+		serverError(w, "revoke barber sessions", err)
+		return
+	}
 
 	http.Redirect(w, r, "/admin/barbers", http.StatusSeeOther)
 }
@@ -146,7 +149,10 @@ func SetBarberStatusHandler(
 	}
 
 	if !activate {
-		session.DeleteForUser(session.RoleBarber, id)
+		if err := session.DeleteForUserContext(r.Context(), session.RoleBarber, id); err != nil {
+			serverError(w, "revoke barber sessions", err)
+			return
+		}
 	}
 
 	http.Redirect(w, r, "/admin/barbers", http.StatusSeeOther)

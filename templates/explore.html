@@ -3,50 +3,51 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Find Barbers Near You - De Go Salon</title>
+<meta name="theme-color" content="#091613">
+<title>Explore Barbers - De Go Salon</title>
+<link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/customer-barbers.css">
 </head>
-<body>
+<body class="explore-page">
 <div class="barber-page find-page">
 <header class="barber-header">
-<a class="brand-box" href="/"><span class="brand-title">De Go Salon</span><span class="brand-subtitle">Barber Multiverse</span></a>
+<a class="brand-box" href="/" aria-label="De Go Salon home"><span class="brand-mark" aria-hidden="true">DG</span><span><span class="brand-title">De Go Salon</span><span class="brand-subtitle">Barber Multiverse</span></span></a>
 <nav class="customer-navigation" aria-label="Account navigation">
-<a class="nav-box" href="/customer/login"><span class="nav-text">Customer Login</span></a>
-<a class="nav-box" href="/barber/login"><span class="nav-text">Barber Login</span></a>
+<a class="nav-box" href="/customer/login">Customer Login</a>
+<a class="nav-box nav-primary" href="/barber/login">For Barbers <span aria-hidden="true">→</span></a>
 </nav>
 </header>
 <main class="barber-main">
 <section class="page-intro find-hero">
-<p class="eyebrow">Find your next barber</p>
-<h1>Who dey cut<br>for your area?</h1>
-<p class="intro-text">Choose where you are. We will show active De Go Salon barbers serving that area, their work, prices and customer ratings.</p>
+<p class="eyebrow"><span></span> Explore barbers</p>
+<h1>Find the right barber <em>around you.</em></h1>
+<p class="intro-text">Choose your location to discover active De Go Salon barbers, compare their handwork and prices, and find the right fit before you book.</p>
 </section>
 
 <section class="search-section location-panel" aria-labelledby="location-title">
-<div class="location-copy"><span class="step-number">01</span><div><p class="eyebrow">Your location</p><h2 id="location-title">Where do you need a barber?</h2></div></div>
-<form class="search-box location-form" method="get" action="/explore">
+<div class="location-copy"><span class="step-number">01</span><div><p class="eyebrow">Start with your location</p><h2 id="location-title">Where do you need a barber?</h2><p>Tell us your state and, if you want, narrow it down to your LGA or local area.</p></div></div>
+<form class="location-form" method="get" action="/explore">
 <div class="location-field"><label for="state">State</label><select id="state" name="state" required><option value="">Choose your state</option>{{$selected := .SelectedState}}{{range .States}}<option value="{{.}}" {{if eq . $selected}}selected{{end}}>{{.}}</option>{{end}}</select></div>
-<div class="location-field"><label for="area">LGA / local area</label><input id="area" name="area" value="{{.SelectedArea}}" placeholder="e.g. Ikeja"></div>
-<button class="book-button find-submit" type="submit">Find Barbers <span>&rarr;</span></button>
+<div class="location-field"><label for="area">LGA / local area <span>Optional</span></label><input id="area" name="area" value="{{.SelectedArea}}" placeholder="e.g. Ikeja"></div>
+<button class="book-button find-submit" type="submit">Find Barbers <span aria-hidden="true">→</span></button>
 </form>
-<p class="location-hint">Start with your state. Add an LGA or local area to narrow the results.</p>
 </section>
 
 {{if .SelectedState}}
 <section class="barbers-section" aria-labelledby="results-title">
-<div class="section-heading"><div><p class="eyebrow">02 · Barber results</p><h2 id="results-title">{{if .SelectedArea}}Barbers in {{.SelectedArea}}, {{.SelectedState}}{{else}}Barbers in {{.SelectedState}}{{end}}</h2></div>{{if .Items}}<span class="barber-count">{{len .Items}} found</span>{{end}}</div>
+<div class="section-heading"><div><p class="eyebrow"><span></span> 02 · Results</p><h2 id="results-title">{{if .SelectedArea}}Barbers in {{.SelectedArea}}, {{.SelectedState}}{{else}}Barbers in {{.SelectedState}}{{end}}</h2></div>{{if .Items}}<span class="barber-count">{{len .Items}} found</span>{{end}}</div>
 {{if .Items}}
 <div class="barber-grid">
 {{range .Items}}
 <article class="barber-card">
-<a class="barber-image" href="/explore/{{.ID}}">{{if .ProfileImage}}<img src="{{.ProfileImage}}" alt="{{.ShopName}}">{{else if .PersonalImage}}<img src="{{.PersonalImage}}" alt="{{.FullName}}">{{else}}<span class="image-placeholder">DG</span>{{end}}</a>
+<a class="barber-image" href="/explore/{{.ID}}">{{if .ProfileImage}}<img src="{{.ProfileImage}}" alt="{{.ShopName}}" loading="lazy">{{else if .PersonalImage}}<img src="{{.PersonalImage}}" alt="{{.FullName}}" loading="lazy">{{else}}<span class="image-placeholder">DG</span>{{end}}<span class="view-cue">View profile ↗</span></a>
 <div class="barber-information">
-<div class="card-topline"><p class="card-label">BARBER SHOP</p>{{if .ReviewCount}}<span class="rating-badge">★ {{printf "%.1f" .Rating}}</span>{{end}}</div>
+<div class="card-topline"><p class="card-label">BARBER SHOP</p>{{if .ReviewCount}}<span class="rating-badge">★ {{printf "%.1f" .Rating}}</span>{{else}}<span class="new-badge">New</span>{{end}}</div>
 <h3><a href="/explore/{{.ID}}">{{.ShopName}}</a></h3>
-<p class="barber-name">{{.FullName}}</p>
-<div class="barber-location"><span class="location-icon">+</span><span>{{.ShopAddress}}<br><strong>{{.LocalArea}}, {{.State}}</strong></span></div>
+<p class="barber-name">with {{.FullName}}</p>
+<div class="barber-location"><span class="location-icon" aria-hidden="true">⌖</span><span>{{if .ShopAddress}}{{.ShopAddress}}<br>{{end}}<strong>{{.LocalArea}}, {{.State}}</strong></span></div>
 <div class="barber-details"><div class="detail-item"><strong>{{.Hairstyles}}</strong><span>Services</span></div><div class="detail-divider"></div><div class="detail-item">{{if .Hairstyles}}<strong>{{printf "%.2f" .FromPrice}}</strong><span>Starting price</span>{{else}}<strong>—</strong><span>Prices coming soon</span>{{end}}</div>{{if .ReviewCount}}<div class="detail-divider"></div><div class="detail-item"><strong>{{.ReviewCount}}</strong><span>Reviews</span></div>{{end}}</div>
-<div class="barber-actions"><a class="book-button" href="/explore/{{.ID}}">See handwork & prices <span>&rarr;</span></a></div>
+<div class="barber-actions"><a class="book-button" href="/explore/{{.ID}}">See handwork & prices <span aria-hidden="true">→</span></a></div>
 </div>
 </article>
 {{end}}
@@ -56,7 +57,10 @@
 {{end}}
 </section>
 {{else}}
-<section class="discovery-guide"><div><span class="step-number">02</span><h2>Compare barbers</h2><p>See their handwork, starting prices and genuine booking reviews.</p></div><div><span class="step-number">03</span><h2>Enter their shop</h2><p>Open a barber profile to view services and products, then sign in to message or book.</p></div></section>
+<section class="discovery-guide" aria-label="How barber discovery works">
+<div><span class="step-number">02</span><div><h2>Compare the work</h2><p>Open real barber profiles to see their services, handwork, starting prices and booking reviews where available.</p></div></div>
+<div><span class="step-number">03</span><div><h2>Choose and continue</h2><p>Enter the barber's profile, inspect what they offer, then sign in when you are ready to message or book.</p></div></div>
+</section>
 {{end}}
 </main>
 </div>

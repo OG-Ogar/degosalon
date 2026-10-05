@@ -44,6 +44,7 @@ var (
 // ConfigureDatabase is called at startup, before serving requests. Passing nil
 // selects the development store. A configured SQL failure never falls back.
 func ConfigureDatabase(conn *sql.DB) { database = conn }
+func DatabaseConfigured() bool       { return database != nil }
 func CookieName(role Role) string    { return string(role) + "_session" }
 func secureCookies() bool            { return os.Getenv("SECURE_COOKIES") == "1" }
 func randomID() (string, error) {

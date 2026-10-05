@@ -254,3 +254,17 @@ npm install --no-audit --no-fund
 npm run typecheck
 npm run build
 ```
+
+## PostgreSQL integration verification
+
+CI runs Go tests/vet/race checks and a separate PostgreSQL 17 service job. The database suite covers overlapping booking races, guarded lifecycle races, checkout rollback after a later item fails, concurrent checkout/stock competition, order history after a storage reconnect, scoped messages, foreign-key protection, and authentication sessions after real SQL lookup failures.
+
+To run it locally, set `TEST_DATABASE_URL` to a disposable PostgreSQL server URL with a role allowed to create databases, then run:
+
+```sh
+go test -race -v ./storage ./handlers -run TestPostgres -count=1 -timeout=5m
+```
+
+Each test package creates a randomly named `degosalon_test_*` database and applies `supabase/schema.sql` there. Existing tables in the configured database are not modified. Tests close their connections and drop only the database they created. Without `TEST_DATABASE_URL`, the integration tests skip while ordinary tests continue using memory.
+
+The CI service configuration follows [GitHub's PostgreSQL service-container guide](https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers). This suite verifies the server-owned PostgreSQL access used by Go; it does not certify production Supabase Data API grants, Storage policies, or deployment settings.

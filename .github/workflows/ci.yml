@@ -22,7 +22,7 @@ jobs:
           node-version: "22"
 
       - name: Install frontend dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Type-check frontend
         run: npm run typecheck
@@ -43,3 +43,34 @@ jobs:
 
       - name: Test Go application
         run: go test ./...
+
+      - name: Vet Go application
+        run: go vet ./...
+
+      - name: Race-check Go application
+        run: go test -race ./...
+
+  postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.23.x"
+      - name: Verify PostgreSQL integrity and request flows
+        run: go test -race -v ./storage ./handlers -run TestPostgres -count=1 -timeout=5m

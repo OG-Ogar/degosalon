@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Schedule — De Go Salon</title><link rel="stylesheet" href="/static/app.css"><script src="/static/app.js" defer></script></head>
+<body class="barber-page"><header><a href="/barber/dashboard">De Go Salon · Dashboard</a> · <a href="/barber/bookings">Appointments</a></header>
+<main class="calendar-page"><h1>Your booking schedule</h1><p>Set your weekly hours and time off. Existing appointments keep their booked duration; resolve any conflicting appointment before changing its hours.</p>
+{{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
+<form method="post" action="/barber/schedule">
+<input type="hidden" name="csrf_token" value="{{.CSRF}}">
+<label>Timezone <input name="timezone" value="{{.Calendar.Timezone}}" required maxlength="100" placeholder="Africa/Lagos"></label>
+<label>Minimum notice in minutes <input type="number" name="lead" min="0" max="10080" value="{{.Calendar.LeadMinutes}}" required></label>
+<label>Days customers can book ahead <input type="number" name="horizon" min="1" max="365" value="{{.Calendar.HorizonDays}}" required></label>
+{{range .Days}}<fieldset><legend>{{.Name}}</legend>
+<label><input type="checkbox" name="day_{{.Index}}_closed" value="yes" {{if .Closed}}checked{{end}}> Closed</label>
+<label>Opening time <input type="time" name="day_{{.Index}}_open" value="{{.Open}}"></label>
+<label>Closing time (24:00 means end of day) <input type="text" maxlength="5" placeholder="20:00" name="day_{{.Index}}_close" value="{{.Close}}"></label>
+<label>Break starts (optional) <input type="time" name="day_{{.Index}}_break_start" value="{{.BreakStart}}"></label>
+<label>Break ends <input type="time" name="day_{{.Index}}_break_end" value="{{.BreakEnd}}"></label>
+</fieldset>{{end}}
+<label for="time-off">Time off</label><p id="time-off-help">One period per line: date, start, end. For example, 2026-12-24 08:00 20:00. Remove a line to cancel that period. Times use your timezone.</p>
+<textarea id="time-off" name="time_off" rows="6" maxlength="3000" aria-describedby="time-off-help">{{.TimeOff}}</textarea>
+<button type="submit">Save schedule</button></form></main></body></html>

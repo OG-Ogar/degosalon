@@ -30,6 +30,7 @@ type Booking struct {
 	ServiceName     string
 	ServicePrice    float64
 	ServiceDuration int
+	BookingTimezone string
 
 	// Contact details are copied from the customer when the booking is
 	// made, so the barber keeps a record even if the customer later

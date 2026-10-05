@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"time"
 
 	"barber-booking/models"
 	"barber-booking/storage"
@@ -104,6 +105,9 @@ func BrowseBarbersHandler(
 // barberDetailView is one barber's shop as a customer sees it: their
 // details, what they offer, and the form to book it.
 type barberDetailView struct {
+	Slots         []string
+	Timezone      string
+	DateMax       string
 	ResultsLink   string
 	SelectedState string
 	SelectedArea  string
@@ -224,6 +228,42 @@ func renderBarberDetail(
 		serverError(w, "load portfolio reviews", err)
 		return
 	}
+	if selected == 0 && len(styles) > 0 {
+		selected = styles[0].ID
+	}
+	calendar, err := storage.CalendarForBarber(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load booking calendar", err)
+		return
+	}
+	location, err := time.LoadLocation(calendar.Timezone)
+	if err != nil {
+		serverError(w, "load booking timezone", err)
+		return
+	}
+	day := values["date"]
+	if day == "" {
+		day = r.URL.Query().Get("date")
+	}
+	if day == "" {
+		day = time.Now().In(location).Format("2006-01-02")
+	}
+	values["date"] = day
+	var slots []string
+	if selected > 0 {
+		slots, _, err = storage.AvailableSlots(r.Context(), barber.ID, selected, day)
+		if errors.Is(err, storage.ErrOutsideSchedule) {
+			problem = "Choose a valid date to see available times."
+			status = http.StatusBadRequest
+		} else if err != nil {
+			if errors.Is(err, storage.ErrNotFound) || errors.Is(err, storage.ErrForbidden) || errors.Is(err, storage.ErrUnavailable) {
+				http.NotFound(w, r)
+			} else {
+				serverError(w, "load available times", err)
+			}
+			return
+		}
+	}
 	_, reviewErr := storage.CanCustomerReviewResult(r.Context(), customerID, barber.ID)
 	if reviewErr != nil && !errors.Is(reviewErr, storage.ErrNotFound) {
 		serverError(w, "load review eligibility", reviewErr)
@@ -238,7 +278,10 @@ func renderBarberDetail(
 		Hairstyles:    styles,
 		Products:      products,
 		Selected:      selected,
-		Today:         today(),
+		Today:         time.Now().In(location).Format("2006-01-02"),
+		DateMax:       time.Now().In(location).AddDate(0, 0, calendar.HorizonDays).Format("2006-01-02"),
+		Timezone:      calendar.Timezone,
+		Slots:         slots,
 		Opening:       formatHour(openingHour),
 		Closing:       formatHour(closingHour),
 		ChatLink:      chatPath("/customer/chats/", barber.ID),

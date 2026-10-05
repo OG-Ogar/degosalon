@@ -21,8 +21,8 @@ const (
 // replaces them from the environment at startup, and both the booking
 // form and the check below read them, so the two can never disagree.
 var (
-	openingHour = 8
-	closingHour = 20
+	openingHour     = 8
+	closingHour     = 20
 	bookingLocation = time.Local
 )
 
@@ -91,12 +91,14 @@ func validBookingTime(value string) (string, string) {
 // attribute on the date input.
 func validBookingInterval(dateText, timeText string, duration int) string {
 	start, err := time.ParseInLocation("2006-01-02 15:04", dateText+" "+timeText, bookingLocation)
-	if err != nil { return "Choose a valid appointment date and time." }
+	if err != nil {
+		return "Choose a valid appointment date and time."
+	}
 	if !start.After(time.Now().In(bookingLocation)) {
 		return "That appointment time has already passed."
 	}
 	closing := time.Date(start.Year(), start.Month(), start.Day(), closingHour, 0, 0, 0, bookingLocation)
-	if start.Add(time.Duration(duration)*time.Minute).After(closing) {
+	if start.Add(time.Duration(duration) * time.Minute).After(closing) {
 		return fmt.Sprintf("That service would finish after closing time at %s.", formatHour(closingHour))
 	}
 	return ""
@@ -109,4 +111,19 @@ func today() string {
 // formatHour renders an opening-hours bound as HH:MM.
 func formatHour(hour int) string {
 	return fmt.Sprintf("%02d:00", hour)
+}
+
+func bookingDateFormat(value string) (string, string) {
+	at, err := time.Parse("2006-01-02", strings.TrimSpace(value))
+	if err != nil {
+		return "", "Choose a valid date in YYYY-MM-DD form."
+	}
+	return at.Format("2006-01-02"), ""
+}
+func bookingTimeFormat(value string) (string, string) {
+	at, err := time.Parse("15:04", strings.TrimSpace(value))
+	if err != nil {
+		return "", "Choose a valid time in HH:MM form."
+	}
+	return at.Format("15:04"), ""
 }

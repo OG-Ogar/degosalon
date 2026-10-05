@@ -1,8 +1,9 @@
 package storage
 
 import (
- "context"
+	"context"
 	"testing"
+	"time"
 
 	"barber-booking/models"
 )
@@ -68,7 +69,7 @@ func newBooking(customer models.Customer, barberID, hairstyleID int) models.Book
 		CustomerName:  customer.FullName,
 		CustomerPhone: customer.PhoneNumber,
 		CustomerEmail: customer.Email,
-		Date:          "2030-01-01",
+		Date:          time.Now().AddDate(0, 0, 7).Format("2006-01-02"),
 		Time:          "10:00",
 		Status:        models.StatusPending,
 	}
@@ -213,15 +214,14 @@ func TestFindHairstyleOwnedByRefusesOtherBarber(t *testing.T) {
 	other := newBarber(t, "other@example.com")
 	hairstyle := newHairstyle(t, owner.ID)
 
-	if _, err := FindHairstyleOwnedBy(context.Background(),hairstyle.ID, other.ID); err != ErrForbidden {
+	if _, err := FindHairstyleOwnedBy(context.Background(), hairstyle.ID, other.ID); err != ErrForbidden {
 		t.Fatalf("cross-barber read: got %v, want ErrForbidden", err)
 	}
 
-	if _, err := FindHairstyleOwnedBy(context.Background(),hairstyle.ID, owner.ID); err != nil {
+	if _, err := FindHairstyleOwnedBy(context.Background(), hairstyle.ID, owner.ID); err != nil {
 		t.Fatalf("owner read: %v", err)
 	}
 }
-
 
 func TestCreateBookingRejectsDurationOverlap(t *testing.T) {
 	Reset()
@@ -265,7 +265,9 @@ func TestTransitionBookingStatusRejectsStaleSourceState(t *testing.T) {
 	style := newHairstyle(t, barber.ID)
 	customer := newCustomer(t, "transition-customer@example.com")
 	booking, err := CreateBooking(newBooking(customer, barber.ID, style.ID))
-	if err != nil { t.Fatalf("CreateBooking: %v", err) }
+	if err != nil {
+		t.Fatalf("CreateBooking: %v", err)
+	}
 
 	if err := TransitionBookingStatus(booking.ID, models.StatusAccepted, []string{models.StatusPending}, barber.ID, 0); err != nil {
 		t.Fatalf("accept pending booking: %v", err)
@@ -279,29 +281,54 @@ func TestTransitionBookingStatusRejectsStaleSourceState(t *testing.T) {
 	}
 }
 
-
 func TestCartDoesNotConsumeStockUntilCheckout(t *testing.T) {
 	Reset()
-	barber:=newBarber(t,"cart-stock@example.com")
-	customer:=newCustomer(t,"cart-stock-customer@example.com")
-	product,err:=CreateProduct(models.Product{BarberID:barber.ID,Name:"Pomade",Price:2500,Quantity:2,IsAvailable:true})
-	if err!=nil{t.Fatal(err)}
-	if _,err=AddToCart(customer.ID,product.ID);err!=nil{t.Fatal(err)}
-	stored,_:=FindProductByID(product.ID)
-	if stored.Quantity!=2{t.Fatalf("stock after add-to-cart=%d, want 2",stored.Quantity)}
-	if _,err=CheckoutCart(customer);err!=nil{t.Fatal(err)}
-	stored,_=FindProductByID(product.ID)
-	if stored.Quantity!=1{t.Fatalf("stock after checkout=%d, want 1",stored.Quantity)}
+	barber := newBarber(t, "cart-stock@example.com")
+	customer := newCustomer(t, "cart-stock-customer@example.com")
+	product, err := CreateProduct(models.Product{BarberID: barber.ID, Name: "Pomade", Price: 2500, Quantity: 2, IsAvailable: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = AddToCart(customer.ID, product.ID); err != nil {
+		t.Fatal(err)
+	}
+	stored, _ := FindProductByID(product.ID)
+	if stored.Quantity != 2 {
+		t.Fatalf("stock after add-to-cart=%d, want 2", stored.Quantity)
+	}
+	if _, err = CheckoutCart(customer); err != nil {
+		t.Fatal(err)
+	}
+	stored, _ = FindProductByID(product.ID)
+	if stored.Quantity != 1 {
+		t.Fatalf("stock after checkout=%d, want 1", stored.Quantity)
+	}
 }
 
 func TestCheckoutRejectsInactiveSellerWithoutMutatingCartOrStock(t *testing.T) {
 	Reset()
-	barber:=newBarber(t,"inactive-seller@example.com")
-	customer:=newCustomer(t,"inactive-seller-customer@example.com")
-	product,err:=CreateProduct(models.Product{BarberID:barber.ID,Name:"Oil",Price:1500,Quantity:3,IsAvailable:true});if err!=nil{t.Fatal(err)}
-	if _,err=AddToCart(customer.ID,product.ID);err!=nil{t.Fatal(err)}
-	for i:=range barbers{if barbers[i].ID==barber.ID{barbers[i].Status=models.BarberSuspended}}
-	if _,err=CheckoutCart(customer);err==nil{t.Fatal("checkout succeeded for inactive seller")}
-	if count,err:=CartItemCount(context.Background(),customer.ID);err!=nil||count!=1{t.Fatal("failed checkout cleared cart")}
-	stored,_:=FindProductByID(product.ID);if stored.Quantity!=3{t.Fatalf("failed checkout changed stock to %d",stored.Quantity)}
+	barber := newBarber(t, "inactive-seller@example.com")
+	customer := newCustomer(t, "inactive-seller-customer@example.com")
+	product, err := CreateProduct(models.Product{BarberID: barber.ID, Name: "Oil", Price: 1500, Quantity: 3, IsAvailable: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = AddToCart(customer.ID, product.ID); err != nil {
+		t.Fatal(err)
+	}
+	for i := range barbers {
+		if barbers[i].ID == barber.ID {
+			barbers[i].Status = models.BarberSuspended
+		}
+	}
+	if _, err = CheckoutCart(customer); err == nil {
+		t.Fatal("checkout succeeded for inactive seller")
+	}
+	if count, err := CartItemCount(context.Background(), customer.ID); err != nil || count != 1 {
+		t.Fatal("failed checkout cleared cart")
+	}
+	stored, _ := FindProductByID(product.ID)
+	if stored.Quantity != 3 {
+		t.Fatalf("failed checkout changed stock to %d", stored.Quantity)
+	}
 }

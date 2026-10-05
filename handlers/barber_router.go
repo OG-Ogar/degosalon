@@ -98,6 +98,9 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 		parts[3] == "delete":
 		DeleteProductHandler(w, r, barber, s, parts[2])
 
+	case len(parts) == 2 && parts[1] == "schedule":
+		BarberCalendarHandler(w, r, barber, s)
+
 	case len(parts) == 2 && parts[1] == "bookings":
 		BarberBookingsHandler(w, r, barber, s)
 

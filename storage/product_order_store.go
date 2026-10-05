@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"encoding/hex"
 	"errors"
 	"sort"
 	"time"
@@ -35,11 +36,34 @@ func CheckoutCart(customer models.Customer) (models.ProductOrder, error) {
 }
 
 func CheckoutCartContext(ctx context.Context, customer models.Customer) (models.ProductOrder, error) {
+	return checkoutCart(ctx, customer, "")
+}
+
+var ErrInvalidCheckoutKey = errors.New("invalid checkout retry key")
+
+func ValidCheckoutKey(key string) bool {
+	if len(key) != 32 {
+		return false
+	}
+	decoded, err := hex.DecodeString(key)
+	return err == nil && len(decoded) == 16 && hex.EncodeToString(decoded) == key
+}
+
+// CheckoutCartWithKey replays a successful customer-scoped request before
+// inspecting the current cart. Replays never consume a subsequently added cart.
+func CheckoutCartWithKey(ctx context.Context, customer models.Customer, key string) (models.ProductOrder, error) {
+	if !ValidCheckoutKey(key) {
+		return models.ProductOrder{}, ErrInvalidCheckoutKey
+	}
+	return checkoutCart(ctx, customer, key)
+}
+
+func checkoutCart(ctx context.Context, customer models.Customer, key string) (models.ProductOrder, error) {
 	if err := ctx.Err(); err != nil {
 		return models.ProductOrder{}, err
 	}
 	if !databaseEnabled() {
-		return checkoutCartMemory(customer)
+		return checkoutCartMemory(customer, key)
 	}
 	tx, err := db.BeginTx(ctx, nil)
 	if err != nil {
@@ -50,6 +74,17 @@ func CheckoutCartContext(ctx context.Context, customer models.Customer) (models.
 		return models.ProductOrder{}, err
 	}
 
+	if key != "" {
+		var previous models.ProductOrder
+		err := tx.QueryRowContext(ctx, `select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where customer_id=$1 and checkout_key=$2`, customer.ID, key).Scan(&previous.ID, &previous.CustomerID, &previous.CustomerName, &previous.CustomerPhone, &previous.CustomerEmail, &previous.TotalAmount, &previous.Status, &previous.CreatedAt)
+		if err == nil {
+			previous.CheckoutKey = key
+			return previous, nil
+		}
+		if !errors.Is(err, sql.ErrNoRows) {
+			return models.ProductOrder{}, err
+		}
+	}
 	rows, err := tx.QueryContext(ctx, "select product_id,quantity from public.carts where customer_id=$1 order by product_id for update", customer.ID)
 	if err != nil {
 		return models.ProductOrder{}, err
@@ -105,8 +140,12 @@ func CheckoutCartContext(ctx context.Context, customer models.Customer) (models.
 		lines = append(lines, line{p, item.Quantity, sub})
 	}
 
-	order := models.ProductOrder{CustomerID: customer.ID, CustomerName: customer.FullName, CustomerPhone: customer.PhoneNumber, CustomerEmail: customer.Email, TotalAmount: total, Status: models.OrderPending, CreatedAt: time.Now()}
-	err = tx.QueryRowContext(ctx, "insert into public.product_orders(customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at) values($1,$2,$3,$4,$5,$6,$7) returning id", order.CustomerID, order.CustomerName, order.CustomerPhone, order.CustomerEmail, order.TotalAmount, order.Status, order.CreatedAt).Scan(&order.ID)
+	order := models.ProductOrder{CheckoutKey: key, CustomerID: customer.ID, CustomerName: customer.FullName, CustomerPhone: customer.PhoneNumber, CustomerEmail: customer.Email, TotalAmount: total, Status: models.OrderPending, CreatedAt: time.Now()}
+	var storedKey any
+	if key != "" {
+		storedKey = key
+	}
+	err = tx.QueryRowContext(ctx, "insert into public.product_orders(customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at,checkout_key) values($1,$2,$3,$4,$5,$6,$7,$8) returning id", order.CustomerID, order.CustomerName, order.CustomerPhone, order.CustomerEmail, order.TotalAmount, order.Status, order.CreatedAt, storedKey).Scan(&order.ID)
 	if err != nil {
 		return models.ProductOrder{}, err
 	}
@@ -133,14 +172,21 @@ func CheckoutCartContext(ctx context.Context, customer models.Customer) (models.
 	return order, nil
 }
 
-func checkoutCartMemory(customer models.Customer) (models.ProductOrder, error) {
+func checkoutCartMemory(customer models.Customer, key string) (models.ProductOrder, error) {
 	mu.Lock()
 	defer mu.Unlock()
+	if key != "" {
+		for _, previous := range productOrders {
+			if previous.CustomerID == customer.ID && previous.CheckoutKey == key {
+				return previous, nil
+			}
+		}
+	}
 	cart := carts[customer.ID]
 	if len(cart) == 0 {
 		return models.ProductOrder{}, ErrNotFound
 	}
-	order := models.ProductOrder{CustomerID: customer.ID, CustomerName: customer.FullName, CustomerPhone: customer.PhoneNumber, CustomerEmail: customer.Email, Status: models.OrderPending, CreatedAt: time.Now()}
+	order := models.ProductOrder{CheckoutKey: key, CustomerID: customer.ID, CustomerName: customer.FullName, CustomerPhone: customer.PhoneNumber, CustomerEmail: customer.Email, Status: models.OrderPending, CreatedAt: time.Now()}
 	type line struct {
 		index, quantity int
 		subtotal        float64

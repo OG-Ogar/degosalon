@@ -3,6 +3,7 @@ package dbmigrate_test
 import (
 	"context"
 	"database/sql"
+	"os"
 	"testing"
 
 	"barber-booking/internal/dbmigrate"
@@ -54,14 +55,20 @@ func TestPostgresMigrations(t *testing.T) {
 		}
 	})
 	t.Run("existing schema and records survive baseline", func(t *testing.T) {
-		address := testdb.New(t, "../../supabase/schema.sql")
+		address := testdb.New(t, "")
 		conn, err := sql.Open("pgx", address)
 		if err != nil {
 			t.Fatal(err)
 		}
 		defer conn.Close()
+		schema, err := os.ReadFile("../../supabase/schema.sql")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err := conn.Exec(string(schema)); err != nil {
+			t.Fatal(err)
+		}
 		if _, err := conn.Exec(`insert into public.customers(full_name,phone_number,email,password_hash) values('Existing customer','123','existing@example.com','hash');
-   drop schema degosalon_internal cascade;
    alter table public.barbers drop column state cascade;
    alter table public.barbers drop column local_area cascade`); err != nil {
 			t.Fatal(err)

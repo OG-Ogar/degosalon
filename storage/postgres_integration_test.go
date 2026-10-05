@@ -28,6 +28,7 @@ func TestPostgresIntegrity(t *testing.T) {
 	t.Run("account writes preserve recovery and suspension", checkProfileEditsPreserveRecovery)
 	t.Run("review ownership and concurrency", checkReviewIntegrity)
 	t.Run("cart editing and removal", checkCartEditing)
+	t.Run("checkout request replay", checkCheckoutReplay)
 
 	t.Run("concurrent overlapping bookings", func(t *testing.T) {
 		barber, customer, style := postgresBookingFixture(t)
@@ -234,6 +235,29 @@ func TestPostgresIntegrity(t *testing.T) {
 		orders, e := ListProductOrdersByCustomer(ctx, customer.ID)
 		if e != nil || len(orders) != 1 || orders[0].ID != order.ID {
 			t.Fatalf("history after reconnect: %+v %v", orders, e)
+		}
+	})
+	t.Run("checkout replay survives storage reconnect", func(t *testing.T) {
+		barber, customer, _ := postgresBookingFixture(t)
+		product := postgresProduct(t, barber.ID, 2)
+		if _, err := AddToCart(customer.ID, product.ID); err != nil {
+			t.Fatal(err)
+		}
+		key := "abcdef0123456789abcdef0123456789"
+		first, err := CheckoutCartWithKey(ctx, customer, key)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := db.Close(); err != nil {
+			t.Fatal(err)
+		}
+		db, err = sql.Open("pgx", databaseURL)
+		if err != nil {
+			t.Fatal(err)
+		}
+		replay, err := CheckoutCartWithKey(ctx, customer, key)
+		if err != nil || replay.ID != first.ID {
+			t.Fatalf("persistent replay: %+v %v", replay, err)
 		}
 	})
 	t.Run("scoped message SQL returns latest and count", func(t *testing.T) {

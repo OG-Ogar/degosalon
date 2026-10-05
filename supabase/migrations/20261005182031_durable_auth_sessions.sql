@@ -10,3 +10,4 @@ create table degosalon_internal.auth_sessions(
 create index auth_sessions_owner_idx on degosalon_internal.auth_sessions(role,user_id);
 create index auth_sessions_expiry_idx on degosalon_internal.auth_sessions(expires_at);
 revoke all on degosalon_internal.auth_sessions from public;
+alter table degosalon_internal.auth_sessions enable row level security;

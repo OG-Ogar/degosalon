@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"barber-booking/internal/runtimeconfig"
 	"barber-booking/reset"
 	"barber-booking/security"
 	"barber-booking/session"
@@ -263,5 +264,5 @@ func expiredLink(w http.ResponseWriter, flow resetFlow) {
 // anyone who knows an email address take over that account. Turn it on
 // for a local demo and nowhere else.
 func showResetLinks() bool {
-	return os.Getenv("SHOW_RESET_LINKS") == "1"
+	return !runtimeconfig.Production() && os.Getenv("SHOW_RESET_LINKS") == "1"
 }

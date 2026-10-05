@@ -7,6 +7,10 @@ services:
     startCommand: ./migrate && ./app
     healthCheckPath: /
     envVars:
+      - key: APP_ENV
+        value: "production"
+      - key: SECURE_COOKIES
+        value: "1"
       - key: DATABASE_URL
         sync: false
       - key: ADMIN_USERNAME

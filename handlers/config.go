@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"barber-booking/internal/runtimeconfig"
 	"barber-booking/security"
 )
 
@@ -29,6 +30,9 @@ var (
 // without shipping a well-known password like the previous hardcoded
 // admin/password123.
 func InitAdmin() (generated string, err error) {
+	if err := runtimeconfig.ValidateAdmin(); err != nil {
+		return "", err
+	}
 	if name := strings.TrimSpace(os.Getenv("ADMIN_USERNAME")); name != "" {
 		adminUsername = name
 	}

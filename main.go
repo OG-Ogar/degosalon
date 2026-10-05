@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"barber-booking/handlers"
+	"barber-booking/internal/runtimeconfig"
 	"barber-booking/storage"
 )
 
@@ -23,6 +24,9 @@ func listenAddress() string {
 
 func main() {
 	log.SetFlags(log.LstdFlags)
+	if err := runtimeconfig.Validate(); err != nil {
+		log.Fatalf("deployment configuration: %v", err)
+	}
 
 	if err := storage.InitDatabase(); err != nil {
 		log.Fatalf("connect to database: %v", err)

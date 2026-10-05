@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"io"
@@ -195,6 +196,14 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("resize image: %w", err)
 	}
 
+	if os.Getenv("DATABASE_URL") != "" {
+		data, err := os.ReadFile(path)
+		if err != nil { return "", fmt.Errorf("read stored image: %w", err) }
+		kind := http.DetectContentType(data)
+		_ = os.Remove(path)
+		return "data:" + kind + ";base64," + base64.StdEncoding.EncodeToString(data), nil
+	}
+
 	return store.urlPath + name, nil
 }
 
@@ -270,7 +279,7 @@ func (store videoStore) save(r *http.Request, field string) (string, error) {
 }
 
 func removeStoredImage(imageURL string) error {
-	if imageURL == "" {
+	if imageURL == "" || strings.HasPrefix(imageURL, "data:image/") {
 		return nil
 	}
 

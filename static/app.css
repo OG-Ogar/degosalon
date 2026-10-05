@@ -121,3 +121,37 @@ body:not(.landing-page):not(.auth-page) a{transition:opacity .16s ease,transform
 .topbar{background:#171311;color:#fff}.topbar .brand,.topbar a{color:#fff}
 .panel,.card{border-color:#ddd5ce;border-radius:14px;box-shadow:0 10px 30px rgba(31,24,20,.06)}
 @media(max-width:700px){.topbar .wrap{gap:12px}.topbar .nav{overflow-x:auto;max-width:100%;padding-bottom:3px}}
+
+
+/* =========================================================
+   MODERN CUSTOMER SURFACES — FOREST SYSTEM
+   ========================================================= */
+.modern-customer-page{--page-bg:var(--void,#091613);--page-surface:var(--surface,#193129);--page-surface-hi:var(--surface-hi,#254137);--page-ink:var(--ink,#f8f5e9);--page-muted:var(--ink-muted,#c2d4c7);--page-faint:var(--ink-faint,#9db9a8);--page-accent:var(--signal,#f4cb78);background:var(--page-bg)!important;color:var(--page-ink)!important;min-height:100vh}
+.modern-customer-page h1,.modern-customer-page h2,.modern-customer-page h3,.modern-customer-page h4,.modern-customer-page strong{color:var(--page-ink)}
+.modern-customer-page p,.modern-customer-page label,.modern-customer-page small{color:var(--page-muted)}
+.modern-customer-page .eyebrow{color:var(--page-accent)!important}
+.modern-customer-page a{color:inherit}
+.modern-customer-page input,.modern-customer-page select,.modern-customer-page textarea{border-color:var(--border)!important;background:var(--base)!important;color:var(--page-ink)!important}
+.modern-customer-page input::placeholder,.modern-customer-page textarea::placeholder{color:var(--page-faint)}
+.modern-customer-page input:focus,.modern-customer-page select:focus,.modern-customer-page textarea:focus{border-color:var(--page-accent)!important;box-shadow:0 0 0 3px rgba(244,203,120,.12)!important;outline:0}
+.modern-customer-page .panel,.modern-customer-page .card,.modern-customer-page .barber-card,.modern-customer-page .appointment-card,.modern-customer-page .booking-card,.modern-customer-page .chat-card,.modern-customer-page .product-card,.modern-customer-page .cart-item,.modern-customer-page .cart-summary,.modern-customer-page .products-empty,.modern-customer-page .empty-state,.modern-customer-page .empty-appointments{border-color:rgba(82,116,102,.45)!important;background:linear-gradient(145deg,rgba(37,65,55,.52),rgba(25,49,41,.44))!important;color:var(--page-ink)!important;box-shadow:0 16px 42px rgba(0,0,0,.14)}
+.modern-customer-page .topbar,.modern-customer-page .customer-header,.modern-customer-page .products-header{border-color:rgba(194,212,199,.15)!important;background:rgba(9,22,19,.94)!important;color:var(--page-ink)!important}
+.modern-customer-page .customer-brand,.modern-customer-page .brand,.modern-customer-page .products-header-button,.modern-customer-page .products-dashboard-button{color:var(--page-ink)!important}
+.modern-customer-page .customer-nav a,.modern-customer-page .section-link,.modern-customer-page .back-link,.modern-customer-page .dashboard-button,.modern-customer-page .product-barber-link{color:var(--page-muted)!important}
+.modern-customer-page .customer-nav a:hover,.modern-customer-page .section-link:hover,.modern-customer-page .back-link:hover,.modern-customer-page .dashboard-button:hover,.modern-customer-page .product-barber-link:hover{color:var(--page-accent)!important}
+.modern-customer-page .hero-button,.modern-customer-page .primary,.modern-customer-page .button.primary,.modern-customer-page .book-button,.modern-customer-page .request-button,.modern-customer-page .product-buy-button,.modern-customer-page .cart-pay-button{border-color:var(--page-accent)!important;background:var(--page-accent)!important;color:var(--signal-ink,#19251c)!important;font-weight:850}
+.modern-customer-page .button,.modern-customer-page .message-button,.modern-customer-page .cart-continue-button,.modern-customer-page .products-cart-button{border-color:var(--border-hi)!important;background:rgba(25,49,41,.7)!important;color:var(--page-ink)!important}
+.modern-customer-page .status,.modern-customer-page .count,.modern-customer-page .products-cart-count,.modern-customer-page .product-stock-badge{border-color:rgba(244,203,120,.25)!important;background:rgba(244,203,120,.1)!important;color:var(--page-accent)!important}
+.modern-customer-page .muted,.modern-customer-page .hint,.modern-customer-page .lede,.modern-customer-page .welcome-text,.modern-customer-page .product-category,.modern-customer-page .product-shop,.modern-customer-page .barber-shop,.modern-customer-page .empty-message{color:var(--page-faint)!important}
+.modern-customer-page .customer-content,.modern-customer-page .products-page,.modern-customer-page .customer-chat-page,.modern-customer-page .wrap{position:relative;z-index:1}
+.modern-customer-page .dashboard-overlay{background:linear-gradient(105deg,rgba(9,22,19,.98),rgba(9,22,19,.83))!important}
+.modern-customer-page .stat-card{border:1px solid rgba(82,116,102,.45)!important;background:rgba(25,49,41,.64)!important;color:var(--page-ink)!important}
+.modern-customer-page .stat-number,.modern-customer-page .product-price,.modern-customer-page .cart-total strong{color:var(--page-accent)!important}
+.modern-customer-page .thread{border-color:rgba(82,116,102,.4)!important;background:rgba(16,34,29,.7)!important}
+.modern-customer-page .bubble{border-color:rgba(82,116,102,.4)!important;background:var(--page-surface)!important;color:var(--page-ink)!important}
+.modern-customer-page .bubble.mine{background:var(--page-surface-hi)!important}
+.modern-customer-page .bubble .text,.modern-customer-page .bubble .who,.modern-customer-page .bubble .when{color:inherit!important}
+.modern-customer-page .error,.modern-customer-page .chat-error{border:1px solid rgba(239,68,68,.5)!important;background:rgba(239,68,68,.1)!important;color:#fecaca!important}
+.modern-customer-page .notice{border:1px solid rgba(34,197,94,.4)!important;background:rgba(34,197,94,.1)!important;color:#bbf7d0!important}
+@media(max-width:700px){.modern-customer-page .customer-nav{overflow-x:auto;scrollbar-width:none}.modern-customer-page .customer-nav::-webkit-scrollbar{display:none}.modern-customer-page .products-header{gap:10px}.modern-customer-page .cart-item,.modern-customer-page .appointment-card{max-width:100%}}
+@media(prefers-reduced-transparency:reduce){.modern-customer-page .panel,.modern-customer-page .card,.modern-customer-page .barber-card,.modern-customer-page .appointment-card,.modern-customer-page .booking-card,.modern-customer-page .product-card,.modern-customer-page .cart-item,.modern-customer-page .cart-summary{background:var(--page-surface)!important}}

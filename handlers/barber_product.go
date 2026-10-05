@@ -250,3 +250,44 @@ func DeleteProductHandler(
 		http.StatusSeeOther,
 	)
 }
+
+
+func ownedProduct(w http.ResponseWriter, barber models.Barber, idSegment string) (models.Product, bool) {
+	id,ok:=parseID(idSegment)
+	if !ok { http.Error(w,"Product not found.",http.StatusNotFound); return models.Product{},false }
+	product,err:=storage.FindProductOwnedBy(id,barber.ID)
+	if errors.Is(err,storage.ErrNotFound)||errors.Is(err,storage.ErrForbidden){http.Error(w,"Product not found.",http.StatusNotFound);return models.Product{},false}
+	if err!=nil{serverError(w,"find product",err);return models.Product{},false}
+	return product,true
+}
+
+func productFormFromModel(product models.Product) productForm {
+	return productForm{Name:product.Name,Category:product.Category,Description:product.Description,Price:product.Price,Quantity:product.Quantity,Available:product.IsAvailable,values:map[string]string{
+		"name":product.Name,"category":product.Category,"description":product.Description,"price":formatPrice(product.Price),"quantity":formatInt(product.Quantity),
+	}}
+}
+
+func ViewProductHandler(w http.ResponseWriter,r *http.Request,barber models.Barber,s sessionData,idSegment string){
+	if r.Method!=http.MethodGet{methodNotAllowed(w,http.MethodGet);return}
+	product,ok:=ownedProduct(w,barber,idSegment);if !ok{return}
+	renderProductForm(w,s,productFormFromModel(product),product.ID,product.Image,"")
+}
+
+func EditProductHandler(w http.ResponseWriter,r *http.Request,barber models.Barber,s sessionData,idSegment string){
+	ViewProductHandler(w,r,barber,s,idSegment)
+}
+
+func UpdateProductHandler(w http.ResponseWriter,r *http.Request,barber models.Barber,s sessionData,idSegment string){
+	if r.Method!=http.MethodPost{methodNotAllowed(w,http.MethodPost);return}
+	limitRequestBody(w,r)
+	product,ok:=ownedProduct(w,barber,idSegment);if !ok{return}
+	if !requireCSRF(w,r,s){return}
+	form,problem:=readProductForm(r);if problem!=""{renderProductForm(w,s,form,product.ID,product.Image,problem);return}
+	image,err:=productImages.save(r,"image")
+	switch {case errors.Is(err,errNoUpload): image=product.Image; case err!=nil: renderProductForm(w,s,form,product.ID,product.Image,err.Error());return}
+	previous:=product.Image; uploaded:=""; if image!=previous{uploaded=image}
+	product.Name=form.Name;product.Category=form.Category;product.Description=form.Description;product.Price=form.Price;product.Quantity=form.Quantity;product.IsAvailable=form.Available;product.Image=image
+	if err:=storage.UpdateProduct(product);err!=nil{removeImageIgnoringError(uploaded);serverError(w,"update product",err);return}
+	if uploaded!=""{removeImageIgnoringError(previous)}
+	http.Redirect(w,r,"/barber/products",http.StatusSeeOther)
+}

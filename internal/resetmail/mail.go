@@ -5,6 +5,7 @@ package resetmail
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"crypto/tls"
 	"encoding/hex"
 	"errors"
@@ -32,6 +33,17 @@ type Config struct {
 }
 
 func FromEnvironment() (Config, error) { return fromEnvironment(os.Getenv) }
+
+// DeliveryKeyFromEnvironment derives an AES-256 key from a persistent server
+// secret. Keep it stable across instances/restarts until outstanding jobs expire.
+func DeliveryKeyFromEnvironment() ([]byte, error) {
+	secret := os.Getenv("RESET_MAIL_KEY")
+	if len(secret) < 32 || len(secret) > 1024 || strings.TrimSpace(secret) != secret {
+		return nil, ErrConfiguration
+	}
+	sum := sha256.Sum256([]byte(secret))
+	return sum[:], nil
+}
 
 func fromEnvironment(getenv func(string) string) (Config, error) {
 	c := Config{host: getenv("SMTP_HOST"), port: getenv("SMTP_PORT"), username: getenv("SMTP_USERNAME"), password: getenv("SMTP_PASSWORD"), from: getenv("SMTP_FROM"), origin: getenv("SITE_URL"), mode: getenv("SMTP_TLS_MODE")}

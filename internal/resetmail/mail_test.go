@@ -59,6 +59,24 @@ func TestConfigurationAndCanonicalLinks(t *testing.T) {
 	}
 }
 
+func TestPersistentDeliveryKeyValidation(t *testing.T) {
+	for _, value := range []string{"", "too-short", strings.Repeat(" ", 32), " " + strings.Repeat("k", 32), strings.Repeat("k", 1025)} {
+		t.Setenv("RESET_MAIL_KEY", value)
+		if _, err := DeliveryKeyFromEnvironment(); !errors.Is(err, ErrConfiguration) {
+			t.Fatal("invalid delivery secret accepted")
+		}
+	}
+	t.Setenv("RESET_MAIL_KEY", strings.Repeat("k", 64))
+	first, err := DeliveryKeyFromEnvironment()
+	if err != nil || len(first) != 32 {
+		t.Fatal("valid delivery secret rejected")
+	}
+	second, err := DeliveryKeyFromEnvironment()
+	if err != nil || string(first) != string(second) {
+		t.Fatal("delivery key changed across reads")
+	}
+}
+
 // This relay exists only on loopback; no test contacts a mail provider.
 func relay(t *testing.T, reject bool) (Config, <-chan string) {
 	return relayMode(t, reject, "implicit")

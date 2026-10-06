@@ -89,6 +89,7 @@ func registerCustomer(
 // TestForgottenPasswordAnswersTheSameForAnyAddress is the check that the
 // form cannot be used to work out who has an account here.
 func TestForgottenPasswordAnswersTheSameForAnyAddress(t *testing.T) {
+	configureRecoveryMail(t)
 	server := newServer(t)
 	reset.Clear()
 
@@ -114,6 +115,7 @@ func TestForgottenPasswordAnswersTheSameForAnyAddress(t *testing.T) {
 // password works, the old one stops working, the session that was open
 // beforehand is closed, and the link cannot be used twice.
 func TestPasswordResetReplacesThePassword(t *testing.T) {
+	configureRecoveryMail(t)
 	server := newServer(t)
 	reset.Clear()
 

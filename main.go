@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -8,7 +9,9 @@ import (
 	"time"
 
 	"barber-booking/handlers"
+	"barber-booking/internal/resetmail"
 	"barber-booking/internal/runtimeconfig"
+	"barber-booking/reset"
 	"barber-booking/storage"
 )
 
@@ -32,6 +35,17 @@ func main() {
 		log.Fatalf("connect to database: %v", err)
 	}
 	defer storage.CloseDatabase()
+	mailConfig, mailErr := resetmail.FromEnvironment()
+	mailKey, keyErr := resetmail.DeliveryKeyFromEnvironment()
+	if mailErr == nil && keyErr == nil {
+		workerContext, stopWorker := context.WithCancel(context.Background())
+		defer stopWorker()
+		go runResetMailWorker(workerContext, mailConfig, mailKey)
+	} else {
+		// Recovery returns the same 503 for every address until configuration is
+		// complete. Never promise delivery or print configuration secret values.
+		log.Print("password-recovery email unavailable: configure SMTP settings, SITE_URL, and RESET_MAIL_KEY")
+	}
 
 	// Templates are parsed once, at startup. A broken template used to
 	// surface as a half-written page on the first request that hit it;
@@ -113,5 +127,27 @@ func main() {
 		!errors.Is(err, http.ErrServerClosed) {
 
 		log.Fatalf("server stopped: %v", err)
+	}
+}
+
+func runResetMailWorker(ctx context.Context, config resetmail.Config, key []byte) {
+	for {
+		found, err := reset.ProcessDelivery(ctx, key, config.Send)
+		if ctx.Err() != nil {
+			return
+		}
+		if err != nil {
+			log.Print("password-recovery email processing failed")
+		}
+		if found && err == nil {
+			continue
+		}
+		timer := time.NewTimer(5 * time.Second)
+		select {
+		case <-ctx.Done():
+			timer.Stop()
+			return
+		case <-timer.C:
+		}
 	}
 }

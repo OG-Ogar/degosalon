@@ -10,6 +10,7 @@ import (
 // requireAdmin first, which is the fix for the admin area previously
 // having no access control at all.
 func AdminRouter(w http.ResponseWriter, r *http.Request) {
+	defer cleanupMultipart(r)
 	parts := pathParts(r.URL.Path)
 
 	if len(parts) == 1 {

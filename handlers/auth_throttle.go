@@ -88,25 +88,11 @@ func beginAuthAttempt(w http.ResponseWriter, r *http.Request, action string) boo
 		return false
 	}
 	if action != "register" {
-		r.Body = http.MaxBytesReader(w, r.Body, 64<<10)
-		var parseErr error
-		if strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "multipart/") {
-			parseErr = r.ParseMultipartForm(64 << 10)
-		} else {
-			parseErr = r.ParseForm()
-		}
-		if err := parseErr; err != nil {
-			var large *http.MaxBytesError
-			if errors.As(err, &large) {
-				http.Error(w, "This form is too large.", http.StatusRequestEntityTooLarge)
-			} else {
-				http.Error(w, "This form could not be read. Reload and try again.", http.StatusBadRequest)
-			}
-			return false
-		}
+		limitFormBody(w, r, maxMutationFormBytes)
 	}
-	return true
+	return parseBoundedForm(w, r)
 }
+
 func authAccountAttempt(w http.ResponseWriter, r *http.Request, role, action, identity string) bool {
 	policy := authPolicies[action]
 	return authBudget(w, r, "auth:"+action+":account:"+role+":"+strings.ToLower(strings.TrimSpace(identity)), policy.account, policy.window)

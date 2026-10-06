@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
-	"bytes"
-	"net/url"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
@@ -102,17 +102,17 @@ func limitRequestBody(w http.ResponseWriter, r *http.Request) {
 }
 
 func limitRequestBodyFor(w http.ResponseWriter, r *http.Request, photos int) {
-	r.Body = http.MaxBytesReader(
+	limitFormBody(
 		w,
-		r.Body,
+		r,
 		maxUploadBytes*int64(photos)+maxFormMemory,
 	)
 }
 
 func limitVideoRequestBody(w http.ResponseWriter, r *http.Request) {
-	r.Body = http.MaxBytesReader(
+	limitFormBody(
 		w,
-		r.Body,
+		r,
 		maxVideoBytes+maxFormMemory,
 	)
 }
@@ -187,10 +187,8 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 	//
 	// A picture straight off a phone carries several megabytes of detail
 	// that the browser downloads and then throws away, so an oversized
-	// photo is rewritten here rather than served whole. A file that cannot
-	// be decoded is left exactly as it arrived: it was already sniffed as
-	// an image above, and failing to shrink one is not a reason to refuse
-	// it.
+	// photo is rewritten here rather than served whole. Header dimensions are
+	// checked before decoding; malformed or oversized images are rejected.
 	if err := normalizeStoredImage(path); err != nil {
 		os.Remove(path)
 
@@ -214,10 +212,11 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 	return store.urlPath + name, nil
 }
 
-
 func escapeObjectPath(path string) string {
 	parts := strings.Split(path, "/")
-	for i := range parts { parts[i] = url.PathEscape(parts[i]) }
+	for i := range parts {
+		parts[i] = url.PathEscape(parts[i])
+	}
 	return strings.Join(parts, "/")
 }
 
@@ -228,13 +227,17 @@ func uploadSupabaseMedia(baseURL, objectPath, contentType string, data []byte) e
 	}
 	u := baseURL + "/storage/v1/object/degosalon-media/" + escapeObjectPath(objectPath)
 	req, err := http.NewRequest(http.MethodPost, u, bytes.NewReader(data))
-	if err != nil { return fmt.Errorf("create storage request: %w", err) }
+	if err != nil {
+		return fmt.Errorf("create storage request: %w", err)
+	}
 	req.Header.Set("Authorization", "Bearer "+key)
 	req.Header.Set("apikey", key)
 	req.Header.Set("Content-Type", contentType)
 	req.Header.Set("x-upsert", "true")
 	resp, err := http.DefaultClient.Do(req)
-	if err != nil { return fmt.Errorf("upload image to Supabase Storage: %w", err) }
+	if err != nil {
+		return fmt.Errorf("upload image to Supabase Storage: %w", err)
+	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))

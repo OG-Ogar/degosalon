@@ -110,6 +110,9 @@ func requireAdmin(w http.ResponseWriter, r *http.Request) (session.Session, bool
 // belonging to the caller's session, blocking another site from
 // submitting forms on the visitor's behalf.
 func requireCSRF(w http.ResponseWriter, r *http.Request, s session.Session) bool {
+	if !parseBoundedForm(w, r) {
+		return false
+	}
 	submitted := r.PostFormValue("csrf_token")
 
 	if len(submitted) > 0 &&

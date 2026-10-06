@@ -103,8 +103,10 @@ func TestSellerSalesRemainScopedAndIncludeCustomerDetails(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, seller := range []int{1, 2} {
-		if _, err := CreateProductOrderItem(models.ProductOrderItem{OrderID: order.ID, BarberID: seller, ProductName: "Item"}); err != nil {
+	for _, email := range []string{"sales_one@example.com", "sales_two@example.com"} {
+		seller := newBarber(t, email)
+		product := postgresProduct(t, seller.ID, 1)
+		if _, err := CreateProductOrderItem(models.ProductOrderItem{OrderID: order.ID, ProductID: product.ID, BarberID: seller.ID, ProductName: "Item", Quantity: 1}); err != nil {
 			t.Fatal(err)
 		}
 	}

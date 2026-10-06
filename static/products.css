@@ -357,6 +357,16 @@ CART ITEM
 }
 
 
+.cart-item.order-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+}
+
+.order-item .cart-item-details {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+
 /* =========================================================
 CART ITEM IMAGE
 ========================================================= */
@@ -568,6 +578,10 @@ RESPONSIVE
 ========================================================= */
 
 @media (max-width: 800px) {
+
+    .cart-item.order-item {
+        grid-template-columns: minmax(0, 1fr);
+    }
 
     .cart-item {
         grid-template-columns: 150px 1fr;

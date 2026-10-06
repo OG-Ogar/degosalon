@@ -101,58 +101,35 @@
 
             {{range .Items}}
 
-                <article class="cart-item">
-
-                    {{if .Product.Image}}
-
-                        <img
-                            class="cart-item-image fullscreen-image"
-                            src="{{.Product.Image}}"
-                            alt="{{.Product.Name}}"
-                            data-fullscreen-image
-                        >
-
-                    {{else}}
-
-                        <div class="cart-item-image cart-item-image-placeholder">
-                            No photo
-                        </div>
-
-                    {{end}}
-
+                <article class="cart-item order-item">
 
                     <div class="cart-item-details">
 
                         <h2>
-                            {{.Item.ProductName}} <span class="barber-badge">{{.Item.FulfillmentStatus}}</span>
+                            {{.ProductName}} <span class="barber-badge">{{.FulfillmentStatus}}</span>
                         </h2>
 
                         <p class="product-category">
-                            {{.Product.Category}}
+                            {{.ProductCategory}}
                         </p>
 
                         <p>
-                            {{.Product.Description}}
+                            {{.ProductDescription}}
                         </p>
 
                         <p class="product-owner">
 
                             Sold by:
 
-                            <a
-                                class="product-barber-link"
-                                href="/customer/barbers/{{.Barber.ID}}"
-                            >
-                                <strong>
-                                    {{.Barber.FullName}}
-                                </strong>
-                            </a>
+                            <strong>{{if .SellerName}}{{.SellerName}}{{else}}Seller details unavailable{{end}}</strong>
 
                         </p>
 
                         <p class="product-shop">
-                            {{.Barber.ShopName}}
+                            {{.SellerShopName}}
                         </p>
+                        {{if .SellerShopAddress}}<p>{{.SellerShopAddress}}</p>{{end}}
+                        {{if .SellerPhone}}<p>Shop phone at order time: {{.SellerPhone}}</p>{{end}}
 
                     </div>
 
@@ -162,21 +139,21 @@
                         <p>
                             Price:
                             <strong>
-                                ₦{{printf "%.2f" .Item.Price}}
+                                ₦{{printf "%.2f" .Price}}
                             </strong>
                         </p>
 
                         <p>
                             Quantity:
                             <strong>
-                                {{.Item.Quantity}}
+                                {{.Quantity}}
                             </strong>
                         </p>
 
                         <p class="cart-item-subtotal">
                             Subtotal:
                             <strong>
-                                ₦{{printf "%.2f" .Item.Subtotal}}
+                                ₦{{printf "%.2f" .Subtotal}}
                             </strong>
                         </p>
 

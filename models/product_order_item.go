@@ -7,11 +7,17 @@ type ProductOrderItem struct {
 	ProductID int
 	BarberID  int
 
-	FulfillmentStatus string
-	ProductName       string
-	Price             float64
-	Quantity          int
-	Subtotal          float64
+	FulfillmentStatus  string
+	SellerName         string
+	SellerShopName     string
+	SellerShopAddress  string
+	SellerPhone        string
+	ProductCategory    string
+	ProductDescription string
+	ProductName        string
+	Price              float64
+	Quantity           int
+	Subtotal           float64
 
 	CustomerName  string
 	CustomerPhone string

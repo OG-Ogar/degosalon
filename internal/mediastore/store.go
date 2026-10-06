@@ -166,3 +166,28 @@ func (s *Store) Delete(ctx context.Context, uri string) error {
 	_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
 	return nil
 }
+
+// LegacyObjectPath recognizes canonical local upload references. It only names
+// a single file in an application directory; query strings, escapes, traversal
+// and unsupported filename/content types are excluded.
+func LegacyObjectPath(uri string) (string, bool) {
+	if !strings.HasPrefix(uri, "/uploads/") {
+		return "", false
+	}
+	path := strings.TrimPrefix(uri, "/uploads/")
+	if !validPath(path) {
+		return "", false
+	}
+	parts := strings.Split(path, "/")
+	at := strings.LastIndex(parts[1], ".")
+	if at < 1 {
+		return "", false
+	}
+	extension := parts[1][at+1:]
+	video := extension == "mp4" || extension == "webm" || extension == "mov"
+	image := extension == "jpg" || extension == "jpeg" || extension == "png" || extension == "gif" || extension == "webp"
+	if parts[0] == "hairstyle-videos" {
+		return path, video
+	}
+	return path, image
+}

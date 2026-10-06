@@ -11,6 +11,9 @@ import (
 
 // updateAccountRow preserves operational errors and identifies missing accounts.
 func updateAccountRow(ctx context.Context, query string, args ...any) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	result, err := db.ExecContext(ctx, query, args...)
 	if err != nil {
 		var conflict *pgconn.PgError
@@ -32,6 +35,9 @@ func updateAccountRow(ctx context.Context, query string, args ...any) error {
 // UpdateCustomerProfile writes editable fields only. A stale profile cannot
 // overwrite a password reset completed after the profile was loaded.
 func UpdateCustomerProfile(ctx context.Context, customer models.Customer) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -61,6 +67,9 @@ func UpdateCustomerProfile(ctx context.Context, customer models.Customer) error 
 // UpdateBarberProfile cannot change account status or the password. Suspension
 // and recovery remain separate operations even when a profile edit races them.
 func UpdateBarberProfile(ctx context.Context, barber models.Barber) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}

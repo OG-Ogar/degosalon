@@ -171,7 +171,7 @@ func NewHairstyleHandler(
 			return
 		}
 
-		_, err = storage.CreateHairstyle(models.Hairstyle{
+		_, err = storage.CreateHairstyleContext(r.Context(), models.Hairstyle{
 			BarberID:    barber.ID,
 			Name:        form.Name,
 			Category:    form.Category,

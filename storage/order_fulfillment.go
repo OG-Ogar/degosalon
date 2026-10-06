@@ -58,6 +58,9 @@ func aggregateFulfillment(states []string) string {
 // FulfillOrderItem atomically changes one seller-owned item, restores cancelled
 // stock once, and recomputes the whole order status across every seller.
 func FulfillOrderItem(ctx context.Context, id, barberID int, target string) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}

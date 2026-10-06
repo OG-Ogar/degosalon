@@ -36,6 +36,9 @@ func CheckoutCart(customer models.Customer) (models.ProductOrder, error) {
 }
 
 func CheckoutCartContext(ctx context.Context, customer models.Customer) (models.ProductOrder, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	return checkoutCart(ctx, customer, "")
 }
 
@@ -52,6 +55,9 @@ func ValidCheckoutKey(key string) bool {
 // CheckoutCartWithKey replays a successful customer-scoped request before
 // inspecting the current cart. Replays never consume a subsequently added cart.
 func CheckoutCartWithKey(ctx context.Context, customer models.Customer, key string) (models.ProductOrder, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if !ValidCheckoutKey(key) {
 		return models.ProductOrder{}, ErrInvalidCheckoutKey
 	}
@@ -59,6 +65,9 @@ func CheckoutCartWithKey(ctx context.Context, customer models.Customer, key stri
 }
 
 func checkoutCart(ctx context.Context, customer models.Customer, key string) (models.ProductOrder, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.ProductOrder{}, err
 	}
@@ -231,12 +240,25 @@ func checkoutCartMemory(customer models.Customer, key string) (models.ProductOrd
 
 // CreateProductOrder creates and stores a new product order.
 func CreateProductOrder(order models.ProductOrder) (models.ProductOrder, error) {
+	return CreateProductOrderContext(context.Background(), order)
+}
+
+func CreateProductOrderContext(ctx context.Context, order models.ProductOrder) (models.ProductOrder, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return models.ProductOrder{}, err
+	}
+
 	if databaseEnabled() {
-		err := db.QueryRow("insert into public.product_orders(customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at) values($1,$2,$3,$4,$5,$6,$7) returning id", order.CustomerID, order.CustomerName, order.CustomerPhone, order.CustomerEmail, order.TotalAmount, order.Status, order.CreatedAt).Scan(&order.ID)
+		err := db.QueryRowContext(ctx, "insert into public.product_orders(customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at) values($1,$2,$3,$4,$5,$6,$7) returning id", order.CustomerID, order.CustomerName, order.CustomerPhone, order.CustomerEmail, order.TotalAmount, order.Status, order.CreatedAt).Scan(&order.ID)
 		return order, err
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return models.ProductOrder{}, err
+	}
 
 	order.ID = nextID(&lastProductOrderID)
 
@@ -247,13 +269,26 @@ func CreateProductOrder(order models.ProductOrder) (models.ProductOrder, error) 
 
 // CreateProductOrderItem creates and stores a product inside an order.
 func CreateProductOrderItem(item models.ProductOrderItem) (models.ProductOrderItem, error) {
+	return CreateProductOrderItemContext(context.Background(), item)
+}
+
+func CreateProductOrderItemContext(ctx context.Context, item models.ProductOrderItem) (models.ProductOrderItem, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return models.ProductOrderItem{}, err
+	}
+
 	item.FulfillmentStatus = models.FulfillmentPending
 	if databaseEnabled() {
-		err := db.QueryRow("insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal) values($1,$2,$3,$4,$5,$6,$7) returning id", item.OrderID, item.ProductID, item.BarberID, item.ProductName, item.Price, item.Quantity, item.Subtotal).Scan(&item.ID)
+		err := db.QueryRowContext(ctx, "insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal) values($1,$2,$3,$4,$5,$6,$7) returning id", item.OrderID, item.ProductID, item.BarberID, item.ProductName, item.Price, item.Quantity, item.Subtotal).Scan(&item.ID)
 		return item, err
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return models.ProductOrderItem{}, err
+	}
 
 	item.ID = nextID(&lastProductOrderItemID)
 
@@ -264,9 +299,12 @@ func CreateProductOrderItem(item models.ProductOrderItem) (models.ProductOrderIt
 
 // FindProductOrderByID finds an order by its ID.
 func FindProductOrderByID(id int) (models.ProductOrder, bool) {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
 		var v models.ProductOrder
-		err := db.QueryRow("select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where id=$1", id).Scan(&v.ID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.TotalAmount, &v.Status, &v.CreatedAt)
+		err := db.QueryRowContext(ctx, "select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where id=$1", id).Scan(&v.ID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.TotalAmount, &v.Status, &v.CreatedAt)
 		return v, err == nil
 	}
 	mu.RLock()
@@ -283,6 +321,9 @@ func FindProductOrderByID(id int) (models.ProductOrder, bool) {
 
 // ListProductOrderItems returns all items belonging to an order.
 func ListProductOrderItems(ctx context.Context, orderID int) ([]models.ProductOrderItem, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -306,6 +347,9 @@ func ListProductOrderItems(ctx context.Context, orderID int) ([]models.ProductOr
 
 // ListProductOrdersByCustomer returns all orders belonging to a customer.
 func ListProductOrdersByCustomer(ctx context.Context, customerID int) ([]models.ProductOrder, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if databaseEnabled() {
 		rows, err := db.QueryContext(ctx, "select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where customer_id=$1 order by id desc", customerID)
 		if err != nil {
@@ -340,6 +384,9 @@ func ListProductOrdersByCustomer(ctx context.Context, customerID int) ([]models.
 // ListProductOrderItemsByBarber returns all purchased product items
 // belonging to a specific barber.
 func ListProductOrderItemsByBarber(ctx context.Context, barberID int) ([]models.ProductOrderItem, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -373,6 +420,9 @@ func ListProductOrderItemsByBarber(ctx context.Context, barberID int) ([]models.
 }
 
 func FindProductOrderByIDResult(ctx context.Context, id int) (models.ProductOrder, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.ProductOrder{}, err
 	}

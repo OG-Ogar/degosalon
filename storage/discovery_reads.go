@@ -7,6 +7,9 @@ import (
 )
 
 func ListBarbersResult(ctx context.Context) ([]models.Barber, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -21,6 +24,9 @@ func ListBarbersResult(ctx context.Context) ([]models.Barber, error) {
 }
 
 func ListActiveBarbersResult(ctx context.Context) ([]models.Barber, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -35,6 +41,9 @@ func ListActiveBarbersResult(ctx context.Context) ([]models.Barber, error) {
 }
 
 func ListCustomersResult(ctx context.Context) ([]models.Customer, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -49,6 +58,9 @@ func ListCustomersResult(ctx context.Context) ([]models.Customer, error) {
 }
 
 func ListHairstylesByBarberResult(ctx context.Context, id int) ([]models.Hairstyle, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -63,6 +75,9 @@ func ListHairstylesByBarberResult(ctx context.Context, id int) ([]models.Hairsty
 }
 
 func ListAvailableHairstylesByBarberResult(ctx context.Context, id int) ([]models.Hairstyle, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -77,6 +92,9 @@ func ListAvailableHairstylesByBarberResult(ctx context.Context, id int) ([]model
 }
 
 func ListBookingsResult(ctx context.Context) ([]models.Booking, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -91,6 +109,9 @@ func ListBookingsResult(ctx context.Context) ([]models.Booking, error) {
 }
 
 func ListBookingsByBarberResult(ctx context.Context, id int) ([]models.Booking, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -105,6 +126,9 @@ func ListBookingsByBarberResult(ctx context.Context, id int) ([]models.Booking, 
 }
 
 func ListBookingsByCustomerResult(ctx context.Context, id int) ([]models.Booking, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -119,6 +143,9 @@ func ListBookingsByCustomerResult(ctx context.Context, id int) ([]models.Booking
 }
 
 func ListReviewsByBarberResult(ctx context.Context, id int) ([]models.Review, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -133,6 +160,9 @@ func ListReviewsByBarberResult(ctx context.Context, id int) ([]models.Review, er
 }
 
 func FindBookingByIDResult(ctx context.Context, id int) (models.Booking, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Booking{}, err
 	}
@@ -149,6 +179,9 @@ func FindBookingByIDResult(ctx context.Context, id int) (models.Booking, error) 
 }
 
 func ReviewSummaryResult(ctx context.Context, id int) (float64, int, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return 0, 0, err
 	}
@@ -163,6 +196,9 @@ func ReviewSummaryResult(ctx context.Context, id int) (float64, int, error) {
 }
 
 func CanCustomerReviewResult(ctx context.Context, customerID, barberID int) (models.Booking, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Booking{}, err
 	}

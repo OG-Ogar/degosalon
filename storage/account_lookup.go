@@ -11,6 +11,9 @@ import (
 
 // FindCustomerByIDResult distinguishes a missing customer from a failed lookup.
 func FindCustomerByIDResult(ctx context.Context, id int) (models.Customer, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Customer{}, err
 	}
@@ -36,6 +39,9 @@ func FindCustomerByIDResult(ctx context.Context, id int) (models.Customer, error
 
 // FindCustomerByEmailResult preserves database errors during authentication.
 func FindCustomerByEmailResult(ctx context.Context, email string) (models.Customer, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Customer{}, err
 	}
@@ -62,6 +68,9 @@ func FindCustomerByEmailResult(ctx context.Context, email string) (models.Custom
 
 // FindBarberByIDContext is the request-aware barber lookup for session checks.
 func FindBarberByIDContext(ctx context.Context, id int) (models.Barber, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Barber{}, err
 	}
@@ -87,6 +96,9 @@ func FindBarberByIDContext(ctx context.Context, id int) (models.Barber, error) {
 
 // FindBarberByEmailResult preserves database errors during authentication.
 func FindBarberByEmailResult(ctx context.Context, email string) (models.Barber, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Barber{}, err
 	}

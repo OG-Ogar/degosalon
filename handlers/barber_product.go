@@ -154,7 +154,7 @@ func NewProductHandler(
 			return
 		}
 
-		_, err = storage.CreateProduct(models.Product{
+		_, err = storage.CreateProductContext(r.Context(), models.Product{
 			BarberID:    barber.ID,
 			Name:        form.Name,
 			Category:    form.Category,
@@ -233,7 +233,7 @@ func DeleteProductHandler(
 		return
 	}
 
-	image, err := storage.DeleteProduct(id, barber.ID)
+	image, err := storage.DeleteProductContext(r.Context(), id, barber.ID)
 
 	switch {
 	case errors.Is(err, storage.ErrNotFound),
@@ -275,8 +275,8 @@ func ownedProduct(w http.ResponseWriter, r *http.Request, barber models.Barber, 
 }
 
 func productFormFromModel(product models.Product) productForm {
-	return productForm{Name:product.Name,Category:product.Category,Description:product.Description,Price:product.Price,Quantity:product.Quantity,Available:product.IsAvailable,values:map[string]string{
-		"name":product.Name,"category":product.Category,"description":product.Description,"price":formatPrice(product.Price),"quantity":formatInt(product.Quantity),
+	return productForm{Name: product.Name, Category: product.Category, Description: product.Description, Price: product.Price, Quantity: product.Quantity, Available: product.IsAvailable, values: map[string]string{
+		"name": product.Name, "category": product.Category, "description": product.Description, "price": formatPrice(product.Price), "quantity": formatInt(product.Quantity),
 	}}
 }
 
@@ -292,8 +292,8 @@ func ViewProductHandler(w http.ResponseWriter, r *http.Request, barber models.Ba
 	renderProductForm(w, s, productFormFromModel(product), product.ID, product.Image, "")
 }
 
-func EditProductHandler(w http.ResponseWriter,r *http.Request,barber models.Barber,s sessionData,idSegment string){
-	ViewProductHandler(w,r,barber,s,idSegment)
+func EditProductHandler(w http.ResponseWriter, r *http.Request, barber models.Barber, s sessionData, idSegment string) {
+	ViewProductHandler(w, r, barber, s, idSegment)
 }
 
 func UpdateProductHandler(w http.ResponseWriter, r *http.Request, barber models.Barber, s sessionData, idSegment string) {
@@ -334,7 +334,7 @@ func UpdateProductHandler(w http.ResponseWriter, r *http.Request, barber models.
 	product.Quantity = form.Quantity
 	product.IsAvailable = form.Available
 	product.Image = image
-	if err := storage.UpdateProduct(product); err != nil {
+	if err := storage.UpdateProductContext(r.Context(), product); err != nil {
 		removeImageIgnoringError(uploaded)
 		serverError(w, "update product", err)
 		return

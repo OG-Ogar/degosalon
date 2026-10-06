@@ -9,8 +9,11 @@ import (
 
 // ListBarbers returns every barber, newest last.
 func ListBarbers() []models.Barber {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
-		rows, err := db.Query("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers order by id")
+		rows, err := db.QueryContext(ctx, "select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers order by id")
 		if err == nil {
 			defer rows.Close()
 			var out []models.Barber
@@ -32,8 +35,11 @@ func ListBarbers() []models.Barber {
 // ListActiveBarbers returns only barbers customers are allowed to see
 // and book with.
 func ListActiveBarbers() []models.Barber {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
-		rows, err := db.Query("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where status='Active' order by id")
+		rows, err := db.QueryContext(ctx, "select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where status='Active' order by id")
 		if err == nil {
 			defer rows.Close()
 			var active []models.Barber
@@ -62,9 +68,12 @@ func ListActiveBarbers() []models.Barber {
 
 // FindBarberByID returns a copy of the barber with the given ID.
 func FindBarberByID(id int) (models.Barber, bool) {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
 		var b models.Barber
-		err := db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where id=$1", id).Scan(&b.ID, &b.FullName, &b.PhoneNumber, &b.Email, &b.PasswordHash, &b.ShopName, &b.ShopAddress, &b.State, &b.LocalArea, &b.ProfileImage, &b.PersonalImage, &b.Status)
+		err := db.QueryRowContext(ctx, "select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where id=$1", id).Scan(&b.ID, &b.FullName, &b.PhoneNumber, &b.Email, &b.PasswordHash, &b.ShopName, &b.ShopAddress, &b.State, &b.LocalArea, &b.ProfileImage, &b.PersonalImage, &b.Status)
 		return b, err == nil
 	}
 	mu.RLock()
@@ -86,9 +95,12 @@ func findBarberByID(id int) (models.Barber, bool) {
 
 // FindBarberByEmail matches case-insensitively, the way logins do.
 func FindBarberByEmail(email string) (models.Barber, bool) {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
 		var b models.Barber
-		err := db.QueryRow("select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where lower(email)=lower($1)", email).Scan(&b.ID, &b.FullName, &b.PhoneNumber, &b.Email, &b.PasswordHash, &b.ShopName, &b.ShopAddress, &b.State, &b.LocalArea, &b.ProfileImage, &b.PersonalImage, &b.Status)
+		err := db.QueryRowContext(ctx, "select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where lower(email)=lower($1)", email).Scan(&b.ID, &b.FullName, &b.PhoneNumber, &b.Email, &b.PasswordHash, &b.ShopName, &b.ShopAddress, &b.State, &b.LocalArea, &b.ProfileImage, &b.PersonalImage, &b.Status)
 		return b, err == nil
 	}
 	mu.RLock()
@@ -107,11 +119,21 @@ func FindBarberByEmail(email string) (models.Barber, bool) {
 // uniqueness check happens under the same lock as the insert, so two
 // simultaneous registrations cannot both succeed with one email.
 func CreateBarber(barber models.Barber) (models.Barber, error) {
+	return CreateBarberContext(context.Background(), barber)
+}
+
+func CreateBarberContext(ctx context.Context, barber models.Barber) (models.Barber, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return models.Barber{}, err
+	}
+
 	if databaseEnabled() {
 		if barber.Status == "" {
 			barber.Status = models.BarberActive
 		}
-		err := db.QueryRow("insert into public.barbers(full_name,phone_number,email,password_hash,shop_name,shop_address,state,local_area,profile_image,personal_image,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id", barber.FullName, barber.PhoneNumber, barber.Email, barber.PasswordHash, barber.ShopName, barber.ShopAddress, barber.State, barber.LocalArea, barber.ProfileImage, barber.PersonalImage, barber.Status).Scan(&barber.ID)
+		err := db.QueryRowContext(ctx, "insert into public.barbers(full_name,phone_number,email,password_hash,shop_name,shop_address,state,local_area,profile_image,personal_image,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) returning id", barber.FullName, barber.PhoneNumber, barber.Email, barber.PasswordHash, barber.ShopName, barber.ShopAddress, barber.State, barber.LocalArea, barber.ProfileImage, barber.PersonalImage, barber.Status).Scan(&barber.ID)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "unique") {
 				return models.Barber{}, ErrEmailTaken
@@ -122,6 +144,9 @@ func CreateBarber(barber models.Barber) (models.Barber, error) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return models.Barber{}, err
+	}
 	if err := guardMediaLocked(barber.ProfileImage, barber.PersonalImage); err != nil {
 		return models.Barber{}, err
 	}
@@ -150,6 +175,9 @@ func SetBarberPassword(id int, hash string) error {
 }
 
 func SetBarberPasswordContext(ctx context.Context, id int, hash string) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -174,8 +202,18 @@ func SetBarberPasswordContext(ctx context.Context, id int, hash string) error {
 // password hash is preserved when the incoming copy leaves it empty, so
 // profile edits cannot accidentally blank out a password.
 func UpdateBarber(barber models.Barber) error {
+	return UpdateBarberContext(context.Background(), barber)
+}
+
+func UpdateBarberContext(ctx context.Context, barber models.Barber) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	if databaseEnabled() {
-		result, err := db.Exec("update public.barbers set full_name=$1,phone_number=$2,email=$3,shop_name=$4,shop_address=$5,state=$6,local_area=$7,profile_image=$8,personal_image=$9,status=$10 where id=$11", barber.FullName, barber.PhoneNumber, barber.Email, barber.ShopName, barber.ShopAddress, barber.State, barber.LocalArea, barber.ProfileImage, barber.PersonalImage, barber.Status, barber.ID)
+		result, err := db.ExecContext(ctx, "update public.barbers set full_name=$1,phone_number=$2,email=$3,shop_name=$4,shop_address=$5,state=$6,local_area=$7,profile_image=$8,personal_image=$9,status=$10 where id=$11", barber.FullName, barber.PhoneNumber, barber.Email, barber.ShopName, barber.ShopAddress, barber.State, barber.LocalArea, barber.ProfileImage, barber.PersonalImage, barber.Status, barber.ID)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "unique") {
 				return ErrEmailTaken
@@ -190,6 +228,9 @@ func UpdateBarber(barber models.Barber) error {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 
 	for _, existing := range barbers {
 		if existing.ID != barber.ID &&
@@ -225,6 +266,9 @@ func SetBarberStatus(id int, status string) error {
 }
 
 func SetBarberStatusContext(ctx context.Context, id int, status string) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}

@@ -16,6 +16,9 @@ func AddToCart(customerID, productID int) (int, error) {
 }
 
 func lockCustomerCart(ctx context.Context, tx *sql.Tx, customerID int) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	var id int
 	// Lock the customer, not just existing cart rows: an empty/new cart is
 	// serialized too, including additions of products not yet in the cart.
@@ -23,6 +26,9 @@ func lockCustomerCart(ctx context.Context, tx *sql.Tx, customerID int) error {
 }
 
 func AddToCartContext(ctx context.Context, customerID, productID int) (int, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return 0, err
 	}
@@ -89,6 +95,9 @@ func AddToCartContext(ctx context.Context, customerID, productID int) (int, erro
 // SetCartQuantity edits an existing owned line. Zero removes it, even when the
 // seller is suspended or the item is unavailable. Cart edits reserve no stock.
 func SetCartQuantity(ctx context.Context, customerID, productID, quantity int) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -157,6 +166,9 @@ func SetCartQuantity(ctx context.Context, customerID, productID, quantity int) e
 }
 
 func CartItemCount(ctx context.Context, customerID int) (int, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return 0, err
 	}
@@ -175,6 +187,9 @@ func CartItemCount(ctx context.Context, customerID int) (int, error) {
 }
 
 func ListCartItems(ctx context.Context, customerID int) ([]models.CartItem, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -194,9 +209,17 @@ func ListCartItems(ctx context.Context, customerID int) ([]models.CartItem, erro
 	return items, nil
 }
 
-func ClearCart(customerID int) error {
+func ClearCart(customerID int) error { return ClearCartContext(context.Background(), customerID) }
+
+func ClearCartContext(ctx context.Context, customerID int) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	if databaseEnabled() {
-		ctx := context.Background()
+
 		tx, err := db.BeginTx(ctx, nil)
 		if err != nil {
 			return err
@@ -220,6 +243,9 @@ func ClearCart(customerID int) error {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	if len(carts[customerID]) == 0 {
 		return ErrNotFound
 	}

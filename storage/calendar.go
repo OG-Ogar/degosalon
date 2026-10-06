@@ -121,6 +121,9 @@ type calendarReader interface {
 }
 
 func readCalendar(ctx context.Context, conn calendarReader, id int) (models.Calendar, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	var data []byte
 	err := conn.QueryRowContext(ctx, "select settings from public.barber_calendars where barber_id=$1", id).Scan(&data)
 	if errors.Is(err, sql.ErrNoRows) {
@@ -137,6 +140,9 @@ func readCalendar(ctx context.Context, conn calendarReader, id int) (models.Cale
 }
 
 func CalendarForBarber(ctx context.Context, id int) (models.Calendar, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Calendar{}, err
 	}
@@ -160,6 +166,9 @@ func CalendarForBarber(ctx context.Context, id int) (models.Calendar, error) {
 }
 
 func SaveBarberCalendar(ctx context.Context, id int, c models.Calendar) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -280,6 +289,9 @@ func SaveBarberCalendar(ctx context.Context, id int, c models.Calendar) error {
 }
 
 func AvailableSlots(ctx context.Context, barberID, styleID int, date string) ([]string, models.Calendar, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if _, err := time.Parse("2006-01-02", date); err != nil {
 		return nil, models.Calendar{}, ErrOutsideSchedule
 	}
@@ -327,6 +339,9 @@ func AvailableSlots(ctx context.Context, barberID, styleID int, date string) ([]
 }
 
 func availabilityBookings(ctx context.Context, id int, date string) ([]models.Booking, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if databaseEnabled() {
 		return queryRecords(ctx, `select to_char(booking_time,'HH24:MI'),service_duration from public.bookings where barber_id=$1 and booking_date=$2 and status in ('Pending','Accepted','Completed')`, func(rows *sql.Rows) (models.Booking, error) {
 			v := models.Booking{BarberID: id, Date: date, Status: models.StatusPending}

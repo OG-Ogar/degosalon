@@ -128,7 +128,7 @@ func UpdateHairstyleHandler(
 	hairstyle.IsAvailable = form.Available
 	hairstyle.Image = image
 
-	if err := storage.UpdateHairstyle(hairstyle); err != nil {
+	if err := storage.UpdateHairstyleContext(r.Context(), hairstyle); err != nil {
 		removeImageIgnoringError(uploaded)
 		serverError(w, "update hairstyle", err)
 

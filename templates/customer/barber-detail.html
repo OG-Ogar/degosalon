@@ -470,6 +470,8 @@
                     </div>
 
 
+                    <p class="notice" data-booking-summary aria-live="polite">{{range .Hairstyles}}{{if eq $.Selected .ID}}Selected service: {{.Name}} · ₦{{printf "%.2f" .Price}} · {{.Duration}} minutes.{{end}}{{end}}</p>
+
                     <div class="submit-area">
 
                         <div>

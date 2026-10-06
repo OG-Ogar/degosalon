@@ -15,4 +15,5 @@ type Hairstyle struct {
 	Video string
 
 	IsAvailable bool
+	Archived    bool
 }

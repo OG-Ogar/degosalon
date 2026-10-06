@@ -38,15 +38,15 @@ func ConfirmDeleteHairstyleHandler(
 	}
 
 	render(w, "barber/confirm-delete-hairstyle.html", confirmDeleteView{
-		Title:   "Delete hairstyle",
-		Message: "Delete " + hairstyle.Name + "? This cannot be undone.",
+		Title:   "Archive hairstyle",
+		Message: "Archive " + hairstyle.Name + "? It will leave your catalogue. Existing bookings and media will be retained.",
 		Action:  hairstylePath(hairstyle.ID, "delete"),
 		Cancel:  "/barber/hairstyles",
 		CSRF:    s.CSRFToken,
 	})
 }
 
-// DeleteHairstyleHandler removes a hairstyle and its image file.
+// DeleteHairstyleHandler archives a hairstyle and retains its media.
 func DeleteHairstyleHandler(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -71,7 +71,7 @@ func DeleteHairstyleHandler(
 		return
 	}
 
-	image, err := storage.DeleteHairstyleContext(r.Context(), id, barber.ID)
+	_, err := storage.DeleteHairstyleContext(r.Context(), id, barber.ID)
 
 	switch {
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
@@ -80,14 +80,10 @@ func DeleteHairstyleHandler(
 		return
 
 	case err != nil:
-		serverError(w, "delete hairstyle", err)
+		serverError(w, "archive hairstyle", err)
 
 		return
 	}
-
-	// The record is gone, so a failure to unlink the file is worth a log
-	// line but not an error page.
-	removeImageIgnoringError(image)
 
 	http.Redirect(w, r, "/barber/hairstyles", http.StatusSeeOther)
 }

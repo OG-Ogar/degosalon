@@ -233,7 +233,7 @@ func DeleteProductHandler(
 		return
 	}
 
-	image, err := storage.DeleteProductContext(r.Context(), id, barber.ID)
+	_, err := storage.DeleteProductContext(r.Context(), id, barber.ID)
 
 	switch {
 	case errors.Is(err, storage.ErrNotFound),
@@ -242,11 +242,9 @@ func DeleteProductHandler(
 		return
 
 	case err != nil:
-		serverError(w, "delete product", err)
+		serverError(w, "archive product", err)
 		return
 	}
-
-	removeImageIgnoringError(image)
 
 	http.Redirect(
 		w,

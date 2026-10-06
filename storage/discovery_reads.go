@@ -67,9 +67,9 @@ func ListHairstylesByBarberResult(ctx context.Context, id int) ([]models.Hairsty
 	if !databaseEnabled() {
 		return ListHairstylesByBarber(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where barber_id=$1 order by id", func(rows *sql.Rows) (models.Hairstyle, error) {
+	return queryRecords(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and not is_archived order by id", func(rows *sql.Rows) (models.Hairstyle, error) {
 		var v models.Hairstyle
-		err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable)
+		err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable, &v.Archived)
 		return v, err
 	}, id)
 }
@@ -84,9 +84,9 @@ func ListAvailableHairstylesByBarberResult(ctx context.Context, id int) ([]model
 	if !databaseEnabled() {
 		return ListAvailableHairstylesByBarber(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where barber_id=$1 and is_available=true order by id", func(rows *sql.Rows) (models.Hairstyle, error) {
+	return queryRecords(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and is_available=true and not is_archived order by id", func(rows *sql.Rows) (models.Hairstyle, error) {
 		var v models.Hairstyle
-		err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable)
+		err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable, &v.Archived)
 		return v, err
 	}, id)
 }

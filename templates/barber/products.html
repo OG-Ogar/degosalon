@@ -117,7 +117,7 @@
                         <form
                             method="post"
                             action="/barber/products/{{.ID}}/delete"
-                            data-confirm="Delete this product? This cannot be undone."
+                            data-confirm="Archive this product? It will leave the catalogue. Existing orders and media will be retained."
                         >
 
                             <input
@@ -130,7 +130,7 @@
                                 class="barber-button danger"
                                 type="submit"
                             >
-                                Delete
+                                Archive
                             </button>
 
                         </form>

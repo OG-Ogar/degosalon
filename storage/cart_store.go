@@ -44,7 +44,7 @@ func AddToCartContext(ctx context.Context, customerID, productID int) (int, erro
 		var stock int
 		var available bool
 		var status string
-		err = tx.QueryRowContext(ctx, `select p.quantity,p.is_available,b.status from public.products p join public.barbers b on b.id=p.barber_id where p.id=$1 for share of p,b`, productID).Scan(&stock, &available, &status)
+		err = tx.QueryRowContext(ctx, `select p.quantity,(p.is_available and not p.is_archived),b.status from public.products p join public.barbers b on b.id=p.barber_id where p.id=$1 for share of p,b`, productID).Scan(&stock, &available, &status)
 		if err != nil {
 			return 0, recordError(err)
 		}
@@ -79,7 +79,7 @@ func AddToCartContext(ctx context.Context, customerID, productID int) (int, erro
 		return 0, ErrNotFound
 	}
 	barber, found := findBarberByID(product.BarberID)
-	if !product.IsAvailable || !found || !barber.IsActive() {
+	if !product.IsAvailable || product.Archived || !found || !barber.IsActive() {
 		return 0, ErrUnavailable
 	}
 	if product.Quantity <= 0 || carts[customerID][productID] >= product.Quantity {
@@ -125,7 +125,7 @@ func SetCartQuantity(ctx context.Context, customerID, productID, quantity int) e
 			var stock int
 			var available bool
 			var status string
-			err = tx.QueryRowContext(ctx, `select p.quantity,p.is_available,b.status from public.products p join public.barbers b on b.id=p.barber_id where p.id=$1 for share of p,b`, productID).Scan(&stock, &available, &status)
+			err = tx.QueryRowContext(ctx, `select p.quantity,(p.is_available and not p.is_archived),b.status from public.products p join public.barbers b on b.id=p.barber_id where p.id=$1 for share of p,b`, productID).Scan(&stock, &available, &status)
 			if err != nil {
 				return recordError(err)
 			}
@@ -155,7 +155,7 @@ func SetCartQuantity(ctx context.Context, customerID, productID, quantity int) e
 		return ErrUnavailable
 	}
 	barber, found := findBarberByID(product.BarberID)
-	if !product.IsAvailable || !found || !barber.IsActive() {
+	if !product.IsAvailable || product.Archived || !found || !barber.IsActive() {
 		return ErrUnavailable
 	}
 	if quantity > product.Quantity {

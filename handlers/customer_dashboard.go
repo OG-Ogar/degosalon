@@ -156,11 +156,10 @@ func EditCustomerProfileHandler(
 		)
 
 	case http.MethodPost:
+		limitRequestBodyFor(w, r, 1)
 		if !requireCSRF(w, r, s) {
 			return
 		}
-
-		limitRequestBodyFor(w, r, 1)
 
 		form, problem := readCustomerForm(r)
 

@@ -2,8 +2,10 @@ package handlers
 
 import (
 	"fmt"
+	_ "golang.org/x/image/webp"
 	"image"
 	"image/color"
+	_ "image/gif"
 	"image/jpeg"
 	"image/png"
 	"os"
@@ -16,7 +18,9 @@ const (
 	// any page draws one is a little under 900 pixels, so a picture
 	// straight off a phone carries several megabytes of detail that the
 	// browser downloads and then throws away.
-	maxImageEdge = 1600
+	maxImageEdge      = 1600
+	maxImageDimension = 10000
+	maxImagePixels    = 16_000_000
 
 	// jpegQuality is the re-encode setting: the usual point where the
 	// file gets much smaller without the loss being visible.
@@ -33,19 +37,11 @@ const (
 // JPEGs are re-encoded whenever they are oversized or large, because a
 // camera file is saved at a quality nothing here needs. PNGs are only
 // touched when their dimensions are too big; re-encoding one otherwise
-// gains almost nothing. GIF and WEBP are left exactly as uploaded:
-// flattening an animation would lose it, and the standard library has no
-// WEBP decoder to read one with in the first place.
-//
-// A file that cannot be decoded is left alone rather than rejected. Its
-// first bytes were already sniffed as an image when it was saved, and
-// being unable to shrink a photo is not a reason to refuse it.
+// gains almost nothing. GIF and WEBP retain their encoded content after header
+// validation, preserving animation. Every supported format has bounded header
+// dimensions before a full JPEG/PNG decode can allocate its pixel buffer.
 func normalizeStoredImage(path string) error {
 	extension := strings.ToLower(filepath.Ext(path))
-
-	if extension != ".jpg" && extension != ".jpeg" && extension != ".png" {
-		return nil
-	}
 
 	info, err := os.Stat(path)
 	if err != nil {
@@ -56,18 +52,36 @@ func normalizeStoredImage(path string) error {
 	if err != nil {
 		return fmt.Errorf("open image: %w", err)
 	}
+	defer file.Close()
+	config, format, err := image.DecodeConfig(file)
+	if err != nil {
+		return fmt.Errorf("read image dimensions: %w", err)
+	}
+	if config.Width < 1 || config.Height < 1 || config.Width > maxImageDimension || config.Height > maxImageDimension || config.Width > maxImagePixels/config.Height {
+		return fmt.Errorf("image exceeds the limit of 16 megapixels or 10000 pixels per side")
+	}
+	expected := map[string]string{".jpg": "jpeg", ".jpeg": "jpeg", ".png": "png", ".gif": "gif", ".webp": "webp"}[extension]
+	if expected == "" || format != expected {
+		return fmt.Errorf("image content does not match its filename type")
+	}
+	if extension == ".gif" || extension == ".webp" {
+		return nil
+	}
+	if _, err := file.Seek(0, 0); err != nil {
+		return fmt.Errorf("rewind image: %w", err)
+	}
 
 	source, _, err := image.Decode(file)
-	file.Close()
+	_ = file.Close()
 
 	if err != nil {
-		return nil
+		return fmt.Errorf("decode image: %w", err)
 	}
 
 	bounds := source.Bounds()
 
-	if bounds.Dx() < 1 || bounds.Dy() < 1 {
-		return nil
+	if bounds.Dx() != config.Width || bounds.Dy() != config.Height {
+		return fmt.Errorf("image dimensions changed during decoding")
 	}
 
 	width, height := fitWithin(bounds.Dx(), bounds.Dy(), maxImageEdge)

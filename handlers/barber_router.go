@@ -12,6 +12,7 @@ import (
 // with strings.HasSuffix, so any path ending in "/edit" reached the
 // hairstyle editor regardless of what came before it.
 func BarberRouter(w http.ResponseWriter, r *http.Request) {
+	defer cleanupMultipart(r)
 	parts := pathParts(r.URL.Path)
 
 	if len(parts) == 1 {

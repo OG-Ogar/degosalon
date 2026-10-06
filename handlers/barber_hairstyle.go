@@ -136,9 +136,9 @@ func NewHairstyleHandler(
 	case http.MethodPost:
 		// A hairstyle can contain one image up to 5 MiB and
 		// one video up to 50 MiB, plus form data.
-		r.Body = http.MaxBytesReader(
+		limitFormBody(
 			w,
-			r.Body,
+			r,
 			maxUploadBytes+maxVideoBytes+maxFormMemory,
 		)
 

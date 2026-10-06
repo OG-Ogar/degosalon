@@ -3,6 +3,7 @@ package handlers
 import "net/http"
 
 func CustomerRouter(w http.ResponseWriter, r *http.Request) {
+	defer cleanupMultipart(r)
 	parts := pathParts(r.URL.Path)
 
 	if len(parts) == 1 {

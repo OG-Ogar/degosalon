@@ -5,6 +5,7 @@ package models
 const (
 	BarberActive    = "Active"
 	BarberSuspended = "Suspended"
+	BarberArchived  = "Archived"
 )
 
 // Barber is a shop owner who publishes hairstyles and takes bookings.

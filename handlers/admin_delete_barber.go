@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"errors"
-	"log"
 	"net/http"
 
 	"barber-booking/session"
@@ -49,11 +48,7 @@ func ConfirmDeleteBarberHandler(
 	})
 }
 
-// DeleteBarberHandler removes a barber and everything attached to them.
-//
-// The store performs the cascade under one lock and hands back the image
-// paths; the files are deleted afterwards, and a failure to unlink a file
-// is logged rather than aborting a delete that has already happened.
+// DeleteBarberHandler archives an account while retaining customer history.
 func DeleteBarberHandler(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -77,28 +72,23 @@ func DeleteBarberHandler(
 		return
 	}
 
-	images, err := storage.DeleteBarber(id)
-
+	err := storage.ArchiveBarber(r.Context(), id)
+	if errors.Is(err, storage.ErrOutstandingWork) {
+		barber, loadErr := storage.FindBarberByIDContext(r.Context(), id)
+		if loadErr != nil {
+			serverError(w, "load archive conflict", loadErr)
+			return
+		}
+		barber.PasswordHash = ""
+		renderStatus(w, http.StatusConflict, "admin/confirm-delete.html", barberView{Barber: barber, CSRF: s.CSRFToken, Error: err.Error()})
+		return
+	}
 	if errors.Is(err, storage.ErrNotFound) {
 		http.NotFound(w, r)
-
 		return
 	}
-
 	if err != nil {
-		serverError(w, "delete barber", err)
-
-		return
-	}
-
-	for _, image := range images {
-		if err := removeStoredImage(image); err != nil {
-			log.Printf("delete barber %d image: %v", id, err)
-		}
-	}
-
-	if err := session.DeleteForUserContext(r.Context(), session.RoleBarber, id); err != nil {
-		serverError(w, "revoke barber sessions", err)
+		serverError(w, "archive barber", err)
 		return
 	}
 

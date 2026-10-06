@@ -58,8 +58,8 @@
         </table>
 
         <div class="actions">
-            <a class="button primary" href="/admin/barbers/{{.Barber.ID}}/edit">Edit</a>
-            <a class="button danger" href="/admin/barbers/{{.Barber.ID}}/delete">Delete</a>
+            {{if ne .Barber.Status "Archived"}}<a class="button primary" href="/admin/barbers/{{.Barber.ID}}/edit">Edit</a>
+            <a class="button danger" href="/admin/barbers/{{.Barber.ID}}/delete">Archive</a>{{end}}
             <a class="button" href="/admin/barbers">Back to list</a>
         </div>
     </div>

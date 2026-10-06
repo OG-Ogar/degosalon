@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Delete barber - De Go Salon admin</title>
+    <title>Archive barber - De Go Salon admin</title>
     <link rel="stylesheet" href="/static/app.css">
     <script src="/static/app.js" defer></script>
 </head>
@@ -25,21 +25,23 @@
     <p class="crumbs">
         <a href="/admin/dashboard">Dashboard</a> /
         <a href="/admin/barbers">Barbers</a> /
-        Delete
+        Archive
     </p>
 
-    <h1>Delete this barber?</h1>
+    <h1>Archive this barber?</h1>
 
     <div class="panel">
+        {{if .Error}}<p class="error" role="alert">{{.Error}}</p>{{end}}
 
         <p>
-            You are about to delete <strong>{{.FullName}}</strong>
+            You are about to archive <strong>{{.FullName}}</strong>
             ({{.ShopName}}).
         </p>
 
         <p>
-            Their hairstyles, bookings and messages are deleted with them,
-            and any session they have open is ended. This cannot be undone.
+            The account will be hidden from customers and signed out. Appointment,
+            order and message history and media will be retained. Archived accounts
+            cannot be reactivated. Resolve open appointments and orders first.
         </p>
 
         <p class="hint">
@@ -53,7 +55,7 @@
                  triggered by a link, an image, or another site's form. -->
             <form class="inline" method="post" action="/admin/barbers/{{.ID}}/delete">
                 <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="danger" type="submit">Yes, delete this barber</button>
+                <button class="danger" type="submit">Yes, archive this barber</button>
             </form>
 
             <a class="button" href="/admin/barbers/{{.ID}}">No, go back</a>

@@ -38,7 +38,7 @@ func TestPostgresQueuedRecoveryHTTP(t *testing.T) {
 	if err := storage.InitDatabase(); err != nil {
 		t.Fatal(err)
 	}
-	t.Cleanup(storage.CloseDatabase)
+	t.Cleanup(func() { _ = storage.CloseDatabase() })
 	checkQueuedRecoveryFlow(t)
 }
 

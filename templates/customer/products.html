@@ -17,49 +17,7 @@
 
 <body class="customer-page modern-customer-page">
 
-<header class="products-header">
-
-    <form method="post" action="/customer/logout">
-
-        <input
-            type="hidden"
-            name="csrf_token"
-            value="{{.CSRF}}"
-        >
-
-        <button
-            class="products-header-button products-logout-button"
-            type="submit"
-        >
-            Log out
-        </button>
-
-    </form>
-
-
-    <div class="products-header-right">
-
-        <a
-            class="products-cart-button"
-            href="/customer/cart"
-        >
-            Cart
-            <span class="products-cart-count">
-                {{.CartCount}}
-            </span>
-        </a>
-
-
-        <a
-            class="products-header-button products-dashboard-button"
-            href="/customer/dashboard"
-        >
-            Dashboard
-        </a>
-
-    </div>
-
-</header>
+{{template "role-header" (navigation "customer" "products" .)}}
 
 
 <main class="products-page">
@@ -184,7 +142,7 @@
 
 
                         <strong class="product-price">
-                            ₦{{printf "%.2f" .Product.Price}}
+                            {{naira .Product.Price}}
                         </strong>
 
                     </div>

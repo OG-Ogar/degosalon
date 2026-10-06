@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Barber Dashboard - Barber Multiverse</title>
+    <title>Barber Dashboard - De Go Salon</title>
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
@@ -14,43 +14,7 @@
 
 <body class="barber-page modern-role-page">
 
-<header class="barber-header">
-    <div class="barber-header-inner">
-
-        <a class="barber-brand" href="/barber/dashboard">
-            De Go Salon
-        </a>
-
-        <nav class="barber-nav" aria-label="Barber navigation">
-
-            <a class="active" href="/barber/dashboard">
-                1. Dashboard
-            </a>
-
-            <a href="/barber/hairstyles">
-                2. Hairstyles
-            </a>
-
-            <a href="/barber/products">
-                3. Products
-            </a>
-
-            <a href="/barber/bookings">
-                4. Bookings
-            </a>
-
-            <a href="/barber/chats">
-                5. Messages
-            </a>
-
-            <a href="/barber/profile">
-                6. Profile
-            </a>
-
-        </nav>
-
-    </div>
-</header>
+{{template "role-header" (navigation "barber" "dashboard" .)}}
 
 <main class="barber-main">
 
@@ -311,7 +275,7 @@
                                 </td>
 
                                 <td>
-                                    ₦{{printf "%.2f" .Subtotal}}
+                                    {{naira .Subtotal}}
                                 </td>
 
                                 <td>

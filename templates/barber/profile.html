@@ -16,39 +16,7 @@
 
 <body class="barber-page modern-role-page">
 
-<header class="barber-header">
-    <div class="barber-header-inner">
-
-        <a class="barber-brand" href="/barber/dashboard">
-            De Go Salon
-        </a>
-
-        <nav class="barber-nav" aria-label="Barber navigation">
-
-            <a href="/barber/dashboard">
-                1. Dashboard
-            </a>
-
-            <a href="/barber/hairstyles">
-                2. Hairstyles
-            </a>
-
-            <a href="/barber/bookings">
-                3. Bookings
-            </a>
-
-            <a href="/barber/chats">
-                4. Messages
-            </a>
-
-            <a class="active" href="/barber/profile">
-                5. Profile
-            </a>
-
-        </nav>
-
-    </div>
-</header>
+{{template "role-header" (navigation "barber" "profile" .)}}
 
 <main class="barber-main">
 

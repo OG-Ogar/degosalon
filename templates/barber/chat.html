@@ -482,54 +482,7 @@
          HEADER
          ================================================= -->
 
-    <header class="barber-chat-header">
-
-
-        <a
-            class="brand-box"
-            href="/barber/dashboard"
-        >
-            De Go Salon
-        </a>
-
-
-        <div class="header-actions">
-
-
-            <a
-                class="header-button dashboard-button"
-                href="/barber/dashboard"
-            >
-                Dashboard
-            </a>
-
-
-            <form
-                method="post"
-                action="/barber/logout"
-            >
-
-                <input
-                    type="hidden"
-                    name="csrf_token"
-                    value="{{.CSRF}}"
-                >
-
-
-                <button
-                    class="header-button logout-button"
-                    type="submit"
-                >
-                    Log out
-                </button>
-
-            </form>
-
-
-        </div>
-
-
-    </header>
+    {{template "role-header" (navigation "barber" "chats" .)}}
 
 
 

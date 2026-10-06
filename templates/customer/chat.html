@@ -16,10 +16,7 @@
 
     <div class="customer-chat">
 
-        <header class="chat-header">
-            <a class="dashboard-button" href="/customer/chats">← Messages</a>
-            <a class="chat-dashboard-link" href="/customer/dashboard">Dashboard</a>
-        </header>
+        {{template "role-header" (navigation "customer" "chats" .)}}
 
         <section class="barber-card">
 

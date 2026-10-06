@@ -96,10 +96,10 @@ func checkOrderConfirmationSnapshots(t *testing.T, conn *sql.DB) {
 		t.Fatalf("confirmation status %d: %s", w.Code, w.Body.String())
 	}
 	body := w.Body.String()
-	for _, want := range []string{"Original seller", "Original shop", "Original address", "08012345678", "Original product", "Original description", "Original category", "1250.50", "Pending"} {
+	for _, want := range []string{"Original seller", "Original shop", "Original address", "08012345678", "Original product", "Original description", "Original category", "₦1,250.50", "Pending"} {
 		mustContain(t, "order snapshot", body, want)
 	}
-	for _, unwanted := range []string{"Edited seller", "Edited shop", "Edited address", "08087654321", "Edited product", "Edited description", "Edited category", "9999.00"} {
+	for _, unwanted := range []string{"Edited seller", "Edited shop", "Edited address", "08087654321", "Edited product", "Edited description", "Edited category", "₦9,999.00"} {
 		if strings.Contains(body, unwanted) {
 			t.Fatalf("confirmation displayed live metadata: %s", unwanted)
 		}

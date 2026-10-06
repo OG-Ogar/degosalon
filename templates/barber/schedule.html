@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Schedule — De Go Salon</title><link rel="stylesheet" href="/static/app.css"><script src="/static/app.js" defer></script></head>
-<body class="barber-page"><header><a href="/barber/dashboard">De Go Salon · Dashboard</a> · <a href="/barber/bookings">Appointments</a></header>
+<body class="barber-page">{{template "role-header" (navigation "barber" "schedule" .)}}
 <main class="calendar-page"><h1>Your booking schedule</h1><p>Set your weekly hours and time off. Existing appointments keep their booked duration; resolve any conflicting appointment before changing its hours.</p>
 {{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
 <form method="post" action="/barber/schedule">

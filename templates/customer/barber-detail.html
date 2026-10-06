@@ -32,79 +32,7 @@
 
 <div class="barber-page">
 
-<header class="barber-header">
-
-    <a class="brand-box"
-       href="/customer/dashboard">
-
-        <span class="brand-title">
-            Barber
-        </span>
-
-        <span class="brand-subtitle">
-            Booking
-        </span>
-
-    </a>
-
-    <nav class="customer-navigation"
-         aria-label="Customer navigation">
-
-        <a class="nav-box"
-           href="{{.ResultsLink}}">
-
-            <span class="nav-number">
-                01
-            </span>
-
-            <span class="nav-text">
-                Find a Barber
-            </span>
-
-        </a>
-
-        <a class="nav-box"
-           href="/customer/bookings">
-
-            <span class="nav-number">
-                02
-            </span>
-
-            <span class="nav-text">
-                My Bookings
-            </span>
-
-        </a>
-
-        <a class="nav-box"
-           href="/customer/chats">
-
-            <span class="nav-number">
-                03
-            </span>
-
-            <span class="nav-text">
-                Messages
-            </span>
-
-        </a>
-
-        <a class="nav-box"
-           href="/customer/profile">
-
-            <span class="nav-number">
-                04
-            </span>
-
-            <span class="nav-text">
-                My Profile
-            </span>
-
-        </a>
-
-    </nav>
-
-</header>
+{{template "role-header" (navigation "customer" "barbers" .)}}
 
 
 <main class="barber-main">
@@ -141,9 +69,7 @@
 
             {{else}}
 
-                <div class="photo-placeholder">
-                    BB
-                </div>
+                <div class="photo-placeholder">DG</div>
 
             {{end}}
 
@@ -344,9 +270,7 @@
 
                                     {{else}}
 
-                                        <span>
-                                            BB
-                                        </span>
+                                        <span>DG</span>
 
                                     {{end}}
 
@@ -379,7 +303,7 @@
                                 <div class="style-price">
 
                                     <strong>
-                                        {{printf "%.2f" .Price}}
+                                        {{naira .Price}}
                                     </strong>
 
                                     <span>
@@ -470,7 +394,7 @@
                     </div>
 
 
-                    <p class="notice" data-booking-summary aria-live="polite">{{range .Hairstyles}}{{if eq $.Selected .ID}}Selected service: {{.Name}} · ₦{{printf "%.2f" .Price}} · {{.Duration}} minutes.{{end}}{{end}}</p>
+                    <p class="notice" data-booking-summary aria-live="polite">{{range .Hairstyles}}{{if eq $.Selected .ID}}Selected service: {{.Name}} · {{naira .Price}} · {{.Duration}} minutes.{{end}}{{end}}</p>
 
                     <div class="submit-area">
 
@@ -509,9 +433,7 @@
 
             <div class="empty-state">
 
-                <div class="empty-icon">
-                    BB
-                </div>
+                <div class="empty-icon">DG</div>
 
                 <h2>
                     No hairstyles available
@@ -542,7 +464,7 @@
             <article class="hairstyle-option" style="padding:1rem;margin-bottom:.75rem">
                 {{if .Image}}<div class="style-image"><img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}" data-fullscreen-image></div>{{end}}
                 <div class="style-info"><h3>{{.Name}}</h3><p>{{.Category}}</p>{{if .Description}}<span>{{.Description}}</span>{{end}}</div>
-                <div class="style-price"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Quantity}} in stock</span></div>
+                <div class="style-price"><strong>{{naira .Price}}</strong><span>{{.Quantity}} in stock</span></div>
             </article>
         {{end}}
         </div>

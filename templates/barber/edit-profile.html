@@ -14,29 +14,7 @@
 
 <body class="barber-page modern-role-page">
 
-<header class="barber-simple-header">
-    <a class="barber-brand" href="/barber/dashboard">
-        De Go Salon
-    </a>
-
-    <div class="barber-header-actions">
-        <a href="/barber/dashboard">Dashboard</a>
-
-        <a href="/barber/profile">My Profile</a>
-
-        <form method="post" action="/barber/logout">
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{.CSRF}}"
-            >
-
-            <button type="submit">
-                Log out
-            </button>
-        </form>
-    </div>
-</header>
+{{template "role-header" (navigation "barber" "profile" .)}}
 
 <main class="barber-edit-page">
 

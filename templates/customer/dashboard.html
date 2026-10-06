@@ -27,43 +27,7 @@
 
     <div class="dashboard-overlay"></div>
 
-    <header class="customer-header">
-
-        <a class="customer-brand"
-           href="/customer/dashboard">
-            De Go Salon
-        </a>
-
-        <nav class="customer-nav" aria-label="Main">
-
-            <a href="/customer/barbers">
-                Find a barber
-            </a>
-
-            <a href="/customer/products">
-                Products
-            </a>
-
-            <a href="/customer/cart">
-                Cart
-                ({{.CartCount}})
-            </a>
-
-            <a href="/customer/bookings">
-                My bookings
-            </a>
-
-            <a href="/customer/chats">
-                Messages
-            </a>
-
-            <a href="/customer/profile">
-                My profile
-            </a>
-
-        </nav>
-
-    </header>
+    {{template "role-header" (navigation "customer" "dashboard" .)}}
 
     <main class="customer-content">
 
@@ -275,7 +239,7 @@
                             <div class="appointment-details">
 
                                 <h3>
-                                    ₦{{printf "%.2f" .TotalAmount}}
+                                    {{naira .TotalAmount}}
                                 </h3>
 
                                 <p>

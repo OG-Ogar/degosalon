@@ -87,6 +87,9 @@ func CreateCustomer(customer models.Customer) (models.Customer, error) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := guardMediaLocked(customer.ProfileImage); err != nil {
+		return models.Customer{}, err
+	}
 
 	for _, existing := range customers {
 		if strings.EqualFold(existing.Email, customer.Email) {
@@ -157,6 +160,9 @@ func UpdateCustomer(customer models.Customer) error {
 			customer.PasswordHash = customers[i].PasswordHash
 		}
 
+		if err := guardMediaLocked(customer.ProfileImage); err != nil {
+			return err
+		}
 		customers[i] = customer
 
 		return nil

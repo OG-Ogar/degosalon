@@ -67,3 +67,24 @@ func TestMediaCredentialPreference(t *testing.T) {
 		t.Fatal("invalid legacy key accepted")
 	}
 }
+
+func TestCloudCleanupOwnership(t *testing.T) {
+	t.Setenv("SUPABASE_URL", "https://media.example")
+	t.Setenv("SUPABASE_SECRET_KEY", "sb_secret_test-only")
+	image := "https://media.example/storage/v1/object/public/degosalon-media/site/0123456789abcdef0123456789abcdef.png"
+	video := "https://media.example/storage/v1/object/public/degosalon-media/hairstyle-videos/0123456789abcdef0123456789abcdef.mp4"
+	if err := removeStoredImage(image); err != nil {
+		t.Fatal(err)
+	}
+	if err := removeStoredVideo(video); err != nil {
+		t.Fatal(err)
+	}
+	for _, foreign := range []string{"https://other.example/image.png", image + "?credential=secret", "https://media.example/storage/v1/object/public/other-bucket/site/0123456789abcdef0123456789abcdef.png"} {
+		if err := removeStoredImage(foreign); err == nil {
+			t.Fatal("foreign image scheduled")
+		}
+		if err := removeStoredVideo(foreign); err == nil {
+			t.Fatal("foreign video scheduled")
+		}
+	}
+}

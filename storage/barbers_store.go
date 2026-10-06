@@ -122,6 +122,9 @@ func CreateBarber(barber models.Barber) (models.Barber, error) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := guardMediaLocked(barber.ProfileImage, barber.PersonalImage); err != nil {
+		return models.Barber{}, err
+	}
 
 	for _, existing := range barbers {
 		if strings.EqualFold(existing.Email, barber.Email) {
@@ -205,6 +208,9 @@ func UpdateBarber(barber models.Barber) error {
 			barber.PasswordHash = barbers[i].PasswordHash
 		}
 
+		if err := guardMediaLocked(barber.ProfileImage, barber.PersonalImage); err != nil {
+			return err
+		}
 		barbers[i] = barber
 
 		return nil

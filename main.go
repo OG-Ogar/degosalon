@@ -38,6 +38,9 @@ func main() {
 	if err := handlers.ImportLegacySiteImages(context.Background()); err != nil {
 		log.Fatalf("import legacy site media settings: %v", err)
 	}
+	mediaContext, stopMedia := context.WithCancel(context.Background())
+	defer stopMedia()
+	go handlers.RunMediaCleanup(mediaContext)
 	mailConfig, mailErr := resetmail.FromEnvironment()
 	mailKey, keyErr := resetmail.DeliveryKeyFromEnvironment()
 	if mailErr == nil && keyErr == nil {

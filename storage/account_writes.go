@@ -48,6 +48,9 @@ func UpdateCustomerProfile(ctx context.Context, customer models.Customer) error 
 	for i := range customers {
 		if customers[i].ID == customer.ID {
 			customer.PasswordHash = customers[i].PasswordHash
+			if err := guardMediaLocked(customer.ProfileImage); err != nil {
+				return err
+			}
 			customers[i] = customer
 			return nil
 		}
@@ -75,6 +78,9 @@ func UpdateBarberProfile(ctx context.Context, barber models.Barber) error {
 		if barbers[i].ID == barber.ID {
 			barber.PasswordHash = barbers[i].PasswordHash
 			barber.Status = barbers[i].Status
+			if err := guardMediaLocked(barber.ProfileImage, barber.PersonalImage); err != nil {
+				return err
+			}
 			barbers[i] = barber
 			return nil
 		}

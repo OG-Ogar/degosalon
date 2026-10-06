@@ -81,6 +81,9 @@ func CreateProduct(product models.Product) (models.Product, error) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := guardMediaLocked(product.Image); err != nil {
+		return models.Product{}, err
+	}
 
 	product.ID = nextID(&lastProductID)
 
@@ -113,6 +116,9 @@ func UpdateProduct(product models.Product) error {
 			return ErrForbidden
 		}
 
+		if err := guardMediaLocked(product.Image); err != nil {
+			return err
+		}
 		products[i] = product
 
 		return nil

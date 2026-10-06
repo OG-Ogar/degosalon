@@ -40,7 +40,7 @@ func EditBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData, id
 		serverError(w, "load admin barber", err)
 		return
 	}
-	if errors.Is(err, storage.ErrNotFound) {
+	if errors.Is(err, storage.ErrNotFound) || (err == nil && barber.Status == models.BarberArchived) {
 		http.NotFound(w, r)
 		return
 	}
@@ -70,7 +70,7 @@ func UpdateBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData, 
 		serverError(w, "load admin barber", err)
 		return
 	}
-	if errors.Is(err, storage.ErrNotFound) {
+	if errors.Is(err, storage.ErrNotFound) || (err == nil && barber.Status == models.BarberArchived) {
 		http.NotFound(w, r)
 		return
 	}

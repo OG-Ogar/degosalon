@@ -74,7 +74,7 @@ func UpdateBarberProfile(ctx context.Context, barber models.Barber) error {
 		return err
 	}
 	if databaseEnabled() {
-		return updateAccountRow(ctx, `update public.barbers set full_name=$1,phone_number=$2,email=$3,shop_name=$4,shop_address=$5,state=$6,local_area=$7,profile_image=$8,personal_image=$9 where id=$10`, barber.FullName, barber.PhoneNumber, barber.Email, barber.ShopName, barber.ShopAddress, barber.State, barber.LocalArea, barber.ProfileImage, barber.PersonalImage, barber.ID)
+		return updateAccountRow(ctx, `update public.barbers set full_name=$1,phone_number=$2,email=$3,shop_name=$4,shop_address=$5,state=$6,local_area=$7,profile_image=$8,personal_image=$9 where id=$10 and status<>'Archived'`, barber.FullName, barber.PhoneNumber, barber.Email, barber.ShopName, barber.ShopAddress, barber.State, barber.LocalArea, barber.ProfileImage, barber.PersonalImage, barber.ID)
 	}
 	mu.Lock()
 	defer mu.Unlock()
@@ -84,7 +84,7 @@ func UpdateBarberProfile(ctx context.Context, barber models.Barber) error {
 		}
 	}
 	for i := range barbers {
-		if barbers[i].ID == barber.ID {
+		if barbers[i].ID == barber.ID && barbers[i].Status != models.BarberArchived {
 			barber.PasswordHash = barbers[i].PasswordHash
 			barber.Status = barbers[i].Status
 			if err := guardMediaLocked(barber.ProfileImage, barber.PersonalImage); err != nil {

@@ -213,7 +213,7 @@ func UpdateBarberContext(ctx context.Context, barber models.Barber) error {
 	}
 
 	if databaseEnabled() {
-		result, err := db.ExecContext(ctx, "update public.barbers set full_name=$1,phone_number=$2,email=$3,shop_name=$4,shop_address=$5,state=$6,local_area=$7,profile_image=$8,personal_image=$9,status=$10 where id=$11", barber.FullName, barber.PhoneNumber, barber.Email, barber.ShopName, barber.ShopAddress, barber.State, barber.LocalArea, barber.ProfileImage, barber.PersonalImage, barber.Status, barber.ID)
+		result, err := db.ExecContext(ctx, "update public.barbers set full_name=$1,phone_number=$2,email=$3,shop_name=$4,shop_address=$5,state=$6,local_area=$7,profile_image=$8,personal_image=$9,status=$10 where id=$11 and status<>'Archived'", barber.FullName, barber.PhoneNumber, barber.Email, barber.ShopName, barber.ShopAddress, barber.State, barber.LocalArea, barber.ProfileImage, barber.PersonalImage, barber.Status, barber.ID)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "unique") {
 				return ErrEmailTaken
@@ -241,7 +241,7 @@ func UpdateBarberContext(ctx context.Context, barber models.Barber) error {
 	}
 
 	for i := range barbers {
-		if barbers[i].ID != barber.ID {
+		if barbers[i].ID != barber.ID || barbers[i].Status == models.BarberArchived {
 			continue
 		}
 
@@ -276,13 +276,13 @@ func SetBarberStatusContext(ctx context.Context, id int, status string) error {
 		return ErrInvalidTransition
 	}
 	if databaseEnabled() {
-		return updateAccountRow(ctx, "update public.barbers set status=$1 where id=$2", status, id)
+		return updateAccountRow(ctx, "update public.barbers set status=$1 where id=$2 and status<>'Archived'", status, id)
 	}
 	mu.Lock()
 	defer mu.Unlock()
 
 	for i := range barbers {
-		if barbers[i].ID == id {
+		if barbers[i].ID == id && barbers[i].Status != models.BarberArchived {
 			barbers[i].Status = status
 			return nil
 		}
@@ -291,73 +291,10 @@ func SetBarberStatusContext(ctx context.Context, id int, status string) error {
 	return ErrNotFound
 }
 
-// DeleteBarber removes a barber together with their hairstyles,
-// bookings and chat messages. It returns the on-disk image paths the
-// caller should delete, because file removal is not the store's job.
+// DeleteBarber is retained as a compatibility alias for account archival.
+// No media paths are returned because retained history still references them.
 func DeleteBarber(id int) ([]string, error) {
-	mu.Lock()
-	defer mu.Unlock()
-
-	index := -1
-
-	for i := range barbers {
-		if barbers[i].ID == id {
-			index = i
-			break
-		}
-	}
-
-	if index == -1 {
-		return nil, ErrNotFound
-	}
-
-	var images []string
-	var keptHairstyles []models.Hairstyle
-
-	for _, image := range []string{
-		barbers[index].ProfileImage,
-		barbers[index].PersonalImage,
-	} {
-		if image != "" {
-			images = append(images, image)
-		}
-	}
-
-	for _, hairstyle := range hairstyles {
-		if hairstyle.BarberID != id {
-			keptHairstyles = append(keptHairstyles, hairstyle)
-			continue
-		}
-
-		if hairstyle.Image != "" {
-			images = append(images, hairstyle.Image)
-		}
-	}
-
-	hairstyles = keptHairstyles
-
-	var keptBookings []models.Booking
-
-	for _, booking := range bookings {
-		if booking.BarberID != id {
-			keptBookings = append(keptBookings, booking)
-		}
-	}
-
-	bookings = keptBookings
-
-	var keptMessages []models.Message
-
-	for _, message := range messages {
-		if message.BarberID != id {
-			keptMessages = append(keptMessages, message)
-		}
-	}
-
-	messages = keptMessages
-	barbers = append(barbers[:index], barbers[index+1:]...)
-
-	return images, nil
+	return nil, ArchiveBarber(context.Background(), id)
 }
 
 // FindBarberByIDResult distinguishes not-found from database failures.

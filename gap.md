@@ -2,6 +2,12 @@
 
 > **Current status — 6 October 2026:** Read [gap-review.md](gap-review.md) for the reconciled status of all 50 findings at PR #81, remaining priorities and verification limits. Earlier findings and implementation entries below remain historical evidence, not the current backlog.
 
+### Follow-up: persistent barber account archival (BE-15)
+
+The administrator's former memory-only deletion path now archives the persisted account using the request context. It retains appointments, orders, messages, catalogue records and media. Pending/accepted appointments or Pending/Ready seller items prevent archival with a styled 409 recovery page. Account locking serializes archival with new bookings, checkout and verified login; database session revocation commits with the Archived status. Repeated archival is safe, activation/stale profile writes cannot reopen the account, and a database trigger protects the terminal status. Admin actions now explain archival and hide edit/activate/archive controls for archived accounts.
+
+Shared memory/PostgreSQL tests cover unfinished work, retained customer history, session revocation, retries, cancellation and booking races. HTTP tests cover method/CSRF checks, recoverable conflicts, retained media and terminal account actions. PostgreSQL fault injection verifies failed session revocation rolls back the account status. Live production acceptance remains separate; customer account deletion has no implemented application route and retention policy beyond this barber lifecycle remains product work.
+
 Audit date: 5 October 2026. Baseline: local `main` checkout, initially clean.
 
 

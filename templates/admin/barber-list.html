@@ -72,6 +72,7 @@
                         <td>{{.Bookings}}</td>
                         <td><span class="badge {{.Status}}">{{.Status}}</span></td>
                         <td>
+                            {{if ne .Status "Archived"}}
                             <a class="button small" href="/admin/barbers/{{.ID}}/edit">Edit</a>
 
                             {{if .Active}}
@@ -91,7 +92,8 @@
                             {{end}}
 
                             <a class="button small danger"
-                               href="/admin/barbers/{{.ID}}/delete">Delete</a>
+                               href="/admin/barbers/{{.ID}}/delete">Archive</a>
+                            {{end}}
                         </td>
                     </tr>
                 {{end}}

@@ -35,6 +35,35 @@ func TestPostgresIntegrity(t *testing.T) {
 	t.Run("seller fulfillment and cancellation stock", checkOrderFulfillment)
 	t.Run("catalogue archives retain history and fulfillment", checkCatalogueArchives)
 	t.Run("catalogue archive concurrency", checkCatalogueArchiveRaces)
+	t.Run("barber account retention and session revocation", checkBarberArchive)
+	t.Run("barber archive versus booking", checkBarberArchiveBookingRace)
+	t.Run("barber archive rolls back if session revocation fails", func(t *testing.T) {
+		seller, _, _ := postgresBookingFixture(t)
+		if _, err := db.ExecContext(ctx, "insert into degosalon_internal.auth_sessions(id_digest,role,user_id,csrf_token,expires_at) values(repeat('b',64),'barber',$1,'token',now()+interval '1 hour')", seller.ID); err != nil {
+			t.Fatal(err)
+		}
+		_, err := db.ExecContext(ctx, fmt.Sprintf(`create function degosalon_internal.fail_archive_revoke() returns trigger language plpgsql as $$ begin raise exception 'injected revocation failure'; end $$;
+create trigger fail_archive_revoke before delete on degosalon_internal.auth_sessions for each row when(old.role='barber' and old.user_id=%d) execute function degosalon_internal.fail_archive_revoke()`, seller.ID))
+		if err != nil {
+			t.Fatal(err)
+		}
+		t.Cleanup(func() {
+			if _, err := db.Exec("drop trigger fail_archive_revoke on degosalon_internal.auth_sessions; drop function degosalon_internal.fail_archive_revoke()"); err != nil {
+				t.Error(err)
+			}
+		})
+		if err := ArchiveBarber(ctx, seller.ID); err == nil {
+			t.Fatal("failed revocation archived account")
+		}
+		stored, err := FindBarberByIDContext(ctx, seller.ID)
+		if err != nil || stored.Status != models.BarberActive {
+			t.Fatalf("account status escaped rollback: %+v %v", stored, err)
+		}
+		var count int
+		if err := db.QueryRowContext(ctx, "select count(*) from degosalon_internal.auth_sessions where role='barber' and user_id=$1", seller.ID).Scan(&count); err != nil || count != 1 {
+			t.Fatalf("session rollback: %d %v", count, err)
+		}
+	})
 	t.Run("shared authentication budgets", checkAuthThrottle)
 
 	t.Run("fulfillment failure rolls back stock and item state", func(t *testing.T) {

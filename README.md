@@ -24,7 +24,7 @@ Current capabilities:
 - View the admin dashboard
 - Create and view barber accounts
 - Edit barber information
-- Delete barber accounts
+- Archive barber accounts while retaining customer history and media; open appointments and uncollected orders must be resolved first. Archived accounts cannot sign in or reactivate.
 - Suspend and reactivate barbers
 - View bookings
 - View customers

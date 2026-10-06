@@ -6,6 +6,8 @@ Scope: reconciled all 26 frontend and 24 backend IDs across routes/handlers, dom
 
 ## Decision before implementation
 
+**Subsequent implementation:** BE-15's administrator barber-deletion defect is repaired by persistent, terminal account archival with unfinished-work guards, retained history/media and atomic PostgreSQL session revocation. See the follow-up in `gap.md`; the matrix below records the PR #81 audit baseline.
+
 The original P0 booking, checkout, cart-stock and request-read failure mechanisms have substantial merged repairs. Do not repeat them. The most urgent confirmed remaining backend defect is persisted account deletion (BE-15); the most immediate frontend defects are image-click interception, the inactive booking summary, mobile table labels and raw error pages. Shared navigation/forms should follow these functional repairs. Production acceptance for existing database, mail and media work remains necessary.
 
 ## Backend status matrix

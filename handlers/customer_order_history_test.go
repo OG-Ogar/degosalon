@@ -29,7 +29,7 @@ func TestCustomerDashboardShowsOnlyOwnedOrderHistory(t *testing.T) {
 		t.Fatalf("status %d: %s", response.Code, response.Body.String())
 	}
 	body := response.Body.String()
-	for _, want := range []string{"Owned purchase", "1250.00", "/customer/order-confirmation/1"} {
+	for _, want := range []string{"Owned purchase", "₦1,250.00", "/customer/order-confirmation/1"} {
 		mustContain(t, "dashboard orders", body, want)
 	}
 	if strings.Contains(body, "Private other purchase") || strings.Contains(body, "/customer/order-confirmation/2") {

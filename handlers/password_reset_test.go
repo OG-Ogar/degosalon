@@ -169,7 +169,7 @@ func TestPasswordResetReplacesThePassword(t *testing.T) {
 	mustContain(t, "new password", post(t, browser, server.URL+"/customer/login", url.Values{
 		"email":    {"ada@example.com"},
 		"password": {"new password"},
-	}), "My bookings")
+	}), "My Bookings")
 
 	if status, _ := submit(t, browser, server.URL+"/customer/reset-password", url.Values{
 		"token":            {token},

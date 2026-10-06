@@ -111,6 +111,9 @@ func CreateHairstyle(hairstyle models.Hairstyle) (models.Hairstyle, error) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := guardMediaLocked(hairstyle.Image, hairstyle.Video); err != nil {
+		return models.Hairstyle{}, err
+	}
 
 	hairstyle.ID = nextID(&lastHairstyleID)
 
@@ -145,6 +148,9 @@ func UpdateHairstyle(hairstyle models.Hairstyle) error {
 			return ErrForbidden
 		}
 
+		if err := guardMediaLocked(hairstyle.Image, hairstyle.Video); err != nil {
+			return err
+		}
 		hairstyles[i] = hairstyle
 
 		return nil

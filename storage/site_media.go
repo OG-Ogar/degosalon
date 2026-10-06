@@ -105,6 +105,9 @@ func ReplaceSiteImageContext(ctx context.Context, name, value string) (string, e
 	if err := ctx.Err(); err != nil {
 		return "", err
 	}
+	if err := guardMediaLocked(value); err != nil {
+		return "", err
+	}
 	previous := siteImages[name]
 	siteImages[name] = value
 	return previous, nil
@@ -136,7 +139,7 @@ func ImportSiteImagesContext(ctx context.Context, values map[string]string) erro
 			if _, err := tx.ExecContext(ctx, "select pg_advisory_xact_lock(hashtextextended($1,0))", "site-media:"+name); err != nil {
 				return err
 			}
-			if _, err := tx.ExecContext(ctx, "insert into degosalon_internal.site_media(name,image_url) values($1,$2) on conflict(name) do nothing", name, values[name]); err != nil {
+			if _, err := tx.ExecContext(ctx, "insert into degosalon_internal.site_media(name,image_url) select $1,$2 where not exists (select 1 from degosalon_internal.site_media where name=$1) on conflict(name) do nothing", name, values[name]); err != nil {
 				return err
 			}
 		}
@@ -146,6 +149,13 @@ func ImportSiteImagesContext(ctx context.Context, values map[string]string) erro
 	defer mu.Unlock()
 	if err := ctx.Err(); err != nil {
 		return err
+	}
+	for _, name := range names {
+		if _, exists := siteImages[name]; !exists {
+			if err := guardMediaLocked(values[name]); err != nil {
+				return err
+			}
+		}
 	}
 	for _, name := range names {
 		if _, exists := siteImages[name]; !exists {

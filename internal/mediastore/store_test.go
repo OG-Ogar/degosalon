@@ -130,3 +130,63 @@ func TestConfigurationAndObjectPathValidation(t *testing.T) {
 		t.Fatal("unbounded HTTP client")
 	}
 }
+
+func TestOwnedObjectDeletion(t *testing.T) {
+	for _, key := range []string{"sb_secret_test-only", "legacy.jwt.test"} {
+		t.Run(key, func(t *testing.T) {
+			var requests atomic.Int32
+			s := testStore(t, func(w http.ResponseWriter, r *http.Request) {
+				requests.Add(1)
+				if r.Method != "DELETE" || r.URL.Path != "/storage/v1/object/degosalon-media" || r.Header.Get("apikey") != key {
+					t.Error("incorrect delete request")
+				}
+				expected := "Bearer " + key
+				if strings.HasPrefix(key, "sb_secret_") {
+					expected = ""
+				}
+				if r.Header.Get("Authorization") != expected {
+					t.Error("incorrect delete credential")
+				}
+				data, err := io.ReadAll(r.Body)
+				if err != nil || string(data) != `{"prefixes":["site/0123456789abcdef0123456789abcdef.png"]}` {
+					t.Errorf("unexpected delete body: %s", data)
+				}
+				_, _ = io.WriteString(w, "[]")
+			}, key)
+			uri := s.base + "/storage/v1/object/public/degosalon-media/site/0123456789abcdef0123456789abcdef.png"
+			for range 2 {
+				if err := s.Delete(context.Background(), uri); err != nil {
+					t.Fatal(err)
+				}
+			}
+			for _, invalid := range []string{
+				"https://another.example/storage/v1/object/public/degosalon-media/site/0123456789abcdef0123456789abcdef.png",
+				uri + "?secret=key", uri + "#fragment", strings.Replace(uri, "/site/", "/site/../", 1), strings.Replace(uri, "degosalon-media", "private-bucket", 1), strings.Replace(uri, "/site/", "/unowned/", 1), strings.Replace(uri, ".png", ".mp4", 1), strings.Replace(uri, "0123456789abcdef0123456789abcdef", "arbitrary-file", 1), strings.Replace(uri, "/site/", "/site%2f", 1),
+			} {
+				if s.Owns(invalid) {
+					t.Fatalf("claimed foreign URL %q", invalid)
+				}
+				if err := s.Delete(context.Background(), invalid); !errors.Is(err, ErrConfiguration) {
+					t.Fatal("foreign object deletion allowed")
+				}
+			}
+			if requests.Load() != 2 {
+				t.Fatal("invalid URL reached provider")
+			}
+		})
+	}
+}
+
+func TestDeleteRetainsSafeErrors(t *testing.T) {
+	for _, status := range []int{http.StatusUnauthorized, http.StatusNotFound, http.StatusInternalServerError, http.StatusTemporaryRedirect} {
+		s := testStore(t, func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Location", "https://another.example/")
+			w.WriteHeader(status)
+			_, _ = io.WriteString(w, "private provider token sb_secret_test-only")
+		}, "sb_secret_test-only")
+		uri := s.base + "/storage/v1/object/public/degosalon-media/hairstyle-videos/0123456789abcdef0123456789abcdef.mp4"
+		if err := s.Delete(context.Background(), uri); !errors.Is(err, ErrDelete) {
+			t.Fatalf("provider failure hidden or leaked: %v", err)
+		}
+	}
+}

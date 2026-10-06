@@ -2,13 +2,16 @@
 package mediastore
 
 import (
+	"bytes"
 	"context"
 	"crypto/tls"
+	"encoding/json"
 	"errors"
 	"io"
 	"net"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -104,5 +107,62 @@ func (s *Store) Upload(ctx context.Context, path, kind string, size int64, body 
 		return ErrUpload
 	}
 	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
+	return nil
+}
+
+var ErrDelete = errors.New("media storage cleanup failed")
+var ownedName = regexp.MustCompile(`^([a-f0-9]{32}|[0-9]{10,20})\.(jpg|jpeg|png|gif|webp|mp4|webm|mov)$`)
+
+// Owns accepts only canonical URLs in this project's application bucket and
+// known directories, with an application-generated or legacy timestamp name.
+func (s *Store) Owns(uri string) bool {
+	prefix := s.base + "/storage/v1/object/public/" + Bucket + "/"
+	if !strings.HasPrefix(uri, prefix) {
+		return false
+	}
+	path := strings.TrimPrefix(uri, prefix)
+	if !validPath(path) {
+		return false
+	}
+	parts := strings.Split(path, "/")
+	if !ownedName.MatchString(parts[1]) {
+		return false
+	}
+	extension := parts[1][strings.LastIndex(parts[1], ".")+1:]
+	video := extension == "mp4" || extension == "webm" || extension == "mov"
+	return video == (parts[0] == "hairstyle-videos")
+}
+
+// Delete removes exactly one owned object through the Storage API. A successful
+// response for an already absent object is idempotent; bucket/auth failures are
+// retained as errors rather than treated as proof of deletion.
+func (s *Store) Delete(ctx context.Context, uri string) error {
+	if !s.Owns(uri) {
+		return ErrConfiguration
+	}
+	path := strings.TrimPrefix(uri, s.base+"/storage/v1/object/public/"+Bucket+"/")
+	body, _ := json.Marshal(struct {
+		Prefixes []string `json:"prefixes"`
+	}{[]string{path}})
+	ctx, cancel := context.WithTimeout(ctx, Timeout)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, s.base+"/storage/v1/object/"+Bucket, bytes.NewReader(body))
+	if err != nil {
+		return ErrDelete
+	}
+	req.Header.Set("apikey", s.key)
+	if !strings.HasPrefix(s.key, "sb_secret_") {
+		req.Header.Set("Authorization", "Bearer "+s.key)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	response, err := s.client.Do(req)
+	if err != nil {
+		return ErrDelete
+	}
+	defer response.Body.Close()
+	if response.StatusCode < 200 || response.StatusCode >= 300 {
+		return ErrDelete
+	}
+	_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
 	return nil
 }

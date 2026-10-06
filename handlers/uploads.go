@@ -3,6 +3,8 @@ package handlers
 import (
 	"barber-booking/internal/mediastore"
 	"barber-booking/internal/runtimeconfig"
+	"barber-booking/storage"
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
@@ -252,10 +254,17 @@ func persistMedia(r *http.Request, urlPath, name, path string) (string, error) {
 		return "", errors.New("could not read media upload")
 	}
 	objectPath := strings.TrimPrefix(urlPath, "/uploads/") + name
+	uri, err := store.PublicURL(objectPath)
+	if err != nil {
+		return "", err
+	}
+	if err := storage.TrackMediaContext(r.Context(), uri); err != nil {
+		return "", mediastore.ErrUpload
+	}
 	if err := store.Upload(r.Context(), objectPath, http.DetectContentType(head[:n]), info.Size(), file); err != nil {
 		return "", err
 	}
-	return store.PublicURL(objectPath)
+	return uri, nil
 }
 
 func (store videoStore) save(r *http.Request, field string) (string, error) {
@@ -333,6 +342,9 @@ func (store videoStore) save(r *http.Request, field string) (string, error) {
 }
 
 func removeStoredImage(imageURL string) error {
+	if strings.HasPrefix(imageURL, "https://") {
+		return scheduleCloudMedia(imageURL)
+	}
 	if imageURL == "" || strings.HasPrefix(imageURL, "data:image/") {
 		return nil
 	}
@@ -368,6 +380,9 @@ func removeStoredImage(imageURL string) error {
 }
 
 func removeStoredVideo(videoURL string) error {
+	if strings.HasPrefix(videoURL, "https://") {
+		return scheduleCloudMedia(videoURL)
+	}
 	if videoURL == "" {
 		return nil
 	}
@@ -404,7 +419,7 @@ func removeImageIgnoringError(imageURL string) {
 	}
 
 	if err := removeStoredImage(imageURL); err != nil {
-		log.Printf("remove stored image %q: %v", imageURL, err)
+		log.Print("stored image cleanup could not be scheduled")
 	}
 }
 
@@ -414,6 +429,21 @@ func removeVideoIgnoringError(videoURL string) {
 	}
 
 	if err := removeStoredVideo(videoURL); err != nil {
-		log.Printf("remove stored video %q: %v", videoURL, err)
+		log.Print("stored video cleanup could not be scheduled")
 	}
+}
+
+func scheduleCloudMedia(uri string) error {
+	store, err := configuredMediaStore()
+	if err != nil {
+		return err
+	}
+	if store == nil {
+		return mediastore.ErrConfiguration
+	}
+	defer store.Close()
+	if !store.Owns(uri) {
+		return mediastore.ErrConfiguration
+	}
+	return storage.TrackMediaContext(context.Background(), uri)
 }

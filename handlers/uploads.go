@@ -220,11 +220,7 @@ func configuredMediaStore() (*mediastore.Store, error) {
 		}
 		return nil, nil
 	}
-	key := strings.TrimSpace(os.Getenv("SUPABASE_SECRET_KEY"))
-	if key == "" {
-		key = strings.TrimSpace(os.Getenv("SUPABASE_SERVICE_ROLE_KEY"))
-	}
-	return mediastore.New(base, key)
+	return mediastore.FromEnvironment()
 }
 
 func persistMedia(r *http.Request, urlPath, name, path string) (string, error) {

@@ -84,7 +84,7 @@ func renderStatus(w http.ResponseWriter, status int, name string, data any) {
 	tmpl, found := templates[name]
 	if !found {
 		log.Printf("render: template %q is not loaded", name)
-		http.Error(w, "Template Error", http.StatusInternalServerError)
+		journeyError(w, "Template Error", http.StatusInternalServerError)
 
 		return
 	}
@@ -93,7 +93,7 @@ func renderStatus(w http.ResponseWriter, status int, name string, data any) {
 
 	if err := tmpl.Execute(&buf, data); err != nil {
 		log.Printf("render %s: %v", name, err)
-		http.Error(w, "Template Execution Error", http.StatusInternalServerError)
+		journeyError(w, "Template Execution Error", http.StatusInternalServerError)
 
 		return
 	}
@@ -110,13 +110,13 @@ func renderStatus(w http.ResponseWriter, status int, name string, data any) {
 // message, so internal details never reach the browser.
 func serverError(w http.ResponseWriter, context string, err error) {
 	log.Printf("%s: %v", context, err)
-	http.Error(w, "Something went wrong. Please try again.", http.StatusInternalServerError)
+	journeyError(w, "Something went wrong. Please try again.", http.StatusInternalServerError)
 }
 
 // methodNotAllowed replies with 405 and advertises what is accepted.
 func methodNotAllowed(w http.ResponseWriter, allowed ...string) {
 	w.Header().Set("Allow", strings.Join(allowed, ", "))
-	http.Error(w, "Method Not Allowed", http.StatusMethodNotAllowed)
+	journeyError(w, "Method Not Allowed", http.StatusMethodNotAllowed)
 }
 
 type navigationLink struct {
@@ -182,4 +182,27 @@ func naira(amount float64) string {
     if strings.HasPrefix(digits, "-") { sign = "-"; digits = strings.TrimPrefix(digits, "-") }
     for i := len(digits)-3; i > 0; i -= 3 { digits = digits[:i] + "," + digits[i:] }
     return "₦" + sign + digits + "." + parts[1]
+}
+
+var journeyErrorTemplate = template.Must(template.New("journey-error").Parse(`<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{{.Title}} - De Go Salon</title><link rel="stylesheet" href="/static/app.css"></head>
+<body class="modern-role-page"><main class="journey-error-card">
+<a href="/">De Go Salon</a><p>{{.Status}}</p><h1>{{.Title}}</h1><p role="alert">{{.Message}}</p>
+<p>You can return to your workspace or sign in again to continue.</p>
+<nav aria-label="Recovery options"><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a><a href="/explore">Find a Barber</a><a href="/">Home</a></nav>
+</main></body></html>`))
+
+func journeyError(w http.ResponseWriter, message string, status int) {
+    var body bytes.Buffer
+    data := struct { Status int; Title, Message string }{status, http.StatusText(status), message}
+    if err := journeyErrorTemplate.Execute(&body, data); err != nil {
+        http.Error(w, "Something went wrong. Please try again.", http.StatusInternalServerError)
+        return
+    }
+    w.Header().Set("Content-Type", "text/html; charset=utf-8")
+    w.Header().Set("X-Content-Type-Options", "nosniff")
+    w.Header().Set("Cache-Control", "no-store")
+    w.WriteHeader(status)
+    _, _ = body.WriteTo(w)
 }

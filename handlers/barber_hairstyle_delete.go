@@ -66,7 +66,7 @@ func DeleteHairstyleHandler(
 
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Hairstyle not found.", http.StatusNotFound)
+		journeyError(w, "Hairstyle not found.", http.StatusNotFound)
 
 		return
 	}
@@ -75,7 +75,7 @@ func DeleteHairstyleHandler(
 
 	switch {
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
-		http.Error(w, "Hairstyle not found.", http.StatusNotFound)
+		journeyError(w, "Hairstyle not found.", http.StatusNotFound)
 
 		return
 

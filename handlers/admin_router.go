@@ -63,7 +63,7 @@ func AdminRouter(w http.ResponseWriter, r *http.Request) {
 		adminBarberAction(w, r, s, parts[2], parts[3])
 
 	default:
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 	}
 }
 
@@ -97,6 +97,6 @@ func adminBarberAction(
 		SetBarberStatusHandler(w, r, s, idSegment, true)
 
 	default:
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 	}
 }

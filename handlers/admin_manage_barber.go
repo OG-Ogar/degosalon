@@ -147,7 +147,7 @@ func BarberProfileHandler(
 
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
+		journeyError(w, "Invalid barber ID", http.StatusBadRequest)
 
 		return
 	}
@@ -158,7 +158,7 @@ func BarberProfileHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 
 		return
 	}

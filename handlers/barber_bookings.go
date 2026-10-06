@@ -95,7 +95,7 @@ func BarberBookingActionHandler(
 ) {
 	change, known := barberBookingActions[action]
 	if !known {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 
 		return
 	}
@@ -112,7 +112,7 @@ func BarberBookingActionHandler(
 
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Booking not found.", http.StatusNotFound)
+		journeyError(w, "Booking not found.", http.StatusNotFound)
 
 		return
 	}
@@ -123,13 +123,13 @@ func BarberBookingActionHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) || booking.BarberID != barber.ID {
-		http.Error(w, "Booking not found.", http.StatusNotFound)
+		journeyError(w, "Booking not found.", http.StatusNotFound)
 
 		return
 	}
 
 	if !containsStatus(change.from, booking.Status) {
-		http.Error(
+		journeyError(
 			w,
 			"That booking is "+booking.Status+
 				", so it cannot be changed to "+change.status+".",
@@ -143,11 +143,11 @@ func BarberBookingActionHandler(
 
 	switch {
 	case errors.Is(err, storage.ErrInvalidTransition):
-		http.Error(w, "That booking changed before this action completed. Refresh the schedule and try again.", http.StatusConflict)
+		journeyError(w, "That booking changed before this action completed. Refresh the schedule and try again.", http.StatusConflict)
 		return
 
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
-		http.Error(w, "Booking not found.", http.StatusNotFound)
+		journeyError(w, "Booking not found.", http.StatusNotFound)
 
 		return
 

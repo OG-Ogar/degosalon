@@ -24,7 +24,7 @@ func ConfirmDeleteBarberHandler(
 
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
+		journeyError(w, "Invalid barber ID", http.StatusBadRequest)
 
 		return
 	}
@@ -35,7 +35,7 @@ func ConfirmDeleteBarberHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 
 		return
 	}
@@ -67,7 +67,7 @@ func DeleteBarberHandler(
 
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
+		journeyError(w, "Invalid barber ID", http.StatusBadRequest)
 
 		return
 	}
@@ -84,7 +84,7 @@ func DeleteBarberHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	if err != nil {
@@ -119,7 +119,7 @@ func SetBarberStatusHandler(
 
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
+		journeyError(w, "Invalid barber ID", http.StatusBadRequest)
 
 		return
 	}
@@ -127,7 +127,7 @@ func SetBarberStatusHandler(
 	err := storage.SetBarberStatusContext(r.Context(), id, statusLabel(activate))
 
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 
 		return
 	}

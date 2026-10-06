@@ -203,7 +203,7 @@ func BookingConfirmationHandler(
 
 	bookingID, ok := parseID(idSegment)
 	if !ok {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 
 		return
 	}
@@ -214,7 +214,7 @@ func BookingConfirmationHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 
 		return
 	}
@@ -222,7 +222,7 @@ func BookingConfirmationHandler(
 	// A customer must never be able to view another customer's booking
 	// simply by changing the booking ID in the URL.
 	if booking.CustomerID != customer.ID {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 
 		return
 	}
@@ -233,7 +233,7 @@ func BookingConfirmationHandler(
 	}
 	barber, err := storage.FindBarberByIDContext(r.Context(), booking.BarberID)
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	if err != nil {
@@ -243,7 +243,7 @@ func BookingConfirmationHandler(
 
 	hairstyle, err := storage.FindHairstyleByIDResult(r.Context(), booking.HairstyleID)
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	if err != nil {

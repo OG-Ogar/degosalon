@@ -68,7 +68,7 @@ func authBudget(w http.ResponseWriter, r *http.Request, key string, limit int, w
 	retry, err := storage.AllowAuthAttempt(r.Context(), key, limit, window)
 	if err != nil {
 		if errors.Is(err, storage.ErrThrottleCapacity) {
-			http.Error(w, "Sign-in requests are busy. Please try again shortly.", http.StatusServiceUnavailable)
+			journeyError(w, "Sign-in requests are busy. Please try again shortly.", http.StatusServiceUnavailable)
 		} else {
 			serverError(w, "check authentication request budget", err)
 		}
@@ -77,7 +77,7 @@ func authBudget(w http.ResponseWriter, r *http.Request, key string, limit int, w
 	if retry > 0 {
 		w.Header().Set("Retry-After", strconv.Itoa(int(math.Ceil(retry.Seconds()))))
 		w.Header().Set("Cache-Control", "no-store")
-		http.Error(w, "Too many attempts. Please wait before trying again.", http.StatusTooManyRequests)
+		journeyError(w, "Too many attempts. Please wait before trying again.", http.StatusTooManyRequests)
 		return false
 	}
 	return true

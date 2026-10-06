@@ -229,7 +229,7 @@ func DeleteProductHandler(
 	id, ok := parseID(idSegment)
 
 	if !ok {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 
@@ -238,7 +238,7 @@ func DeleteProductHandler(
 	switch {
 	case errors.Is(err, storage.ErrNotFound),
 		errors.Is(err, storage.ErrForbidden):
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 
 	case err != nil:
@@ -257,12 +257,12 @@ func DeleteProductHandler(
 func ownedProduct(w http.ResponseWriter, r *http.Request, barber models.Barber, idSegment string) (models.Product, bool) {
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Product not found.", http.StatusNotFound)
+		journeyError(w, "Product not found.", http.StatusNotFound)
 		return models.Product{}, false
 	}
 	product, err := storage.FindProductOwnedBy(r.Context(), id, barber.ID)
 	if errors.Is(err, storage.ErrNotFound) || errors.Is(err, storage.ErrForbidden) {
-		http.Error(w, "Product not found.", http.StatusNotFound)
+		journeyError(w, "Product not found.", http.StatusNotFound)
 		return models.Product{}, false
 	}
 	if err != nil {

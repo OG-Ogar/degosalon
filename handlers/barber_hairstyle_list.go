@@ -23,7 +23,7 @@ func ownedHairstyle(
 ) (models.Hairstyle, bool) {
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Hairstyle not found.", http.StatusNotFound)
+		journeyError(w, "Hairstyle not found.", http.StatusNotFound)
 
 		return models.Hairstyle{}, false
 	}
@@ -34,7 +34,7 @@ func ownedHairstyle(
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
 		// A barber has no business knowing whether an ID they do not own
 		// exists, so both cases answer the same way.
-		http.Error(w, "Hairstyle not found.", http.StatusNotFound)
+		journeyError(w, "Hairstyle not found.", http.StatusNotFound)
 
 		return models.Hairstyle{}, false
 

@@ -101,6 +101,6 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 		AddToCartHandler(w, r, customer, s, parts[2])
 
 	default:
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 	}
 }

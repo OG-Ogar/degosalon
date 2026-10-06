@@ -32,7 +32,7 @@ func EditBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData, id
 	}
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
+		journeyError(w, "Invalid barber ID", http.StatusBadRequest)
 		return
 	}
 	barber, err := storage.FindBarberByIDContext(r.Context(), id)
@@ -41,7 +41,7 @@ func EditBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData, id
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) || (err == nil && barber.Status == models.BarberArchived) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	form := barberForm{
@@ -62,7 +62,7 @@ func UpdateBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData, 
 	}
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Invalid barber ID", http.StatusBadRequest)
+		journeyError(w, "Invalid barber ID", http.StatusBadRequest)
 		return
 	}
 	barber, err := storage.FindBarberByIDContext(r.Context(), id)
@@ -71,7 +71,7 @@ func UpdateBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData, 
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) || (err == nil && barber.Status == models.BarberArchived) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	form, problem := readBarberForm(r)
@@ -92,7 +92,7 @@ func UpdateBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData, 
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	if err != nil {

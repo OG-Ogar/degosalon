@@ -162,14 +162,14 @@ func ViewBarberHandler(
 func bookableBarber(w http.ResponseWriter, r *http.Request, idSegment string) (models.Barber, bool) {
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Barber not found.", http.StatusNotFound)
+		journeyError(w, "Barber not found.", http.StatusNotFound)
 
 		return models.Barber{}, false
 	}
 
 	barber, err := storage.FindBarberByIDContext(r.Context(), id)
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return models.Barber{}, false
 	}
 	if err != nil {
@@ -177,7 +177,7 @@ func bookableBarber(w http.ResponseWriter, r *http.Request, idSegment string) (m
 		return models.Barber{}, false
 	}
 	if !barber.IsActive() {
-		http.Error(w, "Barber not found.", http.StatusNotFound)
+		journeyError(w, "Barber not found.", http.StatusNotFound)
 
 		return models.Barber{}, false
 	}
@@ -257,7 +257,7 @@ func renderBarberDetail(
 			status = http.StatusBadRequest
 		} else if err != nil {
 			if errors.Is(err, storage.ErrNotFound) || errors.Is(err, storage.ErrForbidden) || errors.Is(err, storage.ErrUnavailable) {
-				http.NotFound(w, r)
+				journeyError(w, "Page not found.", http.StatusNotFound)
 			} else {
 				serverError(w, "load available times", err)
 			}

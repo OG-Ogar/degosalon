@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 
+	"barber-booking/internal/resetmail"
 	"barber-booking/internal/runtimeconfig"
 	"barber-booking/reset"
 	"barber-booking/security"
@@ -141,8 +142,24 @@ func forgotPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 			serverError(w, "look up password reset account", err)
 			return
 		}
+		var deliveryKey []byte
+		if !showResetLinks() {
+			_, configErr := resetmail.FromEnvironment()
+			var keyErr error
+			deliveryKey, keyErr = resetmail.DeliveryKeyFromEnvironment()
+			if configErr != nil || keyErr != nil {
+				w.Header().Set("Retry-After", "60")
+				renderStatus(w, http.StatusServiceUnavailable, flow.ForgotPage, resetView{Email: email, Error: "Password recovery is temporarily unavailable. Please try again later."})
+				return
+			}
+		}
 		if err == nil {
-			token, err := reset.NewContext(r.Context(), flow.Role, id)
+			var token string
+			if showResetLinks() {
+				token, err = reset.NewContext(r.Context(), flow.Role, id)
+			} else {
+				token, err = reset.NewDeliveryContext(r.Context(), flow.Role, id, email, deliveryKey)
+			}
 			if err != nil {
 				serverError(w, "issue reset token", err)
 

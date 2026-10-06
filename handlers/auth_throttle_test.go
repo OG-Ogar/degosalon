@@ -10,6 +10,7 @@ import (
 )
 
 func TestForgotPasswordThrottleAndRecoveryHeaders(t *testing.T) {
+	configureRecoveryMail(t)
 	storage.Reset()
 	t.Cleanup(storage.Reset)
 	for i := 0; i < 4; i++ {

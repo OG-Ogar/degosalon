@@ -53,6 +53,9 @@ func New(role session.Role, userID int) (string, error) {
 	return NewContext(context.Background(), role, userID)
 }
 func NewContext(ctx context.Context, role session.Role, userID int) (string, error) {
+	return issue(ctx, role, userID, "", nil)
+}
+func issue(ctx context.Context, role session.Role, userID int, recipient string, key []byte) (string, error) {
 	ctx, cancel := bounded(ctx)
 	defer cancel()
 	if err := ctx.Err(); err != nil {
@@ -67,6 +70,14 @@ func NewContext(ctx context.Context, role session.Role, userID int) (string, err
 	}
 	token := hex.EncodeToString(buf)
 	expires := time.Now().Add(Lifetime)
+	var payload []byte
+	if key != nil {
+		var err error
+		payload, err = sealDelivery(key, recipient, role, token)
+		if err != nil {
+			return "", err
+		}
+	}
 	if database != nil {
 		tx, err := database.BeginTx(ctx, nil)
 		if err != nil {
@@ -77,11 +88,19 @@ func NewContext(ctx context.Context, role session.Role, userID int) (string, err
 		if _, err := tx.ExecContext(ctx, "select pg_advisory_xact_lock(hashtextextended($1, 0))", "password-reset:"+string(role)+":"+fmt.Sprint(userID)); err != nil {
 			return "", err
 		}
-		if _, err := tx.ExecContext(ctx, "delete from degosalon_internal.password_resets where token_digest in (select token_digest from degosalon_internal.password_resets where expires_at<=now() order by expires_at limit 100)"); err != nil {
+		if _, err := tx.ExecContext(ctx, "delete from degosalon_internal.password_resets where expires_at<=now() and token_digest in (select token_digest from degosalon_internal.password_resets where expires_at<=now() order by expires_at limit 100)"); err != nil {
+			return "", err
+		}
+		if _, err := tx.ExecContext(ctx, "delete from degosalon_internal.reset_mail_jobs where token_digest in (select token_digest from degosalon_internal.password_resets where role=$1 and user_id=$2)", role, userID); err != nil {
 			return "", err
 		}
 		if _, err := tx.ExecContext(ctx, "insert into degosalon_internal.password_resets(role,user_id,token_digest,expires_at) values($1,$2,$3,$4) on conflict(role,user_id) do update set token_digest=excluded.token_digest,expires_at=excluded.expires_at", role, userID, fingerprint(token), expires); err != nil {
 			return "", err
+		}
+		if payload != nil {
+			if _, err := tx.ExecContext(ctx, "insert into degosalon_internal.reset_mail_jobs(token_digest,payload) values($1,$2)", fingerprint(token), payload); err != nil {
+				return "", err
+			}
 		}
 		if err := tx.Commit(); err != nil {
 			return "", err
@@ -93,9 +112,13 @@ func NewContext(ctx context.Context, role session.Role, userID int) (string, err
 	for digest, existing := range pending {
 		if existing.expired() || (existing.role == role && existing.userID == userID) {
 			delete(pending, digest)
+			delete(deliveries, digest)
 		}
 	}
 	pending[fingerprint(token)] = request{role: role, userID: userID, expiresAt: expires}
+	if payload != nil {
+		deliveries[fingerprint(token)] = deliveryJob{digest: fingerprint(token), payload: payload, next: time.Now()}
+	}
 	return token, nil
 }
 func Lookup(role session.Role, token string) (int, bool) {
@@ -144,6 +167,7 @@ func Consume(role session.Role, token string) (int, bool) {
 		return 0, false
 	}
 	delete(pending, fingerprint(token))
+	delete(deliveries, fingerprint(token))
 	return found.userID, true
 }
 
@@ -232,11 +256,17 @@ func CompleteContext(ctx context.Context, role session.Role, token, hash string,
 		return 0, err
 	}
 	delete(pending, fingerprint(token))
+	delete(deliveries, fingerprint(token))
 	return found.userID, nil
 }
 
 // Clear resets development test tokens only; it never deletes database records.
-func Clear() { mu.Lock(); defer mu.Unlock(); pending = map[string]request{} }
+func Clear() {
+	mu.Lock()
+	defer mu.Unlock()
+	pending = map[string]request{}
+	deliveries = map[string]deliveryJob{}
+}
 func resolve(role session.Role, token string) (request, bool) {
 	if !validToken(token) {
 		return request{}, false
@@ -248,6 +278,7 @@ func resolve(role session.Role, token string) (request, bool) {
 	}
 	if found.expired() {
 		delete(pending, digest)
+		delete(deliveries, digest)
 		return request{}, false
 	}
 	if found.role != role {

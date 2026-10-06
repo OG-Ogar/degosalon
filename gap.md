@@ -1,5 +1,7 @@
 # De Go Salon — frontend and backend gap diagnosis
 
+> **Current status — 6 October 2026:** Read [gap-review.md](gap-review.md) for the reconciled status of all 50 findings at PR #81, remaining priorities and verification limits. Earlier findings and implementation entries below remain historical evidence, not the current backlog.
+
 Audit date: 5 October 2026. Baseline: local `main` checkout, initially clean.
 
 

@@ -244,20 +244,15 @@
        the server rendered from the same hairstyle record. */
     function wireBookingSummary(form) {
         var styles = form.querySelectorAll('input[name="hairstyle_id"][data-price]');
-        var actions = form.querySelector(".actions");
-        if (!styles.length || !actions) {
+        var summary = form.querySelector("[data-booking-summary]");
+        if (!styles.length || !summary) {
             return;
         }
-        var summary = document.createElement("p");
-        summary.className = "notice";
-        summary.setAttribute("aria-live", "polite");
-        summary.hidden = true;
-        actions.insertAdjacentElement("beforebegin", summary);
+        var bookingSummary = summary;
         function show(style) {
-            summary.hidden = false;
-            summary.textContent = "Booking " + style.getAttribute("data-name") +
-                " at " + style.getAttribute("data-price") +
-                ", about " + style.getAttribute("data-duration") + " minutes.";
+            bookingSummary.textContent = "Selected service: " + style.getAttribute("data-name") +
+                " · ₦" + style.getAttribute("data-price") +
+                " · " + style.getAttribute("data-duration") + " minutes.";
         }
         styles.forEach(function (style) {
             style.addEventListener("change", function () {

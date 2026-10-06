@@ -2,6 +2,10 @@
 
 > **Current status — 6 October 2026:** Read [gap-review.md](gap-review.md) for the reconciled status of all 50 findings at PR #81, remaining priorities and verification limits. Earlier findings and implementation entries below remain historical evidence, not the current backlog.
 
+### Follow-up: selected-service booking summary (FE-06)
+
+The booking form now renders its selected service, naira price and duration beside submission without JavaScript. TypeScript updates the existing `data-booking-summary` element instead of searching for the absent `.actions` container and inserting a second summary. The server and enhancement use the same wording and data; availability and rejected submissions retain their chosen service through the existing handler.
+
 ### Follow-up: persistent barber account archival (BE-15)
 
 The administrator's former memory-only deletion path now archives the persisted account using the request context. It retains appointments, orders, messages, catalogue records and media. Pending/accepted appointments or Pending/Ready seller items prevent archival with a styled 409 recovery page. Account locking serializes archival with new bookings, checkout and verified login; database session revocation commits with the Archived status. Repeated archival is safe, activation/stale profile writes cannot reopen the account, and a database trigger protects the terminal status. Admin actions now explain archival and hide edit/activate/archive controls for archived accounts.

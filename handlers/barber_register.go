@@ -17,11 +17,17 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		render(w, "barber/register.html", newFormView(""))
 
 	case http.MethodPost:
+		if !beginAuthAttempt(w, r, "register") {
+			return
+		}
 		// The registration form accepts one profile photo, so limit the
 		// request before the multipart form is parsed.
 		limitRequestBodyFor(w, r, 1)
 
 		form, problem := readBarberForm(r)
+		if !authAccountAttempt(w, r, "barber", "register", form.Email) {
+			return
+		}
 		password := r.PostFormValue("password")
 		confirm := r.PostFormValue("confirm_password")
 

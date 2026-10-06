@@ -4,6 +4,7 @@ package runtimeconfig
 
 import (
 	"fmt"
+	"net/netip"
 	"os"
 	"strings"
 )
@@ -27,6 +28,18 @@ func validateAdmin(getenv func(string) string) error {
 }
 func ValidateAdmin() error { return validateAdmin(os.Getenv) }
 func validate(getenv func(string) string) error {
+	proxies := strings.TrimSpace(getenv("TRUSTED_PROXY_CIDRS"))
+	if len(proxies) > 4096 || (proxies != "" && len(strings.Split(proxies, ",")) > 32) {
+		return fmt.Errorf("TRUSTED_PROXY_CIDRS supports at most 32 CIDR ranges")
+	}
+	if proxies != "" {
+		for _, value := range strings.Split(proxies, ",") {
+			prefix, err := netip.ParsePrefix(strings.TrimSpace(value))
+			if err != nil || prefix.Bits() == 0 {
+				return fmt.Errorf("TRUSTED_PROXY_CIDRS must contain specific valid CIDR ranges")
+			}
+		}
+	}
 	switch getenv("APP_ENV") {
 	case "", "development", "test", "production":
 	default:

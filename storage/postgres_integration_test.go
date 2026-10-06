@@ -33,6 +33,7 @@ func TestPostgresIntegrity(t *testing.T) {
 	t.Run("per-barber calendar and available times", checkCalendarAvailability)
 	t.Run("booking lifecycle domain graph", checkBookingLifecycle)
 	t.Run("seller fulfillment and cancellation stock", checkOrderFulfillment)
+	t.Run("shared authentication budgets", checkAuthThrottle)
 
 	t.Run("fulfillment failure rolls back stock and item state", func(t *testing.T) {
 		seller, buyer, _ := postgresBookingFixture(t)
@@ -83,6 +84,25 @@ func TestPostgresIntegrity(t *testing.T) {
 		stored, err = FindProductByIDResult(ctx, product.ID)
 		if err != nil || stored.Quantity != 2 {
 			t.Fatalf("retry restored stock: %+v %v", stored, err)
+		}
+	})
+
+	t.Run("throttle reconnect and outage do not reset budgets", func(t *testing.T) {
+		key := "reconnect:" + t.Name()
+		if retry, err := AllowAuthAttempt(ctx, key, 1, time.Minute); err != nil || retry != 0 {
+			t.Fatalf("first attempt: %v %v", retry, err)
+		}
+		db.Close()
+		if _, err := AllowAuthAttempt(ctx, key, 1, time.Minute); err == nil {
+			t.Fatal("failed database fell back to memory")
+		}
+		var err error
+		db, err = sql.Open("pgx", databaseURL)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if retry, err := AllowAuthAttempt(ctx, key, 1, time.Minute); err != nil || retry <= 0 {
+			t.Fatalf("reconnected budget: %v %v", retry, err)
 		}
 	})
 

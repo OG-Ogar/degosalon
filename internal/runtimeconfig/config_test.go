@@ -44,3 +44,26 @@ func TestProductionConfiguration(t *testing.T) {
 		}
 	}
 }
+
+func TestTrustedProxyConfiguration(t *testing.T) {
+	for _, value := range []string{"10.0.0.0/8, 192.168.0.0/16", "2001:db8::/32", ""} {
+		if err := validate(func(k string) string {
+			if k == "TRUSTED_PROXY_CIDRS" {
+				return value
+			}
+			return ""
+		}); err != nil {
+			t.Fatalf("valid proxies: %v", err)
+		}
+	}
+	for _, value := range []string{"invalid", "0.0.0.0/0", "::/0", strings.Repeat("10.0.0.0/8,", 33)} {
+		if err := validate(func(k string) string {
+			if k == "TRUSTED_PROXY_CIDRS" {
+				return value
+			}
+			return ""
+		}); err == nil {
+			t.Fatal("unsafe proxy configuration accepted")
+		}
+	}
+}

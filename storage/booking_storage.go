@@ -73,7 +73,7 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 
 		var available bool
 		var owner, duration int
-		if err = tx.QueryRowContext(ctx, "select barber_id,is_available,duration,name,price from public.hairstyles where id=$1 for share", booking.HairstyleID).Scan(&owner, &available, &duration, &booking.ServiceName, &booking.ServicePrice); err != nil {
+		if err = tx.QueryRowContext(ctx, "select barber_id,(is_available and not is_archived),duration,name,price from public.hairstyles where id=$1 for share", booking.HairstyleID).Scan(&owner, &available, &duration, &booking.ServiceName, &booking.ServicePrice); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return models.Booking{}, ErrNotFound
 			}
@@ -147,7 +147,7 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 		return models.Booking{}, ErrForbidden
 	}
 
-	if !hairstyle.IsAvailable {
+	if !hairstyle.IsAvailable || hairstyle.Archived {
 		return models.Booking{}, ErrUnavailable
 	}
 

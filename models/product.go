@@ -13,4 +13,5 @@ type Product struct {
 
 	Image       string
 	IsAvailable bool
+	Archived    bool
 }

@@ -148,7 +148,7 @@
                             <button type="submit">Update quantity</button>
                             <button type="submit" name="remove" value="yes" formnovalidate>Remove item</button>
                         </form>
-                        <p>Available stock: {{.Product.Quantity}}</p>
+                        {{if .Product.Archived}}<p role="status">This product has been archived. Remove it from your cart to continue.</p>{{else}}<p>Available stock: {{.Product.Quantity}}</p>{{end}}
 
                         <p class="cart-item-subtotal">
                             Subtotal:

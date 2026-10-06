@@ -33,6 +33,8 @@ func TestPostgresIntegrity(t *testing.T) {
 	t.Run("per-barber calendar and available times", checkCalendarAvailability)
 	t.Run("booking lifecycle domain graph", checkBookingLifecycle)
 	t.Run("seller fulfillment and cancellation stock", checkOrderFulfillment)
+	t.Run("catalogue archives retain history and fulfillment", checkCatalogueArchives)
+	t.Run("catalogue archive concurrency", checkCatalogueArchiveRaces)
 	t.Run("shared authentication budgets", checkAuthThrottle)
 
 	t.Run("fulfillment failure rolls back stock and item state", func(t *testing.T) {
@@ -353,13 +355,35 @@ func TestPostgresIntegrity(t *testing.T) {
 			t.Fatalf("barber messages: %+v %v", list, e)
 		}
 	})
+	t.Run("catalogue archive query failures do not become missing rows", func(t *testing.T) {
+		seller, _, style := postgresBookingFixture(t)
+		product := postgresProduct(t, seller.ID, 2)
+		if _, err := db.Exec("alter table public.products rename to unavailable_products;alter table public.hairstyles rename to unavailable_hairstyles"); err != nil {
+			t.Fatal(err)
+		}
+		defer func() {
+			if _, err := db.Exec("alter table public.unavailable_products rename to products;alter table public.unavailable_hairstyles rename to hairstyles"); err != nil {
+				t.Error(err)
+			}
+		}()
+		if path, err := DeleteProduct(product.ID, seller.ID); err == nil || errors.Is(err, ErrNotFound) || path != "" {
+			t.Fatal("product archive hid SQL failure", err)
+		}
+		if path, err := DeleteHairstyle(style.ID, seller.ID); err == nil || errors.Is(err, ErrNotFound) || path != "" {
+			t.Fatal("service archive hid SQL failure", err)
+		}
+	})
 	t.Run("referenced services cannot be erased", func(t *testing.T) {
 		barber, customer, style := postgresBookingFixture(t)
 		if _, e := CreateBooking(newBooking(customer, barber.ID, style.ID)); e != nil {
 			t.Fatal(e)
 		}
-		if _, e := DeleteHairstyle(style.ID, barber.ID); e == nil || errors.Is(e, ErrNotFound) {
-			t.Fatalf("deletion must preserve foreign-key conflict: %v", e)
+		if cleanup, e := DeleteHairstyle(style.ID, barber.ID); e != nil || cleanup != "" {
+			t.Fatalf("archiving must preserve referenced row and media: %v", e)
+		}
+		retained, e := FindHairstyleByIDResult(ctx, style.ID)
+		if e != nil || !retained.Archived {
+			t.Fatal("referenced style was erased", e)
 		}
 	})
 	t.Run("public tables retain RLS", func(t *testing.T) {

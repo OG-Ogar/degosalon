@@ -130,7 +130,7 @@ func checkoutCart(ctx context.Context, customer models.Customer, key string) (mo
 		}
 		var p models.Product
 		var seller models.Barber
-		err = tx.QueryRowContext(ctx, `select p.id,p.barber_id,p.name,p.category,p.description,p.price,p.quantity,p.image,p.is_available,b.status,b.full_name,b.shop_name,b.shop_address,b.phone_number
+		err = tx.QueryRowContext(ctx, `select p.id,p.barber_id,p.name,p.category,p.description,p.price,p.quantity,p.image,(p.is_available and not p.is_archived),b.status,b.full_name,b.shop_name,b.shop_address,b.phone_number
 			from public.products p join public.barbers b on b.id=p.barber_id where p.id=$1 for update of p for share of b`, item.ProductID).
 			Scan(&p.ID, &p.BarberID, &p.Name, &p.Category, &p.Description, &p.Price, &p.Quantity, &p.Image, &p.IsAvailable, &seller.Status, &seller.FullName, &seller.ShopName, &seller.ShopAddress, &seller.PhoneNumber)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -214,7 +214,7 @@ func checkoutCartMemory(customer models.Customer, key string) (models.ProductOrd
 				break
 			}
 		}
-		if idx < 0 || !products[idx].IsAvailable {
+		if idx < 0 || !products[idx].IsAvailable || products[idx].Archived {
 			return models.ProductOrder{}, CheckoutError{"A product in your cart is no longer available."}
 		}
 		barber, found := findBarberByID(products[idx].BarberID)
@@ -285,7 +285,7 @@ func CreateProductOrderItemContext(ctx context.Context, item models.ProductOrder
 	if databaseEnabled() {
 		err := db.QueryRowContext(ctx, `insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description)
  select $1,p.id,p.barber_id,$4,$5,$6,$7,b.full_name,b.shop_name,b.shop_address,b.phone_number,p.category,p.description
- from public.products p join public.barbers b on b.id=p.barber_id where p.id=$2 and p.barber_id=$3
+ from public.products p join public.barbers b on b.id=p.barber_id where p.id=$2 and p.barber_id=$3 and not p.is_archived
  returning id,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description`, item.OrderID, item.ProductID, item.BarberID, item.ProductName, item.Price, item.Quantity, item.Subtotal).Scan(&item.ID, &item.SellerName, &item.SellerShopName, &item.SellerShopAddress, &item.SellerPhone, &item.ProductCategory, &item.ProductDescription)
 		return item, recordError(err)
 	}
@@ -296,7 +296,7 @@ func CreateProductOrderItemContext(ctx context.Context, item models.ProductOrder
 	}
 
 	product, found := findProductByID(item.ProductID)
-	if !found || product.BarberID != item.BarberID {
+	if !found || product.Archived || product.BarberID != item.BarberID {
 		return models.ProductOrderItem{}, ErrNotFound
 	}
 	seller, found := findBarberByID(item.BarberID)

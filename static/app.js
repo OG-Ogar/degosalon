@@ -47,6 +47,7 @@
             (input.closest(".pw") || input).insertAdjacentElement("afterend", note);
             note.id = "field-note-" + Math.random().toString(36).slice(2);
             input.dataset.fieldNoteId = note.id;
+            input.setAttribute("aria-describedby", [input.getAttribute("aria-describedby"), note.id].filter(Boolean).join(" "));
         }
         return document.getElementById(input.dataset.fieldNoteId || "");
     }
@@ -65,6 +66,7 @@
             var note = noteFor(input);
             note.textContent = text;
             note.className = state ? "field-note " + state : "field-note";
+            input.setAttribute("aria-invalid", state === "warn" ? "true" : "false");
         }
         function check() {
             var short = minLength - passwordInput.value.length;
@@ -134,7 +136,7 @@
        keeps the guards below in play. */
     function sendOnEnter(form, box) {
         box.addEventListener("keydown", function (event) {
-            if (event.key !== "Enter" || event.shiftKey || !box.value.trim()) {
+            if (event.key !== "Enter" || event.shiftKey || event.isComposing || event.keyCode === 229 || !box.value.trim()) {
                 return;
             }
             event.preventDefault();
@@ -226,9 +228,21 @@
        going Back does not leave a form that cannot be sent. */
     function guardDoubleSubmit(form) {
         form.addEventListener("submit", function (event) {
+            if (form.dataset.submitting === "true") {
+                event.preventDefault();
+                return;
+            }
             if (event.defaultPrevented) {
                 return;
             }
+            form.dataset.submitting = "true";
+            form.setAttribute("aria-busy", "true");
+            var status = document.createElement("p");
+            status.className = "submit-status";
+            status.setAttribute("role", "status");
+            status.textContent = "Submitting. Please wait…";
+            form.appendChild(status);
+            // Native submission collects submitter values before this visual disable.
             window.setTimeout(function () {
                 var buttons = form.querySelectorAll("button:not([type=button])");
                 buttons.forEach(function (button) {
@@ -289,12 +303,19 @@
         var box = send && send.querySelector("textarea");
         if (send && box) {
             sendOnEnter(send, box);
-            box.focus();
+            if (window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+                box.focus();
         }
     }
     // Buttons disabled by the submit guard are freed when the browser
     // restores this page from its history cache.
     window.addEventListener("pageshow", function () {
+        document.querySelectorAll("form[data-submitting]").forEach(function (form) {
+            var _a;
+            delete form.dataset.submitting;
+            form.removeAttribute("aria-busy");
+            (_a = form.querySelector(".submit-status")) === null || _a === void 0 ? void 0 : _a.remove();
+        });
         document.querySelectorAll("button.busy").forEach(function (button) {
             button.disabled = false;
             button.classList.remove("busy");

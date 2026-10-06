@@ -120,7 +120,7 @@ func CustomerRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		customer, err := storage.CreateCustomer(models.Customer{
+		customer, err := storage.CreateCustomerContext(r.Context(), models.Customer{
 			FullName:     form.FullName,
 			PhoneNumber:  form.Phone,
 			Email:        form.Email,

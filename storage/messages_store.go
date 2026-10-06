@@ -23,6 +23,9 @@ type Conversation struct {
 
 // AddMessage assigns an ID and appends the message to its conversation.
 func AddMessage(ctx context.Context, message models.Message) (models.Message, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Message{}, err
 	}
@@ -58,6 +61,9 @@ func AddMessage(ctx context.Context, message models.Message) (models.Message, er
 // ListConversation returns the messages between one barber and one
 // customer, oldest first.
 func ListConversation(ctx context.Context, barberID, customerID int) ([]models.Message, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}
@@ -83,18 +89,27 @@ func ListConversation(ctx context.Context, barberID, customerID int) ([]models.M
 // ConversationsForBarber lists every customer this barber has chatted
 // with, most recently active first.
 func ConversationsForBarber(ctx context.Context, id int) ([]Conversation, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	return scopedConversations(ctx, "barber_id", id)
 }
 
 // ConversationsForCustomer lists every barber this customer has chatted
 // with, most recently active first.
 func ConversationsForCustomer(ctx context.Context, id int) ([]Conversation, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	return scopedConversations(ctx, "customer_id", id)
 }
 
 // summarise groups the matching messages into one Conversation per
 // barber/customer pair.
 func scopedConversations(ctx context.Context, field string, id int) ([]Conversation, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return nil, err
 	}

@@ -43,7 +43,7 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	if !*legacy {
 		return nil
 	}
-	if err := storage.InitDatabase(); err != nil {
+	if err := storage.InitDatabaseContext(ctx); err != nil {
 		return errors.New("media migration database is unavailable or schema is not current")
 	}
 	defer storage.CloseDatabase()

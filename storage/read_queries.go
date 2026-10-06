@@ -8,6 +8,9 @@ import (
 
 // queryRecords never substitutes memory or partial results for a failed query.
 func queryRecords[T any](ctx context.Context, query string, scan func(*sql.Rows) (T, error), args ...any) ([]T, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	rows, err := db.QueryContext(ctx, query, args...)
 	if err != nil {
 		return nil, err

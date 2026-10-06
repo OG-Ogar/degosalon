@@ -74,7 +74,7 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = storage.CreateBarber(models.Barber{
+		_, err = storage.CreateBarberContext(r.Context(), models.Barber{
 			FullName:      form.FullName,
 			PhoneNumber:   form.Phone,
 			Email:         form.Email,

@@ -7,8 +7,11 @@ import (
 
 // ListHairstylesByBarber returns everything one barber offers.
 func ListHairstylesByBarber(barberID int) []models.Hairstyle {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
-		rows, err := db.Query("select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where barber_id=$1 order by id", barberID)
+		rows, err := db.QueryContext(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where barber_id=$1 order by id", barberID)
 		if err == nil {
 			defer rows.Close()
 			var out []models.Hairstyle
@@ -38,8 +41,11 @@ func ListHairstylesByBarber(barberID int) []models.Hairstyle {
 // ListAvailableHairstylesByBarber returns only the hairstyles a
 // customer is allowed to book.
 func ListAvailableHairstylesByBarber(barberID int) []models.Hairstyle {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
-		rows, err := db.Query("select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where barber_id=$1 and is_available=true order by id", barberID)
+		rows, err := db.QueryContext(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where barber_id=$1 and is_available=true order by id", barberID)
 		if err == nil {
 			defer rows.Close()
 			var out []models.Hairstyle
@@ -68,9 +74,12 @@ func ListAvailableHairstylesByBarber(barberID int) []models.Hairstyle {
 
 // FindHairstyleByID returns a copy of the hairstyle with the given ID.
 func FindHairstyleByID(id int) (models.Hairstyle, bool) {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
 		var v models.Hairstyle
-		err := db.QueryRow("select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where id=$1", id).Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable)
+		err := db.QueryRowContext(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available from public.hairstyles where id=$1", id).Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable)
 		return v, err == nil
 	}
 	mu.RLock()
@@ -93,6 +102,9 @@ func findHairstyleByID(id int) (models.Hairstyle, bool) {
 // FindHairstyleOwnedBy returns the hairstyle only when barberID owns it,
 // so a barber cannot reach another barber's records by guessing IDs.
 func FindHairstyleOwnedBy(ctx context.Context, id, barberID int) (models.Hairstyle, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	v, err := FindHairstyleByIDResult(ctx, id)
 	if err != nil {
 		return models.Hairstyle{}, err
@@ -105,12 +117,25 @@ func FindHairstyleOwnedBy(ctx context.Context, id, barberID int) (models.Hairsty
 
 // CreateHairstyle assigns an ID and stores the hairstyle.
 func CreateHairstyle(hairstyle models.Hairstyle) (models.Hairstyle, error) {
+	return CreateHairstyleContext(context.Background(), hairstyle)
+}
+
+func CreateHairstyleContext(ctx context.Context, hairstyle models.Hairstyle) (models.Hairstyle, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return models.Hairstyle{}, err
+	}
+
 	if databaseEnabled() {
-		err := db.QueryRow("insert into public.hairstyles(barber_id,name,category,description,price,duration,image,video,is_available) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id", hairstyle.BarberID, hairstyle.Name, hairstyle.Category, hairstyle.Description, hairstyle.Price, hairstyle.Duration, hairstyle.Image, hairstyle.Video, hairstyle.IsAvailable).Scan(&hairstyle.ID)
+		err := db.QueryRowContext(ctx, "insert into public.hairstyles(barber_id,name,category,description,price,duration,image,video,is_available) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id", hairstyle.BarberID, hairstyle.Name, hairstyle.Category, hairstyle.Description, hairstyle.Price, hairstyle.Duration, hairstyle.Image, hairstyle.Video, hairstyle.IsAvailable).Scan(&hairstyle.ID)
 		return hairstyle, err
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return models.Hairstyle{}, err
+	}
 	if err := guardMediaLocked(hairstyle.Image, hairstyle.Video); err != nil {
 		return models.Hairstyle{}, err
 	}
@@ -125,8 +150,18 @@ func CreateHairstyle(hairstyle models.Hairstyle) (models.Hairstyle, error) {
 // UpdateHairstyle overwrites the stored hairstyle that shares its ID,
 // refusing to write across barbers.
 func UpdateHairstyle(hairstyle models.Hairstyle) error {
+	return UpdateHairstyleContext(context.Background(), hairstyle)
+}
+
+func UpdateHairstyleContext(ctx context.Context, hairstyle models.Hairstyle) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	if databaseEnabled() {
-		result, err := db.Exec("update public.hairstyles set name=$1,category=$2,description=$3,price=$4,duration=$5,image=$6,video=$7,is_available=$8 where id=$9 and barber_id=$10", hairstyle.Name, hairstyle.Category, hairstyle.Description, hairstyle.Price, hairstyle.Duration, hairstyle.Image, hairstyle.Video, hairstyle.IsAvailable, hairstyle.ID, hairstyle.BarberID)
+		result, err := db.ExecContext(ctx, "update public.hairstyles set name=$1,category=$2,description=$3,price=$4,duration=$5,image=$6,video=$7,is_available=$8 where id=$9 and barber_id=$10", hairstyle.Name, hairstyle.Category, hairstyle.Description, hairstyle.Price, hairstyle.Duration, hairstyle.Image, hairstyle.Video, hairstyle.IsAvailable, hairstyle.ID, hairstyle.BarberID)
 		if err != nil {
 			return err
 		}
@@ -138,6 +173,9 @@ func UpdateHairstyle(hairstyle models.Hairstyle) error {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 
 	for i := range hairstyles {
 		if hairstyles[i].ID != hairstyle.ID {
@@ -162,9 +200,19 @@ func UpdateHairstyle(hairstyle models.Hairstyle) error {
 // DeleteHairstyle removes one hairstyle owned by barberID and returns
 // its image path so the caller can delete the file from disk.
 func DeleteHairstyle(id, barberID int) (string, error) {
+	return DeleteHairstyleContext(context.Background(), id, barberID)
+}
+
+func DeleteHairstyleContext(ctx context.Context, id, barberID int) (string, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
+
 	if databaseEnabled() {
 		var image string
-		err := db.QueryRow("delete from public.hairstyles where id=$1 and barber_id=$2 returning image", id, barberID).Scan(&image)
+		err := db.QueryRowContext(ctx, "delete from public.hairstyles where id=$1 and barber_id=$2 returning image", id, barberID).Scan(&image)
 		if err != nil {
 			return "", recordError(err)
 		}
@@ -172,6 +220,9 @@ func DeleteHairstyle(id, barberID int) (string, error) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return "", err
+	}
 
 	for i := range hairstyles {
 		if hairstyles[i].ID != id {
@@ -194,6 +245,9 @@ func DeleteHairstyle(id, barberID int) (string, error) {
 
 // FindHairstyleByIDResult distinguishes not-found from database failures.
 func FindHairstyleByIDResult(ctx context.Context, id int) (models.Hairstyle, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Hairstyle{}, err
 	}

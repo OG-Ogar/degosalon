@@ -9,8 +9,11 @@ import (
 
 // ListCustomers returns every registered customer.
 func ListCustomers() []models.Customer {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
-		rows, err := db.Query("select id,full_name,phone_number,email,password_hash,profile_image from public.customers order by id")
+		rows, err := db.QueryContext(ctx, "select id,full_name,phone_number,email,password_hash,profile_image from public.customers order by id")
 		if err == nil {
 			defer rows.Close()
 			var out []models.Customer
@@ -31,9 +34,12 @@ func ListCustomers() []models.Customer {
 
 // FindCustomerByID returns a copy of the customer with the given ID.
 func FindCustomerByID(id int) (models.Customer, bool) {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
 		var v models.Customer
-		err := db.QueryRow("select id,full_name,phone_number,email,password_hash,profile_image from public.customers where id=$1", id).Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ProfileImage)
+		err := db.QueryRowContext(ctx, "select id,full_name,phone_number,email,password_hash,profile_image from public.customers where id=$1", id).Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ProfileImage)
 		return v, err == nil
 	}
 	mu.RLock()
@@ -55,9 +61,12 @@ func findCustomerByID(id int) (models.Customer, bool) {
 
 // FindCustomerByEmail matches case-insensitively, the way logins do.
 func FindCustomerByEmail(email string) (models.Customer, bool) {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
 		var v models.Customer
-		err := db.QueryRow("select id,full_name,phone_number,email,password_hash,profile_image from public.customers where lower(email)=lower($1)", email).Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ProfileImage)
+		err := db.QueryRowContext(ctx, "select id,full_name,phone_number,email,password_hash,profile_image from public.customers where lower(email)=lower($1)", email).Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ProfileImage)
 		return v, err == nil
 	}
 	mu.RLock()
@@ -75,8 +84,18 @@ func FindCustomerByEmail(email string) (models.Customer, bool) {
 // CreateCustomer assigns an ID and stores the customer, rejecting an
 // email that is already registered.
 func CreateCustomer(customer models.Customer) (models.Customer, error) {
+	return CreateCustomerContext(context.Background(), customer)
+}
+
+func CreateCustomerContext(ctx context.Context, customer models.Customer) (models.Customer, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return models.Customer{}, err
+	}
+
 	if databaseEnabled() {
-		err := db.QueryRow("insert into public.customers(full_name,phone_number,email,password_hash,profile_image) values($1,$2,$3,$4,$5) returning id", customer.FullName, customer.PhoneNumber, customer.Email, customer.PasswordHash, customer.ProfileImage).Scan(&customer.ID)
+		err := db.QueryRowContext(ctx, "insert into public.customers(full_name,phone_number,email,password_hash,profile_image) values($1,$2,$3,$4,$5) returning id", customer.FullName, customer.PhoneNumber, customer.Email, customer.PasswordHash, customer.ProfileImage).Scan(&customer.ID)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "unique") {
 				return models.Customer{}, ErrEmailTaken
@@ -87,6 +106,9 @@ func CreateCustomer(customer models.Customer) (models.Customer, error) {
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return models.Customer{}, err
+	}
 	if err := guardMediaLocked(customer.ProfileImage); err != nil {
 		return models.Customer{}, err
 	}
@@ -114,6 +136,9 @@ func SetCustomerPassword(id int, hash string) error {
 }
 
 func SetCustomerPasswordContext(ctx context.Context, id int, hash string) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -137,11 +162,24 @@ func SetCustomerPasswordContext(ctx context.Context, id int, hash string) error 
 // UpdateCustomer overwrites the stored customer that shares its ID,
 // keeping the existing password hash when the incoming copy omits it.
 func UpdateCustomer(customer models.Customer) error {
+	return UpdateCustomerContext(context.Background(), customer)
+}
+
+func UpdateCustomerContext(ctx context.Context, customer models.Customer) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+
 	if databaseEnabled() {
-		return updateAccountRow(context.Background(), `update public.customers set full_name=$1,phone_number=$2,email=$3,profile_image=$4,password_hash=coalesce(nullif($5,''),password_hash) where id=$6`, customer.FullName, customer.PhoneNumber, customer.Email, customer.ProfileImage, customer.PasswordHash, customer.ID)
+		return updateAccountRow(ctx, `update public.customers set full_name=$1,phone_number=$2,email=$3,profile_image=$4,password_hash=coalesce(nullif($5,''),password_hash) where id=$6`, customer.FullName, customer.PhoneNumber, customer.Email, customer.ProfileImage, customer.PasswordHash, customer.ID)
 	}
 	mu.Lock()
 	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 
 	for _, existing := range customers {
 		if existing.ID != customer.ID &&

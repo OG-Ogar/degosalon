@@ -35,6 +35,9 @@ func CreateBooking(booking models.Booking) (models.Booking, error) {
 }
 
 func CreateBookingContext(ctx context.Context, booking models.Booking) (models.Booking, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if booking.Status == "" {
 		booking.Status = models.StatusPending
 	}
@@ -189,9 +192,12 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 
 // FindBookingByID returns a copy of the booking with the given ID.
 func FindBookingByID(id int) (models.Booking, bool) {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
 		var v models.Booking
-		err := db.QueryRow("select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where id=$1", id).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
+		err := db.QueryRowContext(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where id=$1", id).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 		return v, err == nil
 	}
 	mu.RLock()
@@ -262,6 +268,9 @@ func TransitionBookingStatus(id int, status string, allowedFrom []string, barber
 }
 
 func TransitionBookingStatusContext(ctx context.Context, id int, status string, allowedFrom []string, barberID, customerID int) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return err
 	}
@@ -428,14 +437,17 @@ func sortBySlot(list []models.Booking) []models.Booking {
 }
 
 func listBookingsDB(field string, id int) []models.Booking {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	q := "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings"
 	var rows *sql.Rows
 	var err error
 	if field != "" {
 		q += " where " + field + "=$1"
-		rows, err = db.Query(q, id)
+		rows, err = db.QueryContext(ctx, q, id)
 	} else {
-		rows, err = db.Query(q)
+		rows, err = db.QueryContext(ctx, q)
 	}
 	if err != nil {
 		return nil

@@ -224,7 +224,7 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 			return
 		}
 
-		_, err = storage.CreateBarber(models.Barber{
+		_, err = storage.CreateBarberContext(r.Context(), models.Barber{
 			FullName:     form.FullName,
 			PhoneNumber:  form.Phone,
 			Email:        form.Email,

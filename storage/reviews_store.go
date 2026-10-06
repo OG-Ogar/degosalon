@@ -13,8 +13,11 @@ var reviews []models.Review
 var lastReviewID int
 
 func ListReviewsByBarber(barberID int) []models.Review {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	if databaseEnabled() {
-		rows, err := db.Query("select id,barber_id,customer_id,booking_id,customer_name,rating,comment,created_at from public.reviews where barber_id=$1 order by created_at desc", barberID)
+		rows, err := db.QueryContext(ctx, "select id,barber_id,customer_id,booking_id,customer_name,rating,comment,created_at from public.reviews where barber_id=$1 order by created_at desc", barberID)
 		if err == nil {
 			defer rows.Close()
 			var out []models.Review
@@ -51,11 +54,14 @@ func ReviewSummary(barberID int) (float64, int) {
 }
 
 func CanCustomerReview(customerID, barberID int) (models.Booking, bool) {
+	ctx, cancel := databaseContext(context.Background())
+	defer cancel()
+
 	for _, b := range ListBookingsByCustomer(customerID) {
 		if b.BarberID == barberID && b.Status == models.StatusCompleted {
 			if databaseEnabled() {
 				var n int
-				_ = db.QueryRow("select count(*) from public.reviews where booking_id=$1", b.ID).Scan(&n)
+				_ = db.QueryRowContext(ctx, "select count(*) from public.reviews where booking_id=$1", b.ID).Scan(&n)
 				if n == 0 {
 					return b, true
 				}
@@ -79,6 +85,9 @@ func CanCustomerReview(customerID, barberID int) (models.Booking, bool) {
 }
 
 func CreateReview(ctx context.Context, v models.Review) (models.Review, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
 	if err := ctx.Err(); err != nil {
 		return models.Review{}, err
 	}

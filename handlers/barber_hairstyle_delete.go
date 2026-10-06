@@ -71,7 +71,7 @@ func DeleteHairstyleHandler(
 		return
 	}
 
-	image, err := storage.DeleteHairstyle(id, barber.ID)
+	image, err := storage.DeleteHairstyleContext(r.Context(), id, barber.ID)
 
 	switch {
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):

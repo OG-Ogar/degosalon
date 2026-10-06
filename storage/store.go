@@ -47,7 +47,12 @@ var (
 
 // InitDatabase enables Supabase/Postgres persistence when DATABASE_URL is set.
 // Tests and local development without DATABASE_URL keep using the in-memory store.
-func InitDatabase() error {
+func InitDatabase() error { return InitDatabaseContext(context.Background()) }
+
+func InitDatabaseContext(ctx context.Context) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
 	url := os.Getenv("DATABASE_URL")
 	if url == "" {
 		if runtimeconfig.Production() {
@@ -55,11 +60,11 @@ func InitDatabase() error {
 		}
 		return nil
 	}
-	conn, err := sql.Open("pgx", url)
+	conn, err := openDatabase(url)
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
 	if err := conn.PingContext(ctx); err != nil {
 		conn.Close()

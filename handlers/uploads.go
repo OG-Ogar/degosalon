@@ -1,17 +1,18 @@
 package handlers
 
 import (
-	"bytes"
+	"barber-booking/internal/mediastore"
+	"barber-booking/internal/runtimeconfig"
+	"crypto/rand"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 const (
@@ -159,10 +160,13 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("create upload directory: %w", err)
 	}
 
-	name := fmt.Sprintf("%d%s", time.Now().UnixNano(), extension)
+	name, err := mediaName(extension)
+	if err != nil {
+		return "", err
+	}
 	path := filepath.Join(store.dir, name)
 
-	destination, err := os.Create(path)
+	destination, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
 	if err != nil {
 		return "", fmt.Errorf("create image file: %w", err)
 	}
@@ -195,55 +199,63 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("resize image: %w", err)
 	}
 
-	if storageURL := strings.TrimRight(os.Getenv("SUPABASE_URL"), "/"); storageURL != "" {
-		data, err := os.ReadFile(path)
-		if err != nil {
-			return "", fmt.Errorf("read stored image: %w", err)
-		}
-		kind := http.DetectContentType(data)
-		objectPath := strings.TrimPrefix(store.urlPath, "/uploads/") + name
-		if err := uploadSupabaseMedia(storageURL, objectPath, kind, data); err != nil {
-			return "", err
-		}
-		_ = os.Remove(path)
-		return storageURL + "/storage/v1/object/public/degosalon-media/" + escapeObjectPath(objectPath), nil
-	}
-
-	return store.urlPath + name, nil
+	return persistMedia(r, store.urlPath, name, path)
 }
 
-func escapeObjectPath(path string) string {
-	parts := strings.Split(path, "/")
-	for i := range parts {
-		parts[i] = url.PathEscape(parts[i])
+func mediaName(extension string) (string, error) {
+	var random [16]byte
+	if _, err := rand.Read(random[:]); err != nil {
+		return "", errors.New("could not create media identifier")
 	}
-	return strings.Join(parts, "/")
+	return hex.EncodeToString(random[:]) + extension, nil
 }
 
-func uploadSupabaseMedia(baseURL, objectPath, contentType string, data []byte) error {
-	key := strings.TrimSpace(os.Getenv("SUPABASE_SERVICE_ROLE_KEY"))
+func configuredMediaStore() (*mediastore.Store, error) {
+	base := strings.TrimSpace(os.Getenv("SUPABASE_URL"))
+	if base == "" {
+		if runtimeconfig.Production() {
+			return nil, mediastore.ErrConfiguration
+		}
+		return nil, nil
+	}
+	key := strings.TrimSpace(os.Getenv("SUPABASE_SECRET_KEY"))
 	if key == "" {
-		return errors.New("SUPABASE_SERVICE_ROLE_KEY is required when SUPABASE_URL is configured")
+		key = strings.TrimSpace(os.Getenv("SUPABASE_SERVICE_ROLE_KEY"))
 	}
-	u := baseURL + "/storage/v1/object/degosalon-media/" + escapeObjectPath(objectPath)
-	req, err := http.NewRequest(http.MethodPost, u, bytes.NewReader(data))
+	return mediastore.New(base, key)
+}
+
+func persistMedia(r *http.Request, urlPath, name, path string) (string, error) {
+	store, err := configuredMediaStore()
 	if err != nil {
-		return fmt.Errorf("create storage request: %w", err)
+		_ = os.Remove(path)
+		return "", err
 	}
-	req.Header.Set("Authorization", "Bearer "+key)
-	req.Header.Set("apikey", key)
-	req.Header.Set("Content-Type", contentType)
-	req.Header.Set("x-upsert", "true")
-	resp, err := http.DefaultClient.Do(req)
+	if store == nil {
+		return urlPath + name, nil
+	}
+	defer store.Close()
+	// The staging file must be removed on success, rejection and cancellation.
+	defer os.Remove(path)
+	file, err := os.Open(path)
 	if err != nil {
-		return fmt.Errorf("upload image to Supabase Storage: %w", err)
+		return "", errors.New("could not read media upload")
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		body, _ := io.ReadAll(io.LimitReader(resp.Body, 2048))
-		return fmt.Errorf("upload image to Supabase Storage: %s: %s", resp.Status, strings.TrimSpace(string(body)))
+	defer file.Close()
+	info, err := file.Stat()
+	if err != nil {
+		return "", errors.New("could not read media upload")
 	}
-	return nil
+	head := make([]byte, 512)
+	n, _ := io.ReadFull(file, head)
+	if _, err = file.Seek(0, io.SeekStart); err != nil {
+		return "", errors.New("could not read media upload")
+	}
+	objectPath := strings.TrimPrefix(urlPath, "/uploads/") + name
+	if err := store.Upload(r.Context(), objectPath, http.DetectContentType(head[:n]), info.Size(), file); err != nil {
+		return "", err
+	}
+	return store.PublicURL(objectPath)
 }
 
 func (store videoStore) save(r *http.Request, field string) (string, error) {
@@ -290,10 +302,13 @@ func (store videoStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("create video directory: %w", err)
 	}
 
-	name := fmt.Sprintf("%d%s", time.Now().UnixNano(), extension)
+	name, err := mediaName(extension)
+	if err != nil {
+		return "", err
+	}
 	path := filepath.Join(store.dir, name)
 
-	destination, err := os.Create(path)
+	destination, err := os.OpenFile(path, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0o644)
 	if err != nil {
 		return "", fmt.Errorf("create video file: %w", err)
 	}
@@ -314,7 +329,7 @@ func (store videoStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("close video file: %w", err)
 	}
 
-	return store.urlPath + name, nil
+	return persistMedia(r, store.urlPath, name, path)
 }
 
 func removeStoredImage(imageURL string) error {

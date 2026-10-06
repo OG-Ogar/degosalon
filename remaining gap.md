@@ -4,7 +4,13 @@ Updated: 6 October 2026. Baseline: main at `55d485be8a6e5bc4dd8ea6e9dd6f1a09e735
 
 ## Deployment checkpoint
 
-Render deployment investigation is in progress. No workspace is selected in the Render connection; the available workspace is **My Workspace** (`tea-dav5lgvpn0mc73a8ki50`). Workspace confirmation is required before inspecting its service or changing deployment settings. Deployment health is not yet verified.
+Workspace **My Workspace** (`tea-dav5lgvpn0mc73a8ki50`) was confirmed by the owner. The existing free service is `degosalon` (`srv-db0v17vavr4c739fir6g`), deploying main to https://degosalon.onrender.com.
+
+Confirmed failures from Render logs:
+1. The app exited because ADMIN_PASSWORD did not satisfy the production 12–72-byte requirement. The password was replaced with a securely generated value in Render, with production mode, secure cookies and reset-link suppression preserved.
+2. The subsequent deployment reached PostgreSQL but exited with SQLSTATE 42P01: `degosalon_internal.schema_migrations` does not exist. The live service builds only the app and starts `./app`, skipping the repository migration runner.
+
+Required settings correction: use the Blueprint build command and `./migrate && ./media -create-bucket && ./app` start command. The Render plugin supports environment updates and redeploys, but does not expose service-command editing. Dashboard access is required for this correction. Deployment is still failing; live health has not been verified. No database reset or destructive schema change was performed.
 
 The repository Blueprint builds the frontend, app, migration CLI and media CLI, then starts `./migrate && ./media -create-bucket && ./app`. Check actual service commands against this configuration, then inspect build/runtime logs and verify PostgreSQL connectivity, migrations, Supabase bucket access, production admin configuration, secure cookies and SMTP configuration. Do not record a successful deployment until the deployed commit and live HTTP responses have been checked.
 

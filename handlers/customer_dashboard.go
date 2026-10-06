@@ -72,6 +72,11 @@ func CustomerDashboardHandler(
 		serverError(w, "load dashboard conversations", err)
 		return
 	}
+	backgroundImage, err := currentCustomerLandingImage(r.Context())
+	if err != nil {
+		serverError(w, "load dashboard image setting", err)
+		return
+	}
 	view := customerDashboardView{
 		Customer:        customer,
 		ProductOrders:   orders,
@@ -79,7 +84,7 @@ func CustomerDashboardHandler(
 		Barbers:         len(barbers),
 		Conversations:   len(conversations),
 		CartCount:       cartCount,
-		BackgroundImage: currentCustomerLandingImage(),
+		BackgroundImage: backgroundImage,
 	}
 
 	view.Customer.PasswordHash = ""

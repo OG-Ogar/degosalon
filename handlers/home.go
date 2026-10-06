@@ -51,11 +51,16 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	adminIn := adminErr == nil
+	landingImage, err := currentLandingImage(r.Context())
+	if err != nil {
+		serverError(w, "load home image setting", err)
+		return
+	}
 
 	render(w, "home.html", homeView{
 		BarberSignedIn:   barberIn,
 		CustomerSignedIn: customerIn,
 		AdminSignedIn:    adminIn,
-		LandingImage:     currentLandingImage(),
+		LandingImage:     landingImage,
 	})
 }

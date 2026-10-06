@@ -2,6 +2,12 @@
 
 > **Current status — 6 October 2026:** Read [gap-review.md](gap-review.md) for the reconciled status of all 50 findings at PR #81, remaining priorities and verification limits. Earlier findings and implementation entries below remain historical evidence, not the current backlog.
 
+### Follow-up: image navigation and accessible enlargement (FE-04 / FE-05)
+
+Images no longer intercept link or service-label clicks. Existing viewer consumers render a separate named enlargement button; controls stay hidden unless the browser supports the JavaScript enhancement. A native modal dialog supplies inert background, focus containment and Escape dismissal, with a close button, backdrop dismissal and consistent focus return to the initiating button. Failed image loading leaves an announced status and usable close control.
+
+Pinned Playwright coverage uses real Go routes/templates and synthetic memory accounts on desktop and phone projects. It verifies image-link navigation/locality, selected booking summary, keyboard/focus behavior, every dismissal path, service selection versus enlargement, and navigation/summary with JavaScript disabled. The fixture is compiled only into Go tests. CI runs these browser checks after the existing Go/frontend checks; PostgreSQL remains a separate gate. This provides targeted browser evidence, not full FE-26 contrast/zoom/performance certification.
+
 ### Follow-up: selected-service booking summary (FE-06)
 
 The booking form now renders its selected service, naira price and duration beside submission without JavaScript. TypeScript updates the existing `data-booking-summary` element instead of searching for the absent `.actions` container and inserting a second summary. The server and enhancement use the same wording and data; availability and rejected submissions retain their chosen service through the existing handler.

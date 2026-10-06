@@ -51,12 +51,14 @@
         <div class="customer-profile-photo">
 
             {{if .Customer.ProfileImage}}
-               <img
+               <div class="image-viewer-media">
+<img
             class="fullscreen-image"
             src="{{.Customer.ProfileImage}}"
            alt="{{.Customer.FullName}}"
-            data-fullscreen-image
         >
+<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.Customer.ProfileImage}}" data-image-viewer-alt="{{.Customer.FullName}}" aria-label="Enlarge photo: {{.Customer.FullName}}" aria-haspopup="dialog">Enlarge photo</button>
+</div>
             {{else}}
                 <div class="customer-profile-placeholder">
                     {{printf "%.1s" .Customer.FullName}}

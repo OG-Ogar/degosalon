@@ -1,73 +1,47 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const overlay = document.createElement("div");
+    const dialog = document.createElement("dialog");
+    if (typeof dialog.showModal !== "function") return;
 
-    overlay.className = "image-viewer-overlay";
-
-    overlay.innerHTML = `
-        <button
-            class="image-viewer-close"
-            type="button"
-            aria-label="Close image"
-        >
-            &times;
-        </button>
-
-        <img
-            class="image-viewer-image"
-            alt=""
-        >
+    dialog.className = "image-viewer-overlay";
+    dialog.setAttribute("aria-label", "Full-size photo");
+    dialog.innerHTML = `
+        <button class="image-viewer-close" type="button" aria-label="Close image" autofocus>&times;</button>
+        <img class="image-viewer-image" alt="">
+        <p class="image-viewer-status" role="status" hidden>This image could not be loaded.</p>
     `;
+    document.body.appendChild(dialog);
+    const image = dialog.querySelector(".image-viewer-image");
+    const close = dialog.querySelector(".image-viewer-close");
+    const status = dialog.querySelector(".image-viewer-status");
+    let opener = null;
 
-    document.body.appendChild(overlay);
-
-    const viewerImage =
-        overlay.querySelector(".image-viewer-image");
-
-    const closeButton =
-        overlay.querySelector(".image-viewer-close");
-
-    function closeViewer() {
-        overlay.classList.remove("open");
-        viewerImage.removeAttribute("src");
+    image.addEventListener("error", () => { if (dialog.open) status.hidden = false; });
+    image.addEventListener("load", () => { status.hidden = true; });
+    close.addEventListener("click", () => dialog.close());
+    dialog.addEventListener("click", (event) => {
+        if (event.target === dialog) dialog.close();
+    });
+    // Native modal behavior supplies Escape, focus containment and inert background.
+    // Clean up through close so every dismissal path restores the same state.
+    dialog.addEventListener("close", () => {
+        image.removeAttribute("src");
+        image.alt = "";
+        status.hidden = true;
         document.body.classList.remove("image-viewer-open");
-    }
-
-    function openViewer(image) {
-        viewerImage.src = image.currentSrc || image.src;
-        viewerImage.alt = image.alt || "Full-size image";
-
-        overlay.classList.add("open");
-        document.body.classList.add("image-viewer-open");
-    }
-
-   document.addEventListener("click", (event) => {
-    const image =
-        event.target.closest("[data-fullscreen-image]");
-
-    if (!image) {
-        return;
-    }
-
-    /*
-     * Prevent the image click from activating
-     * the radio button inside the surrounding label.
-     */
-    event.preventDefault();
-
-    openViewer(image);
+        if (opener && opener.isConnected) opener.focus();
+        opener = null;
     });
-
-    closeButton.addEventListener("click", closeViewer);
-
-    overlay.addEventListener("click", (event) => {
-        if (event.target === overlay) {
-            closeViewer();
-        }
-    });
-
-    document.addEventListener("keydown", (event) => {
-        if (event.key === "Escape") {
-            closeViewer();
-        }
+    document.querySelectorAll("button[data-image-viewer-src]").forEach((button) => {
+        button.hidden = false;
+        button.addEventListener("click", () => {
+            const source = button.getAttribute("data-image-viewer-src");
+            if (!source || dialog.open) return;
+            opener = button;
+            status.hidden = true;
+            image.alt = button.getAttribute("data-image-viewer-alt") || "Full-size photo";
+            image.src = source;
+            dialog.showModal();
+            document.body.classList.add("image-viewer-open");
+        });
     });
 });

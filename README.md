@@ -255,6 +255,15 @@ npm run typecheck
 npm run build
 ```
 
+Targeted browser checks use pinned Playwright and a test-only Go server with synthetic accounts:
+
+```bash
+npx playwright install chromium
+npm run test:browser
+```
+
+They cover desktop/phone image navigation, keyboard dialog behavior and the JavaScript-disabled booking summary. No production accounts or database are used.
+
 ## PostgreSQL integration verification
 
 CI runs Go tests/vet/race checks and a separate PostgreSQL 17 service job. The database suite covers overlapping booking races, guarded lifecycle races, checkout rollback after a later item fails, concurrent checkout/stock competition, order history after a storage reconnect, scoped messages, foreign-key protection, and authentication sessions after real SQL lookup failures.

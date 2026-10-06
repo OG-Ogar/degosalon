@@ -159,12 +159,14 @@
                 <div class="barber-field">
                     <p class="barber-hint">Current photo</p>
 
-                    <img
+                    <div class="image-viewer-media">
+<img
                         class="fullscreen-image"
                         src="{{.Image}}"
                         alt="Current product photo"
-                        data-fullscreen-image
                     >
+<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.Image}}" data-image-viewer-alt="Current product photo" aria-label="Enlarge photo: Current product photo" aria-haspopup="dialog">Enlarge photo</button>
+</div>
                 </div>
             {{end}}
 

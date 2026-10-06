@@ -68,6 +68,12 @@ jobs:
       - name: Race-check Go application
         run: go test -race ./...
 
+      - name: Install Chromium for browser verification
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify image navigation and keyboard dialog behavior
+        run: npm run test:browser
+
   postgres:
     runs-on: ubuntu-latest
     timeout-minutes: 10

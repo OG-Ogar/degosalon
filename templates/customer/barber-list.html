@@ -159,7 +159,6 @@
                                     loading="lazy"
                                     decoding="async"
                                     alt="{{.ShopName}}"
-                                    data-fullscreen-image
                                 >
 
                                 {{else if .PersonalImage}}
@@ -170,7 +169,6 @@
                                        loading="lazy"
                                        decoding="async"
                                        alt="{{.FullName}}"
-                                       data-fullscreen-image
                                      >
 
                                 {{else}}
@@ -182,6 +180,7 @@
                                 {{end}}
 
                             <span class="view-cue">View profile</span></a>
+                            {{if .ProfileImage}}<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.ProfileImage}}" data-image-viewer-alt="{{.ShopName}}" aria-label="Enlarge photo of {{.ShopName}}" aria-haspopup="dialog">Enlarge photo</button>{{else if .PersonalImage}}<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.PersonalImage}}" data-image-viewer-alt="{{.FullName}}" aria-label="Enlarge photo of {{.FullName}}" aria-haspopup="dialog">Enlarge photo</button>{{end}}
 
 
                             <!-- Barber information -->

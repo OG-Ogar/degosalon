@@ -70,12 +70,14 @@
 
                     {{if .Image}}
 
-                        <img
+                        <div class="image-viewer-media">
+<img
                             class="product-image fullscreen-image"
                             src="{{.Image}}"
                             alt="{{.Name}}"
-                            data-fullscreen-image
                         >
+<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.Image}}" data-image-viewer-alt="{{.Name}}" aria-label="Enlarge photo: {{.Name}}" aria-haspopup="dialog">Enlarge photo</button>
+</div>
 
                     {{else}}
 

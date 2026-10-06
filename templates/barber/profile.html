@@ -71,12 +71,14 @@
 
         {{if .ProfileImage}}
 
-            <img
+            <div class="image-viewer-media">
+<img
                 class="fullscreen-image"
                 src="{{.Barber.ProfileImage}}"
                 alt="{{.Barber.ShopName}}"
-               data-fullscreen-image
             >
+<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.Barber.ProfileImage}}" data-image-viewer-alt="{{.Barber.ShopName}}" aria-label="Enlarge photo: {{.Barber.ShopName}}" aria-haspopup="dialog">Enlarge photo</button>
+</div>
          {{else}}
 
             <p class="barber-hint">
@@ -90,10 +92,12 @@
 
             {{if .PersonalImage}}
 
-                <img class="barber-personal-photo fullscreen-image"
+                <div class="image-viewer-media">
+<img class="barber-personal-photo fullscreen-image"
                 src="{{.PersonalImage}}"
-                alt="Your picture, as customers see it"
-                data-fullscreen-image>
+                alt="Your picture, as customers see it">
+<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.PersonalImage}}" data-image-viewer-alt="Your picture, as customers see it" aria-label="Enlarge photo: Your picture, as customers see it" aria-haspopup="dialog">Enlarge photo</button>
+</div>
 
                 <div>
 

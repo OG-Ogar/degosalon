@@ -123,21 +123,25 @@
 
             {{if .Barber.ProfileImage}}
 
-                <img
+                <div class="image-viewer-media">
+<img
                     class="fullscreen-image"
                     src="{{.Barber.ProfileImage}}"
                     alt="{{.Barber.ShopName}}"
-                    data-fullscreen-image
                 >
+<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.Barber.ProfileImage}}" data-image-viewer-alt="{{.Barber.ShopName}}" aria-label="Enlarge photo: {{.Barber.ShopName}}" aria-haspopup="dialog">Enlarge photo</button>
+</div>
 
             {{else if .Barber.PersonalImage}}
 
-                <img
+                <div class="image-viewer-media">
+<img
                     class="fullscreen-image"
                     src="{{.Barber.PersonalImage}}"
                     alt="{{.Barber.FullName}}"
-                    data-fullscreen-image
                 >
+<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.Barber.PersonalImage}}" data-image-viewer-alt="{{.Barber.FullName}}" aria-label="Enlarge photo: {{.Barber.FullName}}" aria-haspopup="dialog">Enlarge photo</button>
+</div>
 
             {{else}}
 
@@ -339,7 +343,6 @@
                                             class="fullscreen-image"
                                             src="{{.Image}}"
                                             alt="Photo of {{.Name}}"
-                                            data-fullscreen-image
                                         >
 
                                     {{else}}
@@ -389,6 +392,7 @@
                                 </div>
 
                             </label>
+                            {{if .Image}}<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.Image}}" data-image-viewer-alt="Photo of {{.Name}}" aria-label="Enlarge photo: Photo of {{.Name}}" aria-haspopup="dialog">Enlarge photo</button>{{end}}
 
                         </div>
 
@@ -540,7 +544,10 @@
         <div class="hairstyle-list">
         {{range .Products}}
             <article class="hairstyle-option" style="padding:1rem;margin-bottom:.75rem">
-                {{if .Image}}<div class="style-image"><img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}" data-fullscreen-image></div>{{end}}
+                {{if .Image}}<div class="style-image"><div class="image-viewer-media">
+<img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}">
+<button hidden type="button" class="image-viewer-trigger" data-image-viewer-src="{{.Image}}" data-image-viewer-alt="{{.Name}}" aria-label="Enlarge photo: {{.Name}}" aria-haspopup="dialog">Enlarge photo</button>
+</div></div>{{end}}
                 <div class="style-info"><h3>{{.Name}}</h3><p>{{.Category}}</p>{{if .Description}}<span>{{.Description}}</span>{{end}}</div>
                 <div class="style-price"><strong>{{printf "%.2f" .Price}}</strong><span>{{.Quantity}} in stock</span></div>
             </article>

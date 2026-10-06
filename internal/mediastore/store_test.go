@@ -190,3 +190,16 @@ func TestDeleteRetainsSafeErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestLegacyObjectPath(t *testing.T) {
+	for _, uri := range []string{"/uploads/site/legacy.png", "/uploads/barbers/1234567890123456789.jpeg", "/uploads/hairstyle-videos/legacy.mp4"} {
+		if path, ok := LegacyObjectPath(uri); !ok || path == "" {
+			t.Fatalf("legacy path rejected: %q", uri)
+		}
+	}
+	for _, uri := range []string{"/uploads/site/../secret.png", "/uploads/site/x.png?token=secret", "/uploads/site/x.png#fragment", "/uploads/site%2fsecret.png", "/uploads/site/.png", "/uploads/site/x.mp4", "/uploads/hairstyle-videos/x.png", "/uploads/unknown/x.png", "https://external.example/x.png", "/uploads/site/x\\y.png"} {
+		if _, ok := LegacyObjectPath(uri); ok {
+			t.Fatalf("unsafe legacy path accepted: %q", uri)
+		}
+	}
+}

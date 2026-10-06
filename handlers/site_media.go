@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"barber-booking/storage"
@@ -83,4 +84,14 @@ func importLegacySiteImages(ctx context.Context, records map[string]string) erro
 		}
 	}
 	return storage.ImportSiteImagesContext(ctx, values)
+}
+
+// ImportLegacySiteImagesFromRoot imports only the two known legacy pointer
+// files beneath an explicitly supplied uploads root. Asset migration follows
+// separately, and the originals remain available as backups.
+func ImportLegacySiteImagesFromRoot(ctx context.Context, root string) error {
+	return importLegacySiteImages(ctx, map[string]string{
+		storage.SiteLandingImage:         filepath.Join(root, "site", "landing-image.txt"),
+		storage.SiteCustomerLandingImage: filepath.Join(root, "site", "customer-landing-image.txt"),
+	})
 }

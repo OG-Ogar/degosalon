@@ -184,8 +184,10 @@ func checkCatalogueArchiveRaces(t *testing.T) {
 		go func() { _, err := CheckoutCart(buyer); outcomes <- result{err: err} }()
 		go func() { _, err := DeleteProduct(product.ID, seller.ID); outcomes <- result{archive: true, err: err} }()
 		sold := false
-		for range 2 {
-			r := <-outcomes
+		// Join both operations before assertions so failure cannot leave a
+		// database mutation running while fixture cleanup starts.
+		completed := []result{<-outcomes, <-outcomes}
+		for _, r := range completed {
 			if r.archive {
 				if r.err != nil {
 					t.Fatal("archive failed", r.err)
@@ -226,8 +228,10 @@ func checkCatalogueArchiveRaces(t *testing.T) {
 		go func() { _, err := CreateBooking(newBooking(buyer, seller.ID, style.ID)); outcomes <- result{err: err} }()
 		go func() { _, err := DeleteHairstyle(style.ID, seller.ID); outcomes <- result{archive: true, err: err} }()
 		booked := false
-		for range 2 {
-			r := <-outcomes
+		// Join both operations before assertions so failure cannot leave a
+		// database mutation running while fixture cleanup starts.
+		completed := []result{<-outcomes, <-outcomes}
+		for _, r := range completed {
 			if r.archive {
 				if r.err != nil {
 					t.Fatal("archive failed", r.err)

@@ -16,50 +16,7 @@
 
 <body class="customer-bookings-page modern-customer-page">
 
-<header class="bookings-header">
-
-<div class="bookings-header-inner">
-
-    <a
-        class="bookings-brand"
-        href="/customer/dashboard"
-    >
-        De Go Salon
-    </a>
-
-    <div class="bookings-navigation">
-
-        <a
-            class="dashboard-link"
-            href="/customer/dashboard"
-        >
-            Dashboard
-        </a>
-
-        <form
-            method="post"
-            action="/customer/logout"
-        >
-
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{.CSRF}}"
-            >
-
-            <button
-                class="logout-button"
-                type="submit"
-            >
-                Log out
-            </button>
-
-        </form>
-
-    </div>
-
-</div>
-</header>
+{{template "role-header" (navigation "customer" "bookings" .)}}
 
 <main class="bookings-main">
 
@@ -134,7 +91,7 @@
 
                                 {{else}}
 
-                                    <span>BB</span>
+                                    <span>DG</span>
 
                                 {{end}}
 
@@ -219,7 +176,7 @@
                             </span>
 
                             <strong>
-                                {{printf "%.2f" .Price}}
+                                {{naira .Price}}
                             </strong>
 
                         </div>
@@ -327,7 +284,7 @@
 
                                 {{else}}
 
-                                    <span>BB</span>
+                                    <span>DG</span>
 
                                 {{end}}
 
@@ -400,7 +357,7 @@
                             </span>
 
                             <strong>
-                                {{printf "%.2f" .Price}}
+                                {{naira .Price}}
                             </strong>
 
                         </div>

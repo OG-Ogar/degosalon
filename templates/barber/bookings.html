@@ -15,39 +15,7 @@
 
 <body class="barber-page modern-role-page">
 
-<header class="barber-header">
-    <div class="barber-header-inner">
-
-        <a class="barber-brand" href="/barber/dashboard">
-            De Go Salon
-        </a>
-
-        <nav class="barber-nav" aria-label="Barber navigation">
-
-            <a href="/barber/dashboard">
-                1. Dashboard
-            </a>
-
-            <a href="/barber/hairstyles">
-                2. Hairstyles
-            </a>
-
-            <a class="active" href="/barber/bookings">
-                3. Bookings
-            </a>
-
-            <a href="/barber/chats">
-                4. Messages
-            </a>
-
-            <a href="/barber/profile">
-                5. Profile
-            </a>
-
-        </nav>
-
-    </div>
-</header>
+{{template "role-header" (navigation "barber" "bookings" .)}}
 
 <p><a href="/barber/schedule">Manage hours and time off</a></p>
 <main class="barber-main">
@@ -138,7 +106,7 @@
 
                                             {{else}}
 
-                                                <span>BB</span>
+                                                <span>DG</span>
 
                                             {{end}}
 
@@ -153,7 +121,7 @@
                                             <span class="barber-hint">
                                                 {{.Duration}} min
                                                 &middot;
-                                                &#8358;{{printf "%.2f" .Price}}
+                                                {{naira .Price}}
                                             </span>
 
                                         </div>
@@ -312,7 +280,7 @@
 
                                             {{else}}
 
-                                                <span>BB</span>
+                                                <span>DG</span>
 
                                             {{end}}
 
@@ -327,7 +295,7 @@
                                             <span class="barber-hint">
                                                 {{.Duration}} min
                                                 &middot;
-                                                &#8358;{{printf "%.2f" .Price}}
+                                                {{naira .Price}}
                                             </span>
 
                                         </div>
@@ -456,7 +424,7 @@
 
                                             {{else}}
 
-                                                <span>BB</span>
+                                                <span>DG</span>
 
                                             {{end}}
 

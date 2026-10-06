@@ -27,51 +27,7 @@
              HEADER
              ================================================= -->
 
-        <header class="messages-header">
-
-            <a
-                class="messages-brand"
-                href="/customer/dashboard"
-            >
-                De Go Salon
-            </a>
-
-
-            <div class="messages-header-actions">
-
-
-                <a
-                    class="messages-header-button messages-dashboard-button"
-                    href="/customer/dashboard"
-                >
-                    Dashboard
-                </a>
-
-
-                <form
-                    method="post"
-                    action="/customer/logout"
-                >
-
-                    <input
-                        type="hidden"
-                        name="csrf_token"
-                        value="{{.CSRF}}"
-                    >
-
-
-                    <button
-                        class="messages-header-button messages-logout-button"
-                        type="submit"
-                    >
-                        Log out
-                    </button>
-
-                </form>
-
-            </div>
-
-        </header>
+        {{template "role-header" (navigation "customer" "chats" .)}}
 
 
 

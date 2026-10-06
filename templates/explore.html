@@ -11,7 +11,7 @@
 <body class="explore-page">
 <div class="barber-page find-page">
 <header class="barber-header">
-<a class="brand-box" href="/" aria-label="De Go Salon home"><span class="brand-mark" aria-hidden="true">DG</span><span><span class="brand-title">De Go Salon</span><span class="brand-subtitle">Barber Multiverse</span></span></a>
+<a class="brand-box" href="/" aria-label="De Go Salon home"><span class="brand-mark" aria-hidden="true">DG</span><span><span class="brand-title">De Go Salon</span><span class="brand-subtitle">De Go Salon</span></span></a>
 <nav class="customer-navigation" aria-label="Account navigation">
 <a class="nav-box" href="/customer/login">Customer Login</a>
 <a class="nav-box nav-primary" href="/barber/login">For Barbers <span aria-hidden="true">→</span></a>
@@ -46,7 +46,7 @@
 <h3><a href="/explore/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">{{.ShopName}}</a></h3>
 <p class="barber-name">with {{.FullName}}</p>
 <div class="barber-location"><span class="location-icon" aria-hidden="true">⌖</span><span>{{if .ShopAddress}}{{.ShopAddress}}<br>{{end}}<strong>{{.LocalArea}}, {{.State}}</strong></span></div>
-<div class="barber-details"><div class="detail-item"><strong>{{.Hairstyles}}</strong><span>Services</span></div><div class="detail-divider"></div><div class="detail-item">{{if .Hairstyles}}<strong>{{printf "%.2f" .FromPrice}}</strong><span>Starting price</span>{{else}}<strong>—</strong><span>Prices coming soon</span>{{end}}</div>{{if .ReviewCount}}<div class="detail-divider"></div><div class="detail-item"><strong>{{.ReviewCount}}</strong><span>Reviews</span></div>{{end}}</div>
+<div class="barber-details"><div class="detail-item"><strong>{{.Hairstyles}}</strong><span>Services</span></div><div class="detail-divider"></div><div class="detail-item">{{if .Hairstyles}}<strong>{{naira .FromPrice}}</strong><span>Starting price</span>{{else}}<strong>—</strong><span>Prices coming soon</span>{{end}}</div>{{if .ReviewCount}}<div class="detail-divider"></div><div class="detail-item"><strong>{{.ReviewCount}}</strong><span>Reviews</span></div>{{end}}</div>
 <div class="barber-actions"><a class="book-button" href="/explore/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">See handwork & prices <span aria-hidden="true">→</span></a></div>
 </div>
 </article>

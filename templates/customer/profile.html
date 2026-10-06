@@ -16,33 +16,7 @@
 
 <body class="customer-page modern-customer-page">
 
-<header class="customer-simple-header">
-
-    <a class="customer-brand" href="/customer/dashboard">
-        De Go Salon
-    </a>
-
-    <div class="customer-header-actions">
-
-        <a href="/customer/dashboard">
-            Dashboard
-        </a>
-
-        <form method="post" action="/customer/logout">
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{.CSRF}}"
-            >
-
-            <button type="submit">
-                Log out
-            </button>
-        </form>
-
-    </div>
-
-</header>
+{{template "role-header" (navigation "customer" "profile" .)}}
 
 <main class="customer-profile-page">
 

@@ -9,17 +9,7 @@
 </head>
 <body class="modern-role-page">
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/barber/dashboard">De Go Salon</a>
-        <nav class="nav" aria-label="Main">
-            <a href="/barber/hairstyles">My hairstyles</a>
-            <a href="/barber/bookings">Bookings</a>
-            <a href="/barber/chats">Messages</a>
-            <a href="/barber/profile">My profile</a>
-        </nav>
-    </div>
-</header>
+{{template "role-header" (navigation "barber" "hairstyles" .)}}
 
 <main class="wrap">
 

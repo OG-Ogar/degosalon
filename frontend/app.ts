@@ -316,7 +316,7 @@
 
         function show(style: HTMLInputElement) {
             bookingSummary.textContent = "Selected service: " + style.getAttribute("data-name") +
-                " · ₦" + style.getAttribute("data-price") +
+                " · " + new Intl.NumberFormat("en-NG", {style: "currency", currency: "NGN"}).format(Number(style.getAttribute("data-price"))) +
                 " · " + style.getAttribute("data-duration") + " minutes.";
         }
 

@@ -16,24 +16,7 @@
 
 <body class="barber-page modern-role-page">
 
-<header class="barber-header">
-    <div class="barber-header-inner">
-
-        <a class="barber-brand" href="/barber/dashboard">
-            De Go Salon
-        </a>
-
-        <nav class="barber-nav">
-            <a href="/barber/dashboard">1. Dashboard</a>
-            <a href="/barber/hairstyles">2. Hairstyles</a>
-            <a class="active" href="/barber/products">3. Products</a>
-            <a href="/barber/bookings">4. Bookings</a>
-            <a href="/barber/chats">5. Messages</a>
-            <a href="/barber/profile">6. Profile</a>
-        </nav>
-
-    </div>
-</header>
+{{template "role-header" (navigation "barber" "products" .)}}
 
 <main class="barber-main">
 
@@ -98,7 +81,7 @@
                         </p>
 
                         <strong class="product-price">
-                            ₦{{printf "%.2f" .Price}}
+                            {{naira .Price}}
                         </strong>
 
                         <p>

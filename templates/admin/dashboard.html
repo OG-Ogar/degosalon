@@ -9,29 +9,7 @@
 </head>
 <body class="modern-admin-page">
 
-<header class="topbar">
-    <div class="wrap">
-        <a class="brand" href="/admin/dashboard">
-            De Go Salon admin
-        </a>
-
-        <nav class="nav" aria-label="Main">
-            <a href="/admin/barbers">Barbers</a>
-            <a href="/admin/customers">Customers</a>
-            <a href="/admin/bookings">Bookings</a>
-
-            <form class="inline" method="post" action="/admin/logout">
-                <input type="hidden"
-                       name="csrf_token"
-                       value="{{.CSRF}}">
-
-                <button class="small" type="submit">
-                    Log out
-                </button>
-            </form>
-        </nav>
-    </div>
-</header>
+{{template "role-header" (navigation "admin" "dashboard" .)}}
 
 <main class="wrap">
 

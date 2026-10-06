@@ -35,6 +35,9 @@ func main() {
 		log.Fatalf("connect to database: %v", err)
 	}
 	defer storage.CloseDatabase()
+	if err := handlers.ImportLegacySiteImages(context.Background()); err != nil {
+		log.Fatalf("import legacy site media settings: %v", err)
+	}
 	mailConfig, mailErr := resetmail.FromEnvironment()
 	mailKey, keyErr := resetmail.DeliveryKeyFromEnvironment()
 	if mailErr == nil && keyErr == nil {

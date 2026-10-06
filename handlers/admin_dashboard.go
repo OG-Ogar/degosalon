@@ -59,6 +59,10 @@ func AdminLandingImageHandler(
 	}
 
 	_, err := saveLandingImage(r)
+	if errors.Is(err, errSiteImageWrite) {
+		serverError(w, "save landing image setting", err)
+		return
+	}
 
 	if errors.Is(err, errNoUpload) {
 		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
@@ -95,6 +99,10 @@ func AdminCustomerLandingImageHandler(
 	}
 
 	_, err := saveCustomerLandingImage(r)
+	if errors.Is(err, errSiteImageWrite) {
+		serverError(w, "save customer landing image setting", err)
+		return
+	}
 
 	if errors.Is(err, errNoUpload) {
 		http.Redirect(w, r, "/admin/dashboard", http.StatusSeeOther)
@@ -147,7 +155,15 @@ func loadAdminDashboard(ctx context.Context, s sessionData, problem string) (adm
 			active++
 		}
 	}
-	return adminDashboardView{CSRF: s.CSRFToken, Barbers: len(barbers), ActiveBarbers: active, Customers: len(customers), Bookings: len(bookings), PendingBookings: pending, LandingImage: currentLandingImage(), CustomerLandingImage: currentCustomerLandingImage(), Error: problem}, nil
+	landingImage, err := currentLandingImage(ctx)
+	if err != nil {
+		return adminDashboardView{}, err
+	}
+	customerLandingImage, err := currentCustomerLandingImage(ctx)
+	if err != nil {
+		return adminDashboardView{}, err
+	}
+	return adminDashboardView{CSRF: s.CSRFToken, Barbers: len(barbers), ActiveBarbers: active, Customers: len(customers), Bookings: len(bookings), PendingBookings: pending, LandingImage: landingImage, CustomerLandingImage: customerLandingImage, Error: problem}, nil
 }
 
 // AdminBookingsHandler lists every booking in the system.

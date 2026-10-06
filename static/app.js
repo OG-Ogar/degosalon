@@ -157,6 +157,8 @@
         }
         var counter = document.createElement("p");
         counter.className = "counter";
+        counter.id = "counter-" + Math.random().toString(36).slice(2);
+        box.setAttribute("aria-describedby", [box.getAttribute("aria-describedby"), counter.id].filter(Boolean).join(" "));
         counter.setAttribute("aria-live", "polite");
         box.insertAdjacentElement("afterend", counter);
         function update() {
@@ -277,10 +279,32 @@
             }
         });
     }
+    function wireFieldFeedback(form) {
+        var _a;
+        form.querySelectorAll("input:not([type=hidden]),select,textarea").forEach(function (control) {
+            control.addEventListener("invalid", function () {
+                noteFor(control).textContent = control.validationMessage;
+                control.setAttribute("aria-invalid", "true");
+            });
+            control.addEventListener("input", function () {
+                if (control.getAttribute("aria-invalid") === "true" && control.validity.valid) {
+                    control.setAttribute("aria-invalid", "false");
+                    noteFor(control).textContent = "";
+                }
+            });
+        });
+        const error = (_a = form.parentElement) === null || _a === void 0 ? void 0 : _a.querySelector('[role="alert"]');
+        if (error && !form.classList.contains("site-logout")) {
+            if (!error.id)
+                error.id = "form-error-" + Math.random().toString(36).slice(2);
+            form.setAttribute("aria-describedby", error.id);
+        }
+    }
     /* ---- wiring ---- */
     function init() {
         document.querySelectorAll('input[type="password"]').forEach(addRevealButton);
         document.querySelectorAll("form").forEach(function (form) {
+            wireFieldFeedback(form);
             watchNewPassword(form);
             wireBookingSummary(form);
             // Before the submit guard, so a cancelled confirmation leaves

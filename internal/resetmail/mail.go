@@ -49,7 +49,7 @@ func fromEnvironment(getenv func(string) string) (Config, error) {
 		return Config{}, ErrConfiguration
 	}
 	u, err := url.Parse(c.origin)
-	if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.Fragment != "" || (u.Path != "" && u.Path != "/") || u.Opaque != "" {
+	if err != nil || u.Scheme != "https" || u.Hostname() == "" || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" || (u.Path != "" && u.Path != "/") || u.Opaque != "" {
 		return Config{}, ErrConfiguration
 	}
 	u.Path = ""

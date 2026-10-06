@@ -34,7 +34,7 @@ func TestConfigurationAndCanonicalLinks(t *testing.T) {
 		}
 	}
 	for _, test := range []struct{ key, value string }{
-		{"SITE_URL", "http://salon.example.com"}, {"SITE_URL", "https://user:secret@salon.example.com"}, {"SITE_URL", "https://salon.example.com/path"}, {"SITE_URL", "https://salon.example.com?token=private"}, {"SITE_URL", "https://salon.example.com/#fragment"},
+		{"SITE_URL", "https://salon.example.com?"}, {"SITE_URL", "http://salon.example.com"}, {"SITE_URL", "https://user:secret@salon.example.com"}, {"SITE_URL", "https://salon.example.com/path"}, {"SITE_URL", "https://salon.example.com?token=private"}, {"SITE_URL", "https://salon.example.com/#fragment"},
 		{"SMTP_FROM", "Sender <recovery@example.com>"}, {"SMTP_FROM", "recovery@example.com\r\nBcc: attacker@example.com"}, {"SMTP_HOST", ""}, {"SMTP_USERNAME", ""}, {"SMTP_PASSWORD", ""}, {"SMTP_PORT", "0"}, {"SMTP_PORT", "65536"}, {"SMTP_TLS_MODE", "none"},
 	} {
 		t.Run(test.key+test.value, func(t *testing.T) {
@@ -61,19 +61,26 @@ func TestConfigurationAndCanonicalLinks(t *testing.T) {
 
 // This relay exists only on loopback; no test contacts a mail provider.
 func relay(t *testing.T, reject bool) (Config, <-chan string) {
+	return relayMode(t, reject, "implicit")
+}
+
+func relayMode(t *testing.T, reject bool, mode string) (Config, <-chan string) {
 	t.Helper()
 	certificateServer := httptest.NewTLSServer(http.HandlerFunc(func(http.ResponseWriter, *http.Request) {}))
 	certificates := certificateServer.TLS.Certificates
 	pool := x509.NewCertPool()
 	pool.AddCert(certificateServer.Certificate())
 	certificateServer.Close()
-	listener, err := tls.Listen("tcp", "127.0.0.1:0", &tls.Config{Certificates: certificates, MinVersion: tls.VersionTLS12})
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err == nil && mode == "implicit" {
+		listener = tls.NewListener(listener, &tls.Config{Certificates: certificates, MinVersion: tls.VersionTLS12})
+	}
 	if err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { _ = listener.Close() })
 	host, port, _ := net.SplitHostPort(listener.Addr().String())
-	c := Config{host: host, port: port, username: "relay-user", password: "private-password", from: "recovery@example.com", origin: "https://salon.example.com", mode: "implicit", tlsConfig: &tls.Config{RootCAs: pool, ServerName: "example.com", MinVersion: tls.VersionTLS12}}
+	c := Config{host: host, port: port, username: "relay-user", password: "private-password", from: "recovery@example.com", origin: "https://salon.example.com", mode: mode, tlsConfig: &tls.Config{RootCAs: pool, ServerName: "example.com", MinVersion: tls.VersionTLS12}}
 	message := make(chan string, 1)
 	go func() {
 		defer close(message)
@@ -84,6 +91,7 @@ func relay(t *testing.T, reject bool) (Config, <-chan string) {
 		defer conn.Close()
 		_ = conn.SetDeadline(time.Now().Add(3 * time.Second))
 		reader := textproto.NewReader(bufio.NewReader(conn))
+		encrypted := mode == "implicit"
 		_, _ = io.WriteString(conn, "220 local relay\r\n")
 		for {
 			line, err := reader.ReadLine()
@@ -92,7 +100,20 @@ func relay(t *testing.T, reject bool) (Config, <-chan string) {
 			}
 			switch {
 			case strings.HasPrefix(line, "EHLO"):
-				_, _ = io.WriteString(conn, "250-local relay\r\n250 AUTH PLAIN\r\n")
+				if encrypted {
+					_, _ = io.WriteString(conn, "250-local relay\r\n250 AUTH PLAIN\r\n")
+				} else {
+					_, _ = io.WriteString(conn, "250-local relay\r\n250 STARTTLS\r\n")
+				}
+			case line == "STARTTLS":
+				_, _ = io.WriteString(conn, "220 start TLS\r\n")
+				secure := tls.Server(conn, &tls.Config{Certificates: certificates, MinVersion: tls.VersionTLS12})
+				if err := secure.Handshake(); err != nil {
+					return
+				}
+				conn = secure
+				reader = textproto.NewReader(bufio.NewReader(conn))
+				encrypted = true
 			case strings.HasPrefix(line, "AUTH PLAIN"):
 				_, _ = io.WriteString(conn, "235 authenticated\r\n")
 			case strings.HasPrefix(line, "MAIL FROM"):
@@ -221,5 +242,15 @@ func TestRelayCertificateMustBeTrusted(t *testing.T) {
 	c.tlsConfig = nil
 	if err := c.Send(context.Background(), "person@example.com", "customer", strings.Repeat("a", 64)); !errors.Is(err, ErrDelivery) {
 		t.Fatalf("untrusted relay certificate accepted: %v", err)
+	}
+}
+
+func TestSTARTTLSRelayDeliversRecovery(t *testing.T) {
+	c, message := relayMode(t, false, "starttls")
+	if err := c.Send(context.Background(), "person@example.com", "customer", strings.Repeat("c", 64)); err != nil {
+		t.Fatal(err)
+	}
+	if wire := <-message; !strings.Contains(wire, "Subject: Reset your password") {
+		t.Fatalf("missing message: %q", wire)
 	}
 }

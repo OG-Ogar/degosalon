@@ -29,6 +29,9 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	if flags.NArg() != 0 {
 		return mediastore.ErrConfiguration
 	}
+	if *legacy && os.Getenv("DATABASE_URL") == "" {
+		return mediastore.ErrConfiguration
+	}
 	store, err := mediastore.FromEnvironment()
 	if err != nil {
 		return err
@@ -39,9 +42,6 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	}
 	if !*legacy {
 		return nil
-	}
-	if os.Getenv("DATABASE_URL") == "" {
-		return mediastore.ErrConfiguration
 	}
 	if err := storage.InitDatabase(); err != nil {
 		return errors.New("media migration database is unavailable or schema is not current")

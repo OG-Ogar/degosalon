@@ -23,3 +23,12 @@ func TestCommandRequiresServerConfiguration(t *testing.T) {
 		t.Fatal("help not available")
 	}
 }
+
+func TestLegacyCommandValidatesDatabaseBeforeProviderAccess(t *testing.T) {
+	t.Setenv("DATABASE_URL", "")
+	t.Setenv("SUPABASE_URL", "https://provider.invalid")
+	t.Setenv("SUPABASE_SECRET_KEY", "sb_secret_test-only")
+	if err := run(context.Background(), []string{"-migrate-legacy", "-create-bucket"}, io.Discard); !errors.Is(err, mediastore.ErrConfiguration) {
+		t.Fatalf("database requirement not checked before provider: %v", err)
+	}
+}

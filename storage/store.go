@@ -102,6 +102,7 @@ func Reset() {
 	products = nil
 	carts = make(map[int]map[int]int)
 	calendars = make(map[int]models.Calendar)
+	authBuckets = make(map[string]authBucket)
 	productOrders = nil
 	productOrderItems = nil
 	lastProductOrderID = 0

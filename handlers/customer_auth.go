@@ -26,7 +26,13 @@ func CustomerLoginHandler(w http.ResponseWriter, r *http.Request) {
 		render(w, "customer/login.html", view)
 
 	case http.MethodPost:
+		if !beginAuthAttempt(w, r, "login") {
+			return
+		}
 		email := normalisedEmail(r.PostFormValue("email"))
+		if !authAccountAttempt(w, r, "customer", "login", email) {
+			return
+		}
 		password := r.PostFormValue("password")
 		next := safeCustomerNext(r.PostFormValue("next"))
 

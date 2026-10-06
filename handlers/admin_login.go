@@ -18,7 +18,13 @@ func AdminLoginHandler(w http.ResponseWriter, r *http.Request) {
 		render(w, "admin/login.html", newFormView(""))
 
 	case http.MethodPost:
+		if !beginAuthAttempt(w, r, "login") {
+			return
+		}
 		username := trimmedField(r.PostFormValue("username"))
+		if !authAccountAttempt(w, r, "admin", "login", username) {
+			return
+		}
 		password := r.PostFormValue("password")
 
 		if username == "" || password == "" {

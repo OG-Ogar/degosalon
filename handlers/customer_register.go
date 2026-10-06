@@ -55,9 +55,15 @@ func CustomerRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		render(w, "customer/register.html", view)
 
 	case http.MethodPost:
+		if !beginAuthAttempt(w, r, "register") {
+			return
+		}
 		limitRequestBodyFor(w, r, 1)
 
 		form, problem := readCustomerForm(r)
+		if !authAccountAttempt(w, r, "customer", "register", form.Email) {
+			return
+		}
 		password := r.PostFormValue("password")
 		confirm := r.PostFormValue("confirm_password")
 

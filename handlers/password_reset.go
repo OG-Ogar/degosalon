@@ -118,7 +118,13 @@ func forgotPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 		render(w, flow.ForgotPage, resetView{})
 
 	case http.MethodPost:
+		if !beginAuthAttempt(w, r, "forgot") {
+			return
+		}
 		email := normalisedEmail(r.PostFormValue("email"))
+		if !authAccountAttempt(w, r, string(flow.Role), "forgot", email) {
+			return
+		}
 
 		if email == "" {
 			renderStatus(w, http.StatusBadRequest, flow.ForgotPage, resetView{
@@ -185,7 +191,13 @@ func resetPassword(w http.ResponseWriter, r *http.Request, flow resetFlow) {
 		})
 
 	case http.MethodPost:
+		if !beginAuthAttempt(w, r, "reset") {
+			return
+		}
 		token := r.PostFormValue("token")
+		if !authAccountAttempt(w, r, string(flow.Role), "reset", token) {
+			return
+		}
 		password := r.PostFormValue("password")
 
 		// The link is checked before the password so that a link which

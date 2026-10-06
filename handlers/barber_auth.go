@@ -23,7 +23,13 @@ func BarberLoginHandler(w http.ResponseWriter, r *http.Request) {
 		render(w, "barber/login.html", view)
 
 	case http.MethodPost:
+		if !beginAuthAttempt(w, r, "login") {
+			return
+		}
 		email := normalisedEmail(r.PostFormValue("email"))
+		if !authAccountAttempt(w, r, "barber", "login", email) {
+			return
+		}
 		password := r.PostFormValue("password")
 
 		if email == "" || password == "" {

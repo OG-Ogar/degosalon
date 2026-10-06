@@ -291,3 +291,5 @@ var(--void)!important;color:var(--ink)!important;font-family:var(--font)}
 input:not([type=hidden]):not([type=checkbox]):not([type=radio]),select,textarea{min-width:0;max-width:100%;min-height:44px}
 button,.button,.reveal,.small{min-height:44px}
 img,video{max-width:100%}
+
+.modern-customer-page .empty-bookings{background:var(--surface)!important;color:var(--ink)!important;border:1px solid var(--border-hi)}

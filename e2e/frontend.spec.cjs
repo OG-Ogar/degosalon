@@ -38,7 +38,7 @@ test('barber and admin navigation and mobile field labels',async({page},testInfo
  await page.setViewportSize({width:320,height:900});
  for(const route of ['/barber/dashboard','/barber/profile','/barber/bookings','/barber/chats']){
   await page.goto(route);await checkPage(page,testInfo,route.split('/').join('-'));
-  await expect(page.getByRole('link',{name:'Schedule',exact:true})).toBeVisible();
+  await expect(page.getByRole('navigation',{name:'barber navigation'}).getByRole('link',{name:'Schedule',exact:true})).toBeVisible();
  }
  const admin=await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}});
  expect(admin.ok(),await admin.text()).toBeTruthy();

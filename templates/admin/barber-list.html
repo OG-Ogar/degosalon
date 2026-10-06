@@ -62,16 +62,16 @@
             <tbody>
                 {{range .Items}}
                     <tr>
-                        <td><a href="/admin/barbers/{{.ID}}">{{.FullName}}</a></td>
-                        <td>{{.ShopName}}</td>
-                        <td>
+                        <td data-label="Barber"><a href="/admin/barbers/{{.ID}}">{{.FullName}}</a></td>
+                        <td data-label="Shop">{{.ShopName}}</td>
+                        <td data-label="Contact">
                             {{.Email}}
                             <br><span class="muted">{{.PhoneNumber}}</span>
                         </td>
-                        <td>{{.Hairstyles}}</td>
-                        <td>{{.Bookings}}</td>
-                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
-                        <td>
+                        <td data-label="Styles">{{.Hairstyles}}</td>
+                        <td data-label="Bookings">{{.Bookings}}</td>
+                        <td data-label="Status"><span class="badge {{.Status}}">{{.Status}}</span></td>
+                        <td data-label="Actions">
                             {{if ne .Status "Archived"}}
                             <a class="button small" href="/admin/barbers/{{.ID}}/edit">Edit</a>
 

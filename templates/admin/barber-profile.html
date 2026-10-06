@@ -111,14 +111,14 @@
             <tbody>
                 {{range .Bookings}}
                     <tr>
-                        <td>{{.Date}}</td>
-                        <td>{{.Time}}</td>
-                        <td>
+                        <td data-label="Date">{{.Date}}</td>
+                        <td data-label="Time">{{.Time}}</td>
+                        <td data-label="Customer">
                             {{.CustomerName}}
                             <br><span class="muted">{{.CustomerPhone}}</span>
                         </td>
-                        <td>{{.HairstyleName}}</td>
-                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
+                        <td data-label="Hairstyle">{{.HairstyleName}}</td>
+                        <td data-label="Status"><span class="badge {{.Status}}">{{.Status}}</span></td>
                     </tr>
                 {{end}}
             </tbody>

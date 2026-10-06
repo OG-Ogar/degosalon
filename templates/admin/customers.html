@@ -46,11 +46,11 @@
             <tbody>
                 {{range .Items}}
                     <tr>
-                        <td>{{.ID}}</td>
-                        <td>{{.FullName}}</td>
-                        <td>{{.Email}}</td>
-                        <td>{{.PhoneNumber}}</td>
-                        <td>{{.Bookings}}</td>
+                        <td data-label="ID">{{.ID}}</td>
+                        <td data-label="Name">{{.FullName}}</td>
+                        <td data-label="Email">{{.Email}}</td>
+                        <td data-label="Phone">{{.PhoneNumber}}</td>
+                        <td data-label="Bookings">{{.Bookings}}</td>
                     </tr>
                 {{end}}
             </tbody>

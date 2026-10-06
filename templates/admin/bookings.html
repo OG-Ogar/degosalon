@@ -48,19 +48,19 @@
             <tbody>
                 {{range .Items}}
                     <tr>
-                        <td>{{.Date}}</td>
-                        <td>{{.Time}}</td>
-                        <td>
+                        <td data-label="Date">{{.Date}}</td>
+                        <td data-label="Time">{{.Time}}</td>
+                        <td data-label="Customer">
                             {{.CustomerName}}
                             <br><span class="muted">{{.CustomerPhone}}</span>
                         </td>
-                        <td>
+                        <td data-label="Barber">
                             {{.BarberName}}
                             <br><span class="muted">{{.ShopName}}</span>
                         </td>
-                        <td>{{.HairstyleName}}</td>
-                        <td class="price">&#8358;{{printf "%.2f" .Price}}</td>
-                        <td><span class="badge {{.Status}}">{{.Status}}</span></td>
+                        <td data-label="Hairstyle">{{.HairstyleName}}</td>
+                        <td class="price" data-label="Price">&#8358;{{printf "%.2f" .Price}}</td>
+                        <td data-label="Status"><span class="badge {{.Status}}">{{.Status}}</span></td>
                     </tr>
                 {{end}}
             </tbody>

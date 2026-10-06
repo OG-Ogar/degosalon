@@ -79,7 +79,7 @@ func BarberChatHandler(
 ) {
 	customerID, ok := parseID(customerSegment)
 	if !ok {
-		http.Error(w, "Conversation not found.", http.StatusNotFound)
+		journeyError(w, "Conversation not found.", http.StatusNotFound)
 
 		return
 	}
@@ -90,7 +90,7 @@ func BarberChatHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		http.Error(w, "Conversation not found.", http.StatusNotFound)
+		journeyError(w, "Conversation not found.", http.StatusNotFound)
 
 		return
 	}

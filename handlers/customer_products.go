@@ -32,18 +32,24 @@ func CustomerProductsHandler(
 		return
 	}
 
-	sellerID := 0
+	productID := 0
+    if value := r.URL.Query().Get("product"); value != "" {
+        var ok bool
+        productID, ok = parseID(value)
+        if !ok { journeyError(w, "Product not found.", http.StatusNotFound); return }
+    }
+    sellerID := 0
 	sellerName := ""
 	if value := r.URL.Query().Get("barber"); value != "" {
 		var ok bool
 		sellerID, ok = parseID(value)
 		if !ok {
-			http.NotFound(w, r)
+			journeyError(w, "Page not found.", http.StatusNotFound)
 			return
 		}
 		seller, err := storage.FindBarberByIDContext(r.Context(), sellerID)
 		if errors.Is(err, storage.ErrNotFound) || (err == nil && !seller.IsActive()) {
-			http.NotFound(w, r)
+			journeyError(w, "Page not found.", http.StatusNotFound)
 			return
 		}
 		if err != nil {
@@ -66,6 +72,7 @@ func CustomerProductsHandler(
 	rows := make([]customerProductRow, 0, len(products))
 
 	for _, product := range products {
+        if productID > 0 && product.ID != productID { continue }
 		if sellerID > 0 && product.BarberID != sellerID {
 			continue
 		}
@@ -83,6 +90,8 @@ func CustomerProductsHandler(
 			Barber:  barber,
 		})
 	}
+
+	if productID > 0 && len(rows) == 0 { journeyError(w, "This product is no longer available.", http.StatusNotFound); return }
 
 	view := customerProductsView{
 		Products:   rows,

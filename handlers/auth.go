@@ -121,7 +121,7 @@ func requireCSRF(w http.ResponseWriter, r *http.Request, s session.Session) bool
 		return true
 	}
 
-	http.Error(
+	journeyError(
 		w,
 		"This form has expired. Please reload the page and try again.",
 		http.StatusForbidden,

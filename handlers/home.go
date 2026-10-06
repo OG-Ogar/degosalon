@@ -22,7 +22,7 @@ type homeView struct {
 // other routers do not claim, so anything other than "/" is a 404.
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 
 		return
 	}

@@ -20,6 +20,9 @@ type exploreCard struct {
 	ReviewCount int
 }
 type exploreView struct {
+	CustomerSignedIn bool
+	LoginLink string
+
 	Items                       []exploreCard
 	States                      []string
 	SelectedState, SelectedArea string
@@ -29,6 +32,7 @@ type publicBarberView struct {
 	LoginLink        string
 	RegisterLink     string
 	ServiceLinks     map[int]string
+	ProductLinks map[int]string
 	ShopLink         string
 	Barber           models.Barber
 	Hairstyles       []models.Hairstyle
@@ -51,7 +55,7 @@ func ExploreRouter(w http.ResponseWriter, r *http.Request) {
 		ExploreBarberHandler(w, r, parts[1])
 		return
 	}
-	http.NotFound(w, r)
+	journeyError(w, "Page not found.", http.StatusNotFound)
 }
 
 func ExploreBarbersHandler(w http.ResponseWriter, r *http.Request) {
@@ -98,7 +102,10 @@ func ExploreBarbersHandler(w http.ResponseWriter, r *http.Request) {
 		cards = append(cards, card)
 	}
 	sort.Strings(states)
-	render(w, "explore.html", exploreView{Items: cards, States: states, SelectedState: state, SelectedArea: area})
+	signedIn, sessionErr := publicCustomerSignedIn(r)
+    if sessionErr != nil { serverError(w, "load discovery session", sessionErr); return }
+    destination := discoveryPath("/customer/barbers", discoveryQuery(r))
+    render(w, "explore.html", exploreView{Items: cards, States: states, SelectedState: state, SelectedArea: area, CustomerSignedIn: signedIn, LoginLink: customerLoginPath(destination)})
 }
 
 func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment string) {
@@ -108,7 +115,7 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 	}
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	b, err := storage.FindBarberByIDContext(r.Context(), id)
@@ -117,7 +124,7 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) || !b.IsActive() {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	b.PasswordHash = ""
@@ -142,20 +149,8 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		return
 	}
 
-	signedIn := false
-	s, sessionErr := session.FromRequestContext(r, session.RoleCustomer)
-	if sessionErr != nil && !errors.Is(sessionErr, session.ErrNotFound) {
-		serverError(w, "load public account session", sessionErr)
-		return
-	}
-	if sessionErr == nil {
-		_, err := storage.FindCustomerByIDResult(r.Context(), s.UserID)
-		if err != nil && !errors.Is(err, storage.ErrNotFound) {
-			serverError(w, "load public account context", err)
-			return
-		}
-		signedIn = err == nil
-	}
+	signedIn, sessionErr := publicCustomerSignedIn(r)
+    if sessionErr != nil { serverError(w, "load public account context", sessionErr); return }
 	query := discoveryQuery(r)
 	bookingPath := customerBookingPath(id, 0, query)
 	loginLink := customerLoginPath(bookingPath)
@@ -169,7 +164,13 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		messageLink = "/customer/chats/" + idSegment
 		shopLink = shopPath
 	}
-	serviceLinks := map[int]string{}
+	productLinks := map[int]string{}
+    for _, product := range products {
+        destination := discoveryPath("/customer/products", url.Values{"barber": {strconv.Itoa(id)}, "product": {strconv.Itoa(product.ID)}})
+        if !signedIn { destination = customerLoginPath(destination) }
+        productLinks[product.ID] = destination
+    }
+    serviceLinks := map[int]string{}
 	for _, style := range styles {
 		destination := customerBookingPath(id, style.ID, query)
 		if !signedIn {
@@ -177,5 +178,14 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		}
 		serviceLinks[style.ID] = destination
 	}
-	render(w, "explore-barber.html", publicBarberView{ResultsLink: discoveryPath("/explore", query), LoginLink: loginLink, RegisterLink: registerLink, ServiceLinks: serviceLinks, ShopLink: shopLink, Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
+	render(w, "explore-barber.html", publicBarberView{ResultsLink: discoveryPath("/explore", query), LoginLink: loginLink, RegisterLink: registerLink, ServiceLinks: serviceLinks, ProductLinks: productLinks, ShopLink: shopLink, Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
+}
+
+func publicCustomerSignedIn(r *http.Request) (bool, error) {
+    s, err := session.FromRequestContext(r, session.RoleCustomer)
+    if errors.Is(err, session.ErrNotFound) { return false, nil }
+    if err != nil { return false, err }
+    _, err = storage.FindCustomerByIDResult(r.Context(), s.UserID)
+    if errors.Is(err, storage.ErrNotFound) { return false, nil }
+    return err == nil, err
 }

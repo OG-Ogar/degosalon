@@ -75,7 +75,7 @@ func safeCustomerNext(next string) string {
 	}
 	query := address.Query()
 	clean := url.Values{}
-	for _, key := range []string{"state", "area", "hairstyle", "barber", "page", "q"} {
+	for _, key := range []string{"state", "area", "hairstyle", "barber", "product", "page", "q"} {
 		if value := query.Get(key); value != "" {
 			clean.Set(key, value)
 		}

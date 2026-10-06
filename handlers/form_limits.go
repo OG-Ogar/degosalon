@@ -37,7 +37,7 @@ func parseBoundedForm(w http.ResponseWriter, r *http.Request) bool {
 		limitFormBody(w, r, limit)
 	}
 	if r.ContentLength > limit {
-		http.Error(w, "This form is too large.", http.StatusRequestEntityTooLarge)
+		journeyError(w, "This form is too large.", http.StatusRequestEntityTooLarge)
 		return false
 	}
 	var err error
@@ -49,9 +49,9 @@ func parseBoundedForm(w http.ResponseWriter, r *http.Request) bool {
 	if err != nil {
 		var large *http.MaxBytesError
 		if errors.As(err, &large) {
-			http.Error(w, "This form is too large.", http.StatusRequestEntityTooLarge)
+			journeyError(w, "This form is too large.", http.StatusRequestEntityTooLarge)
 		} else {
-			http.Error(w, "This form could not be read. Reload and try again.", http.StatusBadRequest)
+			journeyError(w, "This form could not be read. Reload and try again.", http.StatusBadRequest)
 		}
 		return false
 	}

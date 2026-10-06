@@ -29,7 +29,7 @@ func CustomerProductOrderConfirmationHandler(
 	orderID, ok := parseID(idSegment)
 
 	if !ok {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 
@@ -39,13 +39,13 @@ func CustomerProductOrderConfirmationHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 
 	// A customer can only view their own order.
 	if order.CustomerID != customer.ID {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 

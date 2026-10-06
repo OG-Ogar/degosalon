@@ -21,7 +21,9 @@
         </a>
         <nav class="landing-nav" aria-label="Main navigation">
             <a class="landing-nav-link" href="/explore">Find a Barber</a>
-            <a class="landing-nav-cta" href="/barber/login">For Barbers <span aria-hidden="true">→</span></a>
+            {{if .CustomerSignedIn}}<a class="landing-nav-link" href="/customer/dashboard">Customer dashboard</a>{{end}}
+{{if .AdminSignedIn}}<a class="landing-nav-link" href="/admin/dashboard">Admin dashboard</a>{{end}}
+{{if .BarberSignedIn}}<a class="landing-nav-cta" href="/barber/dashboard">Barber dashboard</a>{{else}}<a class="landing-nav-cta" href="/barber/login">For Barbers <span aria-hidden="true">→</span></a>{{end}}
         </nav>
     </header>
 
@@ -32,7 +34,7 @@
             <p class="landing-lead">Discover barbers around you, explore their work and prices, and book the style you want with confidence.</p>
             <div class="landing-actions">
                 <a class="landing-button" href="/explore">Explore Barbers <span aria-hidden="true">→</span></a>
-                <a class="landing-secondary-button" href="/customer/register">Create an Account</a>
+                {{if .CustomerSignedIn}}<a class="landing-secondary-button" href="/customer/dashboard">My dashboard</a>{{else}}<a class="landing-secondary-button" href="/customer/register">Create an Account</a>{{end}}
             </div>
             <div class="landing-steps" aria-label="How De Go Salon works">
                 <div><strong>01</strong><span>Discover</span><small>Find barbers by location.</small></div>

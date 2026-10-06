@@ -29,7 +29,7 @@ func AddToCartHandler(
 
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 
@@ -39,7 +39,7 @@ func AddToCartHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	if err != nil {
@@ -155,7 +155,7 @@ func UpdateCartItemHandler(w http.ResponseWriter, r *http.Request, customer mode
 	}
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	quantity, err := strconv.Atoi(r.PostFormValue("quantity"))

@@ -10,7 +10,7 @@ import (
 func BarberOrderItemActionHandler(w http.ResponseWriter, r *http.Request, barber models.Barber, s sessionData, idSegment, action string) {
 	target, ok := map[string]string{"ready": models.FulfillmentReady, "collect": models.FulfillmentCollected, "cancel": models.FulfillmentCancelled}[action]
 	if !ok {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	if r.Method != http.MethodPost {
@@ -23,16 +23,16 @@ func BarberOrderItemActionHandler(w http.ResponseWriter, r *http.Request, barber
 	}
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	err := storage.FulfillOrderItem(r.Context(), id, barber.ID, target)
 	switch {
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
-		http.NotFound(w, r)
+		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	case errors.Is(err, storage.ErrInvalidTransition):
-		http.Error(w, "This item changed or is already closed. Refresh the dashboard before trying again.", http.StatusConflict)
+		journeyError(w, "This item changed or is already closed. Refresh the dashboard before trying again.", http.StatusConflict)
 		return
 	case err != nil:
 		serverError(w, "fulfill seller order item", err)

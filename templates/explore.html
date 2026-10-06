@@ -13,7 +13,7 @@
 <header class="barber-header">
 <a class="brand-box" href="/" aria-label="De Go Salon home"><span class="brand-mark" aria-hidden="true">DG</span><span><span class="brand-title">De Go Salon</span><span class="brand-subtitle">De Go Salon</span></span></a>
 <nav class="customer-navigation" aria-label="Account navigation">
-<a class="nav-box" href="/customer/login">Customer Login</a>
+{{if .CustomerSignedIn}}<a class="nav-box" href="/customer/dashboard">Dashboard</a>{{else}}<a class="nav-box" href="{{.LoginLink}}">Customer Login</a>{{end}}
 <a class="nav-box nav-primary" href="/barber/login">For Barbers <span aria-hidden="true">→</span></a>
 </nav>
 </header>

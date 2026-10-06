@@ -82,7 +82,7 @@ func CancelBookingHandler(
 
 	id, ok := parseID(idSegment)
 	if !ok {
-		http.Error(w, "Booking not found.", http.StatusNotFound)
+		journeyError(w, "Booking not found.", http.StatusNotFound)
 
 		return
 	}
@@ -93,13 +93,13 @@ func CancelBookingHandler(
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) || booking.CustomerID != customer.ID {
-		http.Error(w, "Booking not found.", http.StatusNotFound)
+		journeyError(w, "Booking not found.", http.StatusNotFound)
 
 		return
 	}
 
 	if !booking.CanBeCancelled() {
-		http.Error(
+		journeyError(
 			w,
 			"That booking is "+booking.Status+" and can no longer be cancelled.",
 			http.StatusConflict,
@@ -112,11 +112,11 @@ func CancelBookingHandler(
 
 	switch {
 	case errors.Is(err, storage.ErrInvalidTransition):
-		http.Error(w, "That booking changed before cancellation completed. Refresh your bookings and try again.", http.StatusConflict)
+		journeyError(w, "That booking changed before cancellation completed. Refresh your bookings and try again.", http.StatusConflict)
 		return
 
 	case errors.Is(err, storage.ErrNotFound), errors.Is(err, storage.ErrForbidden):
-		http.Error(w, "Booking not found.", http.StatusNotFound)
+		journeyError(w, "Booking not found.", http.StatusNotFound)
 
 		return
 

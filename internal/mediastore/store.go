@@ -106,7 +106,9 @@ func (s *Store) Upload(ctx context.Context, path, kind string, size int64, body 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return ErrUpload
 	}
-	_, _ = io.Copy(io.Discard, io.LimitReader(resp.Body, 4096))
+	if _, err := io.Copy(io.Discard, io.LimitReader(resp.Body, 4096)); err != nil || ctx.Err() != nil {
+		return ErrUpload
+	}
 	return nil
 }
 
@@ -163,7 +165,9 @@ func (s *Store) Delete(ctx context.Context, uri string) error {
 	if response.StatusCode < 200 || response.StatusCode >= 300 {
 		return ErrDelete
 	}
-	_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
+	if _, err := io.Copy(io.Discard, io.LimitReader(response.Body, 4096)); err != nil || ctx.Err() != nil {
+		return ErrDelete
+	}
 	return nil
 }
 

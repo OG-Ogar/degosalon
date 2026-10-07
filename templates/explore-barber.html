@@ -7,8 +7,7 @@
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/customer-barber-profile.css">
 <link rel="stylesheet" href="/static/image-viewer.css"><script src="/static/image-viewer.js" defer></script>
-<meta name="description" content="Explore {{.Barber.ShopName}} in {{.Barber.LocalArea}}, {{.Barber.State}}. Compare services, prices and completed-booking reviews.">
-<link rel="canonical" href="/explore/{{.Barber.ID}}">
+{{template "public-metadata" (publicMetadata (printf "/explore/%d" .Barber.ID) (printf "%s - De Go Salon" .Barber.ShopName) (printf "Explore %s in %s, %s. Compare services, prices and completed-booking reviews." .Barber.ShopName .Barber.LocalArea .Barber.State))}}
 </head>
 <body class="public-profile-page"><div class="barber-page">
 <header class="barber-header">
@@ -38,4 +37,5 @@
 <section class="hairstyles-section" id="reviews"><div class="section-title"><div><p class="eyebrow"><span></span> Completed appointments</p><h2>Verified customer reviews</h2></div>{{if .ReviewCount}}<span class="count">★ {{printf "%.1f" .Rating}} · {{.ReviewCount}}</span>{{end}}</div><div class="public-review-list">{{range .Reviews}}<article class="public-review-card"><div class="review-heading"><strong>{{.CustomerName}}</strong><span>{{.Rating}}/5 ★</span></div>{{if .Comment}}<p>{{.Comment}}</p>{{end}}<small>Verified completed booking</small></article>{{else}}<div class="empty-state"><div class="empty-icon">★</div><h2>No reviews yet.</h2><p>Reviews appear here after customers complete appointments.</p></div>{{end}}</div></section>
 
 <section class="shop-final-cta"><p class="eyebrow">Ready for your cut?</p><h2>Book {{.Barber.ShopName}}</h2>{{if .CustomerSignedIn}}<p>Choose your hairstyle and appointment time now.</p><div class="barber-actions"><a class="book-button" href="{{.BookLink}}">Book now <span aria-hidden="true">→</span></a></div>{{else}}<p>Create an account or sign in when you are ready to book.</p><div class="barber-actions"><a class="book-button" href="{{.BookLink}}">Sign in to Book <span aria-hidden="true">→</span></a><a class="message-button" href="{{.RegisterLink}}">Create Account</a></div>{{end}}</section>
-</main></div></body></html>
+</main></div>{{template "public-footer" .}}
+</body></html>

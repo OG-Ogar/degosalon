@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/customer-barbers.css">
 <script src="/static/app.js" defer></script>
+{{template "public-metadata" (publicMetadata "/explore" "Explore Barbers - De Go Salon" "Find barbers by Nigeria state/FCT and LGA or area council. Compare services, prices and handwork.")}}
 </head>
 <body class="explore-page">
 <div class="barber-page find-page">
@@ -65,5 +66,6 @@
 {{end}}
 </main>
 </div>
+{{template "public-footer" .}}
 </body>
 </html>

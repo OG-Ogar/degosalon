@@ -18,9 +18,7 @@
 <div class="customer-dashboard">
 
     {{if .BackgroundImage}}
-        <div class="dashboard-background"
-             style="background-image: url('{{.BackgroundImage}}');">
-        </div>
+        <img class="dashboard-background" src="{{.BackgroundImage}}" srcset="{{imageSrcset .BackgroundImage}}" sizes="100vw" width="1600" height="1200" alt="" loading="eager" fetchpriority="high" decoding="async">
     {{else}}
         <div class="dashboard-background dashboard-no-image">
         </div>

@@ -88,6 +88,7 @@ func main() {
 	storage.ConfigureCalendarDefaults(handlers.BookingTimezone(), openingDefault, closingDefault)
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/media/preview", handlers.ImageVariantHandler)
 
 	mux.HandleFunc("/explore", handlers.ExploreRouter)
 	mux.HandleFunc("/explore/", handlers.ExploreRouter)

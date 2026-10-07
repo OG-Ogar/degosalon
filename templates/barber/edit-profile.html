@@ -187,7 +187,7 @@
                         <img
                             src="{{index .Values "profile_image"}}"
                             alt="Your current shop photo"
-                        >
+                         srcset="{{imageSrcset (index .Values "profile_image")}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
                     </div>
                 {{end}}
 
@@ -241,7 +241,7 @@
                         <img
                             src="{{index .Values "personal_image"}}"
                             alt="Your current personal photo"
-                        >
+                         srcset="{{imageSrcset (index .Values "personal_image")}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
                     </div>
                 {{end}}
 

@@ -203,3 +203,29 @@ func TestLegacyObjectPath(t *testing.T) {
 		}
 	}
 }
+
+func TestPublicImageReadDoesNotSendCredentialsOrFollowRedirects(t *testing.T) {
+	var redirect atomic.Bool
+	s := testStore(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("apikey") != "" || r.Header.Get("Authorization") != "" {
+			t.Error("public read sent credentials")
+		}
+		if redirect.Load() {
+			w.Header().Set("Location", "https://foreign.example/photo.png")
+			w.WriteHeader(302)
+			return
+		}
+		_, _ = w.Write([]byte("image bytes"))
+	}, "sb_secret_test")
+	uri, _ := s.PublicURL("products/0123456789abcdef0123456789abcdef.png")
+	if data, err := s.ReadPublicImage(context.Background(), uri); err != nil || string(data) != "image bytes" {
+		t.Fatalf("read: %q %v", data, err)
+	}
+	redirect.Store(true)
+	if _, err := s.ReadPublicImage(context.Background(), uri); err == nil {
+		t.Fatal("followed redirect")
+	}
+	if _, err := s.ReadPublicImage(context.Background(), "https://foreign.example/photo.png"); err == nil {
+		t.Fatal("accepted foreign source")
+	}
+}

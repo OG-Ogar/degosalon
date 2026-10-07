@@ -137,7 +137,7 @@
 
                 <img class="barber-shop-photo"
                      src="{{.Image}}"
-                     alt="Current photo of this hairstyle">
+                     alt="Current photo of this hairstyle" srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             </div>
 

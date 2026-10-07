@@ -311,3 +311,5 @@ img,video{max-width:100%}
 .domain-status.domain-status--danger{background:#4a2227;color:#ffd0d5;border-color:#a6606a}
 .domain-status.domain-status--muted{background:#26352e;color:#e2e8e5;border-color:#677a6e}
 .domain-status.domain-status--info{background:#1b3348;color:#c4e7ff;border-color:#577e9c}
+/* Reserve the hero slot and request one responsive candidate with high priority. */
+.landing-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.35;pointer-events:none}

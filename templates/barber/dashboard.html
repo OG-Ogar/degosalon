@@ -29,7 +29,7 @@
                    aria-label="View your profile">
 
                     <img src="{{.PersonalImage}}"
-                         alt="Profile photo of {{.FullName}}">
+                         alt="Profile photo of {{.FullName}}" srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                 </a>
 

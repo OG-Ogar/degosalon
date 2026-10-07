@@ -122,7 +122,7 @@
                                     loading="lazy"
                                     decoding="async"
                                     alt="{{.ShopName}}"
-                                >
+                                 srcset="{{imageSrcset .ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480">
 
                                 {{else if .PersonalImage}}
 
@@ -132,7 +132,7 @@
                                        loading="lazy"
                                        decoding="async"
                                        alt="{{.FullName}}"
-                                     >
+                                      srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480">
 
                                 {{else}}
 

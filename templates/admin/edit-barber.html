@@ -51,10 +51,10 @@
                value="{{index .Values "shopaddress"}}" required>
 
         <label for="state">State</label>
-        <input id="state" type="text" name="state" maxlength="100" value="{{index .Values "state"}}" required>
+        {{template "geography-state" (index .Values "state")}}
 
-        <label for="local_area">LGA / local area</label>
-        <input id="local_area" type="text" name="local_area" maxlength="100" value="{{index .Values "local_area"}}" required>
+        <label for="local_area">Local government area / area council</label>
+        {{template "geography-profile-area" .Values}}
 
         {{if not .Editing}}
             <label for="password">Initial password</label>

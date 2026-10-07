@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 
+	"barber-booking/internal/geography"
 	"barber-booking/models"
 	"barber-booking/security"
 	"barber-booking/storage"
@@ -59,6 +60,11 @@ func readBarberForm(r *http.Request) (barberForm, string) {
 			return form, problem
 		}
 	}
+	s, a, ok := geography.Resolve(form.State, form.LocalArea)
+	if !ok {
+		return form, "Choose a valid state/FCT and one of its local government areas or area councils."
+	}
+	form.State, form.LocalArea = s.Name, a.Name
 	return form, ""
 }
 

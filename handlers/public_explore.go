@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"barber-booking/internal/geography"
 	"barber-booking/models"
 	"barber-booking/session"
 	"barber-booking/storage"
 	"errors"
 	"net/http"
 	"net/url"
-	"sort"
 	"strconv"
 	"strings"
 )
@@ -21,10 +21,9 @@ type exploreCard struct {
 }
 type exploreView struct {
 	CustomerSignedIn bool
-	LoginLink string
+	LoginLink        string
 
 	Items                       []exploreCard
-	States                      []string
 	SelectedState, SelectedArea string
 }
 type publicBarberView struct {
@@ -32,7 +31,7 @@ type publicBarberView struct {
 	LoginLink        string
 	RegisterLink     string
 	ServiceLinks     map[int]string
-	ProductLinks map[int]string
+	ProductLinks     map[int]string
 	ShopLink         string
 	Barber           models.Barber
 	Hairstyles       []models.Hairstyle
@@ -68,16 +67,15 @@ func ExploreBarbersHandler(w http.ResponseWriter, r *http.Request) {
 		serverError(w, "load public discovery", err)
 		return
 	}
-	state := strings.TrimSpace(r.URL.Query().Get("state"))
-	area := strings.TrimSpace(r.URL.Query().Get("area"))
-	seen := map[string]bool{}
-	var states []string
+	state, area, ok := discoveryLocation(r)
+	if !ok {
+		journeyError(w, "Choose a valid state/FCT and an LGA or area council within it.", http.StatusBadRequest)
+		return
+	}
+
 	var cards []exploreCard
 	for _, b := range all {
-		if b.State != "" && !seen[strings.ToLower(b.State)] {
-			states = append(states, b.State)
-			seen[strings.ToLower(b.State)] = true
-		}
+		b.State, b.LocalArea = geography.NormalizeLegacy(b.State, b.LocalArea)
 		if state == "" || !strings.EqualFold(b.State, state) || (area != "" && !strings.EqualFold(b.LocalArea, area)) {
 			continue
 		}
@@ -101,11 +99,13 @@ func ExploreBarbersHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		cards = append(cards, card)
 	}
-	sort.Strings(states)
 	signedIn, sessionErr := publicCustomerSignedIn(r)
-    if sessionErr != nil { serverError(w, "load discovery session", sessionErr); return }
-    destination := discoveryPath("/customer/barbers", discoveryQuery(r))
-    render(w, "explore.html", exploreView{Items: cards, States: states, SelectedState: state, SelectedArea: area, CustomerSignedIn: signedIn, LoginLink: customerLoginPath(destination)})
+	if sessionErr != nil {
+		serverError(w, "load discovery session", sessionErr)
+		return
+	}
+	destination := discoveryPath("/customer/barbers", discoveryQuery(r))
+	render(w, "explore.html", exploreView{Items: cards, SelectedState: state, SelectedArea: area, CustomerSignedIn: signedIn, LoginLink: customerLoginPath(destination)})
 }
 
 func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment string) {
@@ -150,7 +150,10 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 	}
 
 	signedIn, sessionErr := publicCustomerSignedIn(r)
-    if sessionErr != nil { serverError(w, "load public account context", sessionErr); return }
+	if sessionErr != nil {
+		serverError(w, "load public account context", sessionErr)
+		return
+	}
 	query := discoveryQuery(r)
 	bookingPath := customerBookingPath(id, 0, query)
 	loginLink := customerLoginPath(bookingPath)
@@ -165,12 +168,14 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		shopLink = shopPath
 	}
 	productLinks := map[int]string{}
-    for _, product := range products {
-        destination := discoveryPath("/customer/products", url.Values{"barber": {strconv.Itoa(id)}, "product": {strconv.Itoa(product.ID)}})
-        if !signedIn { destination = customerLoginPath(destination) }
-        productLinks[product.ID] = destination
-    }
-    serviceLinks := map[int]string{}
+	for _, product := range products {
+		destination := discoveryPath("/customer/products", url.Values{"barber": {strconv.Itoa(id)}, "product": {strconv.Itoa(product.ID)}})
+		if !signedIn {
+			destination = customerLoginPath(destination)
+		}
+		productLinks[product.ID] = destination
+	}
+	serviceLinks := map[int]string{}
 	for _, style := range styles {
 		destination := customerBookingPath(id, style.ID, query)
 		if !signedIn {
@@ -182,10 +187,16 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 }
 
 func publicCustomerSignedIn(r *http.Request) (bool, error) {
-    s, err := session.FromRequestContext(r, session.RoleCustomer)
-    if errors.Is(err, session.ErrNotFound) { return false, nil }
-    if err != nil { return false, err }
-    _, err = storage.FindCustomerByIDResult(r.Context(), s.UserID)
-    if errors.Is(err, storage.ErrNotFound) { return false, nil }
-    return err == nil, err
+	s, err := session.FromRequestContext(r, session.RoleCustomer)
+	if errors.Is(err, session.ErrNotFound) {
+		return false, nil
+	}
+	if err != nil {
+		return false, err
+	}
+	_, err = storage.FindCustomerByIDResult(r.Context(), s.UserID)
+	if errors.Is(err, storage.ErrNotFound) {
+		return false, nil
+	}
+	return err == nil, err
 }

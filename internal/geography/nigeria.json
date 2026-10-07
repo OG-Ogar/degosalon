@@ -1,0 +1,4232 @@
+[
+  {
+    "ID": "NG001",
+    "Name": "Abia",
+    "Aliases": [
+      "Abia State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG001001",
+        "Name": "Aba North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001002",
+        "Name": "Aba South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001003",
+        "Name": "Arochukwu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001004",
+        "Name": "Bende",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001005",
+        "Name": "Ikwuano",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001006",
+        "Name": "Isiala-Ngwa North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001007",
+        "Name": "Isiala-Ngwa South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001008",
+        "Name": "Isuikwuato",
+        "Aliases": [
+          "Isiukwuato"
+        ]
+      },
+      {
+        "ID": "NG001009",
+        "Name": "Obi Ngwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001010",
+        "Name": "Ohafia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001011",
+        "Name": "Osisioma Ngwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001012",
+        "Name": "Ugwunagbo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001013",
+        "Name": "Ukwa East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001014",
+        "Name": "Ukwa West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001017",
+        "Name": "Umu-Nneochi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001015",
+        "Name": "Umuahia North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG001016",
+        "Name": "Umuahia South",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG002",
+    "Name": "Adamawa",
+    "Aliases": [
+      "Adamawa State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG002001",
+        "Name": "Demsa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002002",
+        "Name": "Fufore",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002003",
+        "Name": "Ganye",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002005",
+        "Name": "Girei",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002004",
+        "Name": "Gombi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002006",
+        "Name": "Guyuk",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002007",
+        "Name": "Hong",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002008",
+        "Name": "Jada",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002009",
+        "Name": "Lamurde",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002010",
+        "Name": "Madagali",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002011",
+        "Name": "Maiha",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002012",
+        "Name": "Mayo-Belwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002013",
+        "Name": "Michika",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002014",
+        "Name": "Mubi North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002015",
+        "Name": "Mubi South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002016",
+        "Name": "Numan",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002017",
+        "Name": "Shelleng",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002018",
+        "Name": "Song",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002019",
+        "Name": "Toungo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002020",
+        "Name": "Yola North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG002021",
+        "Name": "Yola South",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG003",
+    "Name": "Akwa Ibom",
+    "Aliases": [
+      "Akwa Ibom State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG003001",
+        "Name": "Abak",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003002",
+        "Name": "Eastern Obolo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003003",
+        "Name": "Eket",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003004",
+        "Name": "Esit - Eket",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003005",
+        "Name": "Essien Udim",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003006",
+        "Name": "Etim Ekpo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003007",
+        "Name": "Etinan",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003008",
+        "Name": "Ibeno",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003009",
+        "Name": "Ibesikpo Asutan",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003010",
+        "Name": "Ibiono Ibom",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003011",
+        "Name": "Ika",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003012",
+        "Name": "Ikono",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003013",
+        "Name": "Ikot Abasi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003014",
+        "Name": "Ikot Ekpene",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003015",
+        "Name": "Ini",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003016",
+        "Name": "Itu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003017",
+        "Name": "Mbo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003018",
+        "Name": "Mkpat Enin",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003019",
+        "Name": "Nsit Atai",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003020",
+        "Name": "Nsit Ibom",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003021",
+        "Name": "Nsit Ubium",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003022",
+        "Name": "Obot Akara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003023",
+        "Name": "Okobo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003024",
+        "Name": "Onna",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003025",
+        "Name": "Oron",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003026",
+        "Name": "Oruk Anam",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003027",
+        "Name": "Udung Uko",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003028",
+        "Name": "Ukanafun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003029",
+        "Name": "Uruan",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003030",
+        "Name": "Urue-Offong/Oruko",
+        "Aliases": []
+      },
+      {
+        "ID": "NG003031",
+        "Name": "Uyo",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG004",
+    "Name": "Anambra",
+    "Aliases": [
+      "Anambra State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG004001",
+        "Name": "Aguata",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004002",
+        "Name": "Anambra East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004003",
+        "Name": "Anambra West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004004",
+        "Name": "Anaocha",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004005",
+        "Name": "Awka North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004006",
+        "Name": "Awka South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004007",
+        "Name": "Ayamelum",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004008",
+        "Name": "Dunukofia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004009",
+        "Name": "Ekwusigo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004010",
+        "Name": "Idemili North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004011",
+        "Name": "Idemili South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004012",
+        "Name": "Ihiala",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004013",
+        "Name": "Njikoka",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004014",
+        "Name": "Nnewi North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004015",
+        "Name": "Nnewi South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004016",
+        "Name": "Ogbaru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004017",
+        "Name": "Onitsha North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004018",
+        "Name": "Onitsha South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004019",
+        "Name": "Orumba North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004020",
+        "Name": "Orumba South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG004021",
+        "Name": "Oyi",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG005",
+    "Name": "Bauchi",
+    "Aliases": [
+      "Bauchi State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG005001",
+        "Name": "Alkaleri",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005002",
+        "Name": "Bauchi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005003",
+        "Name": "Bogoro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005004",
+        "Name": "Damban",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005005",
+        "Name": "Darazo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005006",
+        "Name": "Dass",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005007",
+        "Name": "Gamawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005008",
+        "Name": "Ganjuwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005009",
+        "Name": "Giade",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005010",
+        "Name": "Itas/Gadau",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005011",
+        "Name": "Jama'are",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005012",
+        "Name": "Katagum",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005013",
+        "Name": "Kirfi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005014",
+        "Name": "Misau",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005015",
+        "Name": "Ningi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005016",
+        "Name": "Shira",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005017",
+        "Name": "Tafawa-Balewa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005018",
+        "Name": "Toro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005019",
+        "Name": "Warji",
+        "Aliases": []
+      },
+      {
+        "ID": "NG005020",
+        "Name": "Zaki",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG006",
+    "Name": "Bayelsa",
+    "Aliases": [
+      "Bayelsa State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG006001",
+        "Name": "Brass",
+        "Aliases": []
+      },
+      {
+        "ID": "NG006002",
+        "Name": "Ekeremor",
+        "Aliases": []
+      },
+      {
+        "ID": "NG006003",
+        "Name": "Kolokuma/Opokuma",
+        "Aliases": []
+      },
+      {
+        "ID": "NG006004",
+        "Name": "Nembe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG006005",
+        "Name": "Ogbia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG006006",
+        "Name": "Sagbama",
+        "Aliases": []
+      },
+      {
+        "ID": "NG006007",
+        "Name": "Southern Ijaw",
+        "Aliases": []
+      },
+      {
+        "ID": "NG006008",
+        "Name": "Yenegoa",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG007",
+    "Name": "Benue",
+    "Aliases": [
+      "Benue State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG007001",
+        "Name": "Ado",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007002",
+        "Name": "Agatu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007003",
+        "Name": "Apa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007004",
+        "Name": "Buruku",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007005",
+        "Name": "Gboko",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007006",
+        "Name": "Guma",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007007",
+        "Name": "Gwer East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007008",
+        "Name": "Gwer West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007009",
+        "Name": "Katsina-Ala",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007010",
+        "Name": "Konshisha",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007011",
+        "Name": "Kwande",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007012",
+        "Name": "Logo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007013",
+        "Name": "Makurdi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007014",
+        "Name": "Obi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007015",
+        "Name": "Ogbadibo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007016",
+        "Name": "Ohimini",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007017",
+        "Name": "Oju",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007018",
+        "Name": "Okpokwu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007019",
+        "Name": "Oturkpo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007020",
+        "Name": "Tarka",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007021",
+        "Name": "Ukum",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007022",
+        "Name": "Ushongo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG007023",
+        "Name": "Vandeikya",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG008",
+    "Name": "Borno",
+    "Aliases": [
+      "Borno State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG008001",
+        "Name": "Abadam",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008002",
+        "Name": "Askira/Uba",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008003",
+        "Name": "Bama",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008004",
+        "Name": "Bayo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008005",
+        "Name": "Biu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008006",
+        "Name": "Chibok",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008007",
+        "Name": "Damboa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008008",
+        "Name": "Dikwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008009",
+        "Name": "Gubio",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008010",
+        "Name": "Guzamala",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008011",
+        "Name": "Gwoza",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008012",
+        "Name": "Hawul",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008013",
+        "Name": "Jere",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008014",
+        "Name": "Kaga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008015",
+        "Name": "Kala/Balge",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008016",
+        "Name": "Konduga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008017",
+        "Name": "Kukawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008018",
+        "Name": "Kwaya Kusar",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008019",
+        "Name": "Mafa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008020",
+        "Name": "Magumeri",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008021",
+        "Name": "Maiduguri",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008022",
+        "Name": "Marte",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008023",
+        "Name": "Mobbar",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008024",
+        "Name": "Monguno",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008025",
+        "Name": "Ngala",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008026",
+        "Name": "Nganzai",
+        "Aliases": []
+      },
+      {
+        "ID": "NG008027",
+        "Name": "Shani",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG009",
+    "Name": "Cross River",
+    "Aliases": [
+      "Cross River State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG009001",
+        "Name": "Abi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009002",
+        "Name": "Akamkpa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009003",
+        "Name": "Akpabuyo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009005",
+        "Name": "Bakassi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009006",
+        "Name": "Bekwara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009007",
+        "Name": "Biase",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009008",
+        "Name": "Boki",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009009",
+        "Name": "Calabar South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009010",
+        "Name": "Calabar-Municipal",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009011",
+        "Name": "Etung",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009012",
+        "Name": "Ikom",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009013",
+        "Name": "Obanliku",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009014",
+        "Name": "Obubra",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009015",
+        "Name": "Obudu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009016",
+        "Name": "Odukpani",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009017",
+        "Name": "Ogoja",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009018",
+        "Name": "Yakurr",
+        "Aliases": []
+      },
+      {
+        "ID": "NG009019",
+        "Name": "Yala",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG010",
+    "Name": "Delta",
+    "Aliases": [
+      "Delta State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG010001",
+        "Name": "Aniocha North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010002",
+        "Name": "Aniocha South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010003",
+        "Name": "Bomadi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010004",
+        "Name": "Burutu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010005",
+        "Name": "Ethiope East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010006",
+        "Name": "Ethiope West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010007",
+        "Name": "Ika North East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010008",
+        "Name": "Ika South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010009",
+        "Name": "Isoko North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010010",
+        "Name": "Isoko South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010011",
+        "Name": "Ndokwa East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010012",
+        "Name": "Ndokwa West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010013",
+        "Name": "Okpe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010014",
+        "Name": "Oshimili North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010015",
+        "Name": "Oshimili South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010016",
+        "Name": "Patani",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010017",
+        "Name": "Sapele",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010018",
+        "Name": "Udu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010019",
+        "Name": "Ughelli North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010020",
+        "Name": "Ughelli South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010021",
+        "Name": "Ukwuani",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010022",
+        "Name": "Uvwie",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010023",
+        "Name": "Warri North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010024",
+        "Name": "Warri South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG010025",
+        "Name": "Warri South West",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG011",
+    "Name": "Ebonyi",
+    "Aliases": [
+      "Ebonyi State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG011001",
+        "Name": "Abakaliki",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011002",
+        "Name": "Afikpo",
+        "Aliases": [
+          "Afikpo North"
+        ]
+      },
+      {
+        "ID": "NG011004",
+        "Name": "Ebonyi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011003",
+        "Name": "Edda",
+        "Aliases": [
+          "Afikpo South"
+        ]
+      },
+      {
+        "ID": "NG011005",
+        "Name": "Ezza North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011006",
+        "Name": "Ezza South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011007",
+        "Name": "Ikwo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011008",
+        "Name": "Ishielu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011009",
+        "Name": "Ivo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011010",
+        "Name": "Izzi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011011",
+        "Name": "Ohaozara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011012",
+        "Name": "Ohaukwu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG011013",
+        "Name": "Onicha",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG012",
+    "Name": "Edo",
+    "Aliases": [
+      "Edo State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG012001",
+        "Name": "Akoko-Edo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012002",
+        "Name": "Egor",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012003",
+        "Name": "Esan Central",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012004",
+        "Name": "Esan North East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012005",
+        "Name": "Esan South East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012006",
+        "Name": "Esan West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012007",
+        "Name": "Etsako Central",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012008",
+        "Name": "Etsako East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012009",
+        "Name": "Etsako West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012010",
+        "Name": "Igueben",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012011",
+        "Name": "Ikpoba-Okha",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012012",
+        "Name": "Oredo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012013",
+        "Name": "Orhionmwon",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012014",
+        "Name": "Ovia North East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012015",
+        "Name": "Ovia South West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012016",
+        "Name": "Owan East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012017",
+        "Name": "Owan West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG012018",
+        "Name": "Uhunmwonde",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG013",
+    "Name": "Ekiti",
+    "Aliases": [
+      "Ekiti State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG013001",
+        "Name": "Ado Ekiti",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013002",
+        "Name": "Aiyekire",
+        "Aliases": [
+          "Aiyekire (Gbonyin)"
+        ]
+      },
+      {
+        "ID": "NG013003",
+        "Name": "Efon",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013004",
+        "Name": "Ekiti East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013005",
+        "Name": "Ekiti South West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013006",
+        "Name": "Ekiti West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013007",
+        "Name": "Emure",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013008",
+        "Name": "Ido-Osi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013009",
+        "Name": "Ijero",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013010",
+        "Name": "Ikere",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013011",
+        "Name": "Ikole",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013012",
+        "Name": "Ilejemeji",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013013",
+        "Name": "Irepodun/Ifelodun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013014",
+        "Name": "Ise/Orun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013015",
+        "Name": "Moba",
+        "Aliases": []
+      },
+      {
+        "ID": "NG013016",
+        "Name": "Oye",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG014",
+    "Name": "Enugu",
+    "Aliases": [
+      "Enugu State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG014001",
+        "Name": "Aninri",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014002",
+        "Name": "Awgu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014003",
+        "Name": "Enugu East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014004",
+        "Name": "Enugu North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014005",
+        "Name": "Enugu South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014006",
+        "Name": "Ezeagu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014007",
+        "Name": "Igbo-Etiti",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014008",
+        "Name": "Igbo-Eze North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014009",
+        "Name": "Igbo-Eze South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014010",
+        "Name": "Isi-Uzo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014011",
+        "Name": "Nkanu East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014012",
+        "Name": "Nkanu West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014013",
+        "Name": "Nsukka",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014014",
+        "Name": "Oji-River",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014015",
+        "Name": "Udenu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014016",
+        "Name": "Udi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG014017",
+        "Name": "Uzo-Uwani",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG015",
+    "Name": "FCT",
+    "Aliases": [
+      "FCT",
+      "Abuja",
+      "Federal Capital Territory",
+      "Federal Capital Territory Abuja"
+    ],
+    "Areas": [
+      {
+        "ID": "NG015001",
+        "Name": "Abaji",
+        "Aliases": []
+      },
+      {
+        "ID": "NG015002",
+        "Name": "Abuja Municipal",
+        "Aliases": []
+      },
+      {
+        "ID": "NG015003",
+        "Name": "Bwari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG015004",
+        "Name": "Gwagwalada",
+        "Aliases": []
+      },
+      {
+        "ID": "NG015005",
+        "Name": "Kuje",
+        "Aliases": []
+      },
+      {
+        "ID": "NG015006",
+        "Name": "Kwali",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG016",
+    "Name": "Gombe",
+    "Aliases": [
+      "Gombe State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG016001",
+        "Name": "Akko",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016002",
+        "Name": "Balanga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016003",
+        "Name": "Billiri",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016004",
+        "Name": "Dukku",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016005",
+        "Name": "Funakaye",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016006",
+        "Name": "Gombe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016007",
+        "Name": "Kaltungo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016008",
+        "Name": "Kwami",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016009",
+        "Name": "Nafada",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016010",
+        "Name": "Shomgom",
+        "Aliases": []
+      },
+      {
+        "ID": "NG016011",
+        "Name": "Yamaltu/Deba",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG017",
+    "Name": "Imo",
+    "Aliases": [
+      "Imo State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG017001",
+        "Name": "Aboh-Mbaise",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017002",
+        "Name": "Ahiazu-Mbaise",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017003",
+        "Name": "Ehime-Mbano",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017004",
+        "Name": "Ezinihitte",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017005",
+        "Name": "Ideato North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017006",
+        "Name": "Ideato South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017007",
+        "Name": "Ihitte/Uboma",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017008",
+        "Name": "Ikeduru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017009",
+        "Name": "Isiala Mbano",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017010",
+        "Name": "Isu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017011",
+        "Name": "Mbaitoli",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017012",
+        "Name": "Ngor-Okpala",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017013",
+        "Name": "Njaba",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017014",
+        "Name": "Nkwerre",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017015",
+        "Name": "Nwangele",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017016",
+        "Name": "Obowo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017017",
+        "Name": "Oguta",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017018",
+        "Name": "Ohaji/Egbema",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017019",
+        "Name": "Okigwe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017027",
+        "Name": "Onuimo",
+        "Aliases": [
+          "Unuimo"
+        ]
+      },
+      {
+        "ID": "NG017020",
+        "Name": "Orlu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017021",
+        "Name": "Orsu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017022",
+        "Name": "Oru East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017023",
+        "Name": "Oru West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017024",
+        "Name": "Owerri North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017025",
+        "Name": "Owerri West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG017026",
+        "Name": "Owerri-Municipal",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG018",
+    "Name": "Jigawa",
+    "Aliases": [
+      "Jigawa State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG018001",
+        "Name": "Auyo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018002",
+        "Name": "Babura",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018003",
+        "Name": "Biriniwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018004",
+        "Name": "Birnin Kudu",
+        "Aliases": [
+          "Birni Kudu"
+        ]
+      },
+      {
+        "ID": "NG018005",
+        "Name": "Buji",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018006",
+        "Name": "Dutse",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018007",
+        "Name": "Gagarawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018008",
+        "Name": "Garki",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018009",
+        "Name": "Gumel",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018010",
+        "Name": "Guri",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018011",
+        "Name": "Gwaram",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018012",
+        "Name": "Gwiwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018013",
+        "Name": "Hadejia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018014",
+        "Name": "Jahun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018015",
+        "Name": "Kafin Hausa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018016",
+        "Name": "Kaugama",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018017",
+        "Name": "Kazaure",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018018",
+        "Name": "Kiri Kasamma",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018019",
+        "Name": "Kiyawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018020",
+        "Name": "Maigatari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018021",
+        "Name": "Malam Madori",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018022",
+        "Name": "Miga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018023",
+        "Name": "Ringim",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018024",
+        "Name": "Roni",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018025",
+        "Name": "Sule-Tankarkar",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018026",
+        "Name": "Taura",
+        "Aliases": []
+      },
+      {
+        "ID": "NG018027",
+        "Name": "Yankwashi",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG019",
+    "Name": "Kaduna",
+    "Aliases": [
+      "Kaduna State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG019001",
+        "Name": "Birnin-Gwari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019002",
+        "Name": "Chikun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019003",
+        "Name": "Giwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019004",
+        "Name": "Igabi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019005",
+        "Name": "Ikara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019006",
+        "Name": "Jaba",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019007",
+        "Name": "Jema'a",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019008",
+        "Name": "Kachia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019009",
+        "Name": "Kaduna North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019010",
+        "Name": "Kaduna South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019011",
+        "Name": "Kagarko",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019012",
+        "Name": "Kajuru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019013",
+        "Name": "Kaura",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019014",
+        "Name": "Kauru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019015",
+        "Name": "Kubau",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019016",
+        "Name": "Kudan",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019017",
+        "Name": "Lere",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019018",
+        "Name": "Markafi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019019",
+        "Name": "Sabon-Gari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019020",
+        "Name": "Sanga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019021",
+        "Name": "Soba",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019022",
+        "Name": "Zango-Kataf",
+        "Aliases": []
+      },
+      {
+        "ID": "NG019023",
+        "Name": "Zaria",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG020",
+    "Name": "Kano",
+    "Aliases": [
+      "Kano State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG020001",
+        "Name": "Ajingi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020002",
+        "Name": "Albasu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020003",
+        "Name": "Bagwai",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020004",
+        "Name": "Bebeji",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020005",
+        "Name": "Bichi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020006",
+        "Name": "Bunkure",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020007",
+        "Name": "Dala",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020008",
+        "Name": "Dambatta",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020009",
+        "Name": "Dawakin Kudu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020010",
+        "Name": "Dawakin Tofa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020011",
+        "Name": "Doguwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020012",
+        "Name": "Fagge",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020013",
+        "Name": "Gabasawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020014",
+        "Name": "Garko",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020015",
+        "Name": "Garum Mallam",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020016",
+        "Name": "Gaya",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020017",
+        "Name": "Gezawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020026",
+        "Name": "Ghari",
+        "Aliases": [
+          "Kunchi"
+        ]
+      },
+      {
+        "ID": "NG020018",
+        "Name": "Gwale",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020019",
+        "Name": "Gwarzo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020020",
+        "Name": "Kabo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020021",
+        "Name": "Kano Municipal",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020022",
+        "Name": "Karaye",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020023",
+        "Name": "Kibiya",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020024",
+        "Name": "Kiru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020025",
+        "Name": "Kumbotso",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020027",
+        "Name": "Kura",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020028",
+        "Name": "Madobi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020029",
+        "Name": "Makoda",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020030",
+        "Name": "Minjibir",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020031",
+        "Name": "Nasarawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020032",
+        "Name": "Rano",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020033",
+        "Name": "Rimin Gado",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020034",
+        "Name": "Rogo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020035",
+        "Name": "Shanono",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020036",
+        "Name": "Sumaila",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020037",
+        "Name": "Takai",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020038",
+        "Name": "Tarauni",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020039",
+        "Name": "Tofa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020040",
+        "Name": "Tsanyawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020041",
+        "Name": "Tudun Wada",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020042",
+        "Name": "Ungogo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020043",
+        "Name": "Warawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG020044",
+        "Name": "Wudil",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG021",
+    "Name": "Katsina",
+    "Aliases": [
+      "Katsina State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG021001",
+        "Name": "Bakori",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021002",
+        "Name": "Batagarawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021003",
+        "Name": "Batsari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021004",
+        "Name": "Baure",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021005",
+        "Name": "Bindawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021006",
+        "Name": "Charanchi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021007",
+        "Name": "Dan Musa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021008",
+        "Name": "Dandume",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021009",
+        "Name": "Danja",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021010",
+        "Name": "Daura",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021011",
+        "Name": "Dutsi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021012",
+        "Name": "Dutsin-Ma",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021013",
+        "Name": "Faskari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021014",
+        "Name": "Funtua",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021015",
+        "Name": "Ingawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021016",
+        "Name": "Jibia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021017",
+        "Name": "Kafur",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021018",
+        "Name": "Kaita",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021019",
+        "Name": "Kankara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021020",
+        "Name": "Kankia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021021",
+        "Name": "Katsina",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021022",
+        "Name": "Kurfi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021023",
+        "Name": "Kusada",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021024",
+        "Name": "Mai'adua",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021025",
+        "Name": "Malumfashi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021026",
+        "Name": "Mani",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021027",
+        "Name": "Mashi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021028",
+        "Name": "Matazu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021029",
+        "Name": "Musawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021030",
+        "Name": "Rimi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021031",
+        "Name": "Sabuwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021032",
+        "Name": "Safana",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021033",
+        "Name": "Sandamu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG021034",
+        "Name": "Zango",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG022",
+    "Name": "Kebbi",
+    "Aliases": [
+      "Kebbi State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG022001",
+        "Name": "Aleiro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022002",
+        "Name": "Arewa-Dandi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022003",
+        "Name": "Argungu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022004",
+        "Name": "Augie",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022005",
+        "Name": "Bagudo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022006",
+        "Name": "Birnin Kebbi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022007",
+        "Name": "Bunza",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022008",
+        "Name": "Dandi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022009",
+        "Name": "Fakai",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022010",
+        "Name": "Gwandu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022011",
+        "Name": "Jega",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022012",
+        "Name": "Kalgo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022013",
+        "Name": "Koko/Besse",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022014",
+        "Name": "Maiyama",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022015",
+        "Name": "Ngaski",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022016",
+        "Name": "Sakaba",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022017",
+        "Name": "Shanga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022018",
+        "Name": "Suru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022019",
+        "Name": "Wasagu/Danko",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022020",
+        "Name": "Yauri",
+        "Aliases": []
+      },
+      {
+        "ID": "NG022021",
+        "Name": "Zuru",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG023",
+    "Name": "Kogi",
+    "Aliases": [
+      "Kogi State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG023001",
+        "Name": "Adavi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023002",
+        "Name": "Ajaokuta",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023003",
+        "Name": "Ankpa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023004",
+        "Name": "Bassa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023005",
+        "Name": "Dekina",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023006",
+        "Name": "Ibaji",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023007",
+        "Name": "Idah",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023008",
+        "Name": "Igalamela-Odolu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023009",
+        "Name": "Ijumu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023010",
+        "Name": "Kabba/Bunu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023011",
+        "Name": "Kogi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023012",
+        "Name": "Lokoja",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023013",
+        "Name": "Mopa-Muro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023014",
+        "Name": "Ofu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023015",
+        "Name": "Ogori/Magongo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023016",
+        "Name": "Okehi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023017",
+        "Name": "Okene",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023018",
+        "Name": "Olamabolo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023019",
+        "Name": "Omala",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023020",
+        "Name": "Yagba East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG023021",
+        "Name": "Yagba West",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG024",
+    "Name": "Kwara",
+    "Aliases": [
+      "Kwara State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG024001",
+        "Name": "Asa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024002",
+        "Name": "Baruten",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024003",
+        "Name": "Edu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024004",
+        "Name": "Ekiti",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024005",
+        "Name": "Ifelodun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024006",
+        "Name": "Ilorin East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024007",
+        "Name": "Ilorin South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024008",
+        "Name": "Ilorin West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024009",
+        "Name": "Irepodun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024010",
+        "Name": "Isin",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024011",
+        "Name": "Kaiama",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024012",
+        "Name": "Moro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024013",
+        "Name": "Offa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024014",
+        "Name": "Oke-Ero",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024015",
+        "Name": "Oyun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG024016",
+        "Name": "Pategi",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG025",
+    "Name": "Lagos",
+    "Aliases": [
+      "Lagos State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG025001",
+        "Name": "Agege",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025002",
+        "Name": "Ajeromi-Ifelodun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025003",
+        "Name": "Alimosho",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025004",
+        "Name": "Amuwo-Odofin",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025005",
+        "Name": "Apapa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025006",
+        "Name": "Badagry",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025007",
+        "Name": "Epe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025008",
+        "Name": "Eti-Osa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025009",
+        "Name": "Ibeju/Lekki",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025010",
+        "Name": "Ifako-Ijaye",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025011",
+        "Name": "Ikeja",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025012",
+        "Name": "Ikorodu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025013",
+        "Name": "Kosofe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025014",
+        "Name": "Lagos Island",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025015",
+        "Name": "Lagos Mainland",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025016",
+        "Name": "Mushin",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025017",
+        "Name": "Ojo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025018",
+        "Name": "Oshodi-Isolo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025019",
+        "Name": "Shomolu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG025020",
+        "Name": "Surulere",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG026",
+    "Name": "Nasarawa",
+    "Aliases": [
+      "Nasarawa State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG026001",
+        "Name": "Akwanga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026002",
+        "Name": "Awe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026003",
+        "Name": "Doma",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026004",
+        "Name": "Karu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026005",
+        "Name": "Keana",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026006",
+        "Name": "Keffi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026007",
+        "Name": "Kokona",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026008",
+        "Name": "Lafia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026009",
+        "Name": "Nasarawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026010",
+        "Name": "Nasarawa-Eggon",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026011",
+        "Name": "Obi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026012",
+        "Name": "Toto",
+        "Aliases": []
+      },
+      {
+        "ID": "NG026013",
+        "Name": "Wamba",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG027",
+    "Name": "Niger",
+    "Aliases": [
+      "Niger State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG027001",
+        "Name": "Agaie",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027002",
+        "Name": "Agwara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027003",
+        "Name": "Bida",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027004",
+        "Name": "Borgu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027005",
+        "Name": "Bosso",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027006",
+        "Name": "Chanchaga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027007",
+        "Name": "Edati",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027008",
+        "Name": "Gbako",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027009",
+        "Name": "Gurara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027010",
+        "Name": "Katcha",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027011",
+        "Name": "Kontagora",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027012",
+        "Name": "Lapai",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027013",
+        "Name": "Lavun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027014",
+        "Name": "Magama",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027015",
+        "Name": "Mariga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027016",
+        "Name": "Mashegu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027017",
+        "Name": "Mokwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027018",
+        "Name": "Muya",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027019",
+        "Name": "Paikoro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027020",
+        "Name": "Rafi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027021",
+        "Name": "Rijau",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027022",
+        "Name": "Shiroro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027023",
+        "Name": "Suleja",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027024",
+        "Name": "Tafa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG027025",
+        "Name": "Wushishi",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG028",
+    "Name": "Ogun",
+    "Aliases": [
+      "Ogun State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG028001",
+        "Name": "Abeokuta North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028002",
+        "Name": "Abeokuta South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028003",
+        "Name": "Ado-Odo/Ota",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028006",
+        "Name": "Ewekoro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028007",
+        "Name": "Ifo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028008",
+        "Name": "Ijebu East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028009",
+        "Name": "Ijebu North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028010",
+        "Name": "Ijebu North East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028011",
+        "Name": "Ijebu Ode",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028012",
+        "Name": "Ikenne",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028013",
+        "Name": "Imeko-Afon",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028014",
+        "Name": "Ipokia",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028015",
+        "Name": "Obafemi-Owode",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028016",
+        "Name": "Odeda",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028017",
+        "Name": "Odogbolu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028018",
+        "Name": "Ogun waterside",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028019",
+        "Name": "Remo North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028020",
+        "Name": "Shagamu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG028004",
+        "Name": "Yewa North",
+        "Aliases": [
+          "Egbado North"
+        ]
+      },
+      {
+        "ID": "NG028005",
+        "Name": "Yewa South",
+        "Aliases": [
+          "Egbado South"
+        ]
+      }
+    ]
+  },
+  {
+    "ID": "NG029",
+    "Name": "Ondo",
+    "Aliases": [
+      "Ondo State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG029001",
+        "Name": "Akoko North East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029002",
+        "Name": "Akoko North West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029003",
+        "Name": "Akoko South East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029004",
+        "Name": "Akoko South West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029005",
+        "Name": "Akure North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029006",
+        "Name": "Akure South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029007",
+        "Name": "Ese-Odo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029008",
+        "Name": "Idanre",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029009",
+        "Name": "Ifedore",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029010",
+        "Name": "Ilaje",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029011",
+        "Name": "Ile-Oluji-Okeigbo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029012",
+        "Name": "Irele",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029013",
+        "Name": "Odigbo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029014",
+        "Name": "Okitipupa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029015",
+        "Name": "Ondo East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029016",
+        "Name": "Ondo West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029017",
+        "Name": "Ose",
+        "Aliases": []
+      },
+      {
+        "ID": "NG029018",
+        "Name": "Owo",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG030",
+    "Name": "Osun",
+    "Aliases": [
+      "Osun State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG030001",
+        "Name": "Aiyedade",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030002",
+        "Name": "Aiyedire",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030003",
+        "Name": "Atakumosa East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030004",
+        "Name": "Atakumosa West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030005",
+        "Name": "Boluwaduro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030006",
+        "Name": "Boripe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030007",
+        "Name": "Ede North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030008",
+        "Name": "Ede South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030009",
+        "Name": "Egbedore",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030010",
+        "Name": "Ejigbo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030011",
+        "Name": "Ife Central",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030012",
+        "Name": "Ife East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030013",
+        "Name": "Ife North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030014",
+        "Name": "Ife South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030015",
+        "Name": "Ifedayo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030016",
+        "Name": "Ifelodun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030017",
+        "Name": "Ila",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030018",
+        "Name": "Ilesha East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030019",
+        "Name": "Ilesha West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030020",
+        "Name": "Irepodun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030021",
+        "Name": "Irewole",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030022",
+        "Name": "Isokan",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030023",
+        "Name": "Iwo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030024",
+        "Name": "Obokun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030025",
+        "Name": "Odo-Otin",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030026",
+        "Name": "Ola-oluwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030027",
+        "Name": "Olorunda",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030028",
+        "Name": "Oriade",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030029",
+        "Name": "Orolu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG030030",
+        "Name": "Osogbo",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG031",
+    "Name": "Oyo",
+    "Aliases": [
+      "Oyo State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG031001",
+        "Name": "Afijio",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031002",
+        "Name": "Akinyele",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031003",
+        "Name": "Atiba",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031004",
+        "Name": "Atisbo",
+        "Aliases": [
+          "Atigbo"
+        ]
+      },
+      {
+        "ID": "NG031005",
+        "Name": "Egbeda",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031006",
+        "Name": "Ibadan North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031007",
+        "Name": "Ibadan North East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031008",
+        "Name": "Ibadan North West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031009",
+        "Name": "Ibadan South East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031010",
+        "Name": "Ibadan South West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031011",
+        "Name": "Ibarapa Central",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031012",
+        "Name": "Ibarapa East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031013",
+        "Name": "Ibarapa North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031014",
+        "Name": "Ido",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031015",
+        "Name": "Irepo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031016",
+        "Name": "Iseyin",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031017",
+        "Name": "Itesiwaju",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031018",
+        "Name": "Iwajowa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031019",
+        "Name": "Kajola",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031020",
+        "Name": "Lagelu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031021",
+        "Name": "Ogbomosho North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031022",
+        "Name": "Ogbomosho South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031023",
+        "Name": "Ogo Oluwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031024",
+        "Name": "Olorunsogo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031025",
+        "Name": "Oluyole",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031026",
+        "Name": "Ona-Ara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031027",
+        "Name": "Orelope",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031028",
+        "Name": "Ori Ire",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031029",
+        "Name": "Oyo East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031030",
+        "Name": "Oyo West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031031",
+        "Name": "Saki East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031032",
+        "Name": "Saki West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG031033",
+        "Name": "Surulere",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG032",
+    "Name": "Plateau",
+    "Aliases": [
+      "Plateau State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG032001",
+        "Name": "Barikin Ladi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032002",
+        "Name": "Bassa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032003",
+        "Name": "Bokkos",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032004",
+        "Name": "Jos East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032005",
+        "Name": "Jos North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032006",
+        "Name": "Jos South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032007",
+        "Name": "Kanam",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032008",
+        "Name": "Kanke",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032009",
+        "Name": "Langtang North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032010",
+        "Name": "Langtang South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032011",
+        "Name": "Mangu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032012",
+        "Name": "Mikang",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032013",
+        "Name": "Pankshin",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032014",
+        "Name": "Qua'an Pan",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032015",
+        "Name": "Riyom",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032016",
+        "Name": "Shendam",
+        "Aliases": []
+      },
+      {
+        "ID": "NG032017",
+        "Name": "Wase",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG033",
+    "Name": "Rivers",
+    "Aliases": [
+      "Rivers State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG033001",
+        "Name": "Abua/Odual",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033002",
+        "Name": "Ahoada East",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033003",
+        "Name": "Ahoada West",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033004",
+        "Name": "Akuku Toru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033005",
+        "Name": "Andoni",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033006",
+        "Name": "Asari-Toru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033007",
+        "Name": "Bonny",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033008",
+        "Name": "Degema",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033009",
+        "Name": "Eleme",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033010",
+        "Name": "Emohua",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033011",
+        "Name": "Etche",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033012",
+        "Name": "Gokana",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033013",
+        "Name": "Ikwerre",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033014",
+        "Name": "Khana",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033015",
+        "Name": "Obio/Akpor",
+        "Aliases": [
+          "Obia/Akpor"
+        ]
+      },
+      {
+        "ID": "NG033016",
+        "Name": "Ogba/Egbema/Ndoni",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033017",
+        "Name": "Ogu/Bolo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033018",
+        "Name": "Okrika",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033019",
+        "Name": "Omumma",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033020",
+        "Name": "Opobo/Nkoro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033021",
+        "Name": "Oyigbo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033022",
+        "Name": "Port-Harcourt",
+        "Aliases": []
+      },
+      {
+        "ID": "NG033023",
+        "Name": "Tai",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG034",
+    "Name": "Sokoto",
+    "Aliases": [
+      "Sokoto State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG034001",
+        "Name": "Binji",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034002",
+        "Name": "Bodinga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034003",
+        "Name": "Dange-Shuni",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034004",
+        "Name": "Gada",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034006",
+        "Name": "Goronyo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034007",
+        "Name": "Gudu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034005",
+        "Name": "Gwadabawa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034008",
+        "Name": "Illela",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034009",
+        "Name": "Isa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034010",
+        "Name": "Kebbe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034011",
+        "Name": "Kware",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034012",
+        "Name": "Rabah",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034013",
+        "Name": "Sabon Birni",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034014",
+        "Name": "Shagari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034015",
+        "Name": "Silame",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034016",
+        "Name": "Sokoto North",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034017",
+        "Name": "Sokoto South",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034018",
+        "Name": "Tambuwal",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034019",
+        "Name": "Tangaza",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034020",
+        "Name": "Tureta",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034021",
+        "Name": "Wamakko",
+        "Aliases": [
+          "Wamako"
+        ]
+      },
+      {
+        "ID": "NG034022",
+        "Name": "Wurno",
+        "Aliases": []
+      },
+      {
+        "ID": "NG034023",
+        "Name": "Yabo",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG035",
+    "Name": "Taraba",
+    "Aliases": [
+      "Taraba State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG035001",
+        "Name": "Ardo-Kola",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035002",
+        "Name": "Bali",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035003",
+        "Name": "Donga",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035004",
+        "Name": "Gashaka",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035005",
+        "Name": "Gassol",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035006",
+        "Name": "Ibi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035007",
+        "Name": "Jalingo",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035008",
+        "Name": "Karim-Lamido",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035009",
+        "Name": "Kurmi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035010",
+        "Name": "Lau",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035011",
+        "Name": "Sardauna",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035012",
+        "Name": "Takum",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035013",
+        "Name": "Ussa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035014",
+        "Name": "Wukari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035015",
+        "Name": "Yorro",
+        "Aliases": []
+      },
+      {
+        "ID": "NG035016",
+        "Name": "Zing",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG036",
+    "Name": "Yobe",
+    "Aliases": [
+      "Yobe State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG036001",
+        "Name": "Bade",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036002",
+        "Name": "Bursari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036003",
+        "Name": "Damaturu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036004",
+        "Name": "Fika",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036005",
+        "Name": "Fune",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036006",
+        "Name": "Geidam",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036007",
+        "Name": "Gujba",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036008",
+        "Name": "Gulani",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036009",
+        "Name": "Jakusko",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036010",
+        "Name": "Karasuwa",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036011",
+        "Name": "Machina",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036012",
+        "Name": "Nangere",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036013",
+        "Name": "Nguru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036014",
+        "Name": "Potiskum",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036015",
+        "Name": "Tarmua",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036016",
+        "Name": "Yunusari",
+        "Aliases": []
+      },
+      {
+        "ID": "NG036017",
+        "Name": "Yusufari",
+        "Aliases": []
+      }
+    ]
+  },
+  {
+    "ID": "NG037",
+    "Name": "Zamfara",
+    "Aliases": [
+      "Zamfara State"
+    ],
+    "Areas": [
+      {
+        "ID": "NG037001",
+        "Name": "Anka",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037002",
+        "Name": "Bakura",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037003",
+        "Name": "Birnin Magaji",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037004",
+        "Name": "Bukkuyum",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037005",
+        "Name": "Bungudu",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037006",
+        "Name": "Gummi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037007",
+        "Name": "Gusau",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037008",
+        "Name": "Kaura Namoda",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037009",
+        "Name": "Maradun",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037010",
+        "Name": "Maru",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037011",
+        "Name": "Shinkafi",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037012",
+        "Name": "Talata Mafara",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037013",
+        "Name": "Tsafe",
+        "Aliases": []
+      },
+      {
+        "ID": "NG037014",
+        "Name": "Zurmi",
+        "Aliases": []
+      }
+    ]
+  }
+]

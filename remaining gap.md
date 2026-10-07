@@ -12,7 +12,6 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 
 | Gap IDs | Remaining work | Completion target |
 | --- | --- | --- |
-| FE-10, BE-19 | Canonical geography and broader discovery | Choose canonical state/area IDs, dependent choices, normalization/backfill and broader-search behavior. Sorted free-text options are insufficient. |
 | FE-02 | Complete shared layout/control primitives | Shared role navigation is merged. Finish reusable form, confirmation and layout primitives across remaining page families. |
 | FE-16 | Consistent domain status presentation | The admin Rejected badge is repaired; centralize actual domain states, labels and treatments across all views. |
 | FE-21 | Complete accessible field feedback | Shared hidden-text utilities, password note associations, invalid-field feedback and message character-count associations are merged. Audit server errors and remaining forms; shared feedback does not close the cross-page audit. |
@@ -27,7 +26,7 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 
 [PR #91](https://github.com/OG-Ogar/degosalon/pull/91), `feat/frontend-messaging-browser-verification`, merged on 7 October 2026. Final checked head: `8e53fb81095ca6e81ab66301bc900242311b3851`. The [final PR CI run](https://github.com/OG-Ogar/degosalon/actions/runs/37597022175) passed `verify`, `postgres` and `browser`; CodeRabbit also reported success. Earlier failed runs are superseded by this final head.
 
-FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. Expanded field feedback is merged, but FE-21's audit of remaining forms and server errors stays open. Browser CI is implemented; BE-23's dedicated security coverage and FE-26's full browser acceptance remain open. Passing this scoped suite does not certify production or every page family.
+FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. Expanded field feedback is merged, but FE-21's audit of remaining forms and server errors stays open. Browser CI is implemented; BE-23's broader browser journeys and FE-26's full browser acceptance remain open; dedicated security coverage is merged. Passing this scoped suite does not certify production or every page family.
 
 ## Production acceptance still outstanding
 
@@ -41,6 +40,8 @@ These are verification tasks for existing implementations, not necessarily missi
 
 ## Merged repairs excluded from the backlog
 
+FE-10/BE-19 uses Nigeria's 36 states, FCT and 774 LGAs/area councils, with stable application IDs, parent-bound choices and explicit legacy aliases. Barber registration/self-edit/admin forms require a valid pair; public/customer discovery accepts both IDs and existing name-based links, offers all locations even where no shops exist, and retains whole-state broadening. Native grouped selects work without JavaScript; the enhanced controls limit LGAs to the selected state and clear an incompatible choice. The migration normalizes/backfills recognized active/suspended records, preserves unknown legacy areas without guessing, and leaves archived historical records untouched. Private RLS-enabled catalogs and foreign keys retain matching parent relationships. [Data sources and adaptation notes](internal/geography/README.md) document naming changes and licensing. SQL discovery scoping and pagination remain under BE-18.
+
 BE-23's direct password-security coverage checks independent PBKDF2-SHA256 vectors, multiblock derivation, fresh salts, exact password verification and malformed digest handling. Digest verification rejects oversized encodings, excessive iteration counts and incorrect salt/key lengths before hashing; existing application-generated digests retain their format and iteration count. A fuzz target covers malformed input robustness. Broader browser journeys remain open.
 
 BE-09/10's [caller audit](storage-caller-audit.md) confirms active request paths use checked context-aware storage APIs. Five remaining affected-row error omissions are repaired, with driver fault-injection coverage of updates, transitions and checkout rollback. Bounded detached media reconciliation remains intentional. Provider outage/pooler cancellation still needs production acceptance; worker shutdown is tracked under BE-22.
@@ -49,7 +50,7 @@ BE-16 uses an explicit NGN two-decimal contract matching existing PostgreSQL num
 
 BE-17 compares open appointments against one request-time instant using the recorded timezone, accepting both legacy HH:MM and PostgreSQL HH:MM:SS values. Elapsed or unverifiable open appointments appear in a separate Needs follow-up section with message/outcome actions; page reads never infer no-shows or mutate lifecycle status. Customer upcoming lists and both dashboards exclude elapsed appointments; pending counters still count all pending requests. Legacy rows without timezone snapshots use the configured legacy booking timezone.
 
-BE-19's shared customer/barber identity parsers validate bounded international names, email syntax and phone digit/format limits; barber forms also require bounded shop/address/state/area fields. These parsers cover customer/barber registration and profile edits plus administrator barber creation/update. Invalid submissions are rejected before account/media mutation, with values retained. Canonical geography remains separate under FE-10/BE-19; existing records are not normalized or backfilled by these input checks.
+BE-19's shared customer/barber identity parsers validate bounded international names, email syntax and phone digit/format limits; barber forms also require bounded shop/address/state/area fields. These parsers cover customer/barber registration and profile edits plus administrator barber creation/update. Invalid submissions are rejected before account/media mutation, with values retained. Canonical geography is now handled by the separate FE-10/BE-19 catalog and migration described above.
 
 PRs #86–90 implemented separate image enlargement controls and a native accessible viewer (FE-04/05), submission locks and pending announcements (FE-20), IME-safe chat and deliberate mobile focus (FE-22), recovery layouts (FE-03), labeled mobile tables (FE-15), shared role navigation/mobile wrapping (FE-01/14), grouped currency display (FE-12), brand fallbacks (FE-11), customer-aware public navigation (FE-17), public portfolio media and exact-product continuation (FE-18), and shared HTML error recovery (FE-19). Remaining form-state/context preservation should be assessed during browser acceptance.
 
@@ -57,7 +58,7 @@ Earlier main already contains booking/schedule/lifecycle safeguards (BE-01/02/03
 
 ## Decisions requiring product input
 
-Online payments are optional under the current collection policy. Email/barber verification, review moderation, remembered locality and realtime unread chat are not automatically missing requirements. Canonical geography and approved legal/support content need explicit definitions.
+Online payments are optional under the current collection policy. Email/barber verification, review moderation, remembered locality and realtime unread chat are not automatically missing requirements. Product decisions: use Nigeria states/FCT and official LGAs/area councils for geography; use clearly labeled placeholders for support/help/privacy/terms until final content is approved.
 
 ## Execution order
 

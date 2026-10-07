@@ -3,10 +3,10 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"sort"
 	"strings"
 	"time"
 
+	"barber-booking/internal/geography"
 	"barber-booking/models"
 	"barber-booking/storage"
 )
@@ -24,7 +24,6 @@ type barberCard struct {
 
 type browseBarbersView struct {
 	Items         []barberCard
-	States        []string
 	SelectedState string
 	SelectedArea  string
 	CSRF          string
@@ -52,20 +51,16 @@ func BrowseBarbersHandler(
 		return
 	}
 
-	state := strings.TrimSpace(r.URL.Query().Get("state"))
-	area := strings.TrimSpace(r.URL.Query().Get("area"))
-	var states []string
-	seen := map[string]bool{}
-	for _, b := range barbers {
-		if b.State != "" && !seen[strings.ToLower(b.State)] {
-			states = append(states, b.State)
-			seen[strings.ToLower(b.State)] = true
-		}
+	state, area, ok := discoveryLocation(r)
+	if !ok {
+		journeyError(w, "Choose a valid state/FCT and an LGA or area council within it.", http.StatusBadRequest)
+		return
 	}
-	sort.Strings(states)
+
 	cards := make([]barberCard, 0, len(barbers))
 
 	for _, barber := range barbers {
+		barber.State, barber.LocalArea = geography.NormalizeLegacy(barber.State, barber.LocalArea)
 		// Both discovery surfaces require a selected state before listing shops.
 		if state == "" || !strings.EqualFold(barber.State, state) {
 			continue
@@ -99,7 +94,7 @@ func BrowseBarbersHandler(
 		cards = append(cards, card)
 	}
 
-	render(w, "customer/barber-list.html", browseBarbersView{Items: cards, States: states, SelectedState: state, SelectedArea: area, CSRF: s.CSRFToken})
+	render(w, "customer/barber-list.html", browseBarbersView{Items: cards, SelectedState: state, SelectedArea: area, CSRF: s.CSRFToken})
 }
 
 // barberDetailView is one barber's shop as a customer sees it: their

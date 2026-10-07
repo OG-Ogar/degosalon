@@ -301,7 +301,28 @@
         }
     }
     /* ---- wiring ---- */
+    // Keep native optgroups as the no-script fallback; the server validates the pair.
+    function enhanceGeography() {
+        document.querySelectorAll("select[data-geography-state]").forEach(function (state) {
+            var _a;
+            var area = (_a = state.form) === null || _a === void 0 ? void 0 : _a.querySelector("select[data-geography-area]");
+            if (!area)
+                return;
+            var groups = Array.from(area.querySelectorAll("optgroup")).map(group => group.cloneNode(true));
+            function refresh() {
+                if (!area)
+                    return;
+                var selected = area.value;
+                area.querySelectorAll("optgroup").forEach(group => group.remove());
+                groups.filter(group => group.dataset.stateId === state.value).forEach(group => area === null || area === void 0 ? void 0 : area.appendChild(group.cloneNode(true)));
+                area.value = Array.from(area.options).some(option => option.value === selected) ? selected : "";
+            }
+            refresh();
+            state.addEventListener("change", refresh);
+        });
+    }
     function init() {
+        enhanceGeography();
         document.querySelectorAll('input[type="password"]').forEach(addRevealButton);
         document.querySelectorAll("form").forEach(function (form) {
             wireFieldFeedback(form);

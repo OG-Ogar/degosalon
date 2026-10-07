@@ -2,6 +2,46 @@ const {test,expect}=require('@playwright/test');
 const {default:AxeBuilder}=require('@axe-core/playwright');
 const fs=require('node:fs');
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGOUs9FgYGBgYmBgYGBgAAAGOACGNuhQ0wAAAABJRU5ErkJggg==','base64');
+test('both conversation views deliver replies through explicit refresh',async({browser},testInfo)=>{
+ const customerContext=await browser.newContext();
+ const barberContext=await browser.newContext();
+ try {
+  const customer=await customerContext.newPage();
+  const barber=await barberContext.newPage();
+  const suffix=Date.now();
+  const email='chat-barber-'+suffix+'@example.test';
+  const registered=await barber.request.post('/barber/register',{multipart:{fullname:'Chat Barber',phone:'08012345678',email,shopname:'Chat Shop',shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}});
+  expect(registered.ok(),await registered.text()).toBeTruthy();
+  expect((await barber.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
+  const signedUp=await customer.request.post('/customer/register',{multipart:{fullname:'Chat Customer',phone:'08012345678',email:'chat-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}});
+  expect(signedUp.ok(),await signedUp.text()).toBeTruthy();
+  await customer.goto('/customer/barbers?state=Lagos');
+  await customer.getByRole('link',{name:/Chat Shop/}).first().click();
+  await customer.getByRole('link',{name:'Message Barber',exact:true}).first().click();
+  await expect(customer.getByRole('link',{name:'Refresh conversation',exact:true})).toBeVisible();
+  await customer.getByRole('textbox',{name:'Your message'}).fill('Customer greeting');
+  await customer.getByRole('button',{name:/send/i}).click();
+  await barber.goto('/barber/chats');
+  await barber.getByRole('link').filter({hasText:'Chat Customer'}).first().click();
+  await expect(barber.getByText('Customer greeting',{exact:true})).toBeVisible();
+  await barber.getByRole('textbox',{name:'Your message'}).fill('Barber reply');
+  await barber.getByRole('button',{name:/send/i}).click();
+  await expect(customer.getByText('Barber reply',{exact:true})).toHaveCount(0);
+  await customer.getByRole('link',{name:'Refresh conversation',exact:true}).click();
+  await expect(customer.getByText('Barber reply',{exact:true})).toBeVisible();
+  for(const width of [1280,320]){
+   for(const [page,role] of [[customer,'customer'],[barber,'barber']]){
+    await page.setViewportSize({width,height:900});
+    await checkPage(page,testInfo,role+'-conversation-'+width);
+    const box=page.getByRole('textbox',{name:'Your message'});
+    await expect(box).toHaveAttribute('aria-describedby',/\S+/);
+   }
+  }
+ } finally {
+  await customerContext.close();
+  await barberContext.close();
+ }
+});
 async function checkPage(page,testInfo,name){
  await expect(page.locator('h1').first()).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth+1)).toBeTruthy();

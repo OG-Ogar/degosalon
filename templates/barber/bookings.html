@@ -444,9 +444,7 @@
 
                                 <td data-label="Status">
 
-                                    <span class="barber-badge {{.Status}}">
-                                        {{.Status}}
-                                    </span>
+                                    {{template "domain-status" (domainStatus "booking" .Status)}}
 
                                 </td>
 
@@ -471,7 +469,7 @@
     {{range .FollowUp}}
     <article class="barber-card">
         <h3>{{.CustomerName}} · {{.HairstyleName}}</h3>
-        <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{.Status}}</p>
+        <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{template "domain-status" (domainStatus "booking" .Status)}}</p>
         <a class="barber-button" href="/barber/chats/{{.CustomerID}}">Message customer</a>
         {{if eq .Status "Accepted"}}
         <form method="post" action="{{$.ActionURL}}{{.ID}}/complete">

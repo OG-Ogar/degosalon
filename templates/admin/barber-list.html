@@ -57,7 +57,7 @@
                         </td>
                         <td data-label="Styles">{{.Hairstyles}}</td>
                         <td data-label="Bookings">{{.Bookings}}</td>
-                        <td data-label="Status"><span class="badge {{.Status}}">{{.Status}}</span></td>
+                        <td data-label="Status">{{template "domain-status" (domainStatus "account" .Status)}}</td>
                         <td data-label="Actions">
                             {{if ne .Status "Archived"}}
                             <a class="button small" href="/admin/barbers/{{.ID}}/edit">Edit</a>

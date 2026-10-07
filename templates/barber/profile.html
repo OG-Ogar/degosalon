@@ -160,9 +160,7 @@
 
                     <td>
 
-                        <span class="barber-badge {{.Status}}">
-                            {{.Status}}
-                        </span>
+                        {{template "domain-status" (domainStatus "account" .Status)}}
 
                     </td>
 

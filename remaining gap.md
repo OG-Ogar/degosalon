@@ -13,7 +13,6 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 | Gap IDs | Remaining work | Completion target |
 | --- | --- | --- |
 | FE-02 | Complete shared layout/control primitives | Shared role navigation is merged. Finish reusable form, confirmation and layout primitives across remaining page families. |
-| FE-16 | Consistent domain status presentation | The admin Rejected badge is repaired; centralize actual domain states, labels and treatments across all views. |
 | FE-21 | Complete accessible field feedback | Shared hidden-text utilities, password note associations, invalid-field feedback and message character-count associations are merged. Audit server errors and remaining forms; shared feedback does not close the cross-page audit. |
 | FE-24 | Responsive media delivery | Add suitable image variants, srcset/sizes, reserved dimensions and deliberate video/hero loading; measure performance and set budgets. |
 | FE-25 | Final support/legal content and deployment metadata acceptance | Shared destinations and explicitly approved placeholders are implemented, with configured-origin canonical/share metadata across public pages. Replace placeholders with approved contacts/policies and verify the deployed canonical origin. |
@@ -39,6 +38,8 @@ These are verification tasks for existing implementations, not necessarily missi
 - Render build and runtime logs, live application responses and deployed commit identity.
 
 ## Merged repairs excluded from the backlog
+
+FE-16's shared presentation catalog and badge partial cover appointment, barber-account, order, item fulfillment and catalogue availability states. Labels, descriptions and five visual treatments are centralized; unknown or cross-domain values render a neutral Unknown status and never become CSS classes. All current status views use the shared component. Booking details now describe the stored current state instead of always promising pending approval, including when revisiting rejected/cancelled/completed appointments. A real booking/cancellation browser journey retains the revisited status check and fixes the booking-details theme contrast it exposed. Persisted lifecycle values and mutation rules remain unchanged.
 
 FE-25's implementation adds shared Help/Support/Privacy/Terms destinations and footer links across template-rendered page families. Content uses the requested, explicit placeholders, with no fabricated contact or legal agreement; placeholder pages send noindex/follow. Help contains current app instructions. Home, discovery, public shop profiles and content pages share descriptions, Open Graph/Twitter metadata and absolute canonical URLs from the configured HTTPS SITE_URL/Render origin; request headers and discovery/session query parameters never determine the canonical URL. Final owner-approved content and actual deployed-origin verification remain acceptance work.
 

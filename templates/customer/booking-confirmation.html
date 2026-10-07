@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    
+
     <link rel="stylesheet" href="/static/app.css">
-<title>Booking Request Sent - De Go Salon</title>
+<title>Booking Details - De Go Salon</title>
 
     <link
         rel="stylesheet"
@@ -25,47 +25,18 @@
 
         <section class="confirmation-card">
 
-            <div class="success-icon" aria-label="Booking request successful">
-                <svg
-                    class="checkmark"
-                    viewBox="0 0 52 52"
-                    aria-hidden="true"
-                >
-                    <circle
-                        class="check-circle"
-                        cx="26"
-                        cy="26"
-                        r="24"
-                    ></circle>
-
-                    <path
-                        class="check-line"
-                        d="M14 27 L22 35 L39 18"
-                    ></path>
-                </svg>
-            </div>
-
 
             <p class="eyebrow">Appointment Request</p>
 
-            <h1>Booking Request Sent</h1>
+            <h1>Booking Details</h1>
 
-            <p class="confirmation-message">
-                Your appointment request has been successfully sent
-                to the barber.
-            </p>
+            <p class="confirmation-message">Your appointment request and its current status are shown below.</p>
 
             <div class="status-box">
 
-                <span class="status-dot"></span>
-
                 <div>
-                    <strong>Pending Barber Approval</strong>
-
-                    <p>
-                        The barber will review your appointment request
-                        and decide whether to accept it.
-                    </p>
+                    {{template "domain-status" (domainStatus "booking" .Booking.Status)}}
+                    <p>{{(domainStatus "booking" .Booking.Status).Description}}</p>
                 </div>
 
             </div>
@@ -108,9 +79,7 @@
 
                     <div class="detail-row">
                         <span>Status</span>
-                        <strong class="pending-status">
-                            {{.Booking.Status}}
-                        </strong>
+                        {{template "domain-status" (domainStatus "booking" .Booking.Status)}}
                     </div>
 
                 </div>

@@ -54,9 +54,7 @@
 
         <p>
             Status:
-            <strong>
-                {{.Order.Status}}
-            </strong>
+            {{template "domain-status" (domainStatus "order" .Order.Status)}}
         </p>
 
         <p>
@@ -80,7 +78,7 @@
                     <div class="cart-item-details">
 
                         <h2>
-                            {{.ProductName}} <span class="barber-badge">{{.FulfillmentStatus}}</span>
+                            {{.ProductName}} {{template "domain-status" (domainStatus "fulfillment" .FulfillmentStatus)}}
                         </h2>
 
                         <p class="product-category">

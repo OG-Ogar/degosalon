@@ -182,9 +182,7 @@
                         </div>
 
 
-                        <span class="booking-status {{.Status}}">
-                            {{.Status}}
-                        </span>
+                        {{template "domain-status" (domainStatus "booking" .Status)}}
 
 
                         <form
@@ -363,9 +361,7 @@
                         </div>
 
 
-                        <span class="booking-status {{.Status}}">
-                            {{.Status}}
-                        </span>
+                        {{template "domain-status" (domainStatus "booking" .Status)}}
 
                     </div>
 
@@ -385,7 +381,7 @@
     {{range .FollowUp}}
     <article class="booking-card">
         <h3>{{.HairstyleName}} with {{.BarberName}}</h3>
-        <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{.Status}}</p>
+        <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{template "domain-status" (domainStatus "booking" .Status)}}</p>
         <a href="/customer/chats/{{.BarberID}}">Message barber</a>
         <form method="post" action="{{$.ActionURL}}{{.ID}}/cancel">
             <input type="hidden" name="csrf_token" value="{{$.CSRF}}">

@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{if .Editing}}Edit barber{{else}}Add barber{{end}} - De Go Salon admin</title>
     <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
 <body class="modern-admin-page">
 
 {{template "role-header" (navigation "admin" "barbers" .)}}
 
-<main class="wrap">
+<main class="wrap ui-page">
 
     <p class="crumbs">
         <a href="/admin/dashboard">Dashboard</a> /
@@ -25,7 +26,7 @@
         <p class="error" role="alert">{{.Error}}</p>
     {{end}}
 
-    <form class="stack panel" method="post"
+    <form class="stack panel ui-panel ui-form" method="post"
           action="{{if .Editing}}/admin/barbers/{{.ID}}/update{{else}}/admin/barbers/new{{end}}">
 
         <input type="hidden" name="csrf_token" value="{{.CSRF}}">
@@ -72,8 +73,8 @@
             </p>
         {{end}}
 
-        <div class="actions">
-            <button class="primary" type="submit">
+        <div class="actions ui-actions">
+            <button class="primary ui-control" type="submit">
                 {{if .Editing}}Save changes{{else}}Create barber{{end}}
             </button>
             <a class="button" href="/admin/barbers">Cancel</a>

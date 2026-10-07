@@ -19,6 +19,7 @@
 
     <link rel="stylesheet"
           href="/static/image-viewer.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js"
             defer></script>
@@ -35,7 +36,7 @@
 {{template "role-header" (navigation "customer" "barbers" .)}}
 
 
-<main class="barber-main">
+<main class="barber-main ui-page">
 
     <a class="back-link"
        href="{{.ResultsLink}}">
@@ -45,7 +46,7 @@
     </a>
 
 
-    <section class="barber-card">
+    <section class="barber-card ui-panel">
 
         <div class="barber-photo">
 
@@ -109,7 +110,7 @@
                 {{.Barber.ShopAddress}} · {{.Barber.LocalArea}}, {{.Barber.State}}
             </p>
 
-            <div class="barber-actions">
+            <div class="barber-actions ui-actions">
 
                 <a class="message-button"
                    href="{{.ChatLink}}">
@@ -157,13 +158,13 @@
             {{end}}
         {{else}}<p>No reviews yet.</p>{{end}}
         {{if .CanReview}}
-        <form method="post" action="/customer/barbers/{{.Barber.ID}}/reviews" class="booking-form">
+        <form method="post" action="/customer/barbers/{{.Barber.ID}}/reviews" class="booking-form ui-form">
             <input type="hidden" name="csrf_token" value="{{.CSRF}}">
             <div class="appointment-fields">
-                <div class="field"><label for="rating">Rating</label><select id="rating" name="rating" required><option value="">Choose</option><option value="5">5 - Excellent</option><option value="4">4 - Very good</option><option value="3">3 - Good</option><option value="2">2 - Fair</option><option value="1">1 - Poor</option></select></div>
-                <div class="field notes"><label for="comment">Comment</label><textarea id="comment" name="comment" maxlength="2000"></textarea></div>
+                <div class="field ui-field"><label for="rating">Rating</label><select id="rating" name="rating" required><option value="">Choose</option><option value="5">5 - Excellent</option><option value="4">4 - Very good</option><option value="3">3 - Good</option><option value="2">2 - Fair</option><option value="1">1 - Poor</option></select></div>
+                <div class="field notes ui-field"><label for="comment">Comment</label><textarea id="comment" name="comment" maxlength="2000"></textarea></div>
             </div>
-            <button class="request-button" type="submit">Post Review</button>
+            <button class="request-button ui-control" type="submit">Post Review</button>
         </form>
         {{end}}
     </section>
@@ -205,15 +206,15 @@
 
         {{if .Hairstyles}}
 
-            <form method="get" action="/customer/barbers/{{.Barber.ID}}#booking" class="availability-form">
+            <form method="get" action="/customer/barbers/{{.Barber.ID}}#booking" class="availability-form ui-form">
  <input type="hidden" name="state" value="{{.SelectedState}}"><input type="hidden" name="area" value="{{.SelectedArea}}">
  <label for="availability-service">Service</label><select id="availability-service" name="hairstyle">{{range .Hairstyles}}<option value="{{.ID}}" {{if eq $.Selected .ID}}selected{{end}}>{{.Name}} · {{.Duration}} minutes</option>{{end}}</select>
  <label for="availability-date">Date ({{.Timezone}})</label><input id="availability-date" name="date" type="date" value="{{index .Values "date"}}" min="{{.Today}}" max="{{.DateMax}}" required>
- <button type="submit">Show available times</button>
+ <button type="submit" class="ui-control">Show available times</button>
  </form>
  <p>Times use {{.Timezone}}. Availability is checked again when you submit.</p>
  {{if not .Slots}}<p role="status">No start times are available for this service and date. Choose another date above.</p>{{end}}
-            <form class="booking-form"
+            <form class="booking-form ui-form"
                   method="post"
                   action="/customer/book"
                   id="booking">
@@ -342,7 +343,7 @@
 
                     <div class="appointment-fields">
 
-                        <div class="field">
+                        <div class="field ui-field">
 
                             <label for="date">
                                 Date
@@ -360,7 +361,7 @@
                         </div>
 
 
-                        <div class="field">
+                        <div class="field ui-field">
 
                             <label for="time">
                                 Time
@@ -373,7 +374,7 @@
                     </div>
 
 
-                    <div class="field notes">
+                    <div class="field notes ui-field">
 
                         <label for="notes">
 
@@ -411,7 +412,7 @@
                         </div>
 
                         <button
-                            class="request-button"
+                            class="request-button ui-control"
                             type="submit">
 
                             Request Appointment

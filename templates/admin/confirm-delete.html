@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archive barber - De Go Salon admin</title>
     <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
 <body class="modern-admin-page">
 
 {{template "role-header" (navigation "admin" "barbers" .)}}
 
-<main class="wrap">
+<main class="wrap ui-page ui-confirmation">
 
     <p class="crumbs">
         <a href="/admin/dashboard">Dashboard</a> /
@@ -21,7 +22,7 @@
 
     <h1>Archive this barber?</h1>
 
-    <div class="panel">
+    <div class="panel ui-panel">
         {{if .Error}}<p class="error" role="alert">{{.Error}}</p>{{end}}
 
         <p>
@@ -40,18 +41,7 @@
             account from the barber list instead.
         </p>
 
-        <div class="actions">
-
-            <!-- POST plus the session CSRF token: a delete cannot be
-                 triggered by a link, an image, or another site's form. -->
-            <form class="inline" method="post" action="/admin/barbers/{{.ID}}/delete">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="danger" type="submit">Yes, archive this barber</button>
-            </form>
-
-            <a class="button" href="/admin/barbers/{{.ID}}">No, go back</a>
-
-        </div>
+        {{template "confirmation-actions" (confirmation (printf "/admin/barbers/%d/delete" .ID) .CSRF "Yes, archive this barber" (printf "/admin/barbers/%d" .ID) "No, go back")}}
 
     </div>
 

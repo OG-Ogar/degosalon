@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/login.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -33,13 +34,13 @@
             </p>
         {{end}}
 
-        <form class="auth-form"
+        <form class="auth-form ui-form"
               method="post"
               action="/customer/register"
               enctype="multipart/form-data">
  <input type="hidden" name="next" value="{{index .Values "next"}}">
 
-            <div class="auth-field">
+            <div class="auth-field ui-field">
 
                 <label for="profile_image">
                     Profile Photo
@@ -58,7 +59,7 @@
 
             </div>
 
-            <div class="auth-field">
+            <div class="auth-field ui-field">
 
                 <label for="fullname">
                     Full Name
@@ -76,7 +77,7 @@
 
             </div>
 
-            <div class="auth-field">
+            <div class="auth-field ui-field">
 
                 <label for="phone">
                     Phone
@@ -94,7 +95,7 @@
 
             </div>
 
-            <div class="auth-field">
+            <div class="auth-field ui-field">
 
                 <label for="email">
                     Email
@@ -112,7 +113,7 @@
 
             </div>
 
-            <div class="auth-field">
+            <div class="auth-field ui-field">
 
                 <label for="password">
                     Password
@@ -135,7 +136,7 @@
 
             </div>
 
-            <div class="auth-field">
+            <div class="auth-field ui-field">
 
                 <label for="confirm_password">
                     Confirm Password
@@ -153,7 +154,7 @@
 
             </div>
 
-            <button class="auth-submit" type="submit">
+            <button class="auth-submit ui-control" type="submit">
                 Create Account
             </button>
 

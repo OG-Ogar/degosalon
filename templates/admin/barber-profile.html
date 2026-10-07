@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Barber.FullName}} - De Go Salon admin</title>
     <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
 <body class="modern-admin-page">
 
 {{template "role-header" (navigation "admin" "barbers" .)}}
 
-<main class="wrap">
+<main class="wrap ui-page">
 
     <p class="crumbs">
         <a href="/admin/dashboard">Dashboard</a> /
@@ -29,7 +30,7 @@
         <p class="lede">{{.Barber.ShopName}} &middot; {{.Barber.ShopAddress}}</p>
     </div>
 
-    <div class="panel">
+    <div class="panel ui-panel">
         {{if .Barber.ProfileImage}}
             <img class="photo" src="{{.Barber.ProfileImage}}"
                  alt="Shop photo for {{.Barber.ShopName}}">
@@ -44,7 +45,7 @@
             </tbody>
         </table>
 
-        <div class="actions">
+        <div class="actions ui-actions">
             {{if ne .Barber.Status "Archived"}}<a class="button primary" href="/admin/barbers/{{.Barber.ID}}/edit">Edit</a>
             <a class="button danger" href="/admin/barbers/{{.Barber.ID}}/delete">Archive</a>{{end}}
             <a class="button" href="/admin/barbers">Back to list</a>

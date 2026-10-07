@@ -172,3 +172,29 @@ test('booking details reflect cancellation after the original request',async({br
   await customer.setViewportSize({width:320,height:900});await checkPage(customer,testInfo,'cancelled-booking-details');
  } finally {await barberContext.close();await customerContext.close();}
 });
+
+test('shared forms and archive confirmations work at phone width',async({page},testInfo)=>{
+ const suffix=Date.now();const email='primitives-'+suffix+'@example.test';
+ expect((await page.request.post('/barber/register',{multipart:{fullname:'Primitive Barber',phone:'08012345678',email,shopname:'Primitive Shop '+suffix,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}})).ok()).toBeTruthy();
+ expect((await page.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
+ await page.setViewportSize({width:320,height:900});
+ for(const route of ['/barber/products/new','/barber/hairstyles/new','/barber/schedule','/barber/profile/edit']){
+  await page.goto(route);await checkPage(page,testInfo,'primitives-'+route.replaceAll('/','-'));
+  const save=page.locator('main button[type=submit]').first();
+  expect((await save.boundingBox()).height).toBeGreaterThanOrEqual(44);
+ }
+ await page.goto('/barber/hairstyles/new');
+ for(const [name,value] of Object.entries({name:'Archive journey cut',category:'Fade',description:'A simple cut',price:'1000',duration:'30'}))await page.locator('[name="'+name+'"]').fill(value);
+ await page.locator('[name="available"]').check();await page.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
+ await page.locator('a[href$="/delete"]').filter({hasText:/archive/i}).first().click();
+ await checkPage(page,testInfo,'primitives-archive-hairstyle');
+ await expect(page.locator('.ui-actions input[name=csrf_token]')).toHaveValue(/\S+/);
+ await page.getByRole('link',{name:'No, keep it',exact:true}).click();
+ await expect(page.getByText('Archive journey cut',{exact:true}).first()).toBeVisible();
+ expect((await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}})).ok()).toBeTruthy();
+ await page.goto('/admin/barbers/new');await checkPage(page,testInfo,'primitives-admin-form');
+ await page.goto('/admin/barbers');await page.getByRole('link',{name:'Primitive Barber',exact:true}).click();
+ await page.locator('a[href$="/delete"]').click();await checkPage(page,testInfo,'primitives-archive-account');
+ await page.getByRole('button',{name:'Yes, archive this barber',exact:true}).click();
+ await expect(page.getByText('Archived',{exact:true}).first()).toBeVisible();
+});

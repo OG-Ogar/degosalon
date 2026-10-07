@@ -5,20 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Barbers - De Go Salon admin</title>
     <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
 <body class="modern-admin-page">
 
 {{template "role-header" (navigation "admin" "barbers" .)}}
 
-<main class="wrap">
+<main class="wrap ui-page">
 
     <p class="crumbs"><a href="/admin/dashboard">Dashboard</a> / Barbers</p>
 
     <h1>Barbers</h1>
     <p class="lede">Suspending a barber signs them out and hides them from customers.</p>
 
-    <div class="actions">
+    <div class="actions ui-actions">
         <a class="button primary" href="/admin/barbers/new">Add a barber</a>
     </div>
 
@@ -26,7 +27,7 @@
         {{$view := .}}
 
         <div class="toolbar">
-            <div class="field">
+            <div class="field ui-field">
                 <label for="filter">Search barbers</label>
                 <input id="filter" type="search" data-filter="table tbody tr"
                        placeholder="Name, shop, email or status" autocomplete="off">
@@ -67,14 +68,14 @@
                                       action="/admin/barbers/{{.ID}}/suspend">
                                     <input type="hidden" name="csrf_token"
                                            value="{{$view.CSRF}}">
-                                    <button class="small" type="submit">Suspend</button>
+                                    <button class="small ui-control" type="submit">Suspend</button>
                                 </form>
                             {{else}}
                                 <form class="inline" method="post"
                                       action="/admin/barbers/{{.ID}}/activate">
                                     <input type="hidden" name="csrf_token"
                                            value="{{$view.CSRF}}">
-                                    <button class="small" type="submit">Activate</button>
+                                    <button class="small ui-control" type="submit">Activate</button>
                                 </form>
                             {{end}}
 

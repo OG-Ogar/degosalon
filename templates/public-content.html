@@ -2,10 +2,11 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{.Title}} - De Go Salon</title><meta name="robots" content="noindex, follow">
 {{template "public-metadata" (publicMetadata .Path (printf "%s - De Go Salon" .Title) .Description)}}
-<link rel="stylesheet" href="/static/app.css"></head>
+<link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css"></head>
 <body class="modern-role-page">
 <header class="site-header"><a class="site-brand" href="/">De Go Salon</a><nav class="site-navigation" aria-label="Public navigation"><a href="/explore">Find a Barber</a><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a></nav></header>
-<main class="public-content-card"><h1>{{.Title}}</h1>
+<main class="public-content-card ui-page"><h1>{{.Title}}</h1>
 <p class="content-placeholder"><strong>Placeholder — awaiting approved content.</strong></p>
 {{if eq .Kind "help"}}
 <p>These quick steps describe the current app. The full help center is pending.</p>

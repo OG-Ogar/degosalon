@@ -47,7 +47,7 @@ func LoadTemplates(dir string) error {
 			return err
 		}
 
-		tmpl, err := template.New(entry.Name()).Funcs(template.FuncMap{"navigation": navigation, "naira": naira, "domainStatus": domainStatus, "availabilityStatus": availabilityStatus, "publicMetadata": publicMetadata, "geographyStates": geography.States, "geographyStateID": geography.StateID, "geographyAreaID": geography.AreaID}).ParseFiles(append([]string{path}, partials...)...)
+		tmpl, err := template.New(entry.Name()).Funcs(template.FuncMap{"confirmation": confirmation, "navigation": navigation, "naira": naira, "domainStatus": domainStatus, "availabilityStatus": availabilityStatus, "publicMetadata": publicMetadata, "geographyStates": geography.States, "geographyStateID": geography.StateID, "geographyAreaID": geography.AreaID}).ParseFiles(append([]string{path}, partials...)...)
 		if err != nil {
 			return fmt.Errorf("parse %s: %w", name, err)
 		}
@@ -206,4 +206,11 @@ func journeyError(w http.ResponseWriter, message string, status int) {
     w.Header().Set("Cache-Control", "no-store")
     w.WriteHeader(status)
     _, _ = body.WriteTo(w)
+}
+
+// confirmation supplies presentation text while callers retain their owned routes.
+type confirmationView struct{ Action, CSRF, Confirm, Cancel, CancelLabel string }
+
+func confirmation(action, csrf, confirm, cancel, cancelLabel string) confirmationView {
+	return confirmationView{action, csrf, confirm, cancel, cancelLabel}
 }

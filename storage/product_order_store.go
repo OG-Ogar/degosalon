@@ -175,7 +175,10 @@ func checkoutCart(ctx context.Context, customer models.Customer, key string) (mo
 		if err != nil {
 			return models.ProductOrder{}, err
 		}
-		n, _ := result.RowsAffected()
+		n, err := result.RowsAffected()
+		if err != nil {
+			return models.ProductOrder{}, err
+		}
 		if n != 1 {
 			return models.ProductOrder{}, CheckoutError{"A product in your cart no longer has enough stock."}
 		}

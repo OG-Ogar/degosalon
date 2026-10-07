@@ -18,7 +18,6 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 | FE-21 | Complete accessible field feedback | Shared hidden-text utilities, password note associations, invalid-field feedback and message character-count associations are merged. Audit server errors and remaining forms; shared feedback does not close the cross-page audit. |
 | FE-24 | Responsive media delivery | Add suitable image variants, srcset/sizes, reserved dimensions and deliberate video/hero loading; measure performance and set budgets. |
 | FE-25 | Support/legal content and metadata | Approve real support, help, privacy and terms destinations. Public profile descriptions/canonical markup have started; complete canonical/share metadata across public pages with the deployed origin. |
-| BE-09/10 | Storage error and cancellation caller audit | Trace reachable callers of legacy helpers; migrate affected request paths to checked context-aware APIs and handle affected-row errors. Wrapper presence alone is not proof of a live defect. |
 | BE-18 | Scoped queries and stable pagination | Messages are scoped and review aggregates use SQL. Push discovery filters/counts into SQL, avoid per-shop loading where appropriate and bound lists/threads. |
 | BE-22 | Operational lifecycle and audit tooling | Add dedicated liveness/readiness, signal-driven graceful shutdown including workers, correlated structured logs and durable admin audit events. |
 | BE-23 | Browser and direct security coverage | Go tests/vet/race, frontend checks, PostgreSQL CI and Playwright browser CI exist. PR #91 passed all three CI jobs before merging. Dedicated security-package coverage and broader browser journeys remain. |
@@ -41,6 +40,8 @@ These are verification tasks for existing implementations, not necessarily missi
 - Render build and runtime logs, live application responses and deployed commit identity.
 
 ## Merged repairs excluded from the backlog
+
+BE-09/10's [caller audit](storage-caller-audit.md) confirms active request paths use checked context-aware storage APIs. Five remaining affected-row error omissions are repaired, with driver fault-injection coverage of updates, transitions and checkout rollback. Bounded detached media reconciliation remains intentional. Provider outage/pooler cancellation still needs production acceptance; worker shutdown is tracked under BE-22.
 
 BE-16 uses an explicit NGN two-decimal contract matching existing PostgreSQL numeric(12,2) columns: nonnegative amounts up to ₦9,999,999,999.99, with excess submitted precision rejected rather than silently rounded. All cart/checkout multiplication and addition use bounded integer kobo. Existing float64 model fields remain compatibility adapters for SQL scans and templates, not business arithmetic. Product/service/order writes validate the contract; order-item subtotals must equal exact unit-price multiplication. Oversized carts remain editable with checkout disabled; checkout independently rejects them before stock/cart/order mutation. PostgreSQL CI exercises fractional totals, overflow rollback and retry-key reuse after correction.
 

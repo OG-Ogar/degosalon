@@ -88,7 +88,7 @@
 
             <img class="photo"
                  src="{{.LandingImage}}"
-                 alt="Current homepage background">
+                 alt="Current homepage background" srcset="{{imageSrcset .LandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             <p class="muted">
                 This is the image currently displayed on the homepage.
@@ -153,7 +153,7 @@
 
             <img class="photo"
                  src="{{.CustomerLandingImage}}"
-                 alt="Current customer dashboard background">
+                 alt="Current customer dashboard background" srcset="{{imageSrcset .CustomerLandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             <p class="muted">
                 This is the image currently displayed behind

@@ -228,3 +228,27 @@ test('native select feedback clears on selection and preserves field help',async
  const ids=(await page.locator('#local_area').getAttribute('aria-describedby')).split(' ');
  expect(ids).toContain('geography-help');for(const id of ids)await expect(page.locator('[id="'+id+'"]')).toHaveCount(1);
 });
+
+test('responsive hero selects a bounded candidate and reserves its layout',async({page},testInfo)=>{
+ expect((await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}})).ok()).toBeTruthy();
+ await page.goto('/admin/dashboard');await page.locator('input[name=landing_image]').setInputFiles({name:'hero.png',mimeType:'image/png',buffer:PNG});
+ await page.locator('form[action="/admin/landing-image"] button[type=submit]').click();
+ await page.setViewportSize({width:320,height:900});
+ await page.addInitScript(()=>{
+  window.mediaCLS=0;window.mediaLCP=0;
+  new PerformanceObserver(list=>{for(const entry of list.getEntries())if(!entry.hadRecentInput)window.mediaCLS+=entry.value;}).observe({type:'layout-shift',buffered:true});
+  new PerformanceObserver(list=>{for(const entry of list.getEntries())window.mediaLCP=entry.startTime;}).observe({type:'largest-contentful-paint',buffered:true});
+ });
+ await page.goto('/');const hero=page.locator('.landing-media');
+ await expect(hero).toHaveAttribute('fetchpriority','high');await expect(hero).toHaveAttribute('loading','eager');
+ await expect.poll(()=>hero.evaluate(img=>img.complete && img.naturalWidth)).toBe(320);
+ expect(await hero.evaluate(img=>img.currentSrc)).toContain('/media/preview?');
+ expect(await hero.evaluate(img=>img.currentSrc)).toContain('width=320');
+ await checkPage(page,testInfo,'responsive-hero-320');
+ const measurements=await page.evaluate(()=>({cls:window.mediaCLS,lcp:window.mediaLCP,images:performance.getEntriesByType('resource').filter(e=>e.name.includes('/media/preview?')).map(e=>({name:e.name,bytes:e.encodedBodySize,duration:e.duration}))}));
+ expect(measurements.cls).toBeLessThanOrEqual(.1);expect(measurements.lcp).toBeLessThanOrEqual(5000);
+ expect(measurements.images).toHaveLength(1);expect(measurements.images[0].bytes).toBeLessThanOrEqual(30*1024);
+ await testInfo.attach('media-performance.json',{body:JSON.stringify(measurements,null,2),contentType:'application/json'});
+ await page.setViewportSize({width:1280,height:900});await page.reload();
+ await expect.poll(()=>hero.evaluate(img=>img.complete && img.naturalWidth > 0 && img.currentSrc.includes("width=1600"))).toBe(true);
+});

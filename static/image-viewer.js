@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         else image.after(button);
         button.addEventListener("click", () => {
             opener = button;
-            viewerImage.src = image.currentSrc || image.src;
+            viewerImage.src = image.src;
             viewerImage.alt = image.alt || "Full-size image";
             dialog.showModal();
             document.body.classList.add("image-viewer-open");

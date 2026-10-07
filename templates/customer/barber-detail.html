@@ -57,7 +57,7 @@
                     src="{{.Barber.ProfileImage}}"
                     alt="{{.Barber.ShopName}}"
                     data-fullscreen-image
-                >
+                 srcset="{{imageSrcset .Barber.ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             {{else if .Barber.PersonalImage}}
 
@@ -66,7 +66,7 @@
                     src="{{.Barber.PersonalImage}}"
                     alt="{{.Barber.FullName}}"
                     data-fullscreen-image
-                >
+                 srcset="{{imageSrcset .Barber.PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             {{else}}
 
@@ -95,7 +95,7 @@
                         class="avatar"
                         src="{{.Barber.PersonalImage}}"
                         alt="{{.Barber.FullName}}"
-                    >
+                     srcset="{{imageSrcset .Barber.PersonalImage}}" sizes="96px" width="640" height="480" loading="lazy" decoding="async">
 
                 {{end}}
 
@@ -252,7 +252,7 @@
                                             src="{{.Image}}"
                                             alt="Photo of {{.Name}}"
                                             data-fullscreen-image
-                                        >
+                                         srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                                     {{else}}
 
@@ -448,7 +448,7 @@
         <div class="hairstyle-list">
         {{range .Products}}
             <article class="hairstyle-option" style="padding:1rem;margin-bottom:.75rem">
-                {{if .Image}}<div class="style-image"><img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}" data-fullscreen-image></div>{{end}}
+                {{if .Image}}<div class="style-image"><img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}" data-fullscreen-image srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async"></div>{{end}}
                 <div class="style-info"><h3>{{.Name}}</h3><p>{{.Category}}</p>{{if .Description}}<span>{{.Description}}</span>{{end}}</div>
                 <div class="style-price"><strong>{{naira .Price}}</strong><span>{{.Quantity}} in stock</span></div>
             </article>

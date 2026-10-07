@@ -27,7 +27,7 @@
                     class="barber-photo customer-chat-avatar"
                     src="{{.BarberImage}}" loading="lazy" decoding="async"
                     alt="{{.Title}}"
-                >
+                 srcset="{{imageSrcset .BarberImage}}" sizes="96px" width="640" height="480">
             {{else}}
                 <div class="barber-photo-placeholder"
                      aria-hidden="true">

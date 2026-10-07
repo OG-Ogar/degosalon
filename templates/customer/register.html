@@ -28,16 +28,12 @@
             <p>Create your customer account to get started.</p>
         </div>
 
-        {{if .Error}}
-            <p class="auth-message auth-error" role="alert">
-                {{.Error}}
-            </p>
-        {{end}}
+        {{template "form-error" .Error}}
 
         <form class="auth-form ui-form"
               method="post"
               action="/customer/register"
-              enctype="multipart/form-data">
+              enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
  <input type="hidden" name="next" value="{{index .Values "next"}}">
 
             <div class="auth-field ui-field">
@@ -51,9 +47,9 @@
                     type="file"
                     name="profile_image"
                     accept="image/jpeg,image/png,image/gif,image/webp"
-                >
+                 aria-describedby="profile_image-help">
 
-                <p class="hint">
+                <p class="hint" id="profile_image-help">
                     Optional. JPG, PNG, GIF or WebP, up to 5 MB.
                 </p>
 

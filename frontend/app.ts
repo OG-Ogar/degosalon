@@ -340,18 +340,15 @@
                 noteFor(control).textContent = control.validationMessage;
                 control.setAttribute("aria-invalid", "true");
             });
-            control.addEventListener("input", function () {
+            function clearNativeError() {
                 if (control.getAttribute("aria-invalid") === "true" && control.validity.valid) {
-                    control.setAttribute("aria-invalid", "false");
+                    control.removeAttribute("aria-invalid");
                     noteFor(control).textContent = "";
                 }
-            });
+            }
+            control.addEventListener("input", clearNativeError);
+            control.addEventListener("change", clearNativeError);
         });
-        const error = form.parentElement?.querySelector<HTMLElement>('[role="alert"]');
-        if (error && !form.classList.contains("site-logout")) {
-            if (!error.id) error.id = "form-error-" + Math.random().toString(36).slice(2);
-            form.setAttribute("aria-describedby", error.id);
-        }
     }
 
     /* ---- wiring ---- */

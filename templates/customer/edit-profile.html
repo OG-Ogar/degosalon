@@ -35,18 +35,14 @@
 
         </div>
 
-        {{if .Error}}
-            <p class="customer-form-error" role="alert">
-                {{.Error}}
-            </p>
-        {{end}}
+        {{template "form-error" .Error}}
 
         <form
             class="customer-edit-form ui-form"
             method="post"
             action="/customer/profile/edit"
             enctype="multipart/form-data"
-        >
+         {{if .Error}}aria-describedby="form-error"{{end}}>
 
             <input
                 type="hidden"
@@ -83,10 +79,10 @@
                         id="profile_image"
                         type="file"
                         name="profile_image"
-                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        accept="image/jpeg,image/png,image/gif,image/webp" aria-describedby="profile-photo-help"
                     >
 
-                    <p>
+                    <p id="profile-photo-help">
                         Optional. Upload a new photo to replace the
                         current one. Maximum size: 5 MB.
                     </p>

@@ -29,18 +29,14 @@
         </p>
     </div>
 
-    {{if .Error}}
-        <p class="barber-form-error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
     <form
         class="barber-edit-card ui-panel ui-form"
         method="post"
         action="/barber/profile/edit"
         enctype="multipart/form-data"
-    >
+     {{if .Error}}aria-describedby="form-error"{{end}}>
 
         <input
             type="hidden"

@@ -20,11 +20,7 @@
         Everything on the platform at a glance.
     </p>
 
-    {{if .Error}}
-        <p class="error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
     <div class="grid">
 
@@ -109,7 +105,7 @@
         <form class="stack ui-form"
               method="post"
               action="/admin/landing-image"
-              enctype="multipart/form-data">
+              enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
 
             <input type="hidden"
                    name="csrf_token"
@@ -175,7 +171,7 @@
         <form class="stack ui-form"
               method="post"
               action="/admin/customer-landing-image"
-              enctype="multipart/form-data">
+              enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
 
             <input type="hidden"
                    name="csrf_token"

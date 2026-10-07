@@ -39,15 +39,11 @@
         </p>
     {{end}}
 
-    {{if .Error}}
-        <p class="auth-message auth-error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
     <form class="auth-form ui-form"
           method="post"
-          action="/customer/login">
+          action="/customer/login" {{if .Error}}aria-describedby="form-error"{{end}}>
         <input type="hidden" name="next" value="{{index .Values "next"}}">
 
         <div class="auth-field ui-field">

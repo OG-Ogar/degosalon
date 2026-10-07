@@ -37,19 +37,13 @@
     </p>
 
 
-    {{if .Error}}
-
-        <p class="barber-error" role="alert">
-            {{.Error}}
-        </p>
-
-    {{end}}
+    {{template "form-error" .Error}}
 
 
     <form class="barber-form ui-form"
           method="post"
           action="/barber/hairstyles/new"
-          enctype="multipart/form-data">
+          enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
 
         <input type="hidden"
                name="csrf_token"

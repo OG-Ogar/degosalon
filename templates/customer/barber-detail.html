@@ -129,22 +129,7 @@
     </section>
 
 
-    {{if .Error}}
-
-        <div class="error-box"
-             role="alert">
-
-            <strong>
-                Booking could not be submitted
-            </strong>
-
-            <span>
-                {{.Error}}
-            </span>
-
-        </div>
-
-    {{end}}
+    {{template "form-error" .Error}}
 
 
     <section class="hairstyles-section" id="reviews">
@@ -158,7 +143,7 @@
             {{end}}
         {{else}}<p>No reviews yet.</p>{{end}}
         {{if .CanReview}}
-        <form method="post" action="/customer/barbers/{{.Barber.ID}}/reviews" class="booking-form ui-form">
+        <form method="post" action="/customer/barbers/{{.Barber.ID}}/reviews" class="booking-form ui-form" {{if .Error}}aria-describedby="form-error"{{end}}>
             <input type="hidden" name="csrf_token" value="{{.CSRF}}">
             <div class="appointment-fields">
                 <div class="field ui-field"><label for="rating">Rating</label><select id="rating" name="rating" required><option value="">Choose</option><option value="5">5 - Excellent</option><option value="4">4 - Very good</option><option value="3">3 - Good</option><option value="2">2 - Fair</option><option value="1">1 - Poor</option></select></div>
@@ -217,7 +202,7 @@
             <form class="booking-form ui-form"
                   method="post"
                   action="/customer/book"
-                  id="booking">
+                  id="booking" {{if .Error}}aria-describedby="form-error"{{end}}>
  <input type="hidden" name="state" value="{{.SelectedState}}">
  <input type="hidden" name="area" value="{{.SelectedArea}}">
 

@@ -22,12 +22,10 @@
 
     <h1>{{if .Editing}}Edit barber{{else}}Add a barber{{end}}</h1>
 
-    {{if .Error}}
-        <p class="error" role="alert">{{.Error}}</p>
-    {{end}}
+    {{template "form-error" .Error}}
 
     <form class="stack panel ui-panel ui-form" method="post"
-          action="{{if .Editing}}/admin/barbers/{{.ID}}/update{{else}}/admin/barbers/new{{end}}">
+          action="{{if .Editing}}/admin/barbers/{{.ID}}/update{{else}}/admin/barbers/new{{end}}" {{if .Error}}aria-describedby="form-error"{{end}}>
 
         <input type="hidden" name="csrf_token" value="{{.CSRF}}">
 

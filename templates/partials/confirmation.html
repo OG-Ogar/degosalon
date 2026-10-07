@@ -1,6 +1,6 @@
 {{define "confirmation-actions"}}
 <div class="ui-actions">
-    <form method="post" action="{{.Action}}">
+    <form method="post" action="{{.Action}}" {{if .Error}}aria-describedby="form-error"{{end}}>
         <input type="hidden" name="csrf_token" value="{{.CSRF}}">
         <button class="ui-control danger" type="submit">{{.Confirm}}</button>
     </form>

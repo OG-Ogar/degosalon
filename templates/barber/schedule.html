@@ -3,8 +3,8 @@
 <link rel="stylesheet" href="/static/ui.css"><script src="/static/app.js" defer></script></head>
 <body class="barber-page">{{template "role-header" (navigation "barber" "schedule" .)}}
 <main class="calendar-page ui-page"><h1>Your booking schedule</h1><p>Set your weekly hours and time off. Existing appointments keep their booked duration; resolve any conflicting appointment before changing its hours.</p>
-{{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
-<form method="post" action="/barber/schedule" class="ui-form">
+{{template "form-error" .Error}}
+<form method="post" action="/barber/schedule" class="ui-form" {{if .Error}}aria-describedby="form-error"{{end}}>
 <input type="hidden" name="csrf_token" value="{{.CSRF}}">
 <label>Timezone <input name="timezone" value="{{.Calendar.Timezone}}" required maxlength="100" placeholder="Africa/Lagos"></label>
 <label>Minimum notice in minutes <input type="number" name="lead" min="0" max="10080" value="{{.Calendar.LeadMinutes}}" required></label>

@@ -34,11 +34,7 @@
         {{if .Editing}}Edit Product{{else}}Add Product{{end}}
     </h1>
 
-    {{if .Error}}
-        <div class="barber-card ui-panel">
-            <p>{{.Error}}</p>
-        </div>
-    {{end}}
+    {{template "form-error" .Error}}
 
     <section class="barber-card ui-panel">
 
@@ -46,7 +42,7 @@
             method="post"
             action="{{if .Editing}}/barber/products/{{.ID}}/update{{else}}/barber/products/new{{end}}"
             enctype="multipart/form-data"
-         class="ui-form">
+         class="ui-form" {{if .Error}}aria-describedby="form-error"{{end}}>
 
             <input
                 type="hidden"
@@ -116,9 +112,9 @@
                     step="1"
                     value="{{index .Values "quantity"}}"
                     required
-                >
+                 aria-describedby="quantity-help">
 
-                <p class="barber-hint">
+                <p class="barber-hint" id="quantity-help">
                     Enter how many units of this product are currently available.
                 </p>
             </div>
@@ -132,9 +128,9 @@
                     type="file"
                     name="image"
                     accept=".jpg,.jpeg,.png,.gif,.webp"
-                >
+                 aria-describedby="image-help">
 
-                <p class="barber-hint">
+                <p class="barber-hint" id="image-help">
                     JPG, JPEG, PNG, GIF or WEBP, up to 5 MB.
                 </p>
             </div>

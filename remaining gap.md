@@ -12,8 +12,8 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 
 | Gap IDs | Remaining work | Completion target |
 | --- | --- | --- |
-| FE-02 | Implemented on this branch; CI/merge pending | Shared page/panel/form/field/control/action primitives now serve all template families; barber and admin archive confirmations share a CSRF-preserving partial. See `ui-primitives.md`. Full browser acceptance remains FE-26. |
-| FE-21 | Complete accessible field feedback | Shared hidden-text utilities, password note associations, invalid-field feedback and message character-count associations are merged. Audit server errors and remaining forms; shared feedback does not close the cross-page audit. |
+| FE-02 | Implemented and merged in PR #103 | Shared page/panel/form/field/control/action primitives now serve all template families; barber and admin archive confirmations share a CSRF-preserving partial. See `ui-primitives.md`. Full browser acceptance remains FE-26. |
+| FE-21 | Implemented on this branch; CI/merge pending | Audited all template-rendered error forms, shared server summaries and no-script form associations; associated remaining field/upload help and repaired native select feedback clearing. See `form-feedback-audit.md`. Full visual/browser acceptance stays FE-26. |
 | FE-24 | Responsive media delivery | Add suitable image variants, srcset/sizes, reserved dimensions and deliberate video/hero loading; measure performance and set budgets. |
 | FE-25 | Final support/legal content and deployment metadata acceptance | Shared destinations and explicitly approved placeholders are implemented, with configured-origin canonical/share metadata across public pages. Replace placeholders with approved contacts/policies and verify the deployed canonical origin. |
 | BE-18 | Scoped queries and stable pagination | Messages are scoped and review aggregates use SQL. Push discovery filters/counts into SQL, avoid per-shop loading where appropriate and bound lists/threads. |

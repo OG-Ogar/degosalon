@@ -23,7 +23,7 @@
     <h1>Archive this barber?</h1>
 
     <div class="panel ui-panel">
-        {{if .Error}}<p class="error" role="alert">{{.Error}}</p>{{end}}
+        {{template "form-error" .Error}}
 
         <p>
             You are about to archive <strong>{{.FullName}}</strong>
@@ -41,7 +41,7 @@
             account from the barber list instead.
         </p>
 
-        {{template "confirmation-actions" (confirmation (printf "/admin/barbers/%d/delete" .ID) .CSRF "Yes, archive this barber" (printf "/admin/barbers/%d" .ID) "No, go back")}}
+        {{template "confirmation-actions" (confirmation (printf "/admin/barbers/%d/delete" .ID) .CSRF "Yes, archive this barber" (printf "/admin/barbers/%d" .ID) "No, go back" .Error)}}
 
     </div>
 

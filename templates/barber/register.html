@@ -33,16 +33,12 @@
         <p>Create your barber account to get started.</p>
     </div>
 
-    {{if .Error}}
-        <p class="auth-message auth-error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
     <form class="auth-form ui-form"
           method="post"
           action="/barber/register"
-          enctype="multipart/form-data">
+          enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
 
         <div class="auth-field ui-field">
 

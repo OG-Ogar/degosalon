@@ -29,6 +29,7 @@ func TestPostgresIntegrity(t *testing.T) {
 	t.Run("review ownership and concurrency", checkReviewIntegrity)
 	t.Run("cart editing and removal", checkCartEditing)
 	t.Run("checkout request replay", checkCheckoutReplay)
+	t.Run("exact decimal money and overflow rollback", checkMoneyCheckout)
 	t.Run("immutable booking service and shop snapshots", checkBookingSnapshots)
 	t.Run("per-barber calendar and available times", checkCalendarAvailability)
 	t.Run("booking lifecycle domain graph", checkBookingLifecycle)

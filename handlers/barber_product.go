@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"barber-booking/internal/money"
 	"errors"
-	"math"
 	"net/http"
 	"strconv"
 
@@ -49,17 +49,11 @@ func readProductForm(r *http.Request) (productForm, string) {
 		return form, "Every field except the image is required."
 	}
 
-	price, err := strconv.ParseFloat(priceText, 64)
-
-	if err != nil ||
-		math.IsNaN(price) ||
-		math.IsInf(price, 0) ||
-		price < 0 {
-
-		return form, "Enter a price of zero or more."
+	price, err := money.Parse(priceText)
+	if err != nil {
+		return form, "Enter a price between 0 and 9999999999.99 with at most two decimal places."
 	}
-
-	form.Price = price
+	form.Price = price.Float()
 
 	quantity, err := strconv.Atoi(quantityText)
 

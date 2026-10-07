@@ -127,7 +127,7 @@
                         <p class="cart-item-subtotal">
                             Subtotal:
                             <strong>
-                                {{naira .Subtotal}}
+                                {{if .AmountUnavailable}}Unavailable{{else}}{{naira .Subtotal}}{{end}}
                             </strong>
                         </p>
 
@@ -152,7 +152,7 @@
                 </span>
 
                 <strong>
-                    {{naira .Total}}
+                    {{if .AmountUnavailable}}Unavailable{{else}}{{naira .Total}}{{end}}
                 </strong>
 
             </div>
@@ -166,17 +166,12 @@
                     value="{{.CSRF}}"
                 >
 
-                <input
-                    type="hidden"
-                    name="amount"
-                    value="{{printf "%.2f" .Total}}"
-                >
-
                 <button
                     class="cart-pay-button"
                     type="submit"
+                    {{if .AmountUnavailable}}disabled{{end}}
                 >
-                    Place order · {{naira .Total}}
+                    {{if .AmountUnavailable}}Reduce cart amount to place order{{else}}Place order · {{naira .Total}}{{end}}
                 </button>
 
             </form>

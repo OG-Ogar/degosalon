@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"barber-booking/internal/money"
 	"context"
 	"database/sql"
 	"encoding/hex"
@@ -120,10 +121,10 @@ func checkoutCart(ctx context.Context, customer models.Customer, key string) (mo
 		product  models.Product
 		seller   models.Barber
 		quantity int
-		subtotal float64
+		subtotal money.Amount
 	}
 	lines := make([]line, 0, len(cart))
-	total := 0.0
+	var total money.Amount
 	for _, item := range cart {
 		if item.Quantity <= 0 {
 			return models.ProductOrder{}, CheckoutError{"Invalid product quantity in cart."}
@@ -145,12 +146,18 @@ func checkoutCart(ctx context.Context, customer models.Customer, key string) (mo
 		if p.Quantity < item.Quantity {
 			return models.ProductOrder{}, CheckoutError{"A product in your cart no longer has enough stock."}
 		}
-		sub := p.Price * float64(item.Quantity)
-		total += sub
+		sub, moneyErr := money.Line(p.Price, item.Quantity)
+		if moneyErr != nil {
+			return models.ProductOrder{}, CheckoutError{"A cart item exceeds the supported price or quantity limit."}
+		}
+		total, moneyErr = total.Add(sub)
+		if moneyErr != nil {
+			return models.ProductOrder{}, CheckoutError{"Cart total exceeds the supported amount. Reduce quantities or remove items."}
+		}
 		lines = append(lines, line{p, seller, item.Quantity, sub})
 	}
 
-	order := models.ProductOrder{CheckoutKey: key, CustomerID: customer.ID, CustomerName: customer.FullName, CustomerPhone: customer.PhoneNumber, CustomerEmail: customer.Email, TotalAmount: total, Status: models.OrderPending, CreatedAt: time.Now()}
+	order := models.ProductOrder{CheckoutKey: key, CustomerID: customer.ID, CustomerName: customer.FullName, CustomerPhone: customer.PhoneNumber, CustomerEmail: customer.Email, TotalAmount: total.Float(), Status: models.OrderPending, CreatedAt: time.Now()}
 	var storedKey any
 	if key != "" {
 		storedKey = key
@@ -160,7 +167,7 @@ func checkoutCart(ctx context.Context, customer models.Customer, key string) (mo
 		return models.ProductOrder{}, err
 	}
 	for _, item := range lines {
-		_, err = tx.ExecContext(ctx, "insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)", order.ID, item.product.ID, item.product.BarberID, item.product.Name, item.product.Price, item.quantity, item.subtotal, item.seller.FullName, item.seller.ShopName, item.seller.ShopAddress, item.seller.PhoneNumber, item.product.Category, item.product.Description)
+		_, err = tx.ExecContext(ctx, "insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)", order.ID, item.product.ID, item.product.BarberID, item.product.Name, item.product.Price, item.quantity, item.subtotal.Float(), item.seller.FullName, item.seller.ShopName, item.seller.ShopAddress, item.seller.PhoneNumber, item.product.Category, item.product.Description)
 		if err != nil {
 			return models.ProductOrder{}, err
 		}
@@ -200,9 +207,10 @@ func checkoutCartMemory(customer models.Customer, key string) (models.ProductOrd
 	type line struct {
 		index, quantity int
 		seller          models.Barber
-		subtotal        float64
+		subtotal        money.Amount
 	}
 	lines := []line{}
+	var total money.Amount
 	for productID, quantity := range cart {
 		if quantity <= 0 {
 			return models.ProductOrder{}, CheckoutError{"Invalid product quantity in cart."}
@@ -224,17 +232,24 @@ func checkoutCartMemory(customer models.Customer, key string) (models.ProductOrd
 		if products[idx].Quantity < quantity {
 			return models.ProductOrder{}, CheckoutError{"A product in your cart no longer has enough stock."}
 		}
-		sub := products[idx].Price * float64(quantity)
-		order.TotalAmount += sub
+		sub, moneyErr := money.Line(products[idx].Price, quantity)
+		if moneyErr != nil {
+			return models.ProductOrder{}, CheckoutError{"A cart item exceeds the supported price or quantity limit."}
+		}
+		total, moneyErr = total.Add(sub)
+		if moneyErr != nil {
+			return models.ProductOrder{}, CheckoutError{"Cart total exceeds the supported amount. Reduce quantities or remove items."}
+		}
 		lines = append(lines, line{idx, quantity, barber, sub})
 	}
+	order.TotalAmount = total.Float()
 	order.ID = nextID(&lastProductOrderID)
 	productOrders = append(productOrders, order)
 	for _, ln := range lines {
 		p := products[ln.index]
 		products[ln.index].Quantity -= ln.quantity
 		lastProductOrderItemID++
-		productOrderItems = append(productOrderItems, models.ProductOrderItem{ID: lastProductOrderItemID, OrderID: order.ID, ProductID: p.ID, BarberID: p.BarberID, FulfillmentStatus: models.FulfillmentPending, ProductName: p.Name, Price: p.Price, Quantity: ln.quantity, Subtotal: ln.subtotal, SellerName: ln.seller.FullName, SellerShopName: ln.seller.ShopName, SellerShopAddress: ln.seller.ShopAddress, SellerPhone: ln.seller.PhoneNumber, ProductCategory: p.Category, ProductDescription: p.Description})
+		productOrderItems = append(productOrderItems, models.ProductOrderItem{ID: lastProductOrderItemID, OrderID: order.ID, ProductID: p.ID, BarberID: p.BarberID, FulfillmentStatus: models.FulfillmentPending, ProductName: p.Name, Price: p.Price, Quantity: ln.quantity, Subtotal: ln.subtotal.Float(), SellerName: ln.seller.FullName, SellerShopName: ln.seller.ShopName, SellerShopAddress: ln.seller.ShopAddress, SellerPhone: ln.seller.PhoneNumber, ProductCategory: p.Category, ProductDescription: p.Description})
 	}
 	delete(carts, customer.ID)
 	return order, nil
@@ -249,6 +264,10 @@ func CreateProductOrderContext(ctx context.Context, order models.ProductOrder) (
 	ctx, cancel := databaseContext(ctx)
 	defer cancel()
 	if err := ctx.Err(); err != nil {
+		return models.ProductOrder{}, err
+	}
+
+	if _, err := money.FromFloat(order.TotalAmount); err != nil {
 		return models.ProductOrder{}, err
 	}
 
@@ -279,6 +298,11 @@ func CreateProductOrderItemContext(ctx context.Context, item models.ProductOrder
 	defer cancel()
 	if err := ctx.Err(); err != nil {
 		return models.ProductOrderItem{}, err
+	}
+	lineAmount, err := money.Line(item.Price, item.Quantity)
+	subtotal, subtotalErr := money.FromFloat(item.Subtotal)
+	if err != nil || subtotalErr != nil || item.Quantity <= 0 || lineAmount != subtotal {
+		return models.ProductOrderItem{}, money.ErrInvalid
 	}
 
 	item.FulfillmentStatus = models.FulfillmentPending

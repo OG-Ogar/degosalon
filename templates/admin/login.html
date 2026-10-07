@@ -33,15 +33,11 @@
         <p>Welcome back. Sign in to continue.</p>
     </div>
 
-    {{if .Error}}
-        <p class="auth-message auth-error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
     <form class="auth-form ui-form"
           method="post"
-          action="/admin/login">
+          action="/admin/login" {{if .Error}}aria-describedby="form-error"{{end}}>
 
         <div class="auth-field ui-field">
             <label for="username">Username</label>

@@ -198,3 +198,33 @@ test('shared forms and archive confirmations work at phone width',async({page},t
  await page.getByRole('button',{name:'Yes, archive this barber',exact:true}).click();
  await expect(page.getByText('Archived',{exact:true}).first()).toBeVisible();
 });
+
+test('server errors and field help remain associated with and without JavaScript',async({browser})=>{
+ for(const javaScriptEnabled of [true,false]){
+  const context=await browser.newContext({javaScriptEnabled});
+  try {
+   const page=await context.newPage();await page.goto('/customer/register');
+   await page.locator('#fullname').fill('Feedback Customer');await page.locator('#phone').fill('abc');
+   await page.locator('#email').fill('feedback-'+Date.now()+'@example.test');
+   await page.locator('#password').fill('browser-pass-123');await page.locator('#confirm_password').fill('browser-pass-123');
+   await page.locator('main button[type=submit]').click();
+   await expect(page.locator('#form-error')).toHaveAttribute('role','alert');
+   await expect(page.locator('form[action="/customer/register"]')).toHaveAttribute('aria-describedby','form-error');
+   await expect(page.locator('#fullname')).toHaveValue('Feedback Customer');
+   const help=(await page.locator('#profile_image').getAttribute('aria-describedby')).split(' ');
+   for(const id of help)await expect(page.locator('[id="'+id+'"]')).toHaveCount(1);
+   await page.goto('/admin/login');await page.locator('#username').fill('browseradmin');await page.locator('#password').fill('incorrect-password');await page.locator('main button[type=submit]').click();
+   await expect(page.locator('form[action="/admin/login"]')).toHaveAttribute('aria-describedby','form-error');
+   await expect(page.locator('#form-error')).toBeVisible();
+  } finally {await context.close();}
+ }
+});
+
+test('native select feedback clears on selection and preserves field help',async({page})=>{
+ await page.goto('/barber/register');await page.locator('main button[type=submit]').click();
+ await expect(page.locator('#local_area')).toHaveAttribute('aria-invalid','true');
+ await page.locator('#state').selectOption({label:'Lagos'});await page.locator('#local_area').selectOption({label:'Ikeja'});
+ await expect(page.locator('#local_area')).not.toHaveAttribute('aria-invalid','true');
+ const ids=(await page.locator('#local_area').getAttribute('aria-describedby')).split(' ');
+ expect(ids).toContain('geography-help');for(const id of ids)await expect(page.locator('[id="'+id+'"]')).toHaveCount(1);
+});

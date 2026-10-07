@@ -87,16 +87,7 @@
          ERROR
          ================================================= -->
 
-    {{if .Error}}
-
-        <p
-            class="chat-error"
-            role="alert"
-        >
-            {{.Error}}
-        </p>
-
-    {{end}}
+    {{template "form-error" .Error}}
 
 
 
@@ -165,7 +156,7 @@
         class="send"
         method="post"
         action="{{.Action}}"
-    >
+     {{if .Error}}aria-describedby="form-error"{{end}}>
 
 
         <input

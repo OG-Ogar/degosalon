@@ -209,8 +209,12 @@ func journeyError(w http.ResponseWriter, message string, status int) {
 }
 
 // confirmation supplies presentation text while callers retain their owned routes.
-type confirmationView struct{ Action, CSRF, Confirm, Cancel, CancelLabel string }
+type confirmationView struct{ Action, CSRF, Confirm, Cancel, CancelLabel, Error string }
 
-func confirmation(action, csrf, confirm, cancel, cancelLabel string) confirmationView {
-	return confirmationView{action, csrf, confirm, cancel, cancelLabel}
+func confirmation(action, csrf, confirm, cancel, cancelLabel string, problem ...string) confirmationView {
+	view := confirmationView{Action: action, CSRF: csrf, Confirm: confirm, Cancel: cancel, CancelLabel: cancelLabel}
+	if len(problem) > 0 {
+		view.Error = problem[0]
+	}
+	return view
 }

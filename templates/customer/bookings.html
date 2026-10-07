@@ -378,6 +378,23 @@
     </section>
 
 {{end}}
+{{if .FollowUp}}
+<section class="customer-section" aria-labelledby="follow-up-heading">
+    <h2 id="follow-up-heading">Needs follow-up</h2>
+    <p>These open appointments have reached their start time or their recorded time needs checking. Contact your barber to confirm the outcome. They are not automatically marked as no-shows.</p>
+    {{range .FollowUp}}
+    <article class="booking-card">
+        <h3>{{.HairstyleName}} with {{.BarberName}}</h3>
+        <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{.Status}}</p>
+        <a href="/customer/chats/{{.BarberID}}">Message barber</a>
+        <form method="post" action="{{$.ActionURL}}{{.ID}}/cancel">
+            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+            <button type="submit">Cancel appointment</button>
+        </form>
+    </article>
+    {{end}}
+</section>
+{{end}}
 </main>
 
 </body>

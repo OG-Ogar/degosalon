@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"barber-booking/models"
 	"barber-booking/storage"
@@ -49,12 +50,15 @@ func BarberDashboardHandler(
 	pending := 0
 	upcoming := 0
 
+	now := time.Now()
 	for _, booking := range bookings {
 		switch booking.Status {
 		case models.StatusPending:
 			pending++
 		case models.StatusAccepted:
-			upcoming++
+			if classifyAppointment(booking, now) == appointmentUpcoming {
+				upcoming++
+			}
 		}
 	}
 

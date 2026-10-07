@@ -464,6 +464,30 @@
 
     {{end}}
 
+{{if .FollowUp}}
+<section class="barber-section" aria-labelledby="follow-up-heading">
+    <h2 id="follow-up-heading">Needs follow-up</h2>
+    <p>These open appointments have reached their start time or their recorded time needs checking. Confirm the outcome with the customer. They are not automatically marked as no-shows.</p>
+    {{range .FollowUp}}
+    <article class="barber-card">
+        <h3>{{.CustomerName}} · {{.HairstyleName}}</h3>
+        <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{.Status}}</p>
+        <a class="barber-button" href="/barber/chats/{{.CustomerID}}">Message customer</a>
+        {{if eq .Status "Accepted"}}
+        <form method="post" action="{{$.ActionURL}}{{.ID}}/complete">
+            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+            <button class="barber-button primary" type="submit">Mark complete</button>
+        </form>
+        {{else}}
+        <form method="post" action="{{$.ActionURL}}{{.ID}}/reject">
+            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+            <button class="barber-button" type="submit">Reject request</button>
+        </form>
+        {{end}}
+    </article>
+    {{end}}
+</section>
+{{end}}
 </main>
 
 </body>

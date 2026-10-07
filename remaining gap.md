@@ -14,7 +14,6 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 | --- | --- | --- |
 | FE-10, BE-19 | Canonical geography and broader discovery | Choose canonical state/area IDs, dependent choices, normalization/backfill and broader-search behavior. Sorted free-text options are insufficient. |
 | BE-16 | Exact, bounded money arithmetic | Replace floating-point business amounts with minor units or a defined decimal contract; enforce rounding and upper bounds across storage, cart and checkout. FE-12 display formatting is merged, but does not close this backend gap. |
-| BE-17 | Truthful upcoming appointment classification | Compare appointment instants using the recorded timezone; define overdue/no-show behavior instead of grouping by status alone. |
 | FE-02 | Complete shared layout/control primitives | Shared role navigation is merged. Finish reusable form, confirmation and layout primitives across remaining page families. |
 | FE-16 | Consistent domain status presentation | The admin Rejected badge is repaired; centralize actual domain states, labels and treatments across all views. |
 | FE-21 | Complete accessible field feedback | Shared hidden-text utilities, password note associations, invalid-field feedback and message character-count associations are merged. Audit server errors and remaining forms; shared feedback does not close the cross-page audit. |
@@ -43,6 +42,8 @@ These are verification tasks for existing implementations, not necessarily missi
 - Render build and runtime logs, live application responses and deployed commit identity.
 
 ## Merged repairs excluded from the backlog
+
+BE-17 compares open appointments against one request-time instant using the recorded timezone, accepting both legacy HH:MM and PostgreSQL HH:MM:SS values. Elapsed or unverifiable open appointments appear in a separate Needs follow-up section with message/outcome actions; page reads never infer no-shows or mutate lifecycle status. Customer upcoming lists and both dashboards exclude elapsed appointments; pending counters still count all pending requests. Legacy rows without timezone snapshots use the configured legacy booking timezone.
 
 BE-19's shared customer/barber identity parsers validate bounded international names, email syntax and phone digit/format limits; barber forms also require bounded shop/address/state/area fields. These parsers cover customer/barber registration and profile edits plus administrator barber creation/update. Invalid submissions are rejected before account/media mutation, with values retained. Canonical geography remains separate under FE-10/BE-19; existing records are not normalized or backfilled by these input checks.
 

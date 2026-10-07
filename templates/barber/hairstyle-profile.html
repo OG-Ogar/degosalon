@@ -112,19 +112,7 @@
 
                     <td>
 
-                        {{if .IsAvailable}}
-
-                            <span class="barber-badge Active">
-                                Available
-                            </span>
-
-                        {{else}}
-
-                            <span class="barber-badge Suspended">
-                                Hidden from customers
-                            </span>
-
-                        {{end}}
+                        {{template "domain-status" (availabilityStatus .IsAvailable)}}
 
                     </td>
                 </tr>

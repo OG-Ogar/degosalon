@@ -104,8 +104,8 @@ a {
 
 .confirmation-card {
     padding: 48px;
-    background: #fffdf8;
-    border: 1px solid #ddd7cb;
+    background: #10221d;
+    border: 1px solid #355348;
     box-shadow: 0 18px 50px rgba(40, 37, 31, 0.08);
 }
 
@@ -155,7 +155,7 @@ a {
 .eyebrow {
     margin: 0 0 8px;
 
-    color: #77736a;
+    color: #c2d4c7;
 
     font-family:
         Arial,
@@ -207,8 +207,8 @@ h1 {
     align-items: flex-start;
     gap: 12px;
 
-    background: #f1f7f2;
-    border: 1px solid #cce2d0;
+    background: #193129;
+    border: 1px solid #355348;
 }
 
 .status-dot {
@@ -237,7 +237,7 @@ h1 {
 .status-box p {
     margin: 5px 0 0;
 
-    color: #66635c;
+    color: #c2d4c7;
 
     font-family:
         Arial,
@@ -255,7 +255,7 @@ h1 {
     margin-top: 34px;
     padding-top: 30px;
 
-    border-top: 1px solid #ddd7cb;
+    border-top: 1px solid #355348;
 }
 
 .section-heading h2 {
@@ -267,7 +267,7 @@ h1 {
 .detail-list {
     margin-top: 18px;
 
-    border-top: 1px solid #e4ded3;
+    border-top: 1px solid #355348;
 }
 
 .detail-row {
@@ -279,11 +279,11 @@ h1 {
     justify-content: space-between;
     gap: 20px;
 
-    border-bottom: 1px solid #e4ded3;
+    border-bottom: 1px solid #355348;
 }
 
 .detail-row span {
-    color: #77736a;
+    color: #c2d4c7;
 
     font-family:
         Arial,
@@ -353,13 +353,13 @@ h1 {
 }
 
 .secondary-button {
-    border: 1px solid #cfc8bb;
-    background: #f7f3eb;
+    border: 1px solid #527466;
+    background: #193129;
 }
 
 .secondary-button:hover {
     border-color: #aaa398;
-    background: #eee9df;
+    background: #254137;
 }
 
 

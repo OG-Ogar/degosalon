@@ -194,9 +194,7 @@
                         <th scope="row">Status</th>
 
                         <td>
-                            <span class="barber-badge {{.Status}}">
-                                {{.Status}}
-                            </span>
+                            {{template "domain-status" (domainStatus "account" .Status)}}
                         </td>
 
                     </tr>
@@ -279,7 +277,7 @@
                                 </td>
 
                                 <td>
-                                    <span class="barber-badge">{{.FulfillmentStatus}}</span>
+                                    {{template "domain-status" (domainStatus "fulfillment" .FulfillmentStatus)}}
 {{if eq .FulfillmentStatus "Pending"}}<form method="post" action="/barber/order-items/{{.ID}}/ready"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit">Mark ready</button></form>{{end}}
 {{if eq .FulfillmentStatus "Ready"}}<form method="post" action="/barber/order-items/{{.ID}}/collect"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit">Mark collected</button></form>{{end}}
 {{if or (eq .FulfillmentStatus "Pending") (eq .FulfillmentStatus "Ready")}}<form method="post" action="/barber/order-items/{{.ID}}/cancel"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit">Cancel item and restore stock</button></form>{{end}}

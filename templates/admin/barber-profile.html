@@ -40,7 +40,7 @@
                 <tr><th scope="row">Email</th><td>{{.Barber.Email}}</td></tr>
                 <tr><th scope="row">Phone</th><td>{{.Barber.PhoneNumber}}</td></tr>
                 <tr><th scope="row">Status</th>
-                    <td><span class="badge {{.Barber.Status}}">{{.Barber.Status}}</span></td></tr>
+                    <td>{{template "domain-status" (domainStatus "account" .Barber.Status)}}</td></tr>
             </tbody>
         </table>
 
@@ -105,7 +105,7 @@
                             <br><span class="muted">{{.CustomerPhone}}</span>
                         </td>
                         <td data-label="Hairstyle">{{.HairstyleName}}</td>
-                        <td data-label="Status"><span class="badge {{.Status}}">{{.Status}}</span></td>
+                        <td data-label="Status">{{template "domain-status" (domainStatus "booking" .Status)}}</td>
                     </tr>
                 {{end}}
             </tbody>

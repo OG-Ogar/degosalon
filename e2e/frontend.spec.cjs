@@ -147,3 +147,28 @@ test('help and policy placeholders are reachable and accessible on mobile',async
   await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
  }
 });
+
+test('booking details reflect cancellation after the original request',async({browser},testInfo)=>{
+ const barberContext=await browser.newContext();const customerContext=await browser.newContext();
+ try {
+  const barber=await barberContext.newPage();const customer=await customerContext.newPage();const suffix=Date.now();
+  const email='status-barber-'+suffix+'@example.test';
+  const created=await barber.request.post('/barber/register',{multipart:{fullname:'Status Barber',phone:'08012345678',email,shopname:'Status Journey Shop',shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}});expect(created.ok(),await created.text()).toBeTruthy();
+  expect((await barber.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
+  await barber.goto('/barber/hairstyles/new');
+  for(const [name,value] of Object.entries({name:'Status Journey Cut',category:'Fade',description:'A simple cut',price:'1000',duration:'30'})){await barber.locator('[name="'+name+'"]').fill(value);}
+  await barber.locator('[name="available"]').check();await barber.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
+  const registered=await customer.request.post('/customer/register',{multipart:{fullname:'Status Customer',phone:'08012345678',email:'status-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}});expect(registered.ok(),await registered.text()).toBeTruthy();
+  await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:'Status Journey Shop',exact:true}).first().click();
+  const date=new Date(Date.now()+2*24*60*60*1000).toISOString().slice(0,10);
+  await customer.locator('#availability-date').fill(date);await customer.getByRole('button',{name:'Show available times',exact:true}).click();
+  const time=await customer.locator('#time option').nth(1).getAttribute('value');expect(time).toBeTruthy();await customer.locator('#time').selectOption(time);
+  await customer.getByRole('button',{name:/Request Appointment/}).click();await expect(customer).toHaveURL(/\/customer\/booking-confirmation\/\d+/);
+  const confirmation=customer.url();await expect(customer.locator('.domain-status').filter({hasText:'Pending'})).toHaveCount(2);
+  await customer.goto('/customer/bookings');customer.once('dialog',dialog=>dialog.accept());await customer.locator('form[action$="/cancel"] button').first().click();
+  await customer.goto(confirmation);await expect(customer.locator('.domain-status').filter({hasText:'Cancelled'})).toHaveCount(2);
+  await expect(customer.getByText('This appointment has been cancelled.',{exact:true})).toBeVisible();
+  await expect(customer.getByText('Pending Barber Approval',{exact:true})).toHaveCount(0);
+  await customer.setViewportSize({width:320,height:900});await checkPage(customer,testInfo,'cancelled-booking-details');
+ } finally {await barberContext.close();await customerContext.close();}
+});

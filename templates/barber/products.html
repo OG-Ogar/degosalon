@@ -85,11 +85,7 @@
                         </strong>
 
                         <p>
-                            {{if .IsAvailable}}
-                                Available
-                            {{else}}
-                                Not available
-                            {{end}}
+                            {{template "domain-status" (availabilityStatus .IsAvailable)}}
                         </p>
 
                         <div class="barber-actions">

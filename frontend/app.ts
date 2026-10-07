@@ -39,7 +39,7 @@
 
     /* The line of feedback under one field, made on first use and reused
        afterwards so repeated typing does not stack up notes. */
-    function noteFor(input: HTMLInputElement): HTMLParagraphElement {
+    function noteFor(input: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement): HTMLParagraphElement {
         const cached = input.dataset.fieldNoteId;
         if (cached) {
             const existing = document.getElementById(cached);
@@ -186,6 +186,8 @@
 
         var counter = document.createElement("p");
         counter.className = "counter";
+        counter.id = "counter-" + Math.random().toString(36).slice(2);
+        box.setAttribute("aria-describedby", [box.getAttribute("aria-describedby"), counter.id].filter(Boolean).join(" "));
         counter.setAttribute("aria-live", "polite");
         box.insertAdjacentElement("afterend", counter);
 
@@ -331,12 +333,34 @@
         });
     }
 
+
+    function wireFieldFeedback(form: HTMLFormElement) {
+        form.querySelectorAll<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>("input:not([type=hidden]),select,textarea").forEach(function (control) {
+            control.addEventListener("invalid", function () {
+                noteFor(control).textContent = control.validationMessage;
+                control.setAttribute("aria-invalid", "true");
+            });
+            control.addEventListener("input", function () {
+                if (control.getAttribute("aria-invalid") === "true" && control.validity.valid) {
+                    control.setAttribute("aria-invalid", "false");
+                    noteFor(control).textContent = "";
+                }
+            });
+        });
+        const error = form.parentElement?.querySelector<HTMLElement>('[role="alert"]');
+        if (error && !form.classList.contains("site-logout")) {
+            if (!error.id) error.id = "form-error-" + Math.random().toString(36).slice(2);
+            form.setAttribute("aria-describedby", error.id);
+        }
+    }
+
     /* ---- wiring ---- */
 
     function init() {
         document.querySelectorAll<HTMLInputElement>('input[type="password"]').forEach(addRevealButton);
 
         document.querySelectorAll<HTMLFormElement>("form").forEach(function (form) {
+            wireFieldFeedback(form);
             watchNewPassword(form);
             wireBookingSummary(form);
 

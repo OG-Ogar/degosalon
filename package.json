@@ -1,1 +1,1 @@
-{"name":"de-go-salon-web","private":true,"scripts":{"build":"tsc -p tsconfig.json","typecheck":"tsc -p tsconfig.json --noEmit"},"devDependencies":{"typescript":"5.9.3"}}
+{"name":"de-go-salon-web","private":true,"scripts":{"build":"tsc -p tsconfig.json","typecheck":"tsc -p tsconfig.json --noEmit","test:browser":"playwright test"},"devDependencies":{"@axe-core/playwright":"^4.10.2","@playwright/test":"1.63.0","typescript":"5.9.3"}}

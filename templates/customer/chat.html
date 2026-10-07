@@ -8,9 +8,10 @@
     <script src="/static/app.js" defer></script>
 
     
+<link rel="stylesheet" href="/static/messages.css">
 </head>
 
-<body class="modern-customer-page">
+<body class="modern-customer-page messaging-page">
 
 <main class="customer-chat-page">
 
@@ -47,7 +48,8 @@
             </p>
         {{end}}
 
-        <section class="thread" aria-label="Conversation">
+        <p class="message-refresh-note">New messages appear when you refresh or send. <a href="{{.Action}}">Refresh conversation</a></p>
+<section class="thread" aria-label="Conversation">
 
             {{if .Messages}}
 

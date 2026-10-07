@@ -31,30 +31,30 @@
         <input type="hidden" name="csrf_token" value="{{.CSRF}}">
 
         <label for="fullname">Full name</label>
-        <input id="fullname" type="text" name="fullname"
+        <input id="fullname" type="text" name="fullname" maxlength="120"
                value="{{index .Values "fullname"}}" required>
 
         <label for="phone">Phone number</label>
-        <input id="phone" type="tel" name="phone"
+        <input id="phone" type="tel" name="phone" maxlength="32"
                value="{{index .Values "phone"}}" required>
 
         <label for="email">Email address</label>
-        <input id="email" type="email" name="email"
+        <input id="email" type="email" name="email" maxlength="254"
                value="{{index .Values "email"}}" required>
 
         <label for="shopname">Shop name</label>
-        <input id="shopname" type="text" name="shopname"
+        <input id="shopname" type="text" name="shopname" maxlength="160"
                value="{{index .Values "shopname"}}" required>
 
         <label for="shopaddress">Shop address</label>
-        <input id="shopaddress" type="text" name="shopaddress"
+        <input id="shopaddress" type="text" name="shopaddress" maxlength="300"
                value="{{index .Values "shopaddress"}}" required>
 
         <label for="state">State</label>
-        <input id="state" type="text" name="state" value="{{index .Values "state"}}" required>
+        <input id="state" type="text" name="state" maxlength="100" value="{{index .Values "state"}}" required>
 
         <label for="local_area">LGA / local area</label>
-        <input id="local_area" type="text" name="local_area" value="{{index .Values "local_area"}}" required>
+        <input id="local_area" type="text" name="local_area" maxlength="100" value="{{index .Values "local_area"}}" required>
 
         {{if not .Editing}}
             <label for="password">Initial password</label>

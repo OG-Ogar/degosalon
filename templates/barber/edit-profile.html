@@ -71,7 +71,7 @@
                     <input
                         id="fullname"
                         type="text"
-                        name="fullname"
+                        name="fullname" maxlength="120"
                         value="{{index .Values "fullname"}}"
                         autocomplete="name"
                         required
@@ -86,7 +86,7 @@
                     <input
                         id="phone"
                         type="tel"
-                        name="phone"
+                        name="phone" maxlength="32"
                         value="{{index .Values "phone"}}"
                         autocomplete="tel"
                         required
@@ -101,7 +101,7 @@
                     <input
                         id="email"
                         type="email"
-                        name="email"
+                        name="email" maxlength="254"
                         value="{{index .Values "email"}}"
                         autocomplete="email"
                         required
@@ -136,7 +136,7 @@
                     <input
                         id="shopname"
                         type="text"
-                        name="shopname"
+                        name="shopname" maxlength="160"
                         value="{{index .Values "shopname"}}"
                         required
                     >
@@ -150,7 +150,7 @@
                     <input
                         id="shopaddress"
                         type="text"
-                        name="shopaddress"
+                        name="shopaddress" maxlength="300"
                         value="{{index .Values "shopaddress"}}"
                         required
                     >
@@ -158,12 +158,12 @@
 
                 <div class="barber-form-field">
                     <label for="state">State</label>
-                    <input id="state" type="text" name="state" value="{{index .Values "state"}}" required>
+                    <input id="state" type="text" name="state" maxlength="100" value="{{index .Values "state"}}" required>
                 </div>
 
                 <div class="barber-form-field">
                     <label for="local_area">LGA / Local area</label>
-                    <input id="local_area" type="text" name="local_area" value="{{index .Values "local_area"}}" required>
+                    <input id="local_area" type="text" name="local_area" maxlength="100" value="{{index .Values "local_area"}}" required>
                 </div>
             </div>
 

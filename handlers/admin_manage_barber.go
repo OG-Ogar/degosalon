@@ -42,6 +42,23 @@ func readBarberForm(r *http.Request) (barberForm, string) {
 		return form, "All fields are required."
 	}
 
+	if problem := validateIdentity(form.FullName, form.Email, form.Phone); problem != "" {
+		return form, problem
+	}
+	for _, field := range []struct {
+		label string
+		value string
+		limit int
+	}{
+		{"Shop name", form.ShopName, 160},
+		{"Shop address", form.ShopAddress, 300},
+		{"State", form.State, 100},
+		{"Local area", form.LocalArea, 100},
+	} {
+		if problem := validIdentityText(field.label, field.value, field.limit); problem != "" {
+			return form, problem
+		}
+	}
 	return form, ""
 }
 

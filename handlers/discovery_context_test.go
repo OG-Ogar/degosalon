@@ -65,12 +65,12 @@ func TestDiscoveryContextSurvivesAuthentication(t *testing.T) {
 		}
 	}
 	rejected := httptest.NewRecorder()
-	CustomerRegisterHandler(rejected, authFormRequest("/customer/register", url.Values{"fullname": {"Buyer"}, "phone": {"123"}, "email": {"buyer@example.com"}, "password": {"short"}, "next": {destination}}))
+	CustomerRegisterHandler(rejected, authFormRequest("/customer/register", url.Values{"fullname": {"Buyer"}, "phone": {"08012345678"}, "email": {"buyer@example.com"}, "password": {"short"}, "next": {destination}}))
 	if rejected.Code != 400 || !strings.Contains(html.UnescapeString(rejected.Body.String()), destination) {
 		t.Fatalf("failed signup lost destination: %d", rejected.Code)
 	}
 	created := httptest.NewRecorder()
-	CustomerRegisterHandler(created, discoverySignupRequest(url.Values{"fullname": {"Buyer"}, "phone": {"123"}, "email": {"buyer@example.com"}, "password": {"valid-password"}, "confirm_password": {"valid-password"}, "next": {destination}}))
+	CustomerRegisterHandler(created, discoverySignupRequest(url.Values{"fullname": {"Buyer"}, "phone": {"08012345678"}, "email": {"buyer@example.com"}, "password": {"valid-password"}, "confirm_password": {"valid-password"}, "next": {destination}}))
 	if created.Code != 303 || created.Header().Get("Location") != destination {
 		t.Fatalf("signup destination: %d %s %s", created.Code, created.Header().Get("Location"), created.Body.String())
 	}

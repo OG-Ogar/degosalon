@@ -103,7 +103,7 @@
                 <input
                     id="fullname"
                     type="text"
-                    name="fullname"
+                    name="fullname" maxlength="120"
                     value="{{index .Values "fullname"}}"
                     autocomplete="name"
                     required
@@ -120,7 +120,7 @@
                 <input
                     id="phone"
                     type="tel"
-                    name="phone"
+                    name="phone" maxlength="32"
                     value="{{index .Values "phone"}}"
                     autocomplete="tel"
                     required
@@ -137,7 +137,7 @@
                 <input
                     id="email"
                     type="email"
-                    name="email"
+                    name="email" maxlength="254"
                     value="{{index .Values "email"}}"
                     autocomplete="email"
                     required

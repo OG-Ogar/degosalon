@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"barber-booking/internal/geography"
 	"barber-booking/models"
 	"barber-booking/session"
 	"barber-booking/storage"
@@ -9,17 +8,12 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"strings"
 )
 
-type exploreCard struct {
-	models.Barber
-	Hairstyles  int
-	FromPrice   float64
-	Rating      float64
-	ReviewCount int
-}
+type exploreCard = storage.DiscoveryBarber
 type exploreView struct {
+	Total            int
+	Pagination       discoveryPagination
 	CustomerSignedIn bool
 	LoginLink        string
 
@@ -62,50 +56,18 @@ func ExploreBarbersHandler(w http.ResponseWriter, r *http.Request) {
 		methodNotAllowed(w, http.MethodGet)
 		return
 	}
-	all, err := storage.ListActiveBarbersResult(r.Context())
-	if err != nil {
-		serverError(w, "load public discovery", err)
-		return
-	}
-	state, area, ok := discoveryLocation(r)
+	page, state, area, pagination, ok := readDiscoveryPage(w, r, "/explore")
 	if !ok {
-		journeyError(w, "Choose a valid state/FCT and an LGA or area council within it.", http.StatusBadRequest)
 		return
 	}
 
-	var cards []exploreCard
-	for _, b := range all {
-		b.State, b.LocalArea = geography.NormalizeLegacy(b.State, b.LocalArea)
-		if state == "" || !strings.EqualFold(b.State, state) || (area != "" && !strings.EqualFold(b.LocalArea, area)) {
-			continue
-		}
-		b.PasswordHash = ""
-		card := exploreCard{Barber: b}
-		styles, err := storage.ListAvailableHairstylesByBarberResult(r.Context(), b.ID)
-		if err != nil {
-			serverError(w, "load public services", err)
-			return
-		}
-		for _, style := range styles {
-			card.Hairstyles++
-			if card.Hairstyles == 1 || style.Price < card.FromPrice {
-				card.FromPrice = style.Price
-			}
-		}
-		card.Rating, card.ReviewCount, err = storage.ReviewSummaryResult(r.Context(), b.ID)
-		if err != nil {
-			serverError(w, "load public rating", err)
-			return
-		}
-		cards = append(cards, card)
-	}
 	signedIn, sessionErr := publicCustomerSignedIn(r)
 	if sessionErr != nil {
 		serverError(w, "load discovery session", sessionErr)
 		return
 	}
 	destination := discoveryPath("/customer/barbers", discoveryQuery(r))
-	render(w, "explore.html", exploreView{Items: cards, SelectedState: state, SelectedArea: area, CustomerSignedIn: signedIn, LoginLink: customerLoginPath(destination)})
+	render(w, "explore.html", exploreView{Items: page.Items, Total: page.Total, Pagination: pagination, SelectedState: state, SelectedArea: area, CustomerSignedIn: signedIn, LoginLink: customerLoginPath(destination)})
 }
 
 func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment string) {

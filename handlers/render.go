@@ -47,7 +47,7 @@ func LoadTemplates(dir string) error {
 			return err
 		}
 
-		tmpl, err := template.New(entry.Name()).Funcs(template.FuncMap{"navigation": navigation, "naira": naira, "domainStatus": domainStatus, "availabilityStatus": availabilityStatus, "publicMetadata": publicMetadata, "geographyStates": geography.States, "geographyStateID": geography.StateID, "geographyAreaID": geography.AreaID}).ParseFiles(append([]string{path}, partials...)...)
+		tmpl, err := template.New(entry.Name()).Funcs(template.FuncMap{"navigation": navigation, "naira": naira, "discoveryCardPath": discoveryCardPath, "domainStatus": domainStatus, "availabilityStatus": availabilityStatus, "publicMetadata": publicMetadata, "geographyStates": geography.States, "geographyStateID": geography.StateID, "geographyAreaID": geography.AreaID}).ParseFiles(append([]string{path}, partials...)...)
 		if err != nil {
 			return fmt.Errorf("parse %s: %w", name, err)
 		}

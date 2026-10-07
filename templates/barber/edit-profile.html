@@ -158,12 +158,12 @@
 
                 <div class="barber-form-field">
                     <label for="state">State</label>
-                    <input id="state" type="text" name="state" maxlength="100" value="{{index .Values "state"}}" required>
+                    {{template "geography-state" (index .Values "state")}}
                 </div>
 
                 <div class="barber-form-field">
-                    <label for="local_area">LGA / Local area</label>
-                    <input id="local_area" type="text" name="local_area" maxlength="100" value="{{index .Values "local_area"}}" required>
+                    <label for="local_area">Local government area / area council</label>
+                    {{template "geography-profile-area" .Values}}
                 </div>
             </div>
 

@@ -356,7 +356,26 @@
 
     /* ---- wiring ---- */
 
+    // Keep native optgroups as the no-script fallback; the server validates the pair.
+    function enhanceGeography() {
+        document.querySelectorAll<HTMLSelectElement>("select[data-geography-state]").forEach(function (state) {
+            var area = state.form?.querySelector<HTMLSelectElement>("select[data-geography-area]");
+            if (!area) return;
+            var groups = Array.from(area.querySelectorAll<HTMLOptGroupElement>("optgroup")).map(group => group.cloneNode(true) as HTMLOptGroupElement);
+            function refresh() {
+                if (!area) return;
+                var selected = area.value;
+                area.querySelectorAll("optgroup").forEach(group => group.remove());
+                groups.filter(group => group.dataset.stateId === state.value).forEach(group => area?.appendChild(group.cloneNode(true)));
+                area.value = Array.from(area.options).some(option => option.value === selected) ? selected : "";
+            }
+            refresh();
+            state.addEventListener("change", refresh);
+        });
+    }
+
     function init() {
+        enhanceGeography();
         document.querySelectorAll<HTMLInputElement>('input[type="password"]').forEach(addRevealButton);
 
         document.querySelectorAll<HTMLFormElement>("form").forEach(function (form) {

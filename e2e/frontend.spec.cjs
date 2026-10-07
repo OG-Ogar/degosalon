@@ -102,3 +102,34 @@ test('native viewer keeps profile links and service selection keyboard accessibl
  await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
  await page.locator('#profile').click();await expect(page).toHaveURL(/\/explore$/);
 });
+
+test('canonical geography depends on state and preserves native no-script discovery',async({page,browser},testInfo)=>{
+ await page.goto('/explore');
+ await expect(page.locator('#state option')).toHaveCount(38);
+ await page.locator('#state').selectOption({label:'Lagos'});
+ await expect(page.locator('#area option')).toHaveCount(21);
+ await page.locator('#area').selectOption({label:'Ikeja'});
+ await page.locator('#state').selectOption({label:'FCT'});
+ await expect(page.locator('#area option')).toHaveCount(7);
+ await expect(page.locator('#area')).toHaveValue('');
+ await page.locator('#area').selectOption({label:'Abuja Municipal'});
+ await page.getByRole('button',{name:/Find barbers/i}).click();
+ await expect(page.locator('#state')).toHaveValue('NG015');
+ await expect(page.locator('#area')).toHaveValue('NG015002');
+ await page.setViewportSize({width:320,height:900});
+ await checkPage(page,testInfo,'geography-fct-mobile');
+ await page.goto('/barber/register');
+ await page.locator('#state').selectOption({label:'Lagos'});
+ await page.locator('#local_area').selectOption({label:'Ikeja'});
+ await expect(page.locator('#local_area')).toHaveAttribute('aria-describedby','geography-help');
+ const context=await browser.newContext({javaScriptEnabled:false});
+ try {
+  const native=await context.newPage();await native.goto('/explore');
+  await expect(native.locator('#area option')).toHaveCount(775);
+  await native.locator('#state').selectOption({label:'Lagos'});
+  await native.locator('#area').selectOption({label:'Ikeja'});
+  await native.getByRole('button',{name:/Find barbers/i}).click();
+  await expect(native.locator('#state')).toHaveValue('NG025');
+  await expect(native.locator('#area')).toHaveValue('NG025011');
+ } finally {await context.close();}
+});

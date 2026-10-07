@@ -4,6 +4,7 @@ import (
 	"context"
 	"strings"
 
+	"barber-booking/internal/geography"
 	"barber-booking/models"
 )
 
@@ -123,6 +124,7 @@ func CreateBarber(barber models.Barber) (models.Barber, error) {
 }
 
 func CreateBarberContext(ctx context.Context, barber models.Barber) (models.Barber, error) {
+	barber.State, barber.LocalArea = geography.NormalizeLegacy(barber.State, barber.LocalArea)
 	ctx, cancel := databaseContext(ctx)
 	defer cancel()
 	if err := ctx.Err(); err != nil {
@@ -206,6 +208,7 @@ func UpdateBarber(barber models.Barber) error {
 }
 
 func UpdateBarberContext(ctx context.Context, barber models.Barber) error {
+	barber.State, barber.LocalArea = geography.NormalizeLegacy(barber.State, barber.LocalArea)
 	ctx, cancel := databaseContext(ctx)
 	defer cancel()
 	if err := ctx.Err(); err != nil {

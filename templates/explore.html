@@ -7,6 +7,7 @@
 <title>Explore Barbers - De Go Salon</title>
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/customer-barbers.css">
+<script src="/static/app.js" defer></script>
 </head>
 <body class="explore-page">
 <div class="barber-page find-page">
@@ -25,10 +26,10 @@
 </section>
 
 <section class="search-section location-panel" aria-labelledby="location-title">
-<div class="location-copy"><span class="step-number">01</span><div><p class="eyebrow">Start with your location</p><h2 id="location-title">Where do you need a barber?</h2><p>Tell us your state and, if you want, narrow it down to your LGA or local area.</p></div></div>
+<div class="location-copy"><span class="step-number">01</span><div><p class="eyebrow">Start with your location</p><h2 id="location-title">Where do you need a barber?</h2><p>Tell us your state and, if you want, narrow it down to your LGA or area council.</p></div></div>
 <form class="location-form" method="get" action="/explore">
-<div class="location-field"><label for="state">State</label><select id="state" name="state" required><option value="">Choose your state</option>{{$selected := .SelectedState}}{{range .States}}<option value="{{.}}" {{if eq . $selected}}selected{{end}}>{{.}}</option>{{end}}</select></div>
-<div class="location-field"><label for="area">LGA / local area <span>Optional</span></label><input id="area" name="area" value="{{.SelectedArea}}" placeholder="e.g. Ikeja"></div>
+<div class="location-field"><label for="state">State</label>{{template "geography-state" .SelectedState}}</div>
+<div class="location-field"><label for="area">LGA / area council <span>Optional</span></label>{{template "geography-discovery-area" .}}</div>
 <button class="book-button find-submit" type="submit">Find Barbers <span aria-hidden="true">→</span></button>
 </form>
 </section>
@@ -53,7 +54,7 @@
 {{end}}
 </div>
 {{else}}
-<div class="empty-state"><div class="empty-icon">DG</div><p class="eyebrow">No match yet</p><h2>No registered barber matched that location.</h2><p>Try searching the whole state, or choose another LGA/local area.</p><a class="back-button" href="/explore?state={{.SelectedState}}">Search whole state</a></div>
+<div class="empty-state"><div class="empty-icon">DG</div><p class="eyebrow">No match yet</p><h2>No registered barber matched that location.</h2><p>Try searching the whole state, or choose another LGA/area council.</p><a class="back-button" href="/explore?state={{urlquery .SelectedState}}">Search whole state</a></div>
 {{end}}
 </section>
 {{else}}

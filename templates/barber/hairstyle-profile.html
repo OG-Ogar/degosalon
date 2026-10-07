@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -16,7 +17,7 @@
 
 {{template "role-header" (navigation "barber" "hairstyles" .)}}
 
-<main class="barber-main">
+<main class="barber-main ui-page">
 
     <p class="barber-breadcrumb">
 
@@ -122,7 +123,7 @@
         </table>
 
 
-        <div class="barber-actions">
+        <div class="barber-actions ui-actions">
 
             <a class="barber-button primary"
                href="/barber/hairstyles/{{.ID}}/edit">

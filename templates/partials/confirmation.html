@@ -1,0 +1,9 @@
+{{define "confirmation-actions"}}
+<div class="ui-actions">
+    <form method="post" action="{{.Action}}">
+        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+        <button class="ui-control danger" type="submit">{{.Confirm}}</button>
+    </form>
+    <a href="{{.Cancel}}">{{.CancelLabel}}</a>
+</div>
+{{end}}

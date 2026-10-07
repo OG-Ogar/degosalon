@@ -10,6 +10,7 @@
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/booking-images.css">
 <link rel="stylesheet" href="/static/customer-bookings.css">
+<link rel="stylesheet" href="/static/ui.css">
 
 <script src="/static/app.js" defer></script>
 </head>
@@ -18,7 +19,7 @@
 
 {{template "role-header" (navigation "customer" "bookings" .)}}
 
-<main class="bookings-main">
+<main class="bookings-main ui-page">
 
 <div class="bookings-heading">
 
@@ -189,7 +190,7 @@
                             method="post"
                             action="{{$view.ActionURL}}{{.ID}}/cancel"
                             data-confirm="Cancel your {{.Time}} appointment on {{.Date}}?"
-                        >
+                         class="ui-form">
 
                             <input
                                 type="hidden"
@@ -198,7 +199,7 @@
                             >
 
                             <button
-                                class="cancel-button"
+                                class="cancel-button ui-control"
                                 type="submit"
                             >
                                 Cancel booking
@@ -383,9 +384,9 @@
         <h3>{{.HairstyleName}} with {{.BarberName}}</h3>
         <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{template "domain-status" (domainStatus "booking" .Status)}}</p>
         <a href="/customer/chats/{{.BarberID}}">Message barber</a>
-        <form method="post" action="{{$.ActionURL}}{{.ID}}/cancel">
+        <form method="post" action="{{$.ActionURL}}{{.ID}}/cancel" class="ui-form">
             <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
-            <button type="submit">Cancel appointment</button>
+            <button type="submit" class="ui-control">Cancel appointment</button>
         </form>
     </article>
     {{end}}

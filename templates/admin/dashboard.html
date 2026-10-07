@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin dashboard - De Go Salon</title>
     <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
 <body class="modern-admin-page">
 
 {{template "role-header" (navigation "admin" "dashboard" .)}}
 
-<main class="wrap">
+<main class="wrap ui-page">
 
     <h1>Administrator dashboard</h1>
 
@@ -79,7 +80,7 @@
 
     </div>
 
-    <section class="panel">
+    <section class="panel ui-panel">
 
         <h2>Homepage background</h2>
 
@@ -105,7 +106,7 @@
 
         {{end}}
 
-        <form class="stack"
+        <form class="stack ui-form"
               method="post"
               action="/admin/landing-image"
               enctype="multipart/form-data">
@@ -129,8 +130,8 @@
                 customer's hair. JPG, PNG, GIF or WEBP, up to 5 MB.
             </p>
 
-            <div class="actions">
-                <button class="primary" type="submit">
+            <div class="actions ui-actions">
+                <button class="primary ui-control" type="submit">
                     Upload homepage background
                 </button>
 
@@ -143,7 +144,7 @@
 
     </section>
 
-    <section class="panel">
+    <section class="panel ui-panel">
 
         <h2>Customer dashboard background</h2>
 
@@ -171,7 +172,7 @@
 
         {{end}}
 
-        <form class="stack"
+        <form class="stack ui-form"
               method="post"
               action="/admin/customer-landing-image"
               enctype="multipart/form-data">
@@ -196,8 +197,8 @@
                 JPG, PNG, GIF or WEBP, up to 5 MB.
             </p>
 
-            <div class="actions">
-                <button class="primary" type="submit">
+            <div class="actions ui-actions">
+                <button class="primary ui-control" type="submit">
                     Upload customer background
                 </button>
 

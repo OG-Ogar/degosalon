@@ -12,7 +12,7 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 
 | Gap IDs | Remaining work | Completion target |
 | --- | --- | --- |
-| FE-02 | Complete shared layout/control primitives | Shared role navigation is merged. Finish reusable form, confirmation and layout primitives across remaining page families. |
+| FE-02 | Implemented on this branch; CI/merge pending | Shared page/panel/form/field/control/action primitives now serve all template families; barber and admin archive confirmations share a CSRF-preserving partial. See `ui-primitives.md`. Full browser acceptance remains FE-26. |
 | FE-21 | Complete accessible field feedback | Shared hidden-text utilities, password note associations, invalid-field feedback and message character-count associations are merged. Audit server errors and remaining forms; shared feedback does not close the cross-page audit. |
 | FE-24 | Responsive media delivery | Add suitable image variants, srcset/sizes, reserved dimensions and deliberate video/hero loading; measure performance and set budgets. |
 | FE-25 | Final support/legal content and deployment metadata acceptance | Shared destinations and explicitly approved placeholders are implemented, with configured-origin canonical/share metadata across public pages. Replace placeholders with approved contacts/policies and verify the deployed canonical origin. |

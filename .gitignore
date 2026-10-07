@@ -1,3 +1,5 @@
 node_modules/
 
 supabase/.temp/
+playwright-report/
+test-results/

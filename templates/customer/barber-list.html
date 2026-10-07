@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="/static/customer-barbers.css">
     <script src="/static/app.js" defer></script>
     <link rel="stylesheet" href="/static/image-viewer.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/image-viewer.js" defer></script>
 </head>
 
@@ -22,7 +23,7 @@
     {{template "role-header" (navigation "customer" "barbers" .)}}
 
 
-    <main class="barber-main">
+    <main class="barber-main ui-page">
 
         <!-- Dashboard link -->
         <a class="dashboard-box" href="/customer/dashboard"><span class="dashboard-arrow">&larr;</span><span><small>Your account</small><strong>Dashboard</strong></span></a>
@@ -49,12 +50,12 @@
 
         <section class="location-panel customer-location-panel">
             <div class="location-copy"><span class="step-number">01</span><div><p class="eyebrow">Location first</p><h2>Where do you need a barber?</h2><p>Choose your state and optionally narrow the results to your LGA or area council.</p></div></div>
-            <form class="location-form" method="get" action="/customer/barbers">
-                <div class="location-field"><label for="state">State</label>
+            <form class="location-form ui-form" method="get" action="/customer/barbers">
+                <div class="location-field ui-field"><label for="state">State</label>
                 {{template "geography-state" .SelectedState}}</div>
-                <div class="location-field"><label for="area">LGA / area council <span>Optional</span></label>
+                <div class="location-field ui-field"><label for="area">LGA / area council <span>Optional</span></label>
                 {{template "geography-discovery-area" .}}</div>
-                <button class="book-button find-submit" type="submit">Find barbers <span>&rarr;</span></button>
+                <button class="book-button find-submit ui-control" type="submit">Find barbers <span>&rarr;</span></button>
             </form>
         </section>
 
@@ -229,7 +230,7 @@
 
 
                                 <!-- Actions -->
-                                <div class="barber-actions">
+                                <div class="barber-actions ui-actions">
 
                                     <a class="book-button"
                                        href="/customer/barbers/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">

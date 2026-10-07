@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/image-viewer.js" defer></script>
     <script src="/static/app.js" defer></script>
     
@@ -18,7 +19,7 @@
 
 {{template "role-header" (navigation "barber" "profile" .)}}
 
-<main class="barber-main">
+<main class="barber-main ui-page">
 
     <p class="barber-breadcrumb">
         <a href="/barber/dashboard">Dashboard</a>
@@ -171,7 +172,7 @@
         </table>
 
 
-        <div class="barber-actions">
+        <div class="barber-actions ui-actions">
 
             <a class="barber-button primary"
                href="/barber/profile/edit">
@@ -200,13 +201,13 @@
 
 
             <form method="post"
-                  action="/barber/logout">
+                  action="/barber/logout" class="ui-form">
 
                 <input type="hidden"
                        name="csrf_token"
                        value="{{.CSRF}}">
 
-                <button class="barber-button danger"
+                <button class="barber-button danger ui-control"
                         type="submit">
                     Log Out
                 </button>

@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/customer-profile.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -16,9 +17,9 @@
 
 {{template "role-header" (navigation "customer" "profile" .)}}
 
-<main class="customer-profile-page">
+<main class="customer-profile-page ui-page">
 
-    <div class="customer-edit-card">
+    <div class="customer-edit-card ui-panel">
 
         <div class="customer-edit-heading">
 
@@ -41,7 +42,7 @@
         {{end}}
 
         <form
-            class="customer-edit-form"
+            class="customer-edit-form ui-form"
             method="post"
             action="/customer/profile/edit"
             enctype="multipart/form-data"
@@ -94,7 +95,7 @@
 
             </div>
 
-            <div class="customer-form-field">
+            <div class="customer-form-field ui-field">
 
                 <label for="fullname">
                     Full Name
@@ -111,7 +112,7 @@
 
             </div>
 
-            <div class="customer-form-field">
+            <div class="customer-form-field ui-field">
 
                 <label for="phone">
                     Phone Number
@@ -128,7 +129,7 @@
 
             </div>
 
-            <div class="customer-form-field">
+            <div class="customer-form-field ui-field">
 
                 <label for="email">
                     Email Address
@@ -145,10 +146,10 @@
 
             </div>
 
-            <div class="customer-edit-actions">
+            <div class="customer-edit-actions ui-actions">
 
                 <button
-                    class="customer-primary-button"
+                    class="customer-primary-button ui-control"
                     type="submit"
                 >
                     Save Changes

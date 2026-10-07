@@ -9,17 +9,18 @@
 
     
 <link rel="stylesheet" href="/static/messages.css">
+<link rel="stylesheet" href="/static/ui.css">
 </head>
 
 <body class="modern-customer-page messaging-page">
 
-<main class="customer-chat-page">
+<main class="customer-chat-page ui-page">
 
     <div class="customer-chat">
 
         {{template "role-header" (navigation "customer" "chats" .)}}
 
-        <section class="barber-card">
+        <section class="barber-card ui-panel">
 
             {{if .BarberImage}}
                 <img
@@ -107,7 +108,7 @@
                 required></textarea>
 
             <button
-                class="primary"
+                class="primary ui-control"
                 type="submit">
                 Send
             </button>

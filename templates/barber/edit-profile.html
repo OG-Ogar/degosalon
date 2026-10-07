@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber-profile.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -16,7 +17,7 @@
 
 {{template "role-header" (navigation "barber" "profile" .)}}
 
-<main class="barber-edit-page">
+<main class="barber-edit-page ui-page">
 
     <div class="barber-edit-heading">
         <p class="barber-profile-label">Profile Settings</p>
@@ -35,7 +36,7 @@
     {{end}}
 
     <form
-        class="barber-edit-card"
+        class="barber-edit-card ui-panel ui-form"
         method="post"
         action="/barber/profile/edit"
         enctype="multipart/form-data"
@@ -61,9 +62,9 @@
                 </p>
             </div>
 
-            <div class="barber-form-row barber-form-row-three">
+            <div class="barber-form-row barber-form-row-three ui-grid">
 
-                <div class="barber-form-field">
+                <div class="barber-form-field ui-field">
                     <label for="fullname">
                         Full name
                     </label>
@@ -78,7 +79,7 @@
                     >
                 </div>
 
-                <div class="barber-form-field">
+                <div class="barber-form-field ui-field">
                     <label for="phone">
                         Phone number
                     </label>
@@ -93,7 +94,7 @@
                     >
                 </div>
 
-                <div class="barber-form-field">
+                <div class="barber-form-field ui-field">
                     <label for="email">
                         Email address
                     </label>
@@ -126,9 +127,9 @@
                 </p>
             </div>
 
-            <div class="barber-form-row barber-form-row-two">
+            <div class="barber-form-row barber-form-row-two ui-grid">
 
-                <div class="barber-form-field">
+                <div class="barber-form-field ui-field">
                     <label for="shopname">
                         Shop name
                     </label>
@@ -142,7 +143,7 @@
                     >
                 </div>
 
-                <div class="barber-form-field">
+                <div class="barber-form-field ui-field">
                     <label for="shopaddress">
                         Shop address
                     </label>
@@ -156,12 +157,12 @@
                     >
                 </div>
 
-                <div class="barber-form-field">
+                <div class="barber-form-field ui-field">
                     <label for="state">State</label>
                     {{template "geography-state" (index .Values "state")}}
                 </div>
 
-                <div class="barber-form-field">
+                <div class="barber-form-field ui-field">
                     <label for="local_area">Local government area / area council</label>
                     {{template "geography-profile-area" .Values}}
                 </div>
@@ -282,10 +283,10 @@
              ACTIONS
              ================================================= -->
 
-        <div class="barber-edit-actions">
+        <div class="barber-edit-actions ui-actions">
 
             <button
-                class="barber-primary-button"
+                class="barber-primary-button ui-control"
                 type="submit"
             >
                 Save Changes

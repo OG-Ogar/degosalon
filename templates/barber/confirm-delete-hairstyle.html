@@ -5,33 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}} - De Go Salon</title>
     <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
 <body class="modern-role-page">
 
 {{template "role-header" (navigation "barber" "hairstyles" .)}}
 
-<main class="wrap">
+<main class="wrap ui-page ui-confirmation">
 
     <h1>{{.Title}}</h1>
 
-    <div class="panel">
+    <div class="panel ui-panel">
 
         <p>{{.Message}}</p>
 
-        <div class="actions">
-
-            <!-- The delete itself is a POST carrying the session's CSRF
-                 token, so it cannot be triggered by a link or an image
-                 embedded on another site. -->
-            <form class="inline" method="post" action="{{.Action}}">
-                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-                <button class="danger" type="submit">Yes, archive it</button>
-            </form>
-
-            <a class="button" href="{{.Cancel}}">No, keep it</a>
-
-        </div>
+        {{template "confirmation-actions" (confirmation .Action .CSRF "Yes, archive it" .Cancel "No, keep it")}}
 
     </div>
 

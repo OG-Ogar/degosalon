@@ -21,10 +21,11 @@ import (
 )
 
 const (
-	algorithm  = "pbkdf2_sha256"
-	iterations = 150000
-	saltBytes  = 16
-	keyBytes   = 32
+	algorithm           = "pbkdf2_sha256"
+	iterations          = 150000
+	saltBytes           = 16
+	keyBytes            = 32
+	maxVerifyIterations = 1000000
 )
 
 // referenceHash is hashed against in DummyVerify so that a login
@@ -57,6 +58,10 @@ func HashPassword(password string) (string, error) {
 // VerifyPassword reports whether password matches the encoded digest.
 // A malformed or empty digest never matches.
 func VerifyPassword(encoded, password string) bool {
+	// Bound work and allocations before decoding an untrusted/corrupt digest.
+	if len(encoded) > 256 {
+		return false
+	}
 	parts := strings.Split(encoded, "$")
 
 	if len(parts) != 4 || parts[0] != algorithm {
@@ -64,17 +69,17 @@ func VerifyPassword(encoded, password string) bool {
 	}
 
 	iter, err := strconv.Atoi(parts[1])
-	if err != nil || iter < 1 {
+	if err != nil || iter < 1 || iter > maxVerifyIterations {
 		return false
 	}
 
 	salt, err := hex.DecodeString(parts[2])
-	if err != nil || len(salt) == 0 {
+	if err != nil || len(salt) != saltBytes {
 		return false
 	}
 
 	want, err := hex.DecodeString(parts[3])
-	if err != nil || len(want) == 0 {
+	if err != nil || len(want) != keyBytes {
 		return false
 	}
 

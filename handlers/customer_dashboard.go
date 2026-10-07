@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"barber-booking/models"
 	"barber-booking/storage"
@@ -89,6 +90,7 @@ func CustomerDashboardHandler(
 
 	view.Customer.PasswordHash = ""
 
+	now := time.Now()
 	for _, booking := range bookings {
 		row, err := describeBooking(r.Context(), booking)
 		if err != nil {
@@ -96,21 +98,11 @@ func CustomerDashboardHandler(
 			return
 		}
 
-		switch booking.Status {
-
-		case models.StatusPending:
+		if booking.Status == models.StatusPending {
 			view.Pending++
-
-			view.Upcoming = append(
-				view.Upcoming,
-				row,
-			)
-
-		case models.StatusAccepted:
-			view.Upcoming = append(
-				view.Upcoming,
-				row,
-			)
+		}
+		if classifyAppointment(booking, now) == appointmentUpcoming {
+			view.Upcoming = append(view.Upcoming, row)
 		}
 	}
 

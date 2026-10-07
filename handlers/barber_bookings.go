@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"barber-booking/models"
 	"barber-booking/storage"
@@ -14,6 +15,7 @@ type barberBookingsView struct {
 	Pending   []bookingRow
 	Upcoming  []bookingRow
 	Finished  []bookingRow
+	FollowUp  []bookingRow
 	CSRF      string
 	ActionURL string
 }
@@ -42,6 +44,7 @@ func BarberBookingsHandler(
 		serverError(w, "load barber bookings", err)
 		return
 	}
+	now := time.Now()
 	for _, booking := range bookings {
 		row, err := describeBooking(r.Context(), booking)
 		if err != nil {
@@ -49,11 +52,15 @@ func BarberBookingsHandler(
 			return
 		}
 
-		switch booking.Status {
-		case models.StatusPending:
-			view.Pending = append(view.Pending, row)
-		case models.StatusAccepted:
-			view.Upcoming = append(view.Upcoming, row)
+		switch classifyAppointment(booking, now) {
+		case appointmentFollowUp:
+			view.FollowUp = append(view.FollowUp, row)
+		case appointmentUpcoming:
+			if booking.Status == models.StatusPending {
+				view.Pending = append(view.Pending, row)
+			} else {
+				view.Upcoming = append(view.Upcoming, row)
+			}
 		default:
 			view.Finished = append(view.Finished, row)
 		}

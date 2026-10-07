@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"barber-booking/internal/money"
 	"barber-booking/models"
 	"barber-booking/storage"
 )
@@ -55,18 +56,20 @@ func AddToCartHandler(
 }
 
 type customerCartItem struct {
-	Product  models.Product
-	Quantity int
-	Subtotal float64
-	Barber   models.Barber
+	Product           models.Product
+	Quantity          int
+	Subtotal          float64
+	Barber            models.Barber
+	AmountUnavailable bool
 }
 
 type customerCartView struct {
-	Items       []customerCartItem
-	Total       float64
-	CSRF        string
-	Problem     string
-	CheckoutKey string
+	Items             []customerCartItem
+	Total             float64
+	CSRF              string
+	Problem           string
+	CheckoutKey       string
+	AmountUnavailable bool
 }
 
 func CustomerCartHandler(
@@ -92,7 +95,8 @@ func renderCustomerCart(w http.ResponseWriter, r *http.Request, customer models.
 
 	items := make([]customerCartItem, 0, len(cartItems))
 
-	var total float64
+	var total money.Amount
+	amountUnavailable := false
 
 	for _, cartItem := range cartItems {
 		product, err := storage.FindProductByIDResult(r.Context(), cartItem.ProductID)
@@ -113,16 +117,24 @@ func renderCustomerCart(w http.ResponseWriter, r *http.Request, customer models.
 			return
 		}
 
-		subtotal := product.Price * float64(cartItem.Quantity)
+		subtotal, amountErr := money.Line(product.Price, cartItem.Quantity)
+		lineUnavailable := amountErr != nil || cartItem.Quantity <= 0
+		if !lineUnavailable {
+			total, amountErr = total.Add(subtotal)
+		}
+		if lineUnavailable || amountErr != nil {
+			amountUnavailable = true
+			problem = "Cart amount exceeds the supported price or quantity limit. Reduce quantities or remove items."
+		}
 
 		items = append(items, customerCartItem{
-			Product:  product,
-			Quantity: cartItem.Quantity,
-			Subtotal: subtotal,
-			Barber:   barber,
+			Product:           product,
+			Quantity:          cartItem.Quantity,
+			Subtotal:          subtotal.Float(),
+			Barber:            barber,
+			AmountUnavailable: lineUnavailable,
 		})
 
-		total += subtotal
 	}
 
 	key := r.PostFormValue("checkout_key")
@@ -135,11 +147,12 @@ func renderCustomerCart(w http.ResponseWriter, r *http.Request, customer models.
 		key = hex.EncodeToString(random)
 	}
 	view := customerCartView{
-		Items:       items,
-		CheckoutKey: key,
-		Total:       total,
-		CSRF:        s.CSRFToken,
-		Problem:     problem,
+		Items:             items,
+		CheckoutKey:       key,
+		Total:             total.Float(),
+		CSRF:              s.CSRFToken,
+		Problem:           problem,
+		AmountUnavailable: amountUnavailable,
 	}
 
 	renderStatus(w, status, "customer/cart.html", view)

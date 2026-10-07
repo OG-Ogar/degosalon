@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"barber-booking/internal/money"
 	"barber-booking/models"
 	"context"
 )
@@ -101,6 +102,10 @@ func CreateProductContext(ctx context.Context, product models.Product) (models.P
 		return models.Product{}, err
 	}
 
+	if _, err := money.FromFloat(product.Price); err != nil {
+		return models.Product{}, err
+	}
+
 	if databaseEnabled() {
 		err := db.QueryRowContext(ctx, "insert into public.products(barber_id,name,category,description,price,quantity,image,is_available) values($1,$2,$3,$4,$5,$6,$7,$8) returning id", product.BarberID, product.Name, product.Category, product.Description, product.Price, product.Quantity, product.Image, product.IsAvailable).Scan(&product.ID)
 		return product, err
@@ -130,6 +135,10 @@ func UpdateProductContext(ctx context.Context, product models.Product) error {
 	ctx, cancel := databaseContext(ctx)
 	defer cancel()
 	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	if _, err := money.FromFloat(product.Price); err != nil {
 		return err
 	}
 

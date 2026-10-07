@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"barber-booking/internal/money"
 	"errors"
-	"math"
 	"net/http"
 	"strconv"
 
@@ -55,14 +55,11 @@ func readHairstyleForm(r *http.Request) (hairstyleForm, string) {
 		return form, "Every field except the image and video is required."
 	}
 
-	price, err := strconv.ParseFloat(priceText, 64)
-
-	// ParseFloat happily accepts "NaN" and "Inf", so check the value too.
-	if err != nil || math.IsNaN(price) || math.IsInf(price, 0) || price < 0 {
-		return form, "Enter a price of zero or more."
+	price, err := money.Parse(priceText)
+	if err != nil {
+		return form, "Enter a price between 0 and 9999999999.99 with at most two decimal places."
 	}
-
-	form.Price = price
+	form.Price = price.Float()
 
 	duration, err := strconv.Atoi(durationText)
 	if err != nil || duration <= 0 || duration > maxDurationMinutes {

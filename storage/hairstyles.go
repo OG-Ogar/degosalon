@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"barber-booking/internal/money"
 	"barber-booking/models"
 	"context"
 )
@@ -131,6 +132,10 @@ func CreateHairstyleContext(ctx context.Context, hairstyle models.Hairstyle) (mo
 		return models.Hairstyle{}, err
 	}
 
+	if _, err := money.FromFloat(hairstyle.Price); err != nil {
+		return models.Hairstyle{}, err
+	}
+
 	if databaseEnabled() {
 		err := db.QueryRowContext(ctx, "insert into public.hairstyles(barber_id,name,category,description,price,duration,image,video,is_available) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id", hairstyle.BarberID, hairstyle.Name, hairstyle.Category, hairstyle.Description, hairstyle.Price, hairstyle.Duration, hairstyle.Image, hairstyle.Video, hairstyle.IsAvailable).Scan(&hairstyle.ID)
 		return hairstyle, err
@@ -162,6 +167,10 @@ func UpdateHairstyleContext(ctx context.Context, hairstyle models.Hairstyle) err
 	ctx, cancel := databaseContext(ctx)
 	defer cancel()
 	if err := ctx.Err(); err != nil {
+		return err
+	}
+
+	if _, err := money.FromFloat(hairstyle.Price); err != nil {
 		return err
 	}
 

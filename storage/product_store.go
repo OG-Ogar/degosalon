@@ -147,7 +147,10 @@ func UpdateProductContext(ctx context.Context, product models.Product) error {
 		if err != nil {
 			return err
 		}
-		n, _ := result.RowsAffected()
+		n, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
 		if n == 0 {
 			return ErrNotFound
 		}

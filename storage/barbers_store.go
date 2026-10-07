@@ -220,7 +220,10 @@ func UpdateBarberContext(ctx context.Context, barber models.Barber) error {
 			}
 			return err
 		}
-		n, _ := result.RowsAffected()
+		n, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
 		if n == 0 {
 			return ErrNotFound
 		}

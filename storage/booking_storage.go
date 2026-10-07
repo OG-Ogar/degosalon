@@ -316,7 +316,10 @@ func TransitionBookingStatusContext(ctx context.Context, id int, status string, 
 		if err != nil {
 			return err
 		}
-		n, _ := result.RowsAffected()
+		n, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
 		if n == 1 {
 			return nil
 		}

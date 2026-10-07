@@ -12,7 +12,6 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 
 | Gap IDs | Remaining work | Completion target |
 | --- | --- | --- |
-| BE-19 | Server location and identity validation | Validate required state/area and bounded, sensible name/email/phone inputs on every relevant mutation. |
 | FE-10, BE-19 | Canonical geography and broader discovery | Choose canonical state/area IDs, dependent choices, normalization/backfill and broader-search behavior. Sorted free-text options are insufficient. |
 | BE-16 | Exact, bounded money arithmetic | Replace floating-point business amounts with minor units or a defined decimal contract; enforce rounding and upper bounds across storage, cart and checkout. FE-12 display formatting is merged, but does not close this backend gap. |
 | BE-17 | Truthful upcoming appointment classification | Compare appointment instants using the recorded timezone; define overdue/no-show behavior instead of grouping by status alone. |
@@ -44,6 +43,8 @@ These are verification tasks for existing implementations, not necessarily missi
 - Render build and runtime logs, live application responses and deployed commit identity.
 
 ## Merged repairs excluded from the backlog
+
+BE-19's shared customer/barber identity parsers validate bounded international names, email syntax and phone digit/format limits; barber forms also require bounded shop/address/state/area fields. These parsers cover customer/barber registration and profile edits plus administrator barber creation/update. Invalid submissions are rejected before account/media mutation, with values retained. Canonical geography remains separate under FE-10/BE-19; existing records are not normalized or backfilled by these input checks.
 
 PRs #86–90 implemented separate image enlargement controls and a native accessible viewer (FE-04/05), submission locks and pending announcements (FE-20), IME-safe chat and deliberate mobile focus (FE-22), recovery layouts (FE-03), labeled mobile tables (FE-15), shared role navigation/mobile wrapping (FE-01/14), grouped currency display (FE-12), brand fallbacks (FE-11), customer-aware public navigation (FE-17), public portfolio media and exact-product continuation (FE-18), and shared HTML error recovery (FE-19). Remaining form-state/context preservation should be assessed during browser acceptance.
 

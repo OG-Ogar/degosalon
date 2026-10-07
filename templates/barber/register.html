@@ -52,7 +52,7 @@
             <input
                 id="fullname"
                 type="text"
-                name="fullname"
+                name="fullname" maxlength="120"
                 value="{{index .Values "fullname"}}"
                 autocomplete="name"
                 placeholder="Enter your full name"
@@ -70,7 +70,7 @@
             <input
                 id="phone"
                 type="tel"
-                name="phone"
+                name="phone" maxlength="32"
                 value="{{index .Values "phone"}}"
                 autocomplete="tel"
                 placeholder="Enter your phone number"
@@ -88,7 +88,7 @@
             <input
                 id="email"
                 type="email"
-                name="email"
+                name="email" maxlength="254"
                 value="{{index .Values "email"}}"
                 autocomplete="email"
                 placeholder="Enter your email"
@@ -106,7 +106,7 @@
             <input
                 id="shopname"
                 type="text"
-                name="shopname"
+                name="shopname" maxlength="160"
                 value="{{index .Values "shopname"}}"
                 placeholder="Enter your shop name"
                 required
@@ -123,7 +123,7 @@
             <input
                 id="shopaddress"
                 type="text"
-                name="shopaddress"
+                name="shopaddress" maxlength="300"
                 value="{{index .Values "shopaddress"}}"
                 placeholder="Enter your shop address"
                 required
@@ -133,12 +133,12 @@
 
         <div class="auth-field">
             <label for="state">State</label>
-            <input id="state" type="text" name="state" value="{{index .Values "state"}}" placeholder="e.g. Lagos" required>
+            <input id="state" type="text" name="state" maxlength="100" value="{{index .Values "state"}}" placeholder="e.g. Lagos" required>
         </div>
 
         <div class="auth-field">
             <label for="local_area">LGA / Local area</label>
-            <input id="local_area" type="text" name="local_area" value="{{index .Values "local_area"}}" placeholder="e.g. Ikeja" required>
+            <input id="local_area" type="text" name="local_area" maxlength="100" value="{{index .Values "local_area"}}" placeholder="e.g. Ikeja" required>
         </div>
 
         <div class="auth-field">

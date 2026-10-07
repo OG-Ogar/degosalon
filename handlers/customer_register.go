@@ -32,7 +32,7 @@ func readCustomerForm(r *http.Request) (customerForm, string) {
 		return form, "Your name, phone number and email are all required."
 	}
 
-	return form, ""
+	return form, validateIdentity(form.FullName, form.Email, form.Phone)
 }
 
 // values feeds the form back to the template after a rejection.

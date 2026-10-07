@@ -133,3 +133,17 @@ test('canonical geography depends on state and preserves native no-script discov
   await expect(native.locator('#area')).toHaveValue('NG025011');
  } finally {await context.close();}
 });
+
+test('help and policy placeholders are reachable and accessible on mobile',async({page},testInfo)=>{
+ await page.setViewportSize({width:320,height:900});
+ await page.goto('/');
+ const footer=page.getByRole('navigation',{name:'Help and policies'});
+ await expect(footer.getByRole('link',{name:'Support',exact:true})).toHaveAttribute('href','/support');
+ for(const route of ['/help','/support','/privacy','/terms']){
+  const response=await page.goto(route);expect(response.status()).toBe(200);
+  expect(response.headers()['x-robots-tag']).toBe('noindex, follow');
+  await expect(page.getByText('Placeholder — awaiting approved content.',{exact:true})).toBeVisible();
+  await checkPage(page,testInfo,'content-'+route.slice(1));
+  await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
+ }
+});

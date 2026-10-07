@@ -1,0 +1,4 @@
+{{define "public-metadata"}}<meta name="description" content="{{.Description}}">
+<meta property="og:type" content="website"><meta property="og:site_name" content="De Go Salon"><meta property="og:title" content="{{.Title}}"><meta property="og:description" content="{{.Description}}">
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="{{.Title}}"><meta name="twitter:description" content="{{.Description}}">
+{{if .Canonical}}<link rel="canonical" href="{{.Canonical}}"><meta property="og:url" content="{{.Canonical}}">{{end}}{{end}}

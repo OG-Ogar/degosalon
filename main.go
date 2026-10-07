@@ -91,6 +91,9 @@ func main() {
 
 	mux.HandleFunc("/explore", handlers.ExploreRouter)
 	mux.HandleFunc("/explore/", handlers.ExploreRouter)
+	for _, path := range []string{"/help", "/support", "/privacy", "/terms"} {
+		mux.HandleFunc(path, handlers.PublicContentHandler)
+	}
 	mux.HandleFunc("/", handlers.HomeHandler)
 	mux.HandleFunc("/admin/", handlers.AdminRouter)
 	mux.HandleFunc("/barber/", handlers.BarberRouter)

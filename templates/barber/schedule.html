@@ -17,4 +17,5 @@
 </fieldset>{{end}}
 <label for="time-off">Time off</label><p id="time-off-help">One period per line: date, start, end. For example, 2026-12-24 08:00 20:00. Remove a line to cancel that period. Times use your timezone.</p>
 <textarea id="time-off" name="time_off" rows="6" maxlength="3000" aria-describedby="time-off-help">{{.TimeOff}}</textarea>
-<button type="submit">Save schedule</button></form></main></body></html>
+<button type="submit">Save schedule</button></form></main>{{template "public-footer" .}}
+</body></html>

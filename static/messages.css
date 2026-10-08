@@ -25,3 +25,4 @@
 .messaging-page .empty-message,.messaging-page .empty-messages{padding:2rem;text-align:center}
 .messaging-page .message-refresh-note a{display:inline-flex;align-items:center;min-height:44px;color:var(--signal)}
 @media(max-width:600px){.messaging-page .send{grid-template-columns:1fr}.messaging-page .bubble{max-width:92%}}
+.messaging-page .thread:focus-visible{outline:3px solid var(--signal);outline-offset:3px}

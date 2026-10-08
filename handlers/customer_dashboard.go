@@ -68,7 +68,7 @@ func CustomerDashboardHandler(
 		serverError(w, "load dashboard bookings", err)
 		return
 	}
-	conversations, err := storage.ConversationsForCustomer(r.Context(), customer.ID)
+	conversations, err := storage.ConversationCountForCustomer(r.Context(), customer.ID)
 	if err != nil {
 		serverError(w, "load dashboard conversations", err)
 		return
@@ -83,7 +83,7 @@ func CustomerDashboardHandler(
 		ProductOrders:   orders,
 		CSRF:            s.CSRFToken,
 		Barbers:         len(barbers),
-		Conversations:   len(conversations),
+		Conversations:   conversations,
 		CartCount:       cartCount,
 		BackgroundImage: backgroundImage,
 	}

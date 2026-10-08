@@ -30,40 +30,31 @@ func BarberChatsHandler(
 		return
 	}
 
-	conversations, err := storage.ConversationsForBarber(r.Context(), barber.ID)
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
+		return
+	}
+	page, err := storage.ConversationPageForBarber(r.Context(), barber.ID, cursor)
 	if err != nil {
 		serverError(w, "load barber conversations", err)
 		return
 	}
-
-	rows := make([]chatRow, 0, len(conversations))
-
-	for _, conversation := range conversations {
-		row := chatRow{
-			BarberID:   conversation.BarberID,
-			CustomerID: conversation.CustomerID,
-			Name:       "Customer",
-			LastText:   conversation.LastText,
-			LastAt:     formatWhen(conversation.LastAt),
-			Count:      conversation.Count,
-		}
-
-		customer, err := storage.FindCustomerByIDResult(r.Context(), conversation.CustomerID)
-		if err != nil && !errors.Is(err, storage.ErrNotFound) {
-			serverError(w, "load conversation participant", err)
-			return
-		}
-		if err == nil {
-			row.Name = customer.FullName
-			row.Detail = customer.PhoneNumber
-		}
-
-		rows = append(rows, row)
+	pagination := paginationLinks(r, cursor, 0, 0, false, false, false)
+	if len(page.Items) > 0 {
+		pagination = paginationLinks(r, cursor, page.Items[0].LastID, page.Items[len(page.Items)-1].LastID, false, page.HasPrevious, page.HasNext)
+	} else if cursor.After > 0 || cursor.Before > 0 {
+		http.Redirect(w, r, pagination.FirstLink, http.StatusSeeOther)
+		return
+	}
+	rows := make([]chatRow, 0, len(page.Items))
+	for _, conversation := range page.Items {
+		rows = append(rows, chatRow{BarberID: conversation.BarberID, CustomerID: conversation.CustomerID, Name: conversation.Name, Detail: conversation.Detail, LastText: conversation.LastText, LastAt: formatWhen(conversation.LastAt), Count: conversation.Count, CustomerImage: conversation.Image})
 	}
 
 	render(w, "barber/chats.html", listView[chatRow]{
-		Items: rows,
-		CSRF:  s.CSRFToken,
+		Items:      rows,
+		Pagination: pagination,
+		CSRF:       s.CSRFToken,
 	})
 }
 
@@ -153,24 +144,25 @@ func renderChat(
 		status = http.StatusBadRequest
 	}
 
-	messages, err := storage.ListConversation(r.Context(), barber.ID, customer.ID)
-	if err != nil {
-		serverError(w, "load conversation messages", err)
+	messages, pagination, ok := renderMessagePage(w, r, barber.ID, customer.ID)
+	if !ok {
 		return
 	}
+
 	renderStatus(
 		w,
 		status,
 		"barber/chat.html",
 		barberChatView{
 			chatView: chatView{
-				Messages: messages,
-				Title:    customer.FullName,
-				Subtitle: customer.PhoneNumber,
-				BackLink: "/barber/chats",
-				Action:   chatPath("/barber/chats/", customer.ID),
-				CSRF:     s.CSRFToken,
-				Error:    problem,
+				Messages:   messages,
+				Pagination: pagination,
+				Title:      customer.FullName,
+				Subtitle:   customer.PhoneNumber,
+				BackLink:   "/barber/chats",
+				Action:     chatPath("/barber/chats/", customer.ID),
+				CSRF:       s.CSRFToken,
+				Error:      problem,
 			},
 			CustomerImage: customer.ProfileImage,
 		},

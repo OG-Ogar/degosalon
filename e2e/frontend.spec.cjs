@@ -333,3 +333,29 @@ test('catalogue uses bounded seller pages and exact-product continuation without
   await customer.goto(catalogue+'&after=2147483647');expect(new URL(customer.url()).searchParams.has('after')).toBe(false);await expect(customer.locator('.product-card')).toHaveCount(24);
  }finally{await context.close();}
 });
+
+test('both roles page message history chronologically and refresh to latest replies',async({browser},testInfo)=>{
+ const customerContext=await browser.newContext(),barberContext=await browser.newContext();
+ try {
+  const customer=await customerContext.newPage(),barber=await barberContext.newPage(),suffix=Date.now(),email='history-barber-'+suffix+'@example.test',shop='History Shop '+suffix;
+  expect((await barber.request.post('/barber/register',{multipart:{fullname:'History Barber',phone:'08012345678',email,shopname:shop,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}})).ok()).toBeTruthy();
+  expect((await barber.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
+  expect((await customer.request.post('/customer/register',{multipart:{fullname:'History Customer',phone:'08012345678',email:'history-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}})).ok()).toBeTruthy();
+  await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:shop,exact:true}).first().click();await customer.getByRole('link',{name:'Message Barber',exact:true}).first().click();
+  const action=await customer.locator('form.send').getAttribute('action'),csrf=await customer.locator('form.send input[name=csrf_token]').inputValue();
+  for(let i=0;i<105;i++){const response=await customer.request.post(action,{maxRedirects:0,form:{csrf_token:csrf,text:'History '+String(i).padStart(3,'0')}});expect(response.status()).toBe(303);}
+  await customer.goto(action);await expect(customer.locator('.thread .bubble')).toHaveCount(100);
+  await expect(customer.locator('.thread .bubble').first()).toContainText('History 005');await expect(customer.locator('.thread .bubble').last()).toContainText('History 104');
+  await customer.getByRole('link',{name:'Older messages',exact:true}).click();await expect(customer.locator('.thread .bubble')).toHaveCount(5);await expect(customer.locator('.thread .bubble').first()).toContainText('History 000');
+  await customer.getByRole('link',{name:'Newer messages',exact:true}).click();await expect(customer.locator('.thread .bubble')).toHaveCount(100);
+  await barber.goto('/barber/chats');await barber.getByRole('link').filter({hasText:'History Customer'}).first().click();
+  await expect(barber.locator('.thread .bubble')).toHaveCount(100);await barber.getByRole('link',{name:'Older messages',exact:true}).click();await expect(barber.locator('.thread .bubble')).toHaveCount(5);
+  await barber.getByRole('textbox',{name:'Your message'}).fill('Latest reply after paging');await barber.getByRole('button',{name:/send/i}).click();
+  await expect(barber.getByText('Latest reply after paging',{exact:true})).toBeVisible();expect(new URL(barber.url()).searchParams.has('before')).toBe(false);
+  await customer.getByRole('link',{name:'Refresh conversation',exact:true}).click();await expect(customer.getByText('Latest reply after paging',{exact:true})).toBeVisible();
+  await customer.setViewportSize({width:320,height:900});
+  const thread=customer.locator('.thread');await thread.focus();await customer.keyboard.press('Home');await expect.poll(()=>thread.evaluate(el=>el.scrollTop)).toBe(0);
+  await customer.keyboard.press('End');await expect.poll(()=>thread.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
+  await checkPage(customer,testInfo,'paged-history-mobile');
+ }finally{await customerContext.close();await barberContext.close();}
+});

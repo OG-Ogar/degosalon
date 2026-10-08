@@ -89,6 +89,6 @@ Online payments are optional under the current collection policy. Email/barber v
 3. Merged #108/#109 for lifecycle, health, correlated logging and administrator audit.
 4. Merged #110–114 for catalogue, messaging, accounts, portfolio, booking/order/cart bounds and aggregates.
 5. Merged #115 after all checks passed. Fixed its throttle test by separating the 20-attempt peer budget from the five-attempt account budget; the browser suite now checks both independently without weakening production protection.
-6. Live deployment and production provider/recovery acceptance remain outstanding above.
+6. Verified PR #115's live deployment through Render status and new-instance HTTP logs. Remaining provider/recovery and direct browser acceptance tasks are listed above.
 
 Every merged batch passed verify, PostgreSQL and browser CI on its final pushed head before merge. Source implementation and live operational acceptance are distinct; no live backup restoration or inbox delivery is claimed here. Deployment evidence is recorded in the checkpoint above.

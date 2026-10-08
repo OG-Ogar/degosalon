@@ -11,6 +11,7 @@ create table degosalon_internal.admin_audit_events (
  unique (request_id,phase),
  check ((phase='started' and http_status=0) or (phase='finished' and http_status between 200 and 599))
 );
+alter table degosalon_internal.admin_audit_events enable row level security;
 revoke all on degosalon_internal.admin_audit_events from public;
 create function degosalon_internal.guard_admin_audit_events() returns trigger
  language plpgsql set search_path = '' as $$

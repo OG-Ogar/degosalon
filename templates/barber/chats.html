@@ -13,12 +13,13 @@
     
 
 <link rel="stylesheet" href="/static/messages.css">
+<link rel="stylesheet" href="/static/ui.css">
 </head>
 
 
 <body class="modern-role-page messaging-page">
 
-<main class="barber-messages-page">
+<main class="barber-messages-page ui-page">
 
     <div class="barber-messages">
 
@@ -78,7 +79,7 @@
                                     class="customer-photo"
                                     src="{{.CustomerImage}}"
                                     alt="{{.Name}}"
-                                >
+                                 srcset="{{imageSrcset .CustomerImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                             {{else}}
 

@@ -15,11 +15,12 @@
 
 
 <link rel="stylesheet" href="/static/messages.css">
+<link rel="stylesheet" href="/static/ui.css">
 </head>
 
 <body class="modern-role-page messaging-page">
 
-<main class="barber-chat-page">
+<main class="barber-chat-page ui-page">
 
 
 <div class="barber-chat">
@@ -47,7 +48,7 @@
                 class="customer-photo"
                 src="{{.CustomerImage}}"
                 alt="{{.Title}}"
-            >
+             srcset="{{imageSrcset .CustomerImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
 
         {{else}}
@@ -86,16 +87,7 @@
          ERROR
          ================================================= -->
 
-    {{if .Error}}
-
-        <p
-            class="chat-error"
-            role="alert"
-        >
-            {{.Error}}
-        </p>
-
-    {{end}}
+    {{template "form-error" .Error}}
 
 
 
@@ -164,7 +156,7 @@
         class="send"
         method="post"
         action="{{.Action}}"
-    >
+     {{if .Error}}aria-describedby="form-error"{{end}}>
 
 
         <input
@@ -192,7 +184,7 @@
 
 
         <button
-            class="primary"
+            class="primary ui-control"
             type="submit"
         >
             Send

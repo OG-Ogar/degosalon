@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/customer-profile.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -16,9 +17,9 @@
 
 {{template "role-header" (navigation "customer" "profile" .)}}
 
-<main class="customer-profile-page">
+<main class="customer-profile-page ui-page">
 
-    <div class="customer-edit-card">
+    <div class="customer-edit-card ui-panel">
 
         <div class="customer-edit-heading">
 
@@ -34,18 +35,14 @@
 
         </div>
 
-        {{if .Error}}
-            <p class="customer-form-error" role="alert">
-                {{.Error}}
-            </p>
-        {{end}}
+        {{template "form-error" .Error}}
 
         <form
-            class="customer-edit-form"
+            class="customer-edit-form ui-form"
             method="post"
             action="/customer/profile/edit"
             enctype="multipart/form-data"
-        >
+         {{if .Error}}aria-describedby="form-error"{{end}}>
 
             <input
                 type="hidden"
@@ -61,7 +58,7 @@
                         class="customer-edit-photo"
                         src="{{.ProfileImage}}"
                         alt="Current profile photo"
-                    >
+                     srcset="{{imageSrcset .ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                 {{else}}
 
@@ -82,10 +79,10 @@
                         id="profile_image"
                         type="file"
                         name="profile_image"
-                        accept="image/jpeg,image/png,image/gif,image/webp"
+                        accept="image/jpeg,image/png,image/gif,image/webp" aria-describedby="profile-photo-help"
                     >
 
-                    <p>
+                    <p id="profile-photo-help">
                         Optional. Upload a new photo to replace the
                         current one. Maximum size: 5 MB.
                     </p>
@@ -94,7 +91,7 @@
 
             </div>
 
-            <div class="customer-form-field">
+            <div class="customer-form-field ui-field">
 
                 <label for="fullname">
                     Full Name
@@ -111,7 +108,7 @@
 
             </div>
 
-            <div class="customer-form-field">
+            <div class="customer-form-field ui-field">
 
                 <label for="phone">
                     Phone Number
@@ -128,7 +125,7 @@
 
             </div>
 
-            <div class="customer-form-field">
+            <div class="customer-form-field ui-field">
 
                 <label for="email">
                     Email Address
@@ -145,10 +142,10 @@
 
             </div>
 
-            <div class="customer-edit-actions">
+            <div class="customer-edit-actions ui-actions">
 
                 <button
-                    class="customer-primary-button"
+                    class="customer-primary-button ui-control"
                     type="submit"
                 >
                     Save Changes

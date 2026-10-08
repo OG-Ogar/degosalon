@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -16,7 +17,7 @@
 
 {{template "role-header" (navigation "barber" "dashboard" .)}}
 
-<main class="barber-main">
+<main class="barber-main ui-page">
 
     <section class="barber-dashboard-intro barber-dashboard-hero">
 
@@ -28,7 +29,7 @@
                    aria-label="View your profile">
 
                     <img src="{{.PersonalImage}}"
-                         alt="Profile photo of {{.FullName}}">
+                         alt="Profile photo of {{.FullName}}" srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                 </a>
 
@@ -73,7 +74,7 @@
                 Booking requests
             </span>
 
-            <div class="barber-actions">
+            <div class="barber-actions ui-actions">
 
                 <a class="barber-button primary"
                    href="/barber/bookings">
@@ -95,7 +96,7 @@
                 Confirmed appointments
             </span>
 
-            <div class="barber-actions">
+            <div class="barber-actions ui-actions">
 
                 <a class="barber-button"
                    href="/barber/bookings">
@@ -117,7 +118,7 @@
                 Hairstyles listed
             </span>
 
-            <div class="barber-actions">
+            <div class="barber-actions ui-actions">
 
                 <a class="barber-button"
                    href="/barber/hairstyles">
@@ -139,7 +140,7 @@
                 Customer conversations
             </span>
 
-            <div class="barber-actions">
+            <div class="barber-actions ui-actions">
 
                 <a class="barber-button"
                    href="/barber/chats">
@@ -159,7 +160,7 @@
             Your shop
         </h2>
 
-        <div class="barber-card">
+        <div class="barber-card ui-panel">
 
             <table class="barber-profile-table">
 
@@ -204,7 +205,7 @@
             </table>
 
 
-            <div class="barber-actions">
+            <div class="barber-actions ui-actions">
 
                 <a class="barber-button primary"
                    href="/barber/profile">
@@ -231,7 +232,7 @@
 
         {{if .ProductOrders}}
 
-            <div class="barber-card">
+            <div class="barber-card ui-panel">
 
                 <table class="barber-profile-table">
 
@@ -278,9 +279,9 @@
 
                                 <td>
                                     {{template "domain-status" (domainStatus "fulfillment" .FulfillmentStatus)}}
-{{if eq .FulfillmentStatus "Pending"}}<form method="post" action="/barber/order-items/{{.ID}}/ready"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit">Mark ready</button></form>{{end}}
-{{if eq .FulfillmentStatus "Ready"}}<form method="post" action="/barber/order-items/{{.ID}}/collect"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit">Mark collected</button></form>{{end}}
-{{if or (eq .FulfillmentStatus "Pending") (eq .FulfillmentStatus "Ready")}}<form method="post" action="/barber/order-items/{{.ID}}/cancel"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit">Cancel item and restore stock</button></form>{{end}}
+{{if eq .FulfillmentStatus "Pending"}}<form method="post" action="/barber/order-items/{{.ID}}/ready" class="ui-form"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit" class="ui-control">Mark ready</button></form>{{end}}
+{{if eq .FulfillmentStatus "Ready"}}<form method="post" action="/barber/order-items/{{.ID}}/collect" class="ui-form"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit" class="ui-control">Mark collected</button></form>{{end}}
+{{if or (eq .FulfillmentStatus "Pending") (eq .FulfillmentStatus "Ready")}}<form method="post" action="/barber/order-items/{{.ID}}/cancel" class="ui-form"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit" class="ui-control">Cancel item and restore stock</button></form>{{end}}
                                 </td>
 
                             </tr>
@@ -295,7 +296,7 @@
 
         {{else}}
 
-            <div class="barber-card">
+            <div class="barber-card ui-panel">
 
                 <p>
                     No customers have ordered your products yet.

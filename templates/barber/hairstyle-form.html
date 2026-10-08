@@ -9,6 +9,7 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -17,7 +18,7 @@
 
 {{template "role-header" (navigation "barber" "hairstyles" .)}}
 
-<main class="barber-main">
+<main class="barber-main ui-page">
 
     <p class="barber-breadcrumb">
         <a href="/barber/dashboard">Dashboard</a>
@@ -36,26 +37,20 @@
     </p>
 
 
-    {{if .Error}}
-
-        <p class="barber-error" role="alert">
-            {{.Error}}
-        </p>
-
-    {{end}}
+    {{template "form-error" .Error}}
 
 
-    <form class="barber-form"
+    <form class="barber-form ui-form"
           method="post"
           action="/barber/hairstyles/new"
-          enctype="multipart/form-data">
+          enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
 
         <input type="hidden"
                name="csrf_token"
                value="{{.CSRF}}">
 
 
-        <div class="barber-field">
+        <div class="barber-field ui-field">
 
             <label for="name">
                 Style Name
@@ -70,7 +65,7 @@
         </div>
 
 
-        <div class="barber-field">
+        <div class="barber-field ui-field">
 
             <label for="category">
                 Category
@@ -90,7 +85,7 @@
         </div>
 
 
-        <div class="barber-field">
+        <div class="barber-field ui-field">
 
             <label for="description">
                 Description
@@ -103,7 +98,7 @@
         </div>
 
 
-        <div class="barber-field">
+        <div class="barber-field ui-field">
 
             <label for="price">
                 Price (&#8358;)
@@ -120,7 +115,7 @@
         </div>
 
 
-        <div class="barber-field">
+        <div class="barber-field ui-field">
 
             <label for="duration">
                 Duration (minutes)
@@ -138,7 +133,7 @@
         </div>
 
 
-        <div class="barber-field">
+        <div class="barber-field ui-field">
 
             <label for="image">
                 Photo (optional)
@@ -158,7 +153,7 @@
         </div>
 
 
-        <div class="barber-field">
+        <div class="barber-field ui-field">
 
             <label for="video">
                 Video (optional)
@@ -191,9 +186,9 @@
         </div>
 
 
-        <div class="barber-actions">
+        <div class="barber-actions ui-actions">
 
-            <button class="barber-button primary"
+            <button class="barber-button primary ui-control"
                     type="submit">
                 Save Hairstyle
             </button>

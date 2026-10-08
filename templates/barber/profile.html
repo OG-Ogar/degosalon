@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/image-viewer.js" defer></script>
     <script src="/static/app.js" defer></script>
     
@@ -18,7 +19,7 @@
 
 {{template "role-header" (navigation "barber" "profile" .)}}
 
-<main class="barber-main">
+<main class="barber-main ui-page">
 
     <p class="barber-breadcrumb">
         <a href="/barber/dashboard">Dashboard</a>
@@ -44,7 +45,7 @@
                 src="{{.Barber.ProfileImage}}"
                 alt="{{.Barber.ShopName}}"
                data-fullscreen-image
-            >
+             srcset="{{imageSrcset .Barber.ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
          {{else}}
 
             <p class="barber-hint">
@@ -61,7 +62,7 @@
                 <img class="barber-personal-photo fullscreen-image"
                 src="{{.PersonalImage}}"
                 alt="Your picture, as customers see it"
-                data-fullscreen-image>
+                data-fullscreen-image srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                 <div>
 
@@ -171,7 +172,7 @@
         </table>
 
 
-        <div class="barber-actions">
+        <div class="barber-actions ui-actions">
 
             <a class="barber-button primary"
                href="/barber/profile/edit">
@@ -200,13 +201,13 @@
 
 
             <form method="post"
-                  action="/barber/logout">
+                  action="/barber/logout" class="ui-form">
 
                 <input type="hidden"
                        name="csrf_token"
                        value="{{.CSRF}}">
 
-                <button class="barber-button danger"
+                <button class="barber-button danger ui-control"
                         type="submit">
                     Log Out
                 </button>

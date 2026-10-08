@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/customer-profile.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
     <script src="/static/image-viewer.js" defer></script>
@@ -18,7 +19,7 @@
 
 {{template "role-header" (navigation "customer" "profile" .)}}
 
-<main class="customer-profile-page">
+<main class="customer-profile-page ui-page">
 
     <div class="customer-profile-card">
 
@@ -30,7 +31,7 @@
             src="{{.Customer.ProfileImage}}"
            alt="{{.Customer.FullName}}"
             data-fullscreen-image
-        >
+         srcset="{{imageSrcset .Customer.ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
             {{else}}
                 <div class="customer-profile-placeholder">
                     {{printf "%.1s" .Customer.FullName}}
@@ -61,7 +62,7 @@
 
             </div>
 
-            <div class="customer-profile-actions">
+            <div class="customer-profile-actions ui-actions">
 
                 <a
                     class="customer-primary-button"

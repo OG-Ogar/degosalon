@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin dashboard - De Go Salon</title>
     <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
 <body class="modern-admin-page">
 
 {{template "role-header" (navigation "admin" "dashboard" .)}}
 
-<main class="wrap">
+<main class="wrap ui-page">
 
     <h1>Administrator dashboard</h1>
 
@@ -19,11 +20,7 @@
         Everything on the platform at a glance.
     </p>
 
-    {{if .Error}}
-        <p class="error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
     <div class="grid">
 
@@ -79,7 +76,7 @@
 
     </div>
 
-    <section class="panel">
+    <section class="panel ui-panel">
 
         <h2>Homepage background</h2>
 
@@ -91,7 +88,7 @@
 
             <img class="photo"
                  src="{{.LandingImage}}"
-                 alt="Current homepage background">
+                 alt="Current homepage background" srcset="{{imageSrcset .LandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             <p class="muted">
                 This is the image currently displayed on the homepage.
@@ -105,10 +102,10 @@
 
         {{end}}
 
-        <form class="stack"
+        <form class="stack ui-form"
               method="post"
               action="/admin/landing-image"
-              enctype="multipart/form-data">
+              enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
 
             <input type="hidden"
                    name="csrf_token"
@@ -129,8 +126,8 @@
                 customer's hair. JPG, PNG, GIF or WEBP, up to 5 MB.
             </p>
 
-            <div class="actions">
-                <button class="primary" type="submit">
+            <div class="actions ui-actions">
+                <button class="primary ui-control" type="submit">
                     Upload homepage background
                 </button>
 
@@ -143,7 +140,7 @@
 
     </section>
 
-    <section class="panel">
+    <section class="panel ui-panel">
 
         <h2>Customer dashboard background</h2>
 
@@ -156,7 +153,7 @@
 
             <img class="photo"
                  src="{{.CustomerLandingImage}}"
-                 alt="Current customer dashboard background">
+                 alt="Current customer dashboard background" srcset="{{imageSrcset .CustomerLandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             <p class="muted">
                 This is the image currently displayed behind
@@ -171,10 +168,10 @@
 
         {{end}}
 
-        <form class="stack"
+        <form class="stack ui-form"
               method="post"
               action="/admin/customer-landing-image"
-              enctype="multipart/form-data">
+              enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
 
             <input type="hidden"
                    name="csrf_token"
@@ -196,8 +193,8 @@
                 JPG, PNG, GIF or WEBP, up to 5 MB.
             </p>
 
-            <div class="actions">
-                <button class="primary" type="submit">
+            <div class="actions ui-actions">
+                <button class="primary ui-control" type="submit">
                     Upload customer background
                 </button>
 

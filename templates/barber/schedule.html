@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Schedule — De Go Salon</title><link rel="stylesheet" href="/static/app.css"><script src="/static/app.js" defer></script></head>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Schedule — De Go Salon</title><link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css"><script src="/static/app.js" defer></script></head>
 <body class="barber-page">{{template "role-header" (navigation "barber" "schedule" .)}}
-<main class="calendar-page"><h1>Your booking schedule</h1><p>Set your weekly hours and time off. Existing appointments keep their booked duration; resolve any conflicting appointment before changing its hours.</p>
-{{if .Error}}<p role="alert">{{.Error}}</p>{{end}}
-<form method="post" action="/barber/schedule">
+<main class="calendar-page ui-page"><h1>Your booking schedule</h1><p>Set your weekly hours and time off. Existing appointments keep their booked duration; resolve any conflicting appointment before changing its hours.</p>
+{{template "form-error" .Error}}
+<form method="post" action="/barber/schedule" class="ui-form" {{if .Error}}aria-describedby="form-error"{{end}}>
 <input type="hidden" name="csrf_token" value="{{.CSRF}}">
 <label>Timezone <input name="timezone" value="{{.Calendar.Timezone}}" required maxlength="100" placeholder="Africa/Lagos"></label>
 <label>Minimum notice in minutes <input type="number" name="lead" min="0" max="10080" value="{{.Calendar.LeadMinutes}}" required></label>
@@ -17,5 +18,5 @@
 </fieldset>{{end}}
 <label for="time-off">Time off</label><p id="time-off-help">One period per line: date, start, end. For example, 2026-12-24 08:00 20:00. Remove a line to cancel that period. Times use your timezone.</p>
 <textarea id="time-off" name="time_off" rows="6" maxlength="3000" aria-describedby="time-off-help">{{.TimeOff}}</textarea>
-<button type="submit">Save schedule</button></form></main>{{template "public-footer" .}}
+<button type="submit" class="ui-control">Save schedule</button></form></main>{{template "public-footer" .}}
 </body></html>

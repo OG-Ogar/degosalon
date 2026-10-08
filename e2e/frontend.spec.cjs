@@ -100,6 +100,10 @@ test('native viewer keeps profile links and service selection keyboard accessibl
  await page.keyboard.press('Tab');await expect(close).toBeFocused();
  await page.evaluate(()=>document.querySelector('#profile').focus());await expect(close).toBeFocused();
  await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
+ await trigger.click();await dialog.locator('img').click();await expect(dialog).toBeVisible();
+ await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
+ await trigger.click();await page.mouse.click(1,1);await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
+ await expect(page.locator('body')).not.toHaveClass(/image-viewer-open/);
  await page.locator('#profile').click();await expect(page).toHaveURL(/\/explore$/);
 });
 
@@ -134,18 +138,24 @@ test('canonical geography depends on state and preserves native no-script discov
  } finally {await context.close();}
 });
 
-test('help and policy placeholders are reachable and accessible on mobile',async({page},testInfo)=>{
+test('approved support contacts and policy placeholders are accessible on mobile',async({page},testInfo)=>{
  await page.setViewportSize({width:320,height:900});
  await page.goto('/');
  const footer=page.getByRole('navigation',{name:'Help and policies'});
  await expect(footer.getByRole('link',{name:'Support',exact:true})).toHaveAttribute('href','/support');
- for(const route of ['/help','/support','/privacy','/terms']){
+ for(const route of ['/help','/privacy','/terms']){
   const response=await page.goto(route);expect(response.status()).toBe(200);
   expect(response.headers()['x-robots-tag']).toBe('noindex, follow');
   await expect(page.getByText('Placeholder — awaiting approved content.',{exact:true})).toBeVisible();
   await checkPage(page,testInfo,'content-'+route.slice(1));
   await expect(page.locator('meta[property="og:title"]')).toHaveCount(1);
  }
+ const support=await page.goto('/support');expect(support.status()).toBe(200);expect(support.headers()['x-robots-tag']).toBeUndefined();
+ await expect(page.getByRole('link',{name:'08128162561',exact:true})).toHaveAttribute('href','tel:+2348128162561');
+ await expect(page.getByRole('link',{name:'09164226427',exact:true})).toHaveAttribute('href','tel:+2349164226427');
+ await expect(page.getByText('Placeholder — awaiting approved content.',{exact:true})).toHaveCount(0);
+ await expect(page.locator('link[rel=canonical]')).toHaveAttribute('href','https://example.test/support');
+ await checkPage(page,testInfo,'support-approved-contacts');
 });
 
 test('booking details reflect cancellation after the original request',async({browser},testInfo)=>{
@@ -157,9 +167,28 @@ test('booking details reflect cancellation after the original request',async({br
   expect((await barber.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
   await barber.goto('/barber/hairstyles/new');
   for(const [name,value] of Object.entries({name:'Status Journey Cut',category:'Fade',description:'A simple cut',price:'1000',duration:'30'})){await barber.locator('[name="'+name+'"]').fill(value);}
+  await barber.locator('[name="image"]').setInputFiles({name:'cut.png',mimeType:'image/png',buffer:PNG});
   await barber.locator('[name="available"]').check();await barber.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
   const registered=await customer.request.post('/customer/register',{multipart:{fullname:'Status Customer',phone:'08012345678',email:'status-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}});expect(registered.ok(),await registered.text()).toBeTruthy();
   await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:'Status Journey Shop',exact:true}).first().click();
+  await expect(customer.locator('[data-booking-summary]')).toContainText('Status Journey Cut · ₦1,000.00 · 30 minutes');
+  const service=customer.locator('input[name=hairstyle_id]');
+  await service.evaluate(input=>{input.checked=false;});
+  await customer.locator('label .style-image img').click();await expect(service).toBeChecked();
+  await expect(customer.getByRole('dialog')).toBeHidden();
+  const enlarge=customer.getByRole('button',{name:'Enlarge Photo of Status Journey Cut',exact:true});
+  await enlarge.click();await expect(customer.getByRole('dialog')).toBeVisible();await expect(service).toBeChecked();
+  await customer.keyboard.press('Escape');await expect(enlarge).toBeFocused();
+  const nativeContext=await browser.newContext({javaScriptEnabled:false});
+  try {
+   const native=await nativeContext.newPage();
+   expect((await native.request.post('/customer/login',{form:{email:'status-customer-'+suffix+'@example.test',password:'browser-pass-123'}})).ok()).toBeTruthy();
+   await native.goto(customer.url());
+   await expect(native.locator('[data-booking-summary]')).toContainText('Status Journey Cut · ₦1,000.00 · 30 minutes');
+   await expect(native.locator('.image-viewer-trigger')).toHaveCount(0);
+   await native.locator('input[name=hairstyle_id]').evaluate(input=>{input.checked=false;});
+   await native.locator('label .style-image img').click();await expect(native.locator('input[name=hairstyle_id]')).toBeChecked();
+  } finally {await nativeContext.close();}
   const date=new Date(Date.now()+2*24*60*60*1000).toISOString().slice(0,10);
   await customer.locator('#availability-date').fill(date);await customer.getByRole('button',{name:'Show available times',exact:true}).click();
   const time=await customer.locator('#time option').nth(1).getAttribute('value');expect(time).toBeTruthy();await customer.locator('#time').selectOption(time);
@@ -171,6 +200,86 @@ test('booking details reflect cancellation after the original request',async({br
   await expect(customer.getByText('Pending Barber Approval',{exact:true})).toHaveCount(0);
   await customer.setViewportSize({width:320,height:900});await checkPage(customer,testInfo,'cancelled-booking-details');
  } finally {await barberContext.close();await customerContext.close();}
+});
+
+test('shared forms and archive confirmations work at phone width',async({page},testInfo)=>{
+ const suffix=Date.now();const email='primitives-'+suffix+'@example.test';
+ expect((await page.request.post('/barber/register',{multipart:{fullname:'Primitive Barber',phone:'08012345678',email,shopname:'Primitive Shop '+suffix,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}})).ok()).toBeTruthy();
+ expect((await page.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
+ await page.setViewportSize({width:320,height:900});
+ for(const route of ['/barber/products/new','/barber/hairstyles/new','/barber/schedule','/barber/profile/edit']){
+  await page.goto(route);await checkPage(page,testInfo,'primitives-'+route.replaceAll('/','-'));
+  const save=page.locator('main button[type=submit]').first();
+  expect((await save.boundingBox()).height).toBeGreaterThanOrEqual(44);
+ }
+ await page.goto('/barber/hairstyles/new');
+ for(const [name,value] of Object.entries({name:'Archive journey cut',category:'Fade',description:'A simple cut',price:'1000',duration:'30'}))await page.locator('[name="'+name+'"]').fill(value);
+ await page.locator('[name="available"]').check();await page.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
+ await page.locator('a[href$="/delete"]').filter({hasText:/archive/i}).first().click();
+ await checkPage(page,testInfo,'primitives-archive-hairstyle');
+ await expect(page.locator('.ui-actions input[name=csrf_token]')).toHaveValue(/\S+/);
+ await page.getByRole('link',{name:'No, keep it',exact:true}).click();
+ await expect(page.getByText('Archive journey cut',{exact:true}).first()).toBeVisible();
+ expect((await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}})).ok()).toBeTruthy();
+ await page.goto('/admin/barbers/new');await checkPage(page,testInfo,'primitives-admin-form');
+ await page.goto('/admin/barbers');await page.getByRole('link',{name:'Primitive Barber',exact:true}).click();
+ await page.locator('a[href$="/delete"]').click();await checkPage(page,testInfo,'primitives-archive-account');
+ await page.getByRole('button',{name:'Yes, archive this barber',exact:true}).click();
+ await expect(page.getByText('Archived',{exact:true}).first()).toBeVisible();
+});
+
+test('server errors and field help remain associated with and without JavaScript',async({browser})=>{
+ for(const javaScriptEnabled of [true,false]){
+  const context=await browser.newContext({javaScriptEnabled});
+  try {
+   const page=await context.newPage();await page.goto('/customer/register');
+   await page.locator('#fullname').fill('Feedback Customer');await page.locator('#phone').fill('abc');
+   await page.locator('#email').fill('feedback-'+Date.now()+'@example.test');
+   await page.locator('#password').fill('browser-pass-123');await page.locator('#confirm_password').fill('browser-pass-123');
+   await page.locator('main button[type=submit]').click();
+   await expect(page.locator('#form-error')).toHaveAttribute('role','alert');
+   await expect(page.locator('form[action="/customer/register"]')).toHaveAttribute('aria-describedby','form-error');
+   await expect(page.locator('#fullname')).toHaveValue('Feedback Customer');
+   const help=(await page.locator('#profile_image').getAttribute('aria-describedby')).split(' ');
+   for(const id of help)await expect(page.locator('[id="'+id+'"]')).toHaveCount(1);
+   await page.goto('/admin/login');await page.locator('#username').fill('browseradmin');await page.locator('#password').fill('incorrect-password');await page.locator('main button[type=submit]').click();
+   await expect(page.locator('form[action="/admin/login"]')).toHaveAttribute('aria-describedby','form-error');
+   await expect(page.locator('#form-error')).toBeVisible();
+  } finally {await context.close();}
+ }
+});
+
+test('native select feedback clears on selection and preserves field help',async({page})=>{
+ await page.goto('/barber/register');await page.locator('main button[type=submit]').click();
+ await expect(page.locator('#local_area')).toHaveAttribute('aria-invalid','true');
+ await page.locator('#state').selectOption({label:'Lagos'});await page.locator('#local_area').selectOption({label:'Ikeja'});
+ await expect(page.locator('#local_area')).not.toHaveAttribute('aria-invalid','true');
+ const ids=(await page.locator('#local_area').getAttribute('aria-describedby')).split(' ');
+ expect(ids).toContain('geography-help');for(const id of ids)await expect(page.locator('[id="'+id+'"]')).toHaveCount(1);
+});
+
+test('responsive hero selects a bounded candidate and reserves its layout',async({page},testInfo)=>{
+ expect((await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}})).ok()).toBeTruthy();
+ await page.goto('/admin/dashboard');await page.locator('input[name=landing_image]').setInputFiles({name:'hero.png',mimeType:'image/png',buffer:PNG});
+ await page.locator('form[action="/admin/landing-image"] button[type=submit]').click();
+ await page.setViewportSize({width:320,height:900});
+ await page.addInitScript(()=>{
+  window.mediaCLS=0;window.mediaLCP=0;
+  new PerformanceObserver(list=>{for(const entry of list.getEntries())if(!entry.hadRecentInput)window.mediaCLS+=entry.value;}).observe({type:'layout-shift',buffered:true});
+  new PerformanceObserver(list=>{for(const entry of list.getEntries())window.mediaLCP=entry.startTime;}).observe({type:'largest-contentful-paint',buffered:true});
+ });
+ await page.goto('/');const hero=page.locator('.landing-media');
+ await expect(hero).toHaveAttribute('fetchpriority','high');await expect(hero).toHaveAttribute('loading','eager');
+ await expect.poll(()=>hero.evaluate(img=>img.complete && img.naturalWidth)).toBe(320);
+ expect(await hero.evaluate(img=>img.currentSrc)).toContain('/media/preview?');
+ expect(await hero.evaluate(img=>img.currentSrc)).toContain('width=320');
+ await checkPage(page,testInfo,'responsive-hero-320');
+ const measurements=await page.evaluate(()=>({cls:window.mediaCLS,lcp:window.mediaLCP,images:performance.getEntriesByType('resource').filter(e=>e.name.includes('/media/preview?')).map(e=>({name:e.name,bytes:e.encodedBodySize,duration:e.duration}))}));
+ expect(measurements.cls).toBeLessThanOrEqual(.1);expect(measurements.lcp).toBeLessThanOrEqual(5000);
+ expect(measurements.images).toHaveLength(1);expect(measurements.images[0].bytes).toBeLessThanOrEqual(30*1024);
+ await testInfo.attach('media-performance.json',{body:JSON.stringify(measurements,null,2),contentType:'application/json'});
+ await page.setViewportSize({width:1280,height:900});await page.reload();
+ await expect.poll(()=>hero.evaluate(img=>img.complete && img.naturalWidth > 0 && img.currentSrc.includes("width=1600"))).toBe(true);
 });
 
 test('public and customer discovery page through stable shop results',async({page},testInfo)=>{

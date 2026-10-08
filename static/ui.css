@@ -1,0 +1,31 @@
+/* Shared page, panel, field and action primitives. Page styles own their artwork. */
+:root{--ui-space:.75rem;--ui-page-width:1160px;--ui-control-height:44px}
+.ui-page{width:min(calc(100% - 32px),var(--ui-page-width));margin-inline:auto;min-width:0;overflow-wrap:anywhere}
+.ui-panel{min-width:0;padding:clamp(1rem,3vw,1.5rem);border:1px solid var(--border);border-radius:var(--panel-radius);background:var(--surface);color:var(--ink)}
+.ui-form{min-width:0;max-width:100%}
+.ui-field{min-width:0;margin-block-end:1rem}
+.ui-field>label{display:block;margin-block-end:.5rem;font-weight:650}
+.ui-field :is(input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea),.ui-form> :is(input:not([type=hidden]),select,textarea){width:100%;min-height:var(--ui-control-height);padding:.7rem .8rem;border:1px solid var(--border-hi);border-radius:var(--control-radius);background:var(--void);color:var(--ink);font:inherit}
+.ui-field textarea{min-height:7rem;resize:vertical}
+.ui-field :is(input[type=checkbox],input[type=radio]){accent-color:var(--signal)}
+.ui-actions{display:flex;align-items:center;flex-wrap:wrap;gap:var(--ui-space);min-width:0;margin-block-start:1rem}
+.ui-actions>form{margin:0}
+.ui-actions :is(button,a),.ui-control{display:inline-flex;align-items:center;justify-content:center;min-height:var(--ui-control-height);max-width:100%;padding:.65rem 1rem;border:1px solid var(--border-hi);border-radius:var(--control-radius);background:var(--surface);color:var(--ink);font:inherit;font-weight:700;text-decoration:none;white-space:normal;overflow-wrap:anywhere;cursor:pointer}
+.ui-actions :is(.primary,.customer-primary-button),.ui-control.primary{background:var(--signal);color:var(--signal-ink);border-color:var(--signal)}
+.ui-actions .danger{background:#4a2227;color:#ffd0d5;border-color:#a6606a}
+.ui-control:disabled{cursor:wait;opacity:.7}
+.ui-confirmation{max-width:760px;margin-block:2rem}
+.ui-confirmation .ui-panel{margin-block-start:1rem}
+.ui-confirmation p{line-height:1.6}
+.ui-confirmation .ui-actions>form{display:flex}
+.ui-form fieldset{min-width:0;max-width:100%;border:1px solid var(--border-hi);border-radius:var(--control-radius)}
+.ui-form legend{padding-inline:.4rem}
+.ui-form input[type=file]{white-space:normal}
+@media(max-width:520px){.ui-page{width:calc(100% - 24px)}.ui-actions>a,.ui-actions>button,.ui-confirmation .ui-actions>form{flex:1 1 auto}.ui-confirmation .ui-actions>form>button{width:100%}}
+.ui-form.stack{display:grid;gap:var(--ui-space)}
+.ui-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:1rem}
+@media(max-width:520px){.ui-grid{grid-template-columns:1fr}}
+.ui-form-error{margin-block:1rem;padding:1rem;border:1px solid #a6606a;border-radius:var(--control-radius);background:#4a2227;color:#ffd0d5;overflow-wrap:anywhere}
+.ui-form-error p{margin-block:.5rem 0}
+.support-contacts{display:flex;flex-wrap:wrap;gap:.75rem;padding:0;list-style:none}
+.support-contacts a{display:inline-flex;align-items:center;min-height:44px;padding:.65rem 1rem;border:1px solid var(--border-hi);border-radius:var(--control-radius)}

@@ -10,6 +10,7 @@
 
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/login.css">
+<link rel="stylesheet" href="/static/ui.css">
 
 <script src="/static/app.js" defer></script>
 
@@ -32,17 +33,13 @@
         <p>Welcome back. Sign in to continue.</p>
     </div>
 
-    {{if .Error}}
-        <p class="auth-message auth-error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
-    <form class="auth-form"
+    <form class="auth-form ui-form"
           method="post"
-          action="/admin/login">
+          action="/admin/login" {{if .Error}}aria-describedby="form-error"{{end}}>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
             <label for="username">Username</label>
 
             <input
@@ -56,7 +53,7 @@
             >
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
             <label for="password">Password</label>
 
             <input
@@ -69,7 +66,7 @@
             >
         </div>
 
-        <button class="auth-submit" type="submit">
+        <button class="auth-submit ui-control" type="submit">
             Sign In
         </button>
 

@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
     <link rel="stylesheet" href="/static/products.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
     <script src="/static/image-viewer.js" defer></script>
@@ -18,7 +19,7 @@
 
 {{template "role-header" (navigation "barber" "products" .)}}
 
-<main class="barber-main">
+<main class="barber-main ui-page">
 
     <section class="barber-dashboard-intro">
 
@@ -32,7 +33,7 @@
             </p>
         </div>
 
-        <div class="barber-actions">
+        <div class="barber-actions ui-actions">
             <a
                 class="barber-button primary"
                 href="/barber/products/new"
@@ -58,7 +59,7 @@
                             src="{{.Image}}"
                             alt="{{.Name}}"
                             data-fullscreen-image
-                        >
+                         srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                     {{else}}
 
@@ -88,7 +89,7 @@
                             {{template "domain-status" (availabilityStatus .IsAvailable)}}
                         </p>
 
-                        <div class="barber-actions">
+                        <div class="barber-actions ui-actions">
                             <a class="barber-button" href="/barber/products/{{.ID}}">View</a>
                             <a class="barber-button" href="/barber/products/{{.ID}}/edit">Edit</a>
                         </div>
@@ -97,7 +98,7 @@
                             method="post"
                             action="/barber/products/{{.ID}}/delete"
                             data-confirm="Archive this product? It will leave the catalogue. Existing orders and media will be retained."
-                        >
+                         class="ui-form">
 
                             <input
                                 type="hidden"
@@ -106,7 +107,7 @@
                             >
 
                             <button
-                                class="barber-button danger"
+                                class="barber-button danger ui-control"
                                 type="submit"
                             >
                                 Archive
@@ -124,7 +125,7 @@
 
     {{else}}
 
-        <section class="barber-card">
+        <section class="barber-card ui-panel">
 
             <h2>No products yet</h2>
 

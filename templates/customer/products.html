@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/products.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
     <script src="/static/image-viewer.js" defer></script>
@@ -20,7 +21,7 @@
 {{template "role-header" (navigation "customer" "products" .)}}
 
 
-<main class="products-page">
+<main class="products-page ui-page">
 
     <div class="products-heading">
 
@@ -59,7 +60,7 @@
                                 src="{{.Product.Image}}"
                                 alt="{{.Product.Name}}"
                                 data-fullscreen-image
-                            >
+                             srcset="{{imageSrcset .Product.Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                         {{else}}
 
@@ -78,7 +79,7 @@
                         {{if gt .Product.Quantity 0}}
 
                             <form
-                                class="product-buy-form"
+                                class="product-buy-form ui-form"
                                 method="post"
                                 action="/customer/products/{{.Product.ID}}/add-to-cart{{if $.SellerID}}?barber={{$.SellerID}}{{end}}"
                             >
@@ -90,7 +91,7 @@
                                 >
 
                                 <button
-                                    class="product-buy-button"
+                                    class="product-buy-button ui-control"
                                     type="submit"
                                 >
                                     Buy Now

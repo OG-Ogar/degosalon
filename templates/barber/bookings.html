@@ -9,6 +9,7 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
     <link rel="stylesheet" href="/static/booking-images.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -18,7 +19,7 @@
 {{template "role-header" (navigation "barber" "bookings" .)}}
 
 <p><a href="/barber/schedule">Manage hours and time off</a></p>
-<main class="barber-main">
+<main class="barber-main ui-page">
 
     <p class="barber-breadcrumb">
         <a href="/barber/dashboard">Dashboard</a>
@@ -102,7 +103,7 @@
                                                 <img
                                                     src="{{.HairstyleImage}}"
                                                     alt="Photo of {{.HairstyleName}}"
-                                                >
+                                                 srcset="{{imageSrcset .HairstyleImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                                             {{else}}
 
@@ -136,12 +137,12 @@
 
                                 <td data-label="Actions">
 
-                                    <div class="barber-actions">
+                                    <div class="barber-actions ui-actions">
 
                                         <form
                                             method="post"
                                             action="{{$view.ActionURL}}{{.ID}}/accept"
-                                        >
+                                         class="ui-form">
 
                                             <input
                                                 type="hidden"
@@ -150,7 +151,7 @@
                                             >
 
                                             <button
-                                                class="barber-button primary"
+                                                class="barber-button primary ui-control"
                                                 type="submit"
                                             >
                                                 Accept
@@ -163,7 +164,7 @@
                                             method="post"
                                             action="{{$view.ActionURL}}{{.ID}}/reject"
                                             data-confirm="Decline {{.CustomerName}}'s request for {{.Date}} at {{.Time}}?"
-                                        >
+                                         class="ui-form">
 
                                             <input
                                                 type="hidden"
@@ -172,7 +173,7 @@
                                             >
 
                                             <button
-                                                class="barber-button danger"
+                                                class="barber-button danger ui-control"
                                                 type="submit"
                                             >
                                                 Decline
@@ -276,7 +277,7 @@
                                                 <img
                                                     src="{{.HairstyleImage}}"
                                                     alt="Photo of {{.HairstyleName}}"
-                                                >
+                                                 srcset="{{imageSrcset .HairstyleImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                                             {{else}}
 
@@ -306,12 +307,12 @@
 
                                 <td data-label="Actions">
 
-                                    <div class="barber-actions">
+                                    <div class="barber-actions ui-actions">
 
                                         <form
                                             method="post"
                                             action="{{$view.ActionURL}}{{.ID}}/complete"
-                                        >
+                                         class="ui-form">
 
                                             <input
                                                 type="hidden"
@@ -320,7 +321,7 @@
                                             >
 
                                             <button
-                                                class="barber-button primary"
+                                                class="barber-button primary ui-control"
                                                 type="submit"
                                             >
                                                 Mark Complete
@@ -420,7 +421,7 @@
                                                 <img
                                                     src="{{.HairstyleImage}}"
                                                     alt="Photo of {{.HairstyleName}}"
-                                                >
+                                                 srcset="{{imageSrcset .HairstyleImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                                             {{else}}
 
@@ -472,14 +473,14 @@
         <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{template "domain-status" (domainStatus "booking" .Status)}}</p>
         <a class="barber-button" href="/barber/chats/{{.CustomerID}}">Message customer</a>
         {{if eq .Status "Accepted"}}
-        <form method="post" action="{{$.ActionURL}}{{.ID}}/complete">
+        <form method="post" action="{{$.ActionURL}}{{.ID}}/complete" class="ui-form">
             <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
-            <button class="barber-button primary" type="submit">Mark complete</button>
+            <button class="barber-button primary ui-control" type="submit">Mark complete</button>
         </form>
         {{else}}
-        <form method="post" action="{{$.ActionURL}}{{.ID}}/reject">
+        <form method="post" action="{{$.ActionURL}}{{.ID}}/reject" class="ui-form">
             <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
-            <button class="barber-button" type="submit">Reject request</button>
+            <button class="barber-button ui-control" type="submit">Reject request</button>
         </form>
         {{end}}
     </article>

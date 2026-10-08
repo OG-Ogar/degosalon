@@ -195,3 +195,30 @@ func LegacyObjectPath(uri string) (string, bool) {
 	}
 	return path, image
 }
+
+// ReadPublicImage fetches only an owned immutable image. No credentials are sent,
+// redirects are refused, and both transport time and response bytes are bounded.
+func (s *Store) ReadPublicImage(ctx context.Context, uri string) ([]byte, error) {
+	if !s.Owns(uri) || strings.HasSuffix(uri, ".mp4") || strings.HasSuffix(uri, ".webm") || strings.HasSuffix(uri, ".mov") {
+		return nil, ErrConfiguration
+	}
+	ctx, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
+	if err != nil {
+		return nil, ErrConfiguration
+	}
+	response, err := s.client.Do(req)
+	if err != nil {
+		return nil, ErrUpload
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK || response.ContentLength > 5<<20 {
+		return nil, ErrUpload
+	}
+	data, err := io.ReadAll(io.LimitReader(response.Body, (5<<20)+1))
+	if err != nil || len(data) > 5<<20 {
+		return nil, ErrUpload
+	}
+	return data, nil
+}

@@ -10,6 +10,7 @@
 
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/login.css">
+<link rel="stylesheet" href="/static/ui.css">
 
 <script src="/static/app.js" defer></script>
 
@@ -38,17 +39,13 @@
         </p>
     {{end}}
 
-    {{if .Error}}
-        <p class="auth-message auth-error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
-    <form class="auth-form"
+    <form class="auth-form ui-form"
           method="post"
-          action="/barber/login">
+          action="/barber/login" {{if .Error}}aria-describedby="form-error"{{end}}>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
             <label for="email">Email</label>
 
             <input
@@ -62,7 +59,7 @@
             >
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
             <label for="password">Password</label>
 
             <input
@@ -81,7 +78,7 @@
             </a>
         </div>
 
-        <button class="auth-submit" type="submit">
+        <button class="auth-submit ui-control" type="submit">
             Sign In
         </button>
 

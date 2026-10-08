@@ -316,3 +316,5 @@ img,video{max-width:100%}
 .discovery-pagination{display:flex;justify-content:center;flex-wrap:wrap;gap:.75rem;padding:1rem;background:#10221d;color:#f8f5e9}
 .discovery-pagination a{display:inline-flex;align-items:center;min-height:44px;padding:.5rem 1rem;color:#f8f5e9;border:1px solid #527466;border-radius:8px}
 .discovery-pagination a:focus-visible{outline:3px solid #a3ebc0;outline-offset:3px}
+/* Reserve the hero slot and request one responsive candidate with high priority. */
+.landing-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.35;pointer-events:none}

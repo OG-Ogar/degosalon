@@ -6,11 +6,13 @@
     <meta name="theme-color" content="#091613">
     <title>De Go Salon — Your complete barber ecosystem</title>
     <link rel="stylesheet" href="/static/app.css">
+<link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 {{template "public-metadata" (publicMetadata "/" "De Go Salon — Your complete barber ecosystem" "Discover barbers, explore styles, book appointments and shop barber products.")}}
 </head>
 <body class="landing-page">
-<main class="landing" {{if .LandingImage}}style="--landing-image: url('{{.LandingImage}}');"{{end}}>
+<main class="landing">
+{{if .LandingImage}}<img class="landing-media" src="{{.LandingImage}}" srcset="{{imageSrcset .LandingImage}}" sizes="100vw" width="1600" height="1200" alt="" loading="eager" fetchpriority="high" decoding="async">{{end}}
     <header class="landing-header">
         <a class="landing-brand" href="/" aria-label="De Go Salon home">
             <span class="landing-brand-mark" aria-hidden="true">DG</span>

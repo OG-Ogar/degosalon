@@ -9,24 +9,25 @@
 
     
 <link rel="stylesheet" href="/static/messages.css">
+<link rel="stylesheet" href="/static/ui.css">
 </head>
 
 <body class="modern-customer-page messaging-page">
 
-<main class="customer-chat-page">
+<main class="customer-chat-page ui-page">
 
     <div class="customer-chat">
 
         {{template "role-header" (navigation "customer" "chats" .)}}
 
-        <section class="barber-card">
+        <section class="barber-card ui-panel">
 
             {{if .BarberImage}}
                 <img
                     class="barber-photo customer-chat-avatar"
                     src="{{.BarberImage}}" loading="lazy" decoding="async"
                     alt="{{.Title}}"
-                >
+                 srcset="{{imageSrcset .BarberImage}}" sizes="96px" width="640" height="480">
             {{else}}
                 <div class="barber-photo-placeholder"
                      aria-hidden="true">
@@ -42,11 +43,7 @@
 
         </section>
 
-        {{if .Error}}
-            <p class="chat-error" role="alert">
-                {{.Error}}
-            </p>
-        {{end}}
+        {{template "form-error" .Error}}
 
         <p class="message-refresh-note">New messages appear when you refresh or send. <a href="{{.Action}}">Refresh conversation</a></p>
 <section class="thread" aria-label="Conversation">
@@ -85,7 +82,7 @@
 
         <form class="send"
               method="post"
-              action="{{.Action}}">
+              action="{{.Action}}" {{if .Error}}aria-describedby="form-error"{{end}}>
 
             <input
                 type="hidden"
@@ -107,7 +104,7 @@
                 required></textarea>
 
             <button
-                class="primary"
+                class="primary ui-control"
                 type="submit">
                 Send
             </button>

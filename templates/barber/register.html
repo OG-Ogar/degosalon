@@ -10,6 +10,7 @@
 
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/login.css">
+<link rel="stylesheet" href="/static/ui.css">
 
 <script src="/static/app.js" defer></script>
 
@@ -32,18 +33,14 @@
         <p>Create your barber account to get started.</p>
     </div>
 
-    {{if .Error}}
-        <p class="auth-message auth-error" role="alert">
-            {{.Error}}
-        </p>
-    {{end}}
+    {{template "form-error" .Error}}
 
-    <form class="auth-form"
+    <form class="auth-form ui-form"
           method="post"
           action="/barber/register"
-          enctype="multipart/form-data">
+          enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
 
             <label for="fullname">
                 Full Name
@@ -61,7 +58,7 @@
 
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
 
             <label for="phone">
                 Phone
@@ -79,7 +76,7 @@
 
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
 
             <label for="email">
                 Email
@@ -97,7 +94,7 @@
 
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
 
             <label for="shopname">
                 Shop Name
@@ -114,7 +111,7 @@
 
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
 
             <label for="shopaddress">
                 Shop Address
@@ -131,17 +128,17 @@
 
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
             <label for="state">State</label>
             {{template "geography-state" (index .Values "state")}}
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
             <label for="local_area">Local government area / area council</label>
             {{template "geography-profile-area" .Values}}
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
 
             <label for="password">
                 Password
@@ -158,7 +155,7 @@
 
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
 
             <label for="confirm_password">
                 Confirm Password
@@ -175,7 +172,7 @@
 
         </div>
 
-        <div class="auth-field">
+        <div class="auth-field ui-field">
 
             <label for="personal_image">
                 Profile Photo
@@ -192,7 +189,7 @@
 
         </div>
 
-        <button class="auth-submit" type="submit">
+        <button class="auth-submit ui-control" type="submit">
             Create Account
         </button>
 

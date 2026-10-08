@@ -14,12 +14,13 @@
     
 
 <link rel="stylesheet" href="/static/messages.css">
+<link rel="stylesheet" href="/static/ui.css">
 </head>
 
 
 <body class="modern-customer-page messaging-page">
 
-<main class="customer-messages-page">
+<main class="customer-messages-page ui-page">
 
     <div class="customer-messages">
 
@@ -77,7 +78,7 @@
                                 class="barber-photo customer-chat-avatar"
                                 src="{{.BarberImage}}" loading="lazy" decoding="async"
                                 alt="{{.Name}}"
-                            >
+                             srcset="{{imageSrcset .BarberImage}}" sizes="96px" width="640" height="480">
 
                         {{else}}
 

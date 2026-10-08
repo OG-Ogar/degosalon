@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/products.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
+<link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
     <script src="/static/image-viewer.js" defer></script>
@@ -19,7 +20,7 @@
 
 {{template "role-header" (navigation "customer" "cart" .)}}
 
-<main class="products-page">
+<main class="products-page ui-page">
 
     <div class="products-heading">
 
@@ -37,7 +38,7 @@
 
     </div>
 
-    {{if .Problem}}<p class="cart-problem" role="alert">{{.Problem}}</p>{{end}}
+    {{template "form-error" .Problem}}
 
     {{if .Items}}
 
@@ -54,7 +55,7 @@
                             src="{{.Product.Image}}"
                             alt="{{.Product.Name}}"
                             data-fullscreen-image
-                        >
+                         srcset="{{imageSrcset .Product.Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                     {{else}}
 
@@ -115,12 +116,12 @@
                             </strong>
                         </p>
 
-                        <form class="cart-quantity-form" method="post" action="/customer/cart/{{.Product.ID}}/update">
+                        <form class="cart-quantity-form" method="post" action="/customer/cart/{{.Product.ID}}/update" {{if $.Problem}}aria-describedby="form-error"{{end}}>
                             <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
                             <label for="quantity-{{.Product.ID}}">Quantity for {{.Product.Name}}</label>
                             <input id="quantity-{{.Product.ID}}" name="quantity" type="number" min="0" max="2147483647" step="1" value="{{.Quantity}}" required inputmode="numeric">
-                            <button type="submit">Update quantity</button>
-                            <button type="submit" name="remove" value="yes" formnovalidate>Remove item</button>
+                            <button type="submit" class="ui-control">Update quantity</button>
+                            <button type="submit" name="remove" value="yes" formnovalidate class="ui-control">Remove item</button>
                         </form>
                         {{if .Product.Archived}}<p role="status">This product has been archived. Remove it from your cart to continue.</p>{{else}}<p>Available stock: {{.Product.Quantity}}</p>{{end}}
 
@@ -157,7 +158,7 @@
 
             </div>
 
-            <form method="post" action="/customer/products/checkout">
+            <form method="post" action="/customer/products/checkout" class="ui-form" {{if .Problem}}aria-describedby="form-error"{{end}}>
  <input type="hidden" name="checkout_key" value="{{.CheckoutKey}}">
 
                 <input
@@ -167,7 +168,7 @@
                 >
 
                 <button
-                    class="cart-pay-button"
+                    class="cart-pay-button ui-control"
                     type="submit"
                     {{if .AmountUnavailable}}disabled{{end}}
                 >

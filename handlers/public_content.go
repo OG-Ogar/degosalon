@@ -7,13 +7,16 @@ import (
 	"strings"
 )
 
-type publicContentView struct{ Title, Description, Kind, Path string }
+type publicContentView struct {
+	Title, Description, Kind, Path string
+	Placeholder                    bool
+}
 
 var publicContentPages = map[string]publicContentView{
-	"/help":    {Title: "Help", Description: "Help with finding a barber, booking, messages and product collection.", Kind: "help", Path: "/help"},
-	"/support": {Title: "Support", Description: "Support contact information for De Go Salon.", Kind: "support", Path: "/support"},
-	"/privacy": {Title: "Privacy", Description: "Privacy information for De Go Salon.", Kind: "privacy", Path: "/privacy"},
-	"/terms":   {Title: "Terms", Description: "Terms information for De Go Salon.", Kind: "terms", Path: "/terms"},
+	"/help":    {Title: "Help", Description: "Help with finding a barber, booking, messages and product collection.", Kind: "help", Path: "/help", Placeholder: true},
+	"/support": {Title: "Support", Description: "Contact De Go Salon support by telephone.", Kind: "support", Path: "/support"},
+	"/privacy": {Title: "Privacy", Description: "Privacy information for De Go Salon.", Kind: "privacy", Path: "/privacy", Placeholder: true},
+	"/terms":   {Title: "Terms", Description: "Terms information for De Go Salon.", Kind: "terms", Path: "/terms", Placeholder: true},
 }
 
 func PublicContentHandler(w http.ResponseWriter, r *http.Request) {
@@ -26,8 +29,11 @@ func PublicContentHandler(w http.ResponseWriter, r *http.Request) {
 		methodNotAllowed(w, http.MethodGet)
 		return
 	}
-	// These destinations are placeholders until their owner approves final content.
-	w.Header().Set("X-Robots-Tag", "noindex, follow")
+	// Legal pages remain explicit placeholders by owner request. Approved
+	// support contacts can be indexed independently of those policies.
+	if page.Placeholder {
+		w.Header().Set("X-Robots-Tag", "noindex, follow")
+	}
 	render(w, "public-content.html", page)
 }
 

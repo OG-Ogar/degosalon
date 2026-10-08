@@ -1,21 +1,21 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{.Title}} - De Go Salon</title><meta name="robots" content="noindex, follow">
+<title>{{.Title}} - De Go Salon</title>{{if .Placeholder}}<meta name="robots" content="noindex, follow">{{end}}
 {{template "public-metadata" (publicMetadata .Path (printf "%s - De Go Salon" .Title) .Description)}}
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/ui.css"></head>
 <body class="modern-role-page">
 <header class="site-header"><a class="site-brand" href="/">De Go Salon</a><nav class="site-navigation" aria-label="Public navigation"><a href="/explore">Find a Barber</a><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a></nav></header>
 <main class="public-content-card ui-page"><h1>{{.Title}}</h1>
-<p class="content-placeholder"><strong>Placeholder — awaiting approved content.</strong></p>
+{{if .Placeholder}}<p class="content-placeholder"><strong>Placeholder — awaiting approved content.</strong></p>{{end}}
 {{if eq .Kind "help"}}
 <p>These quick steps describe the current app. The full help center is pending.</p>
 <h2>Find and book a barber</h2><p><a href="/explore">Choose your state/FCT and optional LGA or area council</a>, open a barber’s profile, and choose a service. Sign in as a customer to select a date and an available time, then submit your appointment request. Check My Bookings for its status.</p>
 <h2>Messages</h2><p>Open Messages from your dashboard. Send a message or use Refresh conversation to see new replies.</p>
 <h2>Products and collection</h2><p>Open Products from your customer dashboard, choose available items and review your cart before placing an order. Follow the collection and payment instructions shown with your order.</p>
-<h2>Account recovery</h2><p>Use Forgot password on your role’s sign-in page. If recovery is unavailable or your email does not arrive, check back here for approved support details.</p>
+<h2>Account recovery</h2><p>Use Forgot password on your role’s sign-in page. If recovery is unavailable or your email does not arrive, <a href="/support">contact support</a>.</p>
 {{else if eq .Kind "support"}}
-<p>The support email, telephone number and help desk destination have not been provided yet. No support contact is currently published here.</p><p>For a question about an appointment or shop, signed-in customers can use Messages to contact their barber. This is a shop conversation, not a support desk.</p><p><a href="/help">Read the app’s quick help</a></p>
+<p>Call De Go Salon support using either number below.</p><ul class="support-contacts"><li><a href="tel:+2348128162561">08128162561</a></li><li><a href="tel:+2349164226427">09164226427</a></li></ul><p>For a question about an appointment or shop, signed-in customers can use Messages to contact their barber. This is a shop conversation, not a support desk.</p><p><a href="/help">Read the app’s quick help</a></p>
 {{else if eq .Kind "privacy"}}
 <p>The approved privacy notice will appear here. This placeholder does not describe or establish the site’s privacy policy.</p>
 {{else if eq .Kind "terms"}}

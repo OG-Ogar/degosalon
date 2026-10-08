@@ -27,3 +27,5 @@
 @media(max-width:520px){.ui-grid{grid-template-columns:1fr}}
 .ui-form-error{margin-block:1rem;padding:1rem;border:1px solid #a6606a;border-radius:var(--control-radius);background:#4a2227;color:#ffd0d5;overflow-wrap:anywhere}
 .ui-form-error p{margin-block:.5rem 0}
+.support-contacts{display:flex;flex-wrap:wrap;gap:.75rem;padding:0;list-style:none}
+.support-contacts a{display:inline-flex;align-items:center;min-height:44px;padding:.65rem 1rem;border:1px solid var(--border-hi);border-radius:var(--control-radius)}

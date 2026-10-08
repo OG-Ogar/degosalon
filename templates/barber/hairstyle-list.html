@@ -28,6 +28,7 @@
     <h1 class="barber-title">
         Manage Hairstyles
     </h1>
+<p>Up to 24 items per page, oldest first.</p>
 
     <p class="barber-lede">
         Add, edit and manage the hairstyles customers can book.
@@ -152,6 +153,7 @@
 
 </main>
 
+{{template "list-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

@@ -21,21 +21,22 @@ type exploreView struct {
 	SelectedState, SelectedArea string
 }
 type publicBarberView struct {
-	ResultsLink      string
-	LoginLink        string
-	RegisterLink     string
-	ServiceLinks     map[int]string
-	ProductLinks     map[int]string
-	ShopLink         string
-	Barber           models.Barber
-	Hairstyles       []models.Hairstyle
-	Products         []models.Product
-	Reviews          []models.Review
-	Rating           float64
-	ReviewCount      int
-	CustomerSignedIn bool
-	BookLink         string
-	MessageLink      string
+	ServicePagination, ProductPagination, ReviewPagination listPagination
+	ResultsLink                                            string
+	LoginLink                                              string
+	RegisterLink                                           string
+	ServiceLinks                                           map[int]string
+	ProductLinks                                           map[int]string
+	ShopLink                                               string
+	Barber                                                 models.Barber
+	Hairstyles                                             []models.Hairstyle
+	Products                                               []models.Product
+	Reviews                                                []models.Review
+	Rating                                                 float64
+	ReviewCount                                            int
+	CustomerSignedIn                                       bool
+	BookLink                                               string
+	MessageLink                                            string
 }
 
 func ExploreRouter(w http.ResponseWriter, r *http.Request) {
@@ -90,26 +91,12 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		return
 	}
 	b.PasswordHash = ""
-	products, err := availableProductsByBarber(r, id)
-	if err != nil {
-		serverError(w, "load public portfolio products", err)
+	portfolio, ok := readPortfolio(w, r, id)
+	if !ok {
 		return
 	}
-	rating, count, err := storage.ReviewSummaryResult(r.Context(), id)
-	if err != nil {
-		serverError(w, "load public portfolio rating", err)
-		return
-	}
-	styles, err := storage.ListAvailableHairstylesByBarberResult(r.Context(), id)
-	if err != nil {
-		serverError(w, "load public portfolio services", err)
-		return
-	}
-	reviews, err := storage.ListReviewsByBarberResult(r.Context(), id)
-	if err != nil {
-		serverError(w, "load public portfolio reviews", err)
-		return
-	}
+	styles, products, reviews := portfolio.Services.Items, portfolio.Products.Items, portfolio.Reviews.Items
+	rating, count := portfolio.Rating, portfolio.ReviewCount
 
 	signedIn, sessionErr := publicCustomerSignedIn(r)
 	if sessionErr != nil {
@@ -145,7 +132,7 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		}
 		serviceLinks[style.ID] = destination
 	}
-	render(w, "explore-barber.html", publicBarberView{ResultsLink: discoveryPath("/explore", query), LoginLink: loginLink, RegisterLink: registerLink, ServiceLinks: serviceLinks, ProductLinks: productLinks, ShopLink: shopLink, Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
+	render(w, "explore-barber.html", publicBarberView{ServicePagination: portfolio.ServiceLinks, ProductPagination: portfolio.ProductLinks, ReviewPagination: portfolio.ReviewLinks, ResultsLink: discoveryPath("/explore", query), LoginLink: loginLink, RegisterLink: registerLink, ServiceLinks: serviceLinks, ProductLinks: productLinks, ShopLink: shopLink, Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
 }
 
 func publicCustomerSignedIn(r *http.Request) (bool, error) {

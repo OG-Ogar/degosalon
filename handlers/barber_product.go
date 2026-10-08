@@ -188,17 +188,27 @@ func ListProductsHandler(
 		return
 	}
 
-	products, err := storage.ListProductsByBarber(r.Context(), barber.ID)
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
+		return
+	}
+	page, err := storage.ProductPage(r.Context(), barber.ID, false, cursor)
 	if err != nil {
 		serverError(w, "load seller products", err)
 		return
 	}
+	if len(page.Items) == 0 && (cursor.After > 0 || cursor.Before > 0) {
+		http.Redirect(w, r, productInventoryPagination(r, cursor, page.Items, false, false).FirstLink, http.StatusSeeOther)
+		return
+	}
 	view := struct {
-		Products []models.Product
-		CSRF     string
+		Products   []models.Product
+		Pagination listPagination
+		CSRF       string
 	}{
-		Products: products,
-		CSRF:     s.CSRFToken,
+		Products:   page.Items,
+		Pagination: productInventoryPagination(r, cursor, page.Items, page.HasPrevious, page.HasNext),
+		CSRF:       s.CSRFToken,
 	}
 
 	render(w, "barber/products.html", view)

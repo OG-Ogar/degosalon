@@ -50,17 +50,18 @@ func BrowseBarbersHandler(
 // barberDetailView is one barber's shop as a customer sees it: their
 // details, what they offer, and the form to book it.
 type barberDetailView struct {
-	Slots          []string
-	Timezone       string
-	DateMax        string
-	ResultsLink    string
-	SelectedState  string
-	SelectedArea   string
-	SelectedAfter  string
-	SelectedBefore string
-	Barber         models.Barber
-	Hairstyles     []models.Hairstyle
-	Products       []models.Product
+	ServicePagination, ProductPagination, ReviewPagination listPagination
+	Slots                                                  []string
+	Timezone                                               string
+	DateMax                                                string
+	ResultsLink                                            string
+	SelectedState                                          string
+	SelectedArea                                           string
+	SelectedAfter                                          string
+	SelectedBefore                                         string
+	Barber                                                 models.Barber
+	Hairstyles                                             []models.Hairstyle
+	Products                                               []models.Product
 
 	// Selected pre-picks a style when the customer arrived from a link.
 	Selected int
@@ -155,28 +156,37 @@ func renderBarberDetail(
 		values = map[string]string{}
 	}
 
-	products, err := availableProductsByBarber(r, barber.ID)
-	if err != nil {
-		serverError(w, "load portfolio products", err)
+	for _, key := range []string{"services_after", "services_before"} {
+		values[key] = r.URL.Query().Get(key)
+	}
+	portfolio, ok := readPortfolio(w, r, barber.ID)
+	if !ok {
 		return
 	}
-	rating, count, err := storage.ReviewSummaryResult(r.Context(), barber.ID)
-	if err != nil {
-		serverError(w, "load portfolio rating", err)
-		return
-	}
-	styles, err := storage.ListAvailableHairstylesByBarberResult(r.Context(), barber.ID)
-	if err != nil {
-		serverError(w, "load portfolio services", err)
-		return
-	}
-	reviews, err := storage.ListReviewsByBarberResult(r.Context(), barber.ID)
-	if err != nil {
-		serverError(w, "load portfolio reviews", err)
-		return
-	}
+	styles, products, reviews := portfolio.Services.Items, portfolio.Products.Items, portfolio.Reviews.Items
+	rating, count := portfolio.Rating, portfolio.ReviewCount
 	if selected == 0 && len(styles) > 0 {
 		selected = styles[0].ID
+	}
+	if selected > 0 {
+		found := false
+		for _, style := range styles {
+			if style.ID == selected {
+				found = true
+			}
+		}
+		if !found {
+			style, err := storage.FindHairstyleOwnedBy(r.Context(), selected, barber.ID)
+			if errors.Is(err, storage.ErrNotFound) || errors.Is(err, storage.ErrForbidden) || err == nil && (!style.IsAvailable || style.Archived) {
+				journeyError(w, "Page not found.", 404)
+				return
+			}
+			if err != nil {
+				serverError(w, "load selected service", err)
+				return
+			}
+			styles = append(styles, style)
+		}
 	}
 	calendar, err := storage.CalendarForBarber(r.Context(), barber.ID)
 	if err != nil {
@@ -218,7 +228,8 @@ func renderBarberDetail(
 	}
 	canReview := reviewErr == nil
 	renderStatus(w, status, "customer/barber-detail.html", barberDetailView{
-		Barber:         barber,
+		Barber:            barber,
+		ServicePagination: portfolio.ServiceLinks, ProductPagination: portfolio.ProductLinks, ReviewPagination: portfolio.ReviewLinks,
 		ResultsLink:    discoveryPath("/customer/barbers", discoveryQuery(r)),
 		SelectedState:  discoveryQuery(r).Get("state"),
 		SelectedArea:   discoveryQuery(r).Get("area"),
@@ -242,18 +253,4 @@ func renderBarberDetail(
 		ReviewCount:    count,
 		CanReview:      canReview,
 	})
-}
-
-func availableProductsByBarber(r *http.Request, barberID int) ([]models.Product, error) {
-	var out []models.Product
-	products, err := storage.ListProductsByBarber(r.Context(), barberID)
-	if err != nil {
-		return nil, err
-	}
-	for _, product := range products {
-		if product.IsAvailable && product.Quantity > 0 {
-			out = append(out, product)
-		}
-	}
-	return out, nil
 }

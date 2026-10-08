@@ -3,11 +3,13 @@ package handlers
 import (
 	"barber-booking/storage"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 )
 
 type listPagination struct {
+	Name                                 string
 	PreviousLink, NextLink, FirstLink    string
 	PreviousLabel, NextLabel, FirstLabel string
 }
@@ -80,4 +82,60 @@ func readListSearch(w http.ResponseWriter, r *http.Request) (string, bool) {
 		return "", false
 	}
 	return query, true
+}
+
+// Independent cursors keep profile sections separate from discovery results.
+func readNamedPageCursor(w http.ResponseWriter, r *http.Request, prefix string) (storage.PageCursor, bool) {
+	copy := r.Clone(r.Context())
+	address := *r.URL
+	query := address.Query()
+	query.Del("after")
+	query.Del("before")
+	for _, key := range []string{"after", "before"} {
+		if values, ok := r.URL.Query()[prefix+"_"+key]; ok && !(len(values) == 1 && values[0] == "") {
+			query[key] = values
+		}
+	}
+	address.RawQuery = query.Encode()
+	copy.URL = &address
+	return readPageCursor(w, copy)
+}
+func namedPaginationLinks(r *http.Request, prefix, fragment string, cursor storage.PageCursor, first, last int, ascending, previous, next bool) listPagination {
+	copy := r.Clone(r.Context())
+	address := *r.URL
+	query := address.Query()
+	query.Del("after")
+	query.Del("before")
+	query.Del(prefix + "_after")
+	query.Del(prefix + "_before")
+	address.RawQuery = query.Encode()
+	copy.URL = &address
+	links := paginationLinks(copy, cursor, first, last, ascending, previous, next)
+	convert := func(link string) string {
+		if link == "" {
+			return ""
+		}
+		address, _ := url.Parse(link)
+		query := address.Query()
+		for _, key := range []string{"after", "before"} {
+			if value := query.Get(key); value != "" {
+				query.Set(prefix+"_"+key, value)
+			}
+			query.Del(key)
+			if values, ok := r.URL.Query()[key]; ok {
+				query[key] = values
+			}
+		}
+		address.RawQuery = query.Encode()
+		address.Fragment = fragment
+		return address.String()
+	}
+	links.PreviousLink = convert(links.PreviousLink)
+	links.NextLink = convert(links.NextLink)
+	links.FirstLink = convert(links.FirstLink)
+	links.PreviousLabel = "Previous " + prefix
+	links.NextLabel = "Next " + prefix
+	links.FirstLabel = "First " + prefix
+	links.Name = prefix + " pages"
+	return links
 }

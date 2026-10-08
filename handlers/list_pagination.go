@@ -4,6 +4,7 @@ import (
 	"barber-booking/storage"
 	"net/http"
 	"strconv"
+	"strings"
 )
 
 type listPagination struct {
@@ -65,4 +66,18 @@ func paginationLinks(r *http.Request, cursor storage.PageCursor, first, last int
 		}
 	}
 	return result
+}
+
+func readListSearch(w http.ResponseWriter, r *http.Request) (string, bool) {
+	values, exists := r.URL.Query()["q"]
+	if exists && len(values) != 1 {
+		journeyError(w, "Enter one search term.", 400)
+		return "", false
+	}
+	query := strings.TrimSpace(r.URL.Query().Get("q"))
+	if len(query) > 200 {
+		journeyError(w, "Use a search term of at most 200 bytes.", 400)
+		return "", false
+	}
+	return query, true
 }

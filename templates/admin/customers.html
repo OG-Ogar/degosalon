@@ -19,6 +19,8 @@
     <h1>Customers</h1>
     <p class="lede">Registered customer accounts and how many bookings each has made.</p>
 
+    <form method="get" action="/admin/customers" class="ui-form"><div class="ui-field"><label for="customer-search">Search customers</label><input id="customer-search" name="q" type="search" value="{{.Query}}" maxlength="200" placeholder="Name, email or phone"></div><button type="submit" class="ui-control">Search customers</button></form>
+    <p>Up to 24 accounts per page, newest first.</p>
     {{if .Items}}
         <table>
             <caption>Customers register themselves from the customer login page.</caption>
@@ -44,11 +46,12 @@
             </tbody>
         </table>
     {{else}}
-        <p class="empty">No customers have registered yet.</p>
+        <p class="empty">No customer accounts match this page or search.</p>
     {{end}}
 
 </main>
 
+{{template "list-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

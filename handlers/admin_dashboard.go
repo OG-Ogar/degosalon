@@ -5,7 +5,6 @@ import (
 	"errors"
 	"net/http"
 
-	"barber-booking/models"
 	"barber-booking/storage"
 )
 
@@ -131,29 +130,9 @@ func renderAdminDashboardError(w http.ResponseWriter, r *http.Request, s session
 // countPendingBookings returns the number of bookings waiting for
 // a barber's decision.
 func loadAdminDashboard(ctx context.Context, s sessionData, problem string) (adminDashboardView, error) {
-	bookings, err := storage.ListBookingsResult(ctx)
+	counts, err := storage.AdminDashboardCounts(ctx)
 	if err != nil {
 		return adminDashboardView{}, err
-	}
-	barbers, err := storage.ListBarbersResult(ctx)
-	if err != nil {
-		return adminDashboardView{}, err
-	}
-	customers, err := storage.ListCustomersResult(ctx)
-	if err != nil {
-		return adminDashboardView{}, err
-	}
-	pending := 0
-	active := 0
-	for _, booking := range bookings {
-		if booking.Status == models.StatusPending {
-			pending++
-		}
-	}
-	for _, barber := range barbers {
-		if barber.IsActive() {
-			active++
-		}
 	}
 	landingImage, err := currentLandingImage(ctx)
 	if err != nil {
@@ -163,7 +142,7 @@ func loadAdminDashboard(ctx context.Context, s sessionData, problem string) (adm
 	if err != nil {
 		return adminDashboardView{}, err
 	}
-	return adminDashboardView{CSRF: s.CSRFToken, Barbers: len(barbers), ActiveBarbers: active, Customers: len(customers), Bookings: len(bookings), PendingBookings: pending, LandingImage: landingImage, CustomerLandingImage: customerLandingImage, Error: problem}, nil
+	return adminDashboardView{CSRF: s.CSRFToken, Barbers: counts.Barbers, ActiveBarbers: counts.ActiveBarbers, Customers: counts.Customers, Bookings: counts.Bookings, PendingBookings: counts.PendingBookings, LandingImage: landingImage, CustomerLandingImage: customerLandingImage, Error: problem}, nil
 }
 
 // AdminBookingsHandler lists every booking in the system.
@@ -195,11 +174,7 @@ func AdminBookingsHandler(
 }
 
 // adminCustomerRow is one line of the customer table.
-type adminCustomerRow struct {
-	models.Customer
-
-	Bookings int
-}
+type adminCustomerRow = storage.AdminCustomerCard
 
 // AdminCustomersHandler lists registered customers and how many
 // bookings each has made.
@@ -214,29 +189,31 @@ func AdminCustomersHandler(
 		return
 	}
 
-	customers, err := storage.ListCustomersResult(r.Context())
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
+		return
+	}
+	search, ok := readListSearch(w, r)
+	if !ok {
+		return
+	}
+	page, err := storage.AdminCustomerPage(r.Context(), search, cursor)
 	if err != nil {
-		serverError(w, "load admin customers", err)
+		serverError(w, "load admin customer page", err)
+		return
+	}
+	pagination := paginationLinks(r, cursor, 0, 0, false, false, false)
+	if len(page.Items) > 0 {
+		pagination = paginationLinks(r, cursor, page.Items[0].ID, page.Items[len(page.Items)-1].ID, false, page.HasPrevious, page.HasNext)
+	} else if cursor.Before > 0 || cursor.After > 0 {
+		http.Redirect(w, r, pagination.FirstLink, http.StatusSeeOther)
 		return
 	}
 
-	rows := make([]adminCustomerRow, 0, len(customers))
-
-	for _, customer := range customers {
-		bookings, err := storage.ListBookingsByCustomerResult(r.Context(), customer.ID)
-		if err != nil {
-			serverError(w, "load admin customer booking count", err)
-			return
-		}
-
-		rows = append(rows, adminCustomerRow{
-			Customer: customer,
-			Bookings: len(bookings),
-		})
-	}
-
 	render(w, "admin/customers.html", listView[adminCustomerRow]{
-		Items: rows,
-		CSRF:  s.CSRFToken,
+		Items:      page.Items,
+		Pagination: pagination,
+		Query:      search,
+		CSRF:       s.CSRFToken,
 	})
 }

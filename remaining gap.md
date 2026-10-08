@@ -18,7 +18,7 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 | FE-25 | Implemented and merged in PR #106; deployed-origin acceptance pending | Support publishes owner-approved 08128162561 and 09164226427. Privacy/terms remain explicit placeholders by owner instruction; they no longer require replacement for this scope. Trusted-origin metadata is covered locally; verify the actual deployed canonical origin when Render access is available. |
 | BE-18 | Remaining list/thread bounds and query scoping | Discovery is scoped and paginated with page-batched summaries; messages are scoped and review aggregates use SQL. Bound remaining lists/threads and remove remaining per-record loading where appropriate. |
 
-| BE-22 | Operational lifecycle and audit tooling | Add dedicated liveness/readiness, signal-driven graceful shutdown including workers, correlated structured logs and durable admin audit events. |
+| BE-22 | Health/shutdown implemented in this branch; logs/audit remain | Dedicated /health/live and /health/ready, bounded dependency checks, SIGTERM/SIGINT HTTP draining and worker joining are implemented. Correlated structured logs and durable admin audit events remain. |
 | BE-23 | Broader browser journey coverage | Go tests/vet/race, frontend checks, PostgreSQL CI, Playwright browser CI and dedicated security-package tests exist. Broader browser journey coverage remains aligned with FE-26. |
 | FE-26 | Browser accessibility/responsiveness acceptance | Finish contrast, keyboard/focus, 200% zoom, 320px width, touch targets, long content and broken-media checks across all page families. Fix findings and retain evidence. |
 

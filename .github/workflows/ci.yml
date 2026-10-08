@@ -46,6 +46,7 @@ jobs:
           go build -tags netgo -ldflags '-s -w' -o /tmp/degosalon-app
           go build -tags netgo -ldflags '-s -w' -o /tmp/degosalon-migrate ./cmd/migrate
           go build -tags netgo -ldflags '-s -w' -o /tmp/degosalon-media ./cmd/media
+          go build -tags netgo -ldflags '-s -w' -o /tmp/degosalon-audit ./cmd/audit
 
       - name: Validate Render Blueprint
         run: |

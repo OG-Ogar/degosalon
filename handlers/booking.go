@@ -1,8 +1,9 @@
 package handlers
 
 import (
+	"barber-booking/internal/observability"
 	"errors"
-	"log"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -164,14 +165,7 @@ func BookHairstyleHandler(
 		return
 	}
 
-	log.Printf(
-		"booking %d: customer %d with barber %d on %s %s",
-		booking.ID,
-		customer.ID,
-		barber.ID,
-		booking.Date,
-		booking.Time,
-	)
+	slog.InfoContext(r.Context(), "booking_created", "request_id", observability.RequestID(r.Context()), "booking_id", booking.ID)
 
 	// The booking was successfully created.
 	// Send the customer to the confirmation page instead of

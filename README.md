@@ -372,3 +372,11 @@ Public home, discovery, shop profiles and content pages share description/Open G
 `GET /health/live` confirms the HTTP process is responding. `GET /health/ready` checks startup readiness and PostgreSQL connectivity within two seconds; development memory storage is supported. Both support HEAD, disable caching and return generic JSON without dependency details. Schema compatibility and required production configuration are validated before listening. Render checks `/health/ready`.
 
 SIGTERM/SIGINT removes readiness, cancels mail/media workers and drains in-flight HTTP requests for up to 30 seconds. Workers are joined before shared database resources are closed. A drain timeout forces connection closure and exits unsuccessfully; worker timeouts also exit unsuccessfully. Existing retry/reconciliation policies remain responsible for interrupted provider operations.
+
+### Request logs and administrator audit
+
+Application logs use JSON. Each HTTP request receives a generated `X-Request-ID`; request logs include that ID, registered route pattern, method, response status and duration. Request bodies, query strings, cookies and raw URLs are excluded. Error responses stay generic while internal errors carry the correlation ID.
+
+Authenticated administrator create/update/archive/suspend/activate and site-image POSTs require a private audit start record before their handler runs. Append-only completion records capture the HTTP outcome, including rejected requests. A start without a completion means the result is unknown (for example, a process interruption or failed completion write); HTTP success is not a claim of transaction-level atomicity between the audit and business mutation. Final audit writes use a bounded context independent of client cancellation.
+
+Operators can run `go run ./cmd/audit -limit 100` with `DATABASE_URL` configured to export JSON. Continue with `-before <last-id>` for older events. PostgreSQL stores events in `degosalon_internal.admin_audit_events`; public access is revoked and triggers reject updates/deletes. Development memory records are volatile. Backup retention/restoration of the audit table requires live operational acceptance.

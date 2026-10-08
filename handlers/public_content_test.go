@@ -36,7 +36,7 @@ func TestPublicMetadataTrustedOrigin(t *testing.T) {
 }
 func TestPublicPlaceholderPages(t *testing.T) {
 	t.Setenv("SITE_URL", "https://salon.example.com")
-	for _, path := range []string{"/help", "/support", "/privacy", "/terms"} {
+	for _, path := range []string{"/help", "/privacy", "/terms"} {
 		req := httptest.NewRequest(http.MethodGet, "http://untrusted.example"+path, nil)
 		req.Header.Set("X-Forwarded-Host", "attacker.example")
 		rec := httptest.NewRecorder()
@@ -66,5 +66,27 @@ func TestPublicPlaceholderPages(t *testing.T) {
 	PublicContentHandler(rec, httptest.NewRequest(http.MethodGet, "/support/unknown", nil))
 	if rec.Code != 404 {
 		t.Fatal("unknown content route")
+	}
+}
+
+func TestApprovedSupportContacts(t *testing.T) {
+	t.Setenv("SITE_URL", "https://salon.example.com")
+	req := httptest.NewRequest(http.MethodGet, "http://untrusted.example/support?private=secret", nil)
+	req.Header.Set("X-Forwarded-Host", "attacker.example")
+	rec := httptest.NewRecorder()
+	PublicContentHandler(rec, req)
+	body := rec.Body.String()
+	if rec.Code != 200 || rec.Header().Get("X-Robots-Tag") != "" {
+		t.Fatalf("support: %d %v", rec.Code, rec.Header())
+	}
+	for _, expected := range []string{`href="tel:+2348128162561">08128162561`, `href="tel:+2349164226427">09164226427`, `href="https://salon.example.com/support"`} {
+		if !strings.Contains(body, expected) {
+			t.Fatal("missing", expected)
+		}
+	}
+	for _, forbidden := range []string{"Placeholder — awaiting approved content.", "No support contact", "untrusted.example", "attacker.example", "private=secret", "noindex"} {
+		if strings.Contains(body, forbidden) {
+			t.Fatal("support contains", forbidden)
+		}
 	}
 }

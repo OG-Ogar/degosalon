@@ -134,8 +134,44 @@ test('account suspension and archival hide shops while retaining completed histo
 });
 
 
-test('authentication budgets still throttle one client without blocking another',async({browser})=>{
- const limited=await acceptanceContext(browser,{extraHTTPHeaders:{'X-Forwarded-For':'198.51.100.90'}}),other=await acceptanceContext(browser,{extraHTTPHeaders:{'X-Forwarded-For':'198.51.100.91'}});
- try{for(let i=0;i<20;i++)expect((await limited.request.post('/customer/register',{form:{fullname:''}})).status()).toBe(400);const rejected=await limited.request.post('/customer/register',{form:{fullname:''}});expect(rejected.status()).toBe(429);expect(Number(rejected.headers()['retry-after'])).toBeGreaterThan(0);expect((await other.request.post('/customer/register',{form:{fullname:''}})).status()).toBe(400);}
- finally{await limited.close();await other.close();}
+test('authentication peer budget throttles one client without blocking another', async ({browser}) => {
+ const limited = await acceptanceContext(browser, {extraHTTPHeaders: {'X-Forwarded-For': '198.51.100.90'}});
+ const other = await acceptanceContext(browser, {extraHTTPHeaders: {'X-Forwarded-For': '198.51.100.91'}});
+ const invalidForm = index => ({fullname: '', email: 'peer-budget-' + index + '@example.test'});
+ try {
+  // Distinct identities isolate the 20-attempt peer budget from the
+  // independent five-attempt account budget. Invalid forms create no users.
+  for (let i = 0; i < 20; i++) {
+   expect((await limited.request.post('/customer/register', {form: invalidForm(i)})).status()).toBe(400);
+  }
+  const rejected = await limited.request.post('/customer/register', {form: invalidForm(20)});
+  expect(rejected.status()).toBe(429);
+  expect(Number(rejected.headers()['retry-after'])).toBeGreaterThan(0);
+  expect(rejected.headers()['cache-control']).toBe('no-store');
+  expect((await other.request.post('/customer/register', {form: invalidForm(21)})).status()).toBe(400);
+ } finally {
+  await limited.close();
+  await other.close();
+ }
+});
+
+test('authentication account budget follows the identity across clients', async ({browser}) => {
+ const first = await acceptanceContext(browser, {extraHTTPHeaders: {'X-Forwarded-For': '198.51.100.92'}});
+ const second = await acceptanceContext(browser, {extraHTTPHeaders: {'X-Forwarded-For': '198.51.100.93'}});
+ const form = {fullname: '', email: 'account-budget@example.test'};
+ try {
+  for (let i = 0; i < 5; i++) {
+   expect((await first.request.post('/customer/register', {form})).status()).toBe(400);
+  }
+  const rejected = await second.request.post('/customer/register', {form});
+  expect(rejected.status()).toBe(429);
+  expect(Number(rejected.headers()['retry-after'])).toBeGreaterThan(0);
+  expect(rejected.headers()['cache-control']).toBe('no-store');
+  expect((await second.request.post('/customer/register', {
+   form: {fullname: '', email: 'another-account-budget@example.test'}
+  })).status()).toBe(400);
+ } finally {
+  await first.close();
+  await second.close();
+ }
 });

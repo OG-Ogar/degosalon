@@ -60,14 +60,23 @@ func ListHairstylesHandler(
 		return
 	}
 
-	styles, err := storage.ListHairstylesByBarberResult(r.Context(), barber.ID)
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
+		return
+	}
+	page, err := storage.HairstylePage(r.Context(), barber.ID, false, cursor)
 	if err != nil {
 		serverError(w, "load seller services", err)
 		return
 	}
+	if len(page.Items) == 0 && (cursor.After > 0 || cursor.Before > 0) {
+		http.Redirect(w, r, inventoryPagination(r, cursor, page.Items, false, false).FirstLink, http.StatusSeeOther)
+		return
+	}
 	render(w, "barber/hairstyle-list.html", listView[models.Hairstyle]{
-		Items: styles,
-		CSRF:  s.CSRFToken,
+		Items:      page.Items,
+		Pagination: inventoryPagination(r, cursor, page.Items, page.HasPrevious, page.HasNext),
+		CSRF:       s.CSRFToken,
 	})
 }
 

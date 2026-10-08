@@ -379,3 +379,29 @@ test('admin account search reaches older pages without JavaScript',async({page,b
   expect((await page.request.get('/admin/barbers?q='+encodeURIComponent('x'.repeat(201)))).status()).toBe(400);
  }finally{await context.close();}
 });
+
+test('inventory and portfolio pages preserve independent cursors and selected services',async({page,browser},testInfo)=>{
+ const suffix=Date.now(),email='portfolio-'+suffix+'@example.test',shop='Portfolio Pages '+suffix;
+ expect((await page.request.post('/barber/register',{multipart:{fullname:'Portfolio Seller',phone:'08012345678',email,shopname:shop,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}})).ok()).toBeTruthy();
+ expect((await page.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
+ await page.goto('/barber/hairstyles/new');const csrf=await page.locator('main input[name=csrf_token]').inputValue();
+ for(let i=0;i<25;i++){
+  expect((await page.request.post('/barber/hairstyles/new',{maxRedirects:0,multipart:{csrf_token:csrf,name:'Portfolio Style '+i,category:'Style',description:'A service for portfolio paging.',price:'1250.25',duration:'30',available:'on'}})).status()).toBe(303);
+  expect((await page.request.post('/barber/products/new',{maxRedirects:0,multipart:{csrf_token:csrf,name:'Portfolio Product '+i,category:'Care',description:'A product for portfolio paging.',price:'1250.25',quantity:'2',available:'on'}})).status()).toBe(303);
+ }
+ await page.goto('/barber/hairstyles');await expect(page.locator('.barber-hairstyle-card')).toHaveCount(24);await page.getByRole('link',{name:'Next page',exact:true}).click();await expect(page.locator('.barber-hairstyle-card')).toHaveCount(1);
+ const style=(await page.getByRole('link',{name:'Portfolio Style 24',exact:true}).getAttribute('href')).match(/\d+$/)[0];
+ await page.goto('/barber/products');await expect(page.locator('.product-card')).toHaveCount(24);await page.getByRole('link',{name:'Next page',exact:true}).click();await expect(page.locator('.product-card')).toHaveCount(1);
+ const context=await browser.newContext({javaScriptEnabled:false});
+ try{
+  const customer=await context.newPage();expect((await customer.request.post('/customer/register',{multipart:{fullname:'Portfolio Customer',phone:'08012345678',email:'portfolio-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}})).ok()).toBeTruthy();
+  await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:shop,exact:true}).first().click();const seller=customer.url().match(/\/barbers\/(\d+)/)[1];
+  await customer.goto('/customer/barbers/'+seller+'?state=Lagos&area=Ikeja&after=41&hairstyle='+style);await expect(customer.locator('#availability-service option')).toHaveCount(25);await expect(customer.locator('[data-booking-summary]')).toContainText('Portfolio Style 24');
+  await customer.getByRole('link',{name:'Next services',exact:true}).click();await expect(customer.locator('#availability-service option')).toHaveCount(1);expect(new URL(customer.url()).searchParams.get('after')).toBe('41');
+  await customer.getByRole('link',{name:'Next products',exact:true}).click();expect(new URL(customer.url()).searchParams.has('services_after')).toBe(true);expect(new URL(customer.url()).searchParams.has('products_after')).toBe(true);
+  await customer.getByRole('button',{name:'Show available times',exact:true}).click();await expect(customer.locator('#availability-service option')).toHaveCount(1);await expect(customer.locator('[data-booking-summary]')).toContainText('Portfolio Style 24');
+  await page.goto('/explore/'+seller+'?state=Lagos&area=Ikeja&after=41');await expect(page.locator('.public-style-card')).toHaveCount(24);await page.getByRole('link',{name:'Next services',exact:true}).click();await expect(page.locator('.public-style-card')).toHaveCount(1);
+  await page.setViewportSize({width:320,height:900});await checkPage(page,testInfo,'public-portfolio-pages-320');
+  const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-portfolio-pages-320');}finally{await inspection.close();}
+ }finally{await context.close();}
+});

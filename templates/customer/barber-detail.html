@@ -142,7 +142,8 @@
             </article>
             {{end}}
         {{else}}<p>No reviews yet.</p>{{end}}
-        {{if .CanReview}}
+        {{template "list-pagination" .ReviewPagination}}
+{{if .CanReview}}
         <form method="post" action="/customer/barbers/{{.Barber.ID}}/reviews" class="booking-form ui-form" {{if .Error}}aria-describedby="form-error"{{end}}>
             <input type="hidden" name="csrf_token" value="{{.CSRF}}">
             <div class="appointment-fields">
@@ -191,9 +192,12 @@
 
         {{if .Hairstyles}}
 
-            <form method="get" action="/customer/barbers/{{.Barber.ID}}#booking" class="availability-form ui-form">
+            {{template "list-pagination" .ServicePagination}}
+<p>Choose from up to 24 services on this page. A directly selected service also remains available.</p>
+<form method="get" action="/customer/barbers/{{.Barber.ID}}#booking" class="availability-form ui-form">
  <input type="hidden" name="state" value="{{.SelectedState}}"><input type="hidden" name="area" value="{{.SelectedArea}}"><input type="hidden" name="after" value="{{.SelectedAfter}}"><input type="hidden" name="before" value="{{.SelectedBefore}}">
- <label for="availability-service">Service</label><select id="availability-service" name="hairstyle">{{range .Hairstyles}}<option value="{{.ID}}" {{if eq $.Selected .ID}}selected{{end}}>{{.Name}} · {{.Duration}} minutes</option>{{end}}</select>
+ <input type="hidden" name="services_after" value="{{index .Values "services_after"}}"><input type="hidden" name="services_before" value="{{index .Values "services_before"}}">
+<label for="availability-service">Service</label><select id="availability-service" name="hairstyle">{{range .Hairstyles}}<option value="{{.ID}}" {{if eq $.Selected .ID}}selected{{end}}>{{.Name}} · {{.Duration}} minutes</option>{{end}}</select>
  <label for="availability-date">Date ({{.Timezone}})</label><input id="availability-date" name="date" type="date" value="{{index .Values "date"}}" min="{{.Today}}" max="{{.DateMax}}" required>
  <button type="submit" class="ui-control">Show available times</button>
  </form>
@@ -443,7 +447,7 @@
 
     <!-- Products follow handwork so services and prices remain the primary booking journey. -->
     {{if .Products}}
-    <section class="hairstyles-section">
+    <section class="hairstyles-section" id="products">
         <div class="section-title"><div><p class="eyebrow">From this barber</p><h2>Products for sale</h2></div><span class="count">{{len .Products}} available</span></div>
         <div class="hairstyle-list">
         {{range .Products}}
@@ -454,7 +458,8 @@
             </article>
         {{end}}
         </div>
-        <a class="message-button" href="/customer/products">Shop products</a>
+        {{template "list-pagination" .ProductPagination}}
+<a class="message-button" href="/customer/products?barber={{.Barber.ID}}">Shop products</a>
     </section>
     {{end}}
 

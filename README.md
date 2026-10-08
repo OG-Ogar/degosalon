@@ -154,9 +154,9 @@ De Go Salon is now deployed with persistent PostgreSQL storage, but production h
 Priority work includes:
 
 1. **End-to-end verification of all user journeys** — validate admin, barber, customer, booking, chat, product, and password-reset flows against the live database.
-2. **Durable upload storage** — uploaded images currently need a production-safe persistence strategy rather than relying on local instance storage.
-3. **Expanded automated coverage** — especially authorization boundaries and complete booking/order lifecycle scenarios.
-4. **Operational readiness** — strengthen logging/monitoring, database backup/recovery procedures, and deployment observability.
+2. **Production media acceptance** — Supabase Storage is implemented; verify upload/read/cleanup and restart survival against the deployed provider.
+3. **Browser and device acceptance** — CI covers authorization, booking/order lifecycle, recovery and the page accessibility matrix; real-device and screen-reader checks remain separate.
+4. **Operational acceptance** — readiness, graceful shutdown, structured logs and admin audit are implemented; verify production configuration and backup/restoration procedures.
 5. **Security review** — continue verifying authentication, authorization, secrets, session handling, and database access boundaries.
 
 ## Deployment
@@ -173,16 +173,16 @@ Supabase Session Pooler
 Supabase PostgreSQL
 ```
 
-Render builds the application with:
+The repository Blueprint builds the application with:
 
 ```bash
-npm ci && npm run build && go build -tags netgo -ldflags '-s -w' -o app && go build -tags netgo -ldflags '-s -w' -o migrate ./cmd/migrate
+npm ci && npm run build && go build -tags netgo -ldflags '-s -w' -o app && go build -tags netgo -ldflags '-s -w' -o migrate ./cmd/migrate && go build -tags netgo -ldflags '-s -w' -o media ./cmd/media && go build -tags netgo -ldflags '-s -w' -o audit ./cmd/audit
 ```
 
 and starts it with:
 
 ```bash
-./app
+./migrate && ./media -create-bucket && ./app
 ```
 
 The Supabase session pooler is used for the deployed database connection because it provides IPv4-compatible connectivity for Render.
@@ -224,22 +224,11 @@ Run the test suite with:
 go test ./...
 ```
 
-## Post-UI optimization backlog
+## Current implementation and acceptance backlog
 
-During the full De Go Salon UI optimization pass, improvements that require product behavior or deeper interaction changes are recorded here rather than being mixed into the visual-only branch.
+The earlier visual and interaction backlog is implemented through PR #115. Shared navigation, messaging styles, authentication controls, location-preserving discovery, status feedback, mobile data views and shared UI primitives are covered by the current source and automated browser suite.
 
-- **Shared authenticated navigation:** replace duplicated customer/barber page headers with reusable role-aware navigation so active states, mobile behavior, labels, and logout placement stay consistent.
-- **Customer messages and barber messages:** move legacy page-specific inline CSS into the shared design system, then improve conversation states and the mobile chat experience.
-- **Authentication usability:** add a password visibility control and consistent client-side field feedback across customer and barber sign-in/registration/reset flows.
-- **Customer dashboard discovery:** make the dashboard's Find a Barber entry preserve and reuse the location-first discovery journey introduced on the public experience.
-- **Booking management:** improve action/status feedback after booking, cancellation, acceptance, rejection, and completion instead of relying only on page refresh context.
-- **Barber workspace navigation:** consolidate the duplicated numbered navigation and make the information architecture consistent across Dashboard, Hairstyles, Products, Bookings, Messages, and Profile.
-- **Responsive data views:** review admin and barber table-heavy screens for card/list alternatives on narrow phones rather than horizontal table compression.
-- **Empty states:** make empty bookings, messages, products, hairstyles, and search results consistently provide a useful next action.
-- **Design-system cleanup:** remove remaining inline styles and consolidate repeated button, form, card, status, header, and responsive rules into shared components after the visual migration settles.
-
-This list should be reviewed after the UI optimization branch is merged. Items are implementation follow-ups, not claims that the underlying feature is currently broken.
-
+See [remaining gap.md](remaining%20gap.md) for the reconciled scope and [browser-acceptance.md](browser-acceptance.md) for automated coverage and its limits. Production mail delivery, provider durability, backup restoration and real-device/screen-reader checks remain acceptance work. Optional product features are deferred.
 
 ## TypeScript frontend strategy
 
@@ -287,7 +276,7 @@ go run .
 
 The runner uses a private `degosalon_internal.schema_migrations` ledger, records SHA-256 checksums, locks concurrent migration commands, and commits SQL and history together. Never edit a previously applied migration; add another file. It rejects unknown, reordered, or modified history. This ledger is separate from Supabase CLI's own migration history: use the Go runner consistently to apply this application's files. `supabase/schema.sql` remains the original baseline fixture, not the upgrade command.
 
-App startup only verifies migration history and connectivity; it performs no schema changes. The Render Blueprint builds both binaries and starts with `./migrate && ./app`, so migration failures prevent the new app from starting. This startup sequence works without requiring a paid pre-deploy feature; concurrent starts serialize on the migration lock. Deployments managed outside this Blueprint must run the migration command before starting the new app.
+App startup only verifies migration history and connectivity; it performs no schema changes. The Render Blueprint builds the app, migration, media and audit binaries and starts with `./migrate && ./media -create-bucket && ./app`, so migration failures prevent the new app from starting. This startup sequence works without requiring a paid pre-deploy feature; concurrent starts serialize on the migration lock. Deployments managed outside this Blueprint must run the migration command before starting the new app.
 
 The initial migration creates a fresh schema or adopts the existing baseline without deleting records, and adds the earlier discovery location columns where absent. CI checks fresh/concurrent execution, legacy data preservation, rejected checksum changes, RLS presence, and transaction rollback for an incompatible schema. Take and verify database backups before operational upgrades; production restore drills remain separate acceptance work. Migration file creation follows [Supabase's migration guide](https://supabase.com/docs/guides/deployment/database-migrations).
 
@@ -369,7 +358,7 @@ Public home, discovery, shop profiles and content pages share description/Open G
 
 ### Health and process shutdown
 
-`GET /health/live` confirms the HTTP process is responding. `GET /health/ready` checks startup readiness and PostgreSQL connectivity within two seconds; development memory storage is supported. Both support HEAD, disable caching and return generic JSON without dependency details. Schema compatibility and required production configuration are validated before listening. Render checks `/health/ready`.
+`GET /health/live` confirms the HTTP process is responding. `GET /health/ready` checks startup readiness and PostgreSQL connectivity within two seconds; development memory storage is supported. Both support HEAD, disable caching and return generic JSON without dependency details. Schema compatibility and required production configuration are validated before listening. The Blueprint specifies `/health/ready`. The connected Render service was still checking `/` on 8 October 2026; its Dashboard health-check setting must be aligned separately.
 
 SIGTERM/SIGINT removes readiness, cancels mail/media workers and drains in-flight HTTP requests for up to 30 seconds. Workers are joined before shared database resources are closed. A drain timeout forces connection closure and exits unsuccessfully; worker timeouts also exit unsuccessfully. Existing retry/reconciliation policies remain responsible for interrupted provider operations.
 

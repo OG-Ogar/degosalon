@@ -1,12 +1,21 @@
 # Remaining implementation gaps
 
-Updated: 8 October 2026. Baseline: main at `49d5309dd03a6043a9e0d3169c70bc53b8bd77c0` (through merged PR #114), plus the browser acceptance batch on `test/browser-journeys-accessibility-acceptance`. The source changes for the original gaps are present; the acceptance batch must pass CI and merge before BE-23/FE-26 are closed on main. Production acceptance remains separate and is not certified by passing CI.
+Updated: 8 October 2026. Baseline: main at `dfd5bfb3a6cdc6ae2a02897b7c74ca4b8c725e83`, including merged PR #115. The original scoped implementation gaps are merged. PR #115 passed verify, PostgreSQL and browser CI at final head `bcf7934dd2a6efd84604582b51919c2dbee6f493`. Production acceptance remains separate.
 
 ## Deployment checkpoint
 
-Production acceptance is pending. Render inspection tools are not available in this session, and the deployed commit and live readiness response have not been verified. The last recorded workspace was **My Workspace** (`tea-dav5lgvpn0mc73a8ki50`). Live verification needs access to the actual service and provider evidence.
+PR #115's merge `dfd5bfb3a6cdc6ae2a02897b7c74ca4b8c725e83` deployed successfully as `dep-db3uo68jo6nc73bhlhq0` at 19:19 UTC on 8 October 2026. Render reports **live**, and the new instance's logs record HTTP 200 responses for `/` after startup. Public URL: https://degosalon.onrender.com.
+
+Production acceptance is partially verified through the connected Render and Supabase tools. Render service `srv-db0v17vavr4c739fir6g` in **My Workspace** (`tea-dav5lgvpn0mc73a8ki50`) deploys `main`. Supabase project `myllzicsekynuvopurly` is reachable and reported ACTIVE_HEALTHY. The media bucket is public with a 50 MiB limit and the expected JPEG/PNG/GIF/WebP/MP4/WebM/QuickTime allowlist. This does not certify backup restoration, real-inbox delivery or provider outage recovery.
 
 The repository Blueprint builds the frontend, app, migration CLI, media CLI and audit export CLI, then starts `./migrate && ./media -create-bucket && ./app`. Check actual service commands against this configuration, then inspect build/runtime logs and verify PostgreSQL connectivity, migrations, Supabase bucket access, production admin configuration, secure cookies and SMTP configuration. Do not record a successful deployment until the deployed commit and live HTTP responses have been checked.
+
+### Confirmed production follow-ups
+
+- **Recovery email:** runtime logs report `password-recovery email unavailable: configure SMTP settings, SITE_URL, and RESET_MAIL_KEY`. Supply the approved sender/provider configuration securely in Render, then verify delivery to a real inbox. Do not commit credentials.
+- **Service configuration drift:** the actual Render health check is `/`, while the Blueprint specifies `/health/ready`. The actual build command omits the audit CLI present in the Blueprint. Align the existing service's settings; editing `render.yaml` alone does not update a manually configured service.
+- **Verification limits:** direct HTTP checks from the review environment were blocked by a proxy connection timeout. Render deployment status and server-side HTTP logs are provider evidence, not a direct browser acceptance test.
+- **Manual/provider acceptance:** real-device/screen-reader checks, durable upload/restart/cleanup, canonical-origin inspection and backup/restore/outage drills remain open. Use a disposable restored database for recovery drills.
 
 ## Reconciled implementation status
 
@@ -15,11 +24,11 @@ The repository Blueprint builds the frontend, app, migration CLI, media CLI and 
 | FE-02 | Implemented and merged in PR #103 | Shared page/panel/form/field/control/action primitives now serve all template families; barber and admin archive confirmations share a CSRF-preserving partial. See `ui-primitives.md`. Browser acceptance is covered by FE-26 below. |
 | FE-21 | Implemented and merged in PR #104 | Audited all template-rendered error forms, shared server summaries and no-script form associations; associated remaining field/upload help and repaired native select feedback clearing. See `form-feedback-audit.md`. Browser acceptance is covered by FE-26 below. |
 | FE-24 | Implemented and merged in PR #105 | Owned responsive thumbnails, srcset/sizes, reserved slots, eager responsive heroes, original enlargement and deferred videos; measured fixture/browser budgets are recorded in `media-performance.md`. Real deployed-device performance remains production acceptance. |
-| FE-25 | Implemented and merged in PR #106; deployed-origin acceptance pending | Support publishes owner-approved 08128162561 and 09164226427. Privacy/terms remain explicit placeholders by owner instruction; they no longer require replacement for this scope. Trusted-origin metadata is covered locally; verify the actual deployed canonical origin when Render access is available. |
+| FE-25 | Implemented and merged in PR #106; deployed-origin acceptance pending | Support publishes owner-approved 08128162561 and 09164226427. Privacy/terms remain explicit placeholders by owner instruction; they no longer require replacement for this scope. Trusted-origin metadata is covered locally; verify the actual deployed canonical origin during live HTTP acceptance. |
 | BE-18 | Implemented and merged through #114 | Discovery is scoped and paginated with page-batched summaries; messages are scoped and review aggregates use SQL. Customer catalogue paging merged in #110. Conversation lists now use joined participant summaries and cursor pages; threads load up to 100 messages, with explicit older/newer navigation. Conversation dashboard counts use SQL aggregates. Conversation paging merged in #111. Admin account pagination merged in #112. Admin account pages use bounded SQL search and page-batched counts; admin dashboard totals use SQL aggregates. Inventory and portfolio pages merged in #113. PR #114 adds joined booking/cart reads, booking and fulfillment filters, paged order/admin profile lists, bounded upcoming previews, and SQL dashboard/cart aggregates. Full-cart transactional checkout and single-order detail remain deliberately scoped to that complete entity. See `query-bounds-audit.md`. |
 | BE-22 | Implemented and merged in #108/#109 | Structured JSON request logs use generated correlation IDs and registered route patterns. Private append-only admin audit attempts precede authenticated mutations; completion events record HTTP outcomes. Bounded operator export is available via cmd/audit. Live backup/outage/shutdown acceptance remains separate. |
-| BE-23 | Implemented in browser acceptance batch | Browser journeys now cover recovery/session invalidation, booking outcomes, schedule conflicts, reviews, checkout replay/ownership, fulfillment/restocking and account lifecycle. Go/PostgreSQL/security coverage remains in place. See `browser-acceptance.md`. |
-| FE-26 | Covered by browser acceptance batch | All 46 full-page templates are exercised at desktop/320px/200% zoom-equivalent reflow, with axe, keyboard/focus, target-size, long-content and broken-media/touch checks. Populated-view findings are repaired and screenshots retained. Automated acceptance limits and live-device follow-up are explicit in `browser-acceptance.md`. |
+| BE-23 | Implemented and merged in PR #115 | Browser journeys now cover recovery/session invalidation, booking outcomes, schedule conflicts, reviews, checkout replay/ownership, fulfillment/restocking and account lifecycle. Go/PostgreSQL/security coverage remains in place. See `browser-acceptance.md`. |
+| FE-26 | Implemented and merged in PR #115 | All 46 full-page templates are exercised at desktop/320px/200% zoom-equivalent reflow, with axe, keyboard/focus, target-size, long-content and broken-media/touch checks. Populated-view findings are repaired and screenshots retained. Automated acceptance limits and live-device follow-up are explicit in `browser-acceptance.md`. |
 
 ## PR #85 reconciliation
 
@@ -29,7 +38,7 @@ PR #85's image navigation and native dialog implementation is superseded by merg
 
 [PR #91](https://github.com/OG-Ogar/degosalon/pull/91), `feat/frontend-messaging-browser-verification`, merged on 7 October 2026. Final checked head: `8e53fb81095ca6e81ab66301bc900242311b3851`. The [final PR CI run](https://github.com/OG-Ogar/degosalon/actions/runs/37597022175) passed `verify`, `postgres` and `browser`; CodeRabbit also reported success. Earlier failed runs are superseded by this final head.
 
-FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. FE-21's remaining-form/server-error audit is merged in PR #104; browser acceptance is covered under FE-26. Browser CI, broader BE-23 journeys and the FE-26 page matrix are implemented; dedicated security coverage is merged. Passing this scoped suite does not certify production or every page family.
+FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. FE-21's remaining-form/server-error audit is merged in PR #104; browser acceptance is covered under FE-26. Browser CI, broader BE-23 journeys and the FE-26 page matrix are implemented; dedicated security coverage is merged. The merged acceptance matrix covers all 46 full-page templates; it does not certify production, every possible application state or physical-device accessibility.
 
 ## Production acceptance still outstanding
 
@@ -79,7 +88,7 @@ Online payments are optional under the current collection policy. Email/barber v
 2. Completed #102, waited for final-head CI and merged discovery pagination.
 3. Merged #108/#109 for lifecycle, health, correlated logging and administrator audit.
 4. Merged #110–114 for catalogue, messaging, accounts, portfolio, booking/order/cart bounds and aggregates.
-5. Browser acceptance batch covers BE-23/FE-26; its final-head CI and merge follow the same workflow.
+5. Merged #115 after all checks passed. Fixed its throttle test by separating the 20-attempt peer budget from the five-attempt account budget; the browser suite now checks both independently without weakening production protection.
 6. Live deployment and production provider/recovery acceptance remain outstanding above.
 
-Every merged batch passed verify, PostgreSQL and browser CI on its final pushed head before merge. Source implementation and live operational acceptance are distinct; no live backup restoration, inbox delivery or deployment success is claimed here.
+Every merged batch passed verify, PostgreSQL and browser CI on its final pushed head before merge. Source implementation and live operational acceptance are distinct; no live backup restoration or inbox delivery is claimed here. Deployment evidence is recorded in the checkpoint above.

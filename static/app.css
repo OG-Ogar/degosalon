@@ -322,3 +322,18 @@ img,video{max-width:100%}
 /* Catalogue overlays must retain contrast over light photos and fallbacks. */
 .modern-customer-page .product-image-placeholder{background:#193129;color:#c2d4c7}
 .modern-customer-page .product-stock-badge{background:#193129!important;color:#f4cb78!important}
+
+/* Populated booking views inherit the same dark surfaces as their role. */
+.modern-role-page .barber-card{background:var(--surface)!important;color:var(--ink)!important;border-color:var(--border)!important}
+.modern-role-page .barber-table th{background:var(--surface-hi)!important}
+.modern-role-page .booking-hairstyle-image,.modern-customer-page .customer-booking-image{background:var(--surface-hi)!important}
+.modern-role-page .booking-hairstyle-image span,.modern-customer-page .customer-booking-image span{color:var(--ink-faint)!important}
+.modern-customer-page .booking-price{background:var(--surface-hi)!important}
+.modern-customer-page .booking-price span{color:var(--ink-muted)!important}
+.modern-customer-page .booking-price strong{color:var(--signal)!important}
+.modern-customer-page .cancel-button,.modern-role-page .barber-button.danger,.modern-role-page button.danger{background:#4a2227!important;color:#ffd0d5!important;border-color:#a6606a!important}
+.modern-role-page .barber-table-wrapper{background:var(--surface)!important;border-color:var(--border)!important}
+.modern-role-page .barber-table td{color:var(--role-muted)!important}
+/* Use an opaque keyboard indicator on every role's form controls. */
+:is(.modern-role-page,.modern-customer-page,.modern-admin-page,.auth-page,.explore-page,.public-profile-page,.barber-page) :is(input,select,textarea):focus-visible{outline:3px solid var(--signal)!important;outline-offset:3px;box-shadow:none!important}
+.modern-role-page .ui-form label{color:var(--role-muted)!important}

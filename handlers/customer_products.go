@@ -8,12 +8,10 @@ import (
 	"barber-booking/storage"
 )
 
-type customerProductRow struct {
-	Product models.Product
-	Barber  models.Barber
-}
+type customerProductRow = storage.CatalogueProduct
 
 type customerProductsView struct {
+	Pagination listPagination
 	SellerName string
 	SellerID   int
 	Products   []customerProductRow
@@ -33,12 +31,15 @@ func CustomerProductsHandler(
 	}
 
 	productID := 0
-    if value := r.URL.Query().Get("product"); value != "" {
-        var ok bool
-        productID, ok = parseID(value)
-        if !ok { journeyError(w, "Product not found.", http.StatusNotFound); return }
-    }
-    sellerID := 0
+	if value := r.URL.Query().Get("product"); value != "" {
+		var ok bool
+		productID, ok = parseID(value)
+		if !ok {
+			journeyError(w, "Product not found.", http.StatusNotFound)
+			return
+		}
+	}
+	sellerID := 0
 	sellerName := ""
 	if value := r.URL.Query().Get("barber"); value != "" {
 		var ok bool
@@ -58,9 +59,20 @@ func CustomerProductsHandler(
 		}
 		sellerName = seller.ShopName
 	}
-	products, err := storage.ListAvailableProducts(r.Context())
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
+		return
+	}
+	page, err := storage.CataloguePage(r.Context(), sellerID, productID, cursor)
 	if err != nil {
 		serverError(w, "load product catalogue", err)
+		return
+	}
+	pagination := listPagination{FirstLink: paginationLinks(r, cursor, 0, 0, true, false, false).FirstLink}
+	if len(page.Items) > 0 {
+		pagination = paginationLinks(r, cursor, page.Items[0].Product.ID, page.Items[len(page.Items)-1].Product.ID, true, page.HasPrevious, page.HasNext)
+	} else if cursor.After > 0 || cursor.Before > 0 {
+		http.Redirect(w, r, pagination.FirstLink, http.StatusSeeOther)
 		return
 	}
 	cartCount, err := storage.CartItemCount(r.Context(), customer.ID)
@@ -69,32 +81,13 @@ func CustomerProductsHandler(
 		return
 	}
 
-	rows := make([]customerProductRow, 0, len(products))
-
-	for _, product := range products {
-        if productID > 0 && product.ID != productID { continue }
-		if sellerID > 0 && product.BarberID != sellerID {
-			continue
-		}
-		barber, err := storage.FindBarberByIDContext(r.Context(), product.BarberID)
-		if err != nil && !errors.Is(err, storage.ErrNotFound) {
-			serverError(w, "load product seller", err)
-			return
-		}
-		if errors.Is(err, storage.ErrNotFound) || !barber.IsActive() {
-			continue
-		}
-
-		rows = append(rows, customerProductRow{
-			Product: product,
-			Barber:  barber,
-		})
+	if productID > 0 && len(page.Items) == 0 {
+		journeyError(w, "This product is no longer available.", http.StatusNotFound)
+		return
 	}
-
-	if productID > 0 && len(rows) == 0 { journeyError(w, "This product is no longer available.", http.StatusNotFound); return }
-
 	view := customerProductsView{
-		Products:   rows,
+		Products:   page.Items,
+		Pagination: pagination,
 		SellerName: sellerName,
 		SellerID:   sellerID,
 		CSRF:       s.CSRFToken,

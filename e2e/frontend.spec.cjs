@@ -301,3 +301,35 @@ test('public and customer discovery page through stable shop results',async({pag
  await page.goto('/customer/barbers?state=Osun&area=Osogbo');await page.getByRole('link',{name:'Next shops',exact:true}).click();
  await expect(page.getByRole('link',{name:'Previous shops',exact:true})).toBeVisible();await checkPage(page,testInfo,'customer-paged-results');
 });
+
+test('catalogue uses bounded seller pages and exact-product continuation without JavaScript',async({page,browser},testInfo)=>{
+ const suffix=Date.now(),email='catalogue-'+suffix+'@example.test',shop='Catalogue Page Shop '+suffix;
+ const registered=await page.request.post('/barber/register',{multipart:{fullname:'Catalogue Seller',phone:'08012345678',email,shopname:shop,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}});expect(registered.ok(),await registered.text()).toBeTruthy();
+ expect((await page.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
+ await page.goto('/barber/products/new');const csrf=await page.locator('main input[name=csrf_token]').inputValue();
+ for(let i=0;i<25;i++){
+  const response=await page.request.post('/barber/products/new',{multipart:{csrf_token:csrf,name:'Catalogue Product '+i,category:'Care',description:'A product for the catalogue paging journey.',price:'1250.25',quantity:'2',available:'on'}});expect(response.ok(),await response.text()).toBeTruthy();
+ }
+ const context=await browser.newContext({javaScriptEnabled:false});
+ try {
+  const customer=await context.newPage();
+  expect((await customer.request.post('/customer/register',{multipart:{fullname:'Catalogue Customer',phone:'08012345678',email:'catalogue-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}})).ok()).toBeTruthy();
+  await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:shop,exact:true}).first().click();
+  const seller=customer.url().match(/\/barbers\/(\d+)/)[1];const catalogue='/customer/products?barber='+seller;
+  await customer.goto(catalogue);await expect(customer.locator('.product-card')).toHaveCount(24);
+  await customer.getByRole('link',{name:'Next page',exact:true}).click();await expect(customer.locator('.product-card')).toHaveCount(1);
+  expect(new URL(customer.url()).searchParams.get('barber')).toBe(seller);
+  const product=(await customer.locator('.product-card').getAttribute('id')).replace('product-','');
+  await customer.setViewportSize({width:320,height:900});
+  expect(await customer.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth+1)).toBeTruthy();
+  await customer.screenshot({path:testInfo.outputPath('catalogue-native-second-page.png'),fullPage:true});
+  // axe uses asynchronous JavaScript; inspect the same authenticated page in
+  // a separate enabled context while keeping native navigation disabled.
+  const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});
+  try {const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'catalogue-second-page-accessibility');}finally{await inspection.close();}
+  await customer.getByRole('link',{name:'Previous page',exact:true}).click();await expect(customer.locator('.product-card')).toHaveCount(24);
+  await customer.goto(catalogue+'&product='+product);await expect(customer.locator('.product-card')).toHaveCount(1);
+  await expect(customer.locator('.product-buy-form')).toHaveAttribute('action','/customer/products/'+product+'/add-to-cart?barber='+seller);
+  await customer.goto(catalogue+'&after=2147483647');expect(new URL(customer.url()).searchParams.has('after')).toBe(false);await expect(customer.locator('.product-card')).toHaveCount(24);
+ }finally{await context.close();}
+});

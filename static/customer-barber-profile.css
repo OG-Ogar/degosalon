@@ -24,3 +24,12 @@
 @media(max-width:680px){.barber-header,.barber-main{width:calc(100% - 32px)}.barber-header{padding:15px 0}.brand-mark{width:38px;height:38px}.brand-subtitle{display:none}.nav-box:first-child{display:none}.nav-box{min-height:40px;padding:0 11px;font-size:.74rem}.barber-main{padding:24px 0 60px}.barber-photo{min-height:260px}.barber-details{padding:25px 20px}.barber-details h1{font-size:2.75rem}.barber-actions{display:grid;grid-template-columns:1fr 1fr}.shop-jumpbar{justify-content:flex-start;overflow-x:auto;margin-top:14px}.hairstyles-section{margin-top:48px}.section-title{align-items:flex-start;flex-direction:column}.public-product-grid,.public-review-list{grid-template-columns:1fr}}
 @media(max-width:520px){.public-style-grid{grid-template-columns:1fr}.public-style-image{height:220px}.barber-actions{grid-template-columns:1fr}.shop-final-cta{padding:25px 20px}.shop-trust-row{align-items:flex-start;flex-direction:column;gap:5px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}@media(prefers-reduced-transparency:reduce){.shop-hero,.public-style-card,.public-product-card,.public-review-card,.shop-jumpbar{backdrop-filter:none;background:var(--surface)}}
+/* Keep section headings legible and image actions inside reserved media. */
+.public-profile-page :is(h2,h3){color:var(--ink)}
+.public-profile-page .barber-main{overflow-wrap:anywhere}
+.public-profile-page .public-style-card,.public-profile-page .public-product-card,.public-profile-page .public-review-card,.public-profile-page .empty-state,.public-profile-page .shop-final-cta{background:var(--surface)}
+.public-profile-page .public-style-image,.public-profile-page .barber-photo{position:relative}
+.public-profile-page :is(.public-style-image,.barber-photo)>.image-viewer-trigger{position:absolute;bottom:12px;right:12px;margin:0;max-width:calc(100% - 24px)}
+.public-profile-page .public-product-card{display:grid;grid-template-columns:minmax(0,1fr) auto}
+.public-profile-page .public-product-card .public-style-image,.public-profile-page .public-product-card .book-button{grid-column:1/-1}
+.public-profile-page .product-price{white-space:nowrap}

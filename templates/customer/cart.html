@@ -31,6 +31,8 @@
         <h1>
             My Cart
         </h1>
+<p>{{.LineCount}} cart lines. Up to 24 on this page. The total and checkout include every page.</p>
+{{template "list-pagination" .Pagination}}
 
         <p>
             Review your products. Place an order to reserve stock, then arrange collection and payment directly with each shop. No online payment is taken.

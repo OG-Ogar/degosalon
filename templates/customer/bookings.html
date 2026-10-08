@@ -32,6 +32,7 @@
         <h1>
             My Bookings
         </h1>
+{{template "booking-filter" .Group}}
 
         <p class="bookings-description">
             Keep track of your appointments, their status and
@@ -394,6 +395,7 @@
 {{end}}
 </main>
 
+{{template "list-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

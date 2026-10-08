@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"net/http"
+	"time"
 
 	"barber-booking/storage"
 )
@@ -157,19 +158,30 @@ func AdminBookingsHandler(
 		return
 	}
 
-	bookings, err := storage.ListBookingsResult(r.Context())
-	if err != nil {
-		serverError(w, "load admin bookings", err)
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
 		return
 	}
-	rows, err := describeBookings(r.Context(), bookings)
-	if err != nil {
-		serverError(w, "load admin booking details", err)
+	group, ok := readBookingGroup(w, r)
+	if !ok {
 		return
 	}
+	page, err := storage.BookingPage(r.Context(), storage.BookingFilter{Group: group, Now: time.Now(), LegacyTimezone: BookingTimezone()}, cursor)
+	if err != nil {
+		serverError(w, "load admin booking page", err)
+		return
+	}
+	pagination := bookingPagination(r, cursor, page)
+	if len(page.Items) == 0 && (cursor.Before > 0 || cursor.After > 0) {
+		http.Redirect(w, r, pagination.FirstLink, 303)
+		return
+	}
+
 	render(w, "admin/bookings.html", listView[bookingRow]{
-		Items: rows,
-		CSRF:  s.CSRFToken,
+		Items:      page.Items,
+		Pagination: pagination,
+		Query:      group,
+		CSRF:       s.CSRFToken,
 	})
 }
 

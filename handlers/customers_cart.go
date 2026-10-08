@@ -64,6 +64,8 @@ type customerCartItem struct {
 }
 
 type customerCartView struct {
+	Pagination        listPagination
+	LineCount         int
 	Items             []customerCartItem
 	Total             float64
 	CSRF              string
@@ -87,54 +89,48 @@ func CustomerCartHandler(
 }
 
 func renderCustomerCart(w http.ResponseWriter, r *http.Request, customer models.Customer, s sessionData, status int, problem string) {
-	cartItems, err := storage.ListCartItems(r.Context(), customer.ID)
+	cursor := storage.PageCursor{}
+	if r.Method == http.MethodGet {
+		var ok bool
+		cursor, ok = readPageCursor(w, r)
+		if !ok {
+			return
+		}
+	}
+	page, err := storage.CartPage(r.Context(), customer.ID, cursor)
 	if err != nil {
-		serverError(w, "load customer cart", err)
+		serverError(w, "load cart page", err)
 		return
 	}
-
-	items := make([]customerCartItem, 0, len(cartItems))
-
-	var total money.Amount
-	amountUnavailable := false
-
-	for _, cartItem := range cartItems {
-		product, err := storage.FindProductByIDResult(r.Context(), cartItem.ProductID)
-		if errors.Is(err, storage.ErrNotFound) {
-			continue
-		}
-		if err != nil {
-			serverError(w, "load cart product", err)
-			return
-		}
-
-		barber, err := storage.FindBarberByIDContext(r.Context(), product.BarberID)
-		if errors.Is(err, storage.ErrNotFound) {
-			continue
-		}
-		if err != nil {
-			serverError(w, "load cart barber", err)
-			return
-		}
-
-		subtotal, amountErr := money.Line(product.Price, cartItem.Quantity)
-		lineUnavailable := amountErr != nil || cartItem.Quantity <= 0
-		if !lineUnavailable {
-			total, amountErr = total.Add(subtotal)
-		}
-		if lineUnavailable || amountErr != nil {
-			amountUnavailable = true
-			problem = "Cart amount exceeds the supported price or quantity limit. Reduce quantities or remove items."
-		}
-
-		items = append(items, customerCartItem{
-			Product:           product,
-			Quantity:          cartItem.Quantity,
-			Subtotal:          subtotal.Float(),
-			Barber:            barber,
-			AmountUnavailable: lineUnavailable,
-		})
-
+	summary, err := storage.CustomerCartSummary(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load cart total", err)
+		return
+	}
+	first, last := 0, 0
+	if len(page.Items) > 0 {
+		first, last = page.Items[0].Product.ID, page.Items[len(page.Items)-1].Product.ID
+	}
+	listRequest := r.Clone(r.Context())
+	address := *r.URL
+	address.Path = "/customer/cart"
+	if r.Method != http.MethodGet {
+		address.RawQuery = ""
+	}
+	listRequest.URL = &address
+	pagination := paginationLinks(listRequest, cursor, first, last, true, page.HasPrevious, page.HasNext)
+	if len(page.Items) == 0 && (cursor.Before > 0 || cursor.After > 0) {
+		http.Redirect(w, r, pagination.FirstLink, 303)
+		return
+	}
+	items := make([]customerCartItem, 0, len(page.Items))
+	amountUnavailable := summary.AmountUnavailable
+	if amountUnavailable {
+		problem = "Cart amount exceeds the supported price or quantity limit. Reduce quantities or remove items."
+	}
+	for _, row := range page.Items {
+		subtotal, err := money.Line(row.Product.Price, row.Quantity)
+		items = append(items, customerCartItem{Product: row.Product, Barber: row.Barber, Quantity: row.Quantity, Subtotal: subtotal.Float(), AmountUnavailable: err != nil || row.Quantity <= 0})
 	}
 
 	key := r.PostFormValue("checkout_key")
@@ -149,7 +145,9 @@ func renderCustomerCart(w http.ResponseWriter, r *http.Request, customer models.
 	view := customerCartView{
 		Items:             items,
 		CheckoutKey:       key,
-		Total:             total.Float(),
+		Total:             summary.Total.Float(),
+		Pagination:        pagination,
+		LineCount:         summary.Lines,
 		CSRF:              s.CSRFToken,
 		Problem:           problem,
 		AmountUnavailable: amountUnavailable,

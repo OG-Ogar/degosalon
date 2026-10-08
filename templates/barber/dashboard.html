@@ -230,7 +230,9 @@
             Product Orders
         </h2>
 
-        {{if .ProductOrders}}
+        <form method="get" class="toolbar ui-form" id="orders"><div class="field ui-field"><label for="fulfillment">Fulfillment state</label><select name="fulfillment" id="fulfillment"><option value="all" {{if or (eq .OrderStatus "") (eq .OrderStatus "all")}}selected{{end}}>All items</option><option value="Pending" {{if eq .OrderStatus "Pending"}}selected{{end}}>Pending</option><option value="Ready" {{if eq .OrderStatus "Ready"}}selected{{end}}>Ready</option><option value="Collected" {{if eq .OrderStatus "Collected"}}selected{{end}}>Collected</option><option value="Cancelled" {{if eq .OrderStatus "Cancelled"}}selected{{end}}>Cancelled</option></select></div><button type="submit" class="ui-control">Show order items</button></form><p>Up to 24 items per page, newest first. Filter by state to find outstanding work.</p>
+{{template "list-pagination" .OrderPagination}}
+{{if .ProductOrders}}
 
             <div class="barber-card ui-panel">
 

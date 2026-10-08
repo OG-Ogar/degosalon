@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"barber-booking/internal/geography"
 	"barber-booking/models"
@@ -142,9 +143,10 @@ type adminBarberRow struct {
 // adminBarberProfileView is one barber with their hairstyles and
 // bookings, for the admin detail page.
 type adminBarberProfileView struct {
-	Barber     models.Barber
-	Hairstyles []models.Hairstyle
-	Bookings   []bookingRow
+	ServicePagination, BookingPagination listPagination
+	Barber                               models.Barber
+	Hairstyles                           []models.Hairstyle
+	Bookings                             []bookingRow
 
 	CSRF string
 }
@@ -182,26 +184,49 @@ func BarberProfileHandler(
 
 	barber.PasswordHash = ""
 
-	styles, err := storage.ListHairstylesByBarberResult(r.Context(), id)
-	if err != nil {
-		serverError(w, "load admin barber services", err)
+	serviceCursor, ok := readNamedPageCursor(w, r, "services")
+	if !ok {
 		return
 	}
-	bookings, err := storage.ListBookingsByBarberResult(r.Context(), id)
-	if err != nil {
-		serverError(w, "load admin barber schedule", err)
+	bookingCursor, ok := readNamedPageCursor(w, r, "bookings")
+	if !ok {
 		return
 	}
-	rows, err := describeBookings(r.Context(), bookings)
+	styles, err := storage.HairstylePage(r.Context(), id, false, serviceCursor)
 	if err != nil {
-		serverError(w, "load admin booking details", err)
+		serverError(w, "load admin service page", err)
 		return
 	}
+	bookings, err := storage.BookingPage(r.Context(), storage.BookingFilter{BarberID: id, Now: time.Now(), LegacyTimezone: BookingTimezone()}, bookingCursor)
+	if err != nil {
+		serverError(w, "load admin booking page", err)
+		return
+	}
+	first, last := 0, 0
+	if len(styles.Items) > 0 {
+		first, last = styles.Items[0].ID, styles.Items[len(styles.Items)-1].ID
+	}
+	serviceLinks := namedPaginationLinks(r, "services", "services", serviceCursor, first, last, true, styles.HasPrevious, styles.HasNext)
+	first, last = 0, 0
+	if len(bookings.Items) > 0 {
+		first, last = bookings.Items[0].ID, bookings.Items[len(bookings.Items)-1].ID
+	}
+	bookingLinks := namedPaginationLinks(r, "bookings", "bookings", bookingCursor, first, last, false, bookings.HasPrevious, bookings.HasNext)
+	if len(styles.Items) == 0 && (serviceCursor.After > 0 || serviceCursor.Before > 0) {
+		http.Redirect(w, r, serviceLinks.FirstLink, 303)
+		return
+	}
+	if len(bookings.Items) == 0 && (bookingCursor.After > 0 || bookingCursor.Before > 0) {
+		http.Redirect(w, r, bookingLinks.FirstLink, 303)
+		return
+	}
+
 	render(w, "admin/barber-profile.html", adminBarberProfileView{
-		Barber:     barber,
-		Hairstyles: styles,
-		Bookings:   rows,
-		CSRF:       s.CSRFToken,
+		Barber:            barber,
+		Hairstyles:        styles.Items,
+		Bookings:          bookings.Items,
+		ServicePagination: serviceLinks, BookingPagination: bookingLinks,
+		CSRF: s.CSRFToken,
 	})
 }
 

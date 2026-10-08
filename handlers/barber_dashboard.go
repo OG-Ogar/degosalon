@@ -13,7 +13,9 @@ import (
 type barberDashboardView struct {
 	models.Barber
 
-	CSRF string
+	CSRF            string
+	OrderPagination listPagination
+	OrderStatus     string
 
 	Hairstyles       int
 	PendingBookings  int
@@ -36,38 +38,31 @@ func BarberDashboardHandler(
 		return
 	}
 
-	bookings, err := storage.ListBookingsByBarberResult(r.Context(), barber.ID)
+	counts, err := storage.DashboardTotals(r.Context(), storage.BookingFilter{BarberID: barber.ID, Now: time.Now(), LegacyTimezone: BookingTimezone()})
 	if err != nil {
-		serverError(w, "load dashboard schedule", err)
+		serverError(w, "load barber dashboard totals", err)
 		return
-	}
-	styles, err := storage.ListHairstylesByBarberResult(r.Context(), barber.ID)
-	if err != nil {
-		serverError(w, "load dashboard services", err)
-		return
-	}
-
-	pending := 0
-	upcoming := 0
-
-	now := time.Now()
-	for _, booking := range bookings {
-		switch booking.Status {
-		case models.StatusPending:
-			pending++
-		case models.StatusAccepted:
-			if classifyAppointment(booking, now) == appointmentUpcoming {
-				upcoming++
-			}
-		}
 	}
 
 	// The password hash must never reach the template.
 	barber.PasswordHash = ""
 
-	orderItems, err := storage.ListProductOrderItemsByBarber(r.Context(), barber.ID)
+	cursor, ok := readNamedPageCursor(w, r, "orders")
+	if !ok {
+		return
+	}
+	status, ok := readFulfillmentFilter(w, r)
+	if !ok {
+		return
+	}
+	orderItems, err := storage.SellerOrderItemPage(r.Context(), barber.ID, status, cursor)
 	if err != nil {
-		serverError(w, "load seller sales", err)
+		serverError(w, "load seller order page", err)
+		return
+	}
+	orderLinks := orderItemPagination(r, cursor, orderItems.Items, orderItems.HasPrevious, orderItems.HasNext)
+	if len(orderItems.Items) == 0 && (cursor.After > 0 || cursor.Before > 0) {
+		http.Redirect(w, r, orderLinks.FirstLink, 303)
 		return
 	}
 
@@ -79,11 +74,13 @@ func BarberDashboardHandler(
 	render(w, "barber/dashboard.html", barberDashboardView{
 		Barber:           barber,
 		CSRF:             s.CSRFToken,
-		Hairstyles:       len(styles),
-		PendingBookings:  pending,
-		UpcomingBookings: upcoming,
+		Hairstyles:       counts.Hairstyles,
+		PendingBookings:  counts.Pending,
+		UpcomingBookings: counts.AcceptedUpcoming,
 		Conversations:    conversations,
-		ProductOrders:    orderItems,
+		ProductOrders:    orderItems.Items,
+		OrderPagination:  orderLinks,
+		OrderStatus:      status,
 	})
 }
 

@@ -400,8 +400,43 @@ test('inventory and portfolio pages preserve independent cursors and selected se
   await customer.getByRole('link',{name:'Next services',exact:true}).click();await expect(customer.locator('#availability-service option')).toHaveCount(1);expect(new URL(customer.url()).searchParams.get('after')).toBe('41');
   await customer.getByRole('link',{name:'Next products',exact:true}).click();expect(new URL(customer.url()).searchParams.has('services_after')).toBe(true);expect(new URL(customer.url()).searchParams.has('products_after')).toBe(true);
   await customer.getByRole('button',{name:'Show available times',exact:true}).click();await expect(customer.locator('#availability-service option')).toHaveCount(1);await expect(customer.locator('[data-booking-summary]')).toContainText('Portfolio Style 24');
+  const portfolioURL=customer.url(),buyerCsrf=await customer.locator('#booking input[name=csrf_token]').inputValue();
+  await customer.goto('/customer/products?barber='+seller);
+  for(const action of await customer.locator('.product-buy-form').evaluateAll(forms=>forms.map(form=>form.getAttribute('action')))){expect((await customer.request.post(action,{maxRedirects:0,form:{csrf_token:buyerCsrf}})).status()).toBe(303);}
+  await customer.getByRole('link',{name:'Next page',exact:true}).click();expect((await customer.request.post(await customer.locator('.product-buy-form').getAttribute('action'),{maxRedirects:0,form:{csrf_token:buyerCsrf}})).status()).toBe(303);
+  await customer.goto('/customer/cart');await expect(customer.locator('.cart-item')).toHaveCount(24);await expect(customer.getByText('₦31,256.25',{exact:true})).toBeVisible();
+  await customer.getByRole('link',{name:'Next page',exact:true}).click();await expect(customer.locator('.cart-item')).toHaveCount(1);await expect(customer.getByText('₦31,256.25',{exact:true})).toBeVisible();
+  await customer.getByRole('button',{name:/Place order/}).click();await expect(customer).toHaveURL(/order-confirmation/);await expect(customer.getByRole('heading',{name:'Portfolio Product 0 Pending',exact:true})).toBeVisible();await expect(customer.getByRole('heading',{name:'Portfolio Product 24 Pending',exact:true})).toBeVisible();
+  await customer.goto(portfolioURL);
   await page.goto('/explore/'+seller+'?state=Lagos&area=Ikeja&after=41');await expect(page.locator('.public-style-card')).toHaveCount(24);await page.getByRole('link',{name:'Next services',exact:true}).click();await expect(page.locator('.public-style-card')).toHaveCount(1);
   await page.setViewportSize({width:320,height:900});await checkPage(page,testInfo,'public-portfolio-pages-320');
   const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-portfolio-pages-320');}finally{await inspection.close();}
+ }finally{await context.close();}
+});
+
+test('booking and order histories remain bounded with complete dashboard totals',async({page,browser},testInfo)=>{
+ const suffix=Date.now(),email='bounded-history-'+suffix+'@example.test',shop='Bounded History '+suffix;
+ expect((await page.request.post('/barber/register',{multipart:{fullname:'History Seller',phone:'08012345678',email,shopname:shop,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}})).ok()).toBeTruthy();
+ expect((await page.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();await page.goto('/barber/hairstyles/new');const sellerCsrf=await page.locator('main input[name=csrf_token]').inputValue();
+ expect((await page.request.post('/barber/hairstyles/new',{multipart:{csrf_token:sellerCsrf,name:'History Service',category:'Style',description:'History appointment service.',price:'1250.25',duration:'30',available:'on'}})).ok()).toBeTruthy();
+ expect((await page.request.post('/barber/products/new',{multipart:{csrf_token:sellerCsrf,name:'History Product',category:'Care',description:'History product.',price:'1250.25',quantity:'40',available:'on'}})).ok()).toBeTruthy();
+ const context=await browser.newContext({javaScriptEnabled:false});try{
+ const customer=await context.newPage();expect((await customer.request.post('/customer/register',{multipart:{fullname:'History Buyer',phone:'08012345678',email:'history-buyer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}})).ok()).toBeTruthy();
+ await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:shop,exact:true}).first().click();const seller=customer.url().match(/\/barbers\/(\d+)/)[1],style=await customer.locator('#availability-service').inputValue(),csrf=await customer.locator('#booking input[name=csrf_token]').inputValue();
+ await customer.goto('/customer/products?barber='+seller);const addAction=await customer.locator('.product-buy-form').getAttribute('action');
+ for(let i=0;i<25;i++){
+ const day=new Date();day.setUTCDate(day.getUTCDate()+7+i);const date=day.toISOString().slice(0,10);
+ const response=await customer.request.post('/customer/book',{maxRedirects:0,form:{csrf_token:csrf,barber_id:seller,hairstyle_id:style,date,time:'10:00',notes:'History booking '+i}});expect(response.status(),await response.text()).toBe(303);
+ expect((await customer.request.post(addAction,{maxRedirects:0,form:{csrf_token:csrf}})).status()).toBe(303);
+ expect((await customer.request.post('/customer/products/checkout',{maxRedirects:0,form:{csrf_token:csrf,checkout_key:(i+1).toString(16).padStart(32,'0')}})).status()).toBe(303);
+ }
+ await customer.goto('/customer/bookings');await expect(customer.locator('.booking-card')).toHaveCount(24);await customer.getByRole('link',{name:'Next page',exact:true}).click();await expect(customer.locator('.booking-card')).toHaveCount(1);
+ await customer.getByRole('combobox',{name:'Appointment group'}).selectOption('finished');await customer.getByRole('button',{name:'Show appointments',exact:true}).click();await expect(customer.locator('.booking-card')).toHaveCount(0);
+ await customer.goto('/customer/dashboard');await expect(customer.locator('.appointment-list').first().locator('.appointment-card')).toHaveCount(6);await expect(customer.getByRole('link',{name:'Next orders',exact:true})).toBeVisible();await customer.getByRole('link',{name:'Next orders',exact:true}).click();await expect(customer.getByRole('link',{name:/View order/i})).toHaveCount(1);
+ await page.goto('/barber/dashboard');await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(24);await page.getByRole('link',{name:'Next orders',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(1);
+ await page.getByRole('combobox',{name:'Fulfillment state',exact:true}).selectOption('Collected');await page.getByRole('button',{name:'Show order items',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(0);
+ await page.getByRole('combobox',{name:'Fulfillment state',exact:true}).selectOption('Pending');await page.getByRole('button',{name:'Show order items',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(24);
+ await page.setViewportSize({width:320,height:900});await checkPage(page,testInfo,'seller-orders-paged-320');
+ const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-orders-paged-320');}finally{await inspection.close();}
  }finally{await context.close();}
 });

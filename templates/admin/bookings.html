@@ -17,6 +17,7 @@
     <p class="crumbs"><a href="/admin/dashboard">Dashboard</a> / Bookings</p>
 
     <h1>All bookings</h1>
+{{template "booking-filter" .Query}}
     <p class="lede">Every appointment on the platform, earliest first.</p>
 
     {{if .Items}}
@@ -59,6 +60,7 @@
 
 </main>
 
+{{template "list-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

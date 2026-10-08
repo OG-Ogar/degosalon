@@ -68,16 +68,7 @@ type listView[T any] struct {
 // The customer's name and phone are not resolved here: Booking copies
 // them at creation time so the barber keeps the details that were given
 // when the appointment was made.
-type bookingRow struct {
-	models.Booking
-
-	BarberName     string
-	ShopName       string
-	HairstyleName  string
-	HairstyleImage string
-	Price          float64
-	Duration       int
-}
+type bookingRow = storage.BookingCard
 
 // describeBooking fills in the barber and hairstyle details for display.
 func describeBooking(ctx context.Context, booking models.Booking) (bookingRow, error) {

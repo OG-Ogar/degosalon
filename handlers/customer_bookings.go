@@ -16,8 +16,10 @@ type customerBookingsView struct {
 	Past     []bookingRow
 	FollowUp []bookingRow
 
-	CSRF      string
-	ActionURL string
+	CSRF       string
+	ActionURL  string
+	Pagination listPagination
+	Group      string
 }
 
 // CustomerBookingsHandler lists the signed-in customer's appointments.
@@ -38,18 +40,29 @@ func CustomerBookingsHandler(
 		ActionURL: "/customer/bookings/",
 	}
 
-	bookings, err := storage.ListBookingsByCustomerResult(r.Context(), customer.ID)
-	if err != nil {
-		serverError(w, "load customer bookings", err)
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
 		return
 	}
+	group, ok := readBookingGroup(w, r)
+	if !ok {
+		return
+	}
+	view.Group = group
 	now := time.Now()
-	for _, booking := range bookings {
-		row, err := describeBooking(r.Context(), booking)
-		if err != nil {
-			serverError(w, "load appointment details", err)
-			return
-		}
+	filter := storage.BookingFilter{CustomerID: customer.ID, Group: group, Now: now, LegacyTimezone: BookingTimezone()}
+	page, err := storage.BookingPage(r.Context(), filter, cursor)
+	if err != nil {
+		serverError(w, "load customer booking page", err)
+		return
+	}
+	view.Pagination = bookingPagination(r, cursor, page)
+	if len(page.Items) == 0 && (cursor.After > 0 || cursor.Before > 0) {
+		http.Redirect(w, r, view.Pagination.FirstLink, 303)
+		return
+	}
+	for _, row := range page.Items {
+		booking := row.Booking
 
 		switch classifyAppointment(booking, now) {
 		case appointmentUpcoming:

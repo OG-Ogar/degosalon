@@ -2,10 +2,14 @@ package main
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"log"
+	"net"
 	"net/http"
 	"os"
+	"os/signal"
+	"sync"
+	"syscall"
 	"time"
 
 	"barber-booking/handlers"
@@ -27,37 +31,44 @@ func listenAddress() string {
 
 func main() {
 	log.SetFlags(log.LstdFlags)
+	if err := run(); err != nil {
+		log.Printf("server stopped: %v", err)
+		os.Exit(1)
+	}
+}
+
+func run() error {
+	lifecycleContext, stopSignals := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stopSignals()
 	if err := runtimeconfig.Validate(); err != nil {
-		log.Fatalf("deployment configuration: %v", err)
+		return fmt.Errorf("deployment configuration: %w", err)
 	}
 
 	if err := storage.InitDatabase(); err != nil {
-		log.Fatalf("connect to database: %v", err)
+		return fmt.Errorf("connect to database: %w", err)
 	}
-	defer storage.CloseDatabase()
+	var workersDone chan struct{}
+	defer func() {
+		// A timed-out worker may still be using storage. Process exit releases the
+		// connection; never reconfigure shared stores underneath that worker.
+		if workersDone != nil {
+			select {
+			case <-workersDone:
+			default:
+				return
+			}
+		}
+		_ = storage.CloseDatabase()
+	}()
 	if err := handlers.ImportLegacySiteImages(context.Background()); err != nil {
-		log.Fatalf("import legacy site media settings: %v", err)
-	}
-	mediaContext, stopMedia := context.WithCancel(context.Background())
-	defer stopMedia()
-	go handlers.RunMediaCleanup(mediaContext)
-	mailConfig, mailErr := resetmail.FromEnvironment()
-	mailKey, keyErr := resetmail.DeliveryKeyFromEnvironment()
-	if mailErr == nil && keyErr == nil {
-		workerContext, stopWorker := context.WithCancel(context.Background())
-		defer stopWorker()
-		go runResetMailWorker(workerContext, mailConfig, mailKey)
-	} else {
-		// Recovery returns the same 503 for every address until configuration is
-		// complete. Never promise delivery or print configuration secret values.
-		log.Print("password-recovery email unavailable: configure SMTP settings, SITE_URL, and RESET_MAIL_KEY")
+		return fmt.Errorf("import legacy site media settings: %w", err)
 	}
 
 	// Templates are parsed once, at startup. A broken template used to
 	// surface as a half-written page on the first request that hit it;
 	// now it stops the server before it accepts any traffic.
 	if err := handlers.LoadTemplates("templates"); err != nil {
-		log.Fatalf("load templates: %v", err)
+		return fmt.Errorf("load templates: %w", err)
 	}
 
 	// The admin credentials come from the environment. A generated
@@ -65,7 +76,7 @@ func main() {
 	// committed to the repository.
 	generated, err := handlers.InitAdmin()
 	if err != nil {
-		log.Fatalf("initialise admin account: %v", err)
+		return fmt.Errorf("initialise admin account: %w", err)
 	}
 
 	if generated != "" {
@@ -81,13 +92,16 @@ func main() {
 	// The bookable part of the day comes from the environment as well, so
 	// a shop with different hours does not need a code change.
 	if err := handlers.InitBookingHours(); err != nil {
-		log.Fatalf("booking hours: %v", err)
+		return fmt.Errorf("booking hours: %w", err)
 	}
 
 	openingDefault, closingDefault := handlers.BookingHours()
 	storage.ConfigureCalendarDefaults(handlers.BookingTimezone(), openingDefault, closingDefault)
 
 	mux := http.NewServeMux()
+	health := &healthState{check: storage.CheckReadiness}
+	mux.HandleFunc("/health/live", health.handle)
+	mux.HandleFunc("/health/ready", health.handle)
 	mux.HandleFunc("/media/preview", handlers.ImageVariantHandler)
 
 	mux.HandleFunc("/explore", handlers.ExploreRouter)
@@ -126,18 +140,34 @@ func main() {
 		IdleTimeout:       2 * time.Minute,
 	}
 
+	listener, err := net.Listen("tcp", server.Addr)
+	if err != nil {
+		return fmt.Errorf("listen: %w", err)
+	}
+	workerContext, stopWorkers := context.WithCancel(context.Background())
+	var workers sync.WaitGroup
+	startWorker := func(work func(context.Context)) {
+		workers.Add(1)
+		go func() { defer workers.Done(); work(workerContext) }()
+	}
+	startWorker(handlers.RunMediaCleanup)
+	mailConfig, mailErr := resetmail.FromEnvironment()
+	mailKey, keyErr := resetmail.DeliveryKeyFromEnvironment()
+	if mailErr == nil && keyErr == nil {
+		startWorker(func(ctx context.Context) { runResetMailWorker(ctx, mailConfig, mailKey) })
+	} else {
+		log.Print("password-recovery email unavailable: configure SMTP settings, SITE_URL, and RESET_MAIL_KEY")
+	}
+	workersDone = make(chan struct{})
+	go func() { workers.Wait(); close(workersDone) }()
+	health.ready.Store(true)
+
 	log.Printf("barber booking server listening on http://localhost%s", server.Addr)
 
 	opening, closing := handlers.BookingHours()
 	log.Printf("bookings are taken between %s and %s", opening, closing)
 
-	// A failed bind used to be printed and then ignored, so the process
-	// exited 0 and looked healthy while serving nothing.
-	if err := server.ListenAndServe(); err != nil &&
-		!errors.Is(err, http.ErrServerClosed) {
-
-		log.Fatalf("server stopped: %v", err)
-	}
+	return serveUntilStopped(lifecycleContext, server, listener, health, stopWorkers, workersDone, shutdownTimeout)
 }
 
 func runResetMailWorker(ctx context.Context, config resetmail.Config, key []byte) {

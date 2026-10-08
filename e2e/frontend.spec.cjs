@@ -100,6 +100,10 @@ test('native viewer keeps profile links and service selection keyboard accessibl
  await page.keyboard.press('Tab');await expect(close).toBeFocused();
  await page.evaluate(()=>document.querySelector('#profile').focus());await expect(close).toBeFocused();
  await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
+ await trigger.click();await dialog.locator('img').click();await expect(dialog).toBeVisible();
+ await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
+ await trigger.click();await page.mouse.click(1,1);await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
+ await expect(page.locator('body')).not.toHaveClass(/image-viewer-open/);
  await page.locator('#profile').click();await expect(page).toHaveURL(/\/explore$/);
 });
 
@@ -163,9 +167,28 @@ test('booking details reflect cancellation after the original request',async({br
   expect((await barber.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
   await barber.goto('/barber/hairstyles/new');
   for(const [name,value] of Object.entries({name:'Status Journey Cut',category:'Fade',description:'A simple cut',price:'1000',duration:'30'})){await barber.locator('[name="'+name+'"]').fill(value);}
+  await barber.locator('[name="image"]').setInputFiles({name:'cut.png',mimeType:'image/png',buffer:PNG});
   await barber.locator('[name="available"]').check();await barber.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
   const registered=await customer.request.post('/customer/register',{multipart:{fullname:'Status Customer',phone:'08012345678',email:'status-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}});expect(registered.ok(),await registered.text()).toBeTruthy();
   await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:'Status Journey Shop',exact:true}).first().click();
+  await expect(customer.locator('[data-booking-summary]')).toContainText('Status Journey Cut · ₦1,000.00 · 30 minutes');
+  const service=customer.locator('input[name=hairstyle_id]');
+  await service.evaluate(input=>{input.checked=false;});
+  await customer.locator('label .style-image img').click();await expect(service).toBeChecked();
+  await expect(customer.getByRole('dialog')).toBeHidden();
+  const enlarge=customer.getByRole('button',{name:'Enlarge Photo of Status Journey Cut',exact:true});
+  await enlarge.click();await expect(customer.getByRole('dialog')).toBeVisible();await expect(service).toBeChecked();
+  await customer.keyboard.press('Escape');await expect(enlarge).toBeFocused();
+  const nativeContext=await browser.newContext({javaScriptEnabled:false});
+  try {
+   const native=await nativeContext.newPage();
+   expect((await native.request.post('/customer/login',{form:{email:'status-customer-'+suffix+'@example.test',password:'browser-pass-123'}})).ok()).toBeTruthy();
+   await native.goto(customer.url());
+   await expect(native.locator('[data-booking-summary]')).toContainText('Status Journey Cut · ₦1,000.00 · 30 minutes');
+   await expect(native.locator('.image-viewer-trigger')).toHaveCount(0);
+   await native.locator('input[name=hairstyle_id]').evaluate(input=>{input.checked=false;});
+   await native.locator('label .style-image img').click();await expect(native.locator('input[name=hairstyle_id]')).toBeChecked();
+  } finally {await nativeContext.close();}
   const date=new Date(Date.now()+2*24*60*60*1000).toISOString().slice(0,10);
   await customer.locator('#availability-date').fill(date);await customer.getByRole('button',{name:'Show available times',exact:true}).click();
   const time=await customer.locator('#time option').nth(1).getAttribute('value');expect(time).toBeTruthy();await customer.locator('#time').selectOption(time);

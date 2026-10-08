@@ -21,6 +21,10 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 | BE-23 | Broader browser journey coverage | Go tests/vet/race, frontend checks, PostgreSQL CI, Playwright browser CI and dedicated security-package tests exist. Broader browser journey coverage remains aligned with FE-26. |
 | FE-26 | Browser accessibility/responsiveness acceptance | Finish contrast, keyboard/focus, 200% zoom, 320px width, touch targets, long content and broken-media checks across all page families. Fix findings and retain evidence. |
 
+## PR #85 reconciliation
+
+PR #85's image navigation and native dialog implementation is superseded by merged PRs #86 and #91. The current browser suite retains its keyboard isolation, Escape/focus return and selection checks. Reconciliation extends that suite with close/backdrop dismissal, image-click persistence, and a real uploaded-service journey verifying separate selection/enlargement plus server-rendered summaries and selection without JavaScript. The older duplicate fixture/configuration should not be merged. Close #85 as superseded after the reconciliation PR passes CI and merges.
+
 ## Reconciled messaging and browser implementation
 
 [PR #91](https://github.com/OG-Ogar/degosalon/pull/91), `feat/frontend-messaging-browser-verification`, merged on 7 October 2026. Final checked head: `8e53fb81095ca6e81ab66301bc900242311b3851`. The [final PR CI run](https://github.com/OG-Ogar/degosalon/actions/runs/37597022175) passed `verify`, `postgres` and `browser`; CodeRabbit also reported success. Earlier failed runs are superseded by this final head.

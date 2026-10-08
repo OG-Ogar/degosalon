@@ -6,7 +6,10 @@ import (
 	"strconv"
 )
 
-type listPagination struct{ PreviousLink, NextLink, FirstLink string }
+type listPagination struct {
+	PreviousLink, NextLink, FirstLink    string
+	PreviousLabel, NextLabel, FirstLabel string
+}
 
 func readPageCursor(w http.ResponseWriter, r *http.Request) (storage.PageCursor, bool) {
 	cursor := storage.PageCursor{}

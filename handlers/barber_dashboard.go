@@ -71,7 +71,7 @@ func BarberDashboardHandler(
 		return
 	}
 
-	conversations, err := storage.ConversationsForBarber(r.Context(), barber.ID)
+	conversations, err := storage.ConversationCountForBarber(r.Context(), barber.ID)
 	if err != nil {
 		serverError(w, "load dashboard conversations", err)
 		return
@@ -82,7 +82,7 @@ func BarberDashboardHandler(
 		Hairstyles:       len(styles),
 		PendingBookings:  pending,
 		UpcomingBookings: upcoming,
-		Conversations:    len(conversations),
+		Conversations:    conversations,
 		ProductOrders:    orderItems,
 	})
 }

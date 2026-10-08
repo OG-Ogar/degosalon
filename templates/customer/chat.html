@@ -45,8 +45,9 @@
 
         {{template "form-error" .Error}}
 
-        <p class="message-refresh-note">New messages appear when you refresh or send. <a href="{{.Action}}">Refresh conversation</a></p>
-<section class="thread" aria-label="Conversation">
+        <p class="message-refresh-note">New messages appear when you refresh or send. Each page shows up to 100 messages in time order. <a href="{{.Action}}">Refresh conversation</a></p>
+{{template "list-pagination" .Pagination}}
+<section class="thread" tabindex="0" aria-label="Conversation">
 
             {{if .Messages}}
 

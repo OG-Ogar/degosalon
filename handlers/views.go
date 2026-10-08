@@ -55,9 +55,10 @@ type hairstyleView struct {
 
 // listView renders a table or card grid of anything.
 type listView[T any] struct {
-	Items []T
-	CSRF  string
-	Error string
+	Pagination listPagination
+	Items      []T
+	CSRF       string
+	Error      string
 }
 
 // bookingRow is one line in a bookings table, with the names and
@@ -150,7 +151,8 @@ type chatRow struct {
 
 // chatView is one open conversation thread.
 type chatView struct {
-	Messages []models.Message
+	Pagination listPagination
+	Messages   []models.Message
 
 	// Title names the person on the other side of the chat.
 	Title       string

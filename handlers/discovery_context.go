@@ -10,10 +10,15 @@ import (
 
 func discoveryQuery(r *http.Request) url.Values {
 	query := url.Values{}
-	for _, key := range []string{"state", "area"} {
+	for _, key := range []string{"state", "area", "after", "before"} {
 		value := strings.TrimSpace(r.URL.Query().Get(key))
 		if value == "" && r.Method == http.MethodPost {
 			value = strings.TrimSpace(r.PostFormValue(key))
+		}
+		if key == "after" || key == "before" {
+			if _, ok := parseID(value); !ok {
+				continue
+			}
 		}
 		if value != "" {
 			query.Set(key, value)
@@ -75,8 +80,13 @@ func safeCustomerNext(next string) string {
 	}
 	query := address.Query()
 	clean := url.Values{}
-	for _, key := range []string{"state", "area", "hairstyle", "barber", "product", "page", "q"} {
+	for _, key := range []string{"state", "area", "hairstyle", "barber", "product", "page", "q", "after", "before"} {
 		if value := query.Get(key); value != "" {
+			if key == "after" || key == "before" {
+				if _, ok := parseID(value); !ok {
+					continue
+				}
+			}
 			clean.Set(key, value)
 		}
 	}

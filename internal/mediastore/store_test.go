@@ -229,3 +229,60 @@ func TestPublicImageReadDoesNotSendCredentialsOrFollowRedirects(t *testing.T) {
 		t.Fatal("accepted foreign source")
 	}
 }
+
+type responseTransport func(*http.Request) (*http.Response, error)
+
+func (f responseTransport) RoundTrip(r *http.Request) (*http.Response, error) { return f(r) }
+
+type interruptedBody struct {
+	cancel context.CancelFunc
+	err    error
+}
+
+func (b interruptedBody) Read([]byte) (int, error) {
+	if b.cancel != nil {
+		b.cancel()
+	}
+	if b.err != nil {
+		return 0, b.err
+	}
+	return 0, io.EOF
+}
+func (b interruptedBody) Close() error { return nil }
+
+func TestMediaSuccessHeadersDoNotHideInterruptedCompletion(t *testing.T) {
+	for _, operation := range []string{"upload", "delete"} {
+		for _, failure := range []string{"cancelled headers", "cancelled body", "broken body"} {
+			t.Run(operation+"/"+failure, func(t *testing.T) {
+				ctx, cancel := context.WithCancel(context.Background())
+				defer cancel()
+				s, err := New("https://storage.example", "sb_secret_test-only")
+				if err != nil {
+					t.Fatal(err)
+				}
+				s.client.Transport = responseTransport(func(r *http.Request) (*http.Response, error) {
+					body := interruptedBody{}
+					switch failure {
+					case "cancelled headers":
+						cancel()
+					case "cancelled body":
+						body.cancel = cancel
+					case "broken body":
+						body.err = errors.New("private provider response failure")
+					}
+					return &http.Response{StatusCode: http.StatusOK, Header: make(http.Header), Body: body, Request: r}, nil
+				})
+				want := ErrUpload
+				if operation == "upload" {
+					err = s.Upload(ctx, "site/abcd.png", "image/png", 1, strings.NewReader("x"))
+				} else {
+					want = ErrDelete
+					err = s.Delete(ctx, "https://storage.example/storage/v1/object/public/degosalon-media/site/"+strings.Repeat("a", 32)+".png")
+				}
+				if !errors.Is(err, want) || err.Error() != want.Error() {
+					t.Fatalf("interrupted completion was successful or exposed provider details: %v", err)
+				}
+			})
+		}
+	}
+}

@@ -281,3 +281,23 @@ test('responsive hero selects a bounded candidate and reserves its layout',async
  await page.setViewportSize({width:1280,height:900});await page.reload();
  await expect.poll(()=>hero.evaluate(img=>img.complete && img.naturalWidth > 0 && img.currentSrc.includes("width=1600"))).toBe(true);
 });
+
+test('public and customer discovery page through stable shop results',async({page},testInfo)=>{
+ expect((await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}})).ok()).toBeTruthy();
+ await page.goto('/admin/barbers/new');const csrf=await page.locator('input[name="csrf_token"]').first().inputValue();const suffix=Date.now();
+ for(let i=0;i<25;i++){
+  const result=await page.request.post('/admin/barbers/new',{form:{csrf_token:csrf,fullname:'Paging Barber '+i,phone:'08012345678',email:'paging-'+suffix+'-'+i+'@example.test',shopname:'Paging Shop '+i,shopaddress:'12 Example Street',state:'Osun',local_area:'Osogbo',password:'browser-pass-123'}});expect(result.ok(),await result.text()).toBeTruthy();
+ }
+ await page.goto('/explore?state=Osun&area=Osogbo');
+ await expect(page.getByText('25 active shops in this location. Up to 24 shops per page.',{exact:true})).toBeVisible();
+ await expect(page.locator('.barber-card')).toHaveCount(24);
+ await page.getByRole('link',{name:'Next shops',exact:true}).click();const results=page.url();
+ await expect(page.locator('.barber-card')).toHaveCount(1);await expect(page.getByRole('link',{name:'Next shops',exact:true})).toHaveCount(0);
+ await page.getByRole('link',{name:'Paging Shop 24',exact:true}).click();
+ await page.getByRole('link',{name:/Back to barber results/}).click();await expect(page).toHaveURL(results);
+ await page.setViewportSize({width:320,height:900});await checkPage(page,testInfo,'public-paged-results');
+ await page.getByRole('link',{name:'Previous shops',exact:true}).click();await expect(page.locator('.barber-card')).toHaveCount(24);
+ const registered=await page.request.post('/customer/register',{multipart:{fullname:'Paging Customer',phone:'08012345678',email:'paging-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}});expect(registered.ok(),await registered.text()).toBeTruthy();
+ await page.goto('/customer/barbers?state=Osun&area=Osogbo');await page.getByRole('link',{name:'Next shops',exact:true}).click();
+ await expect(page.getByRole('link',{name:'Previous shops',exact:true})).toBeVisible();await checkPage(page,testInfo,'customer-paged-results');
+});

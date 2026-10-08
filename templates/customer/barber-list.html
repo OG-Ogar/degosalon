@@ -59,6 +59,7 @@
             </form>
         </section>
 
+        {{if .SelectedState}}<p class="discovery-count">{{.Total}} active shops in this location. Up to 24 shops per page.</p>{{end}}
         {{if .Items}}
 
             <!-- Search -->
@@ -112,7 +113,7 @@
 
                             <!-- Barber image -->
                             <a class="barber-image"
-                               href="/customer/barbers/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">
+                               href="{{discoveryCardPath "/customer/barbers" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">
 
                                 {{if .ProfileImage}}
 
@@ -151,7 +152,7 @@
                                 </p>
 
                                 <h3>
-                                    <a href="/customer/barbers/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">
+                                    <a href="{{discoveryCardPath "/customer/barbers" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">
                                         {{.ShopName}}
                                     </a>
                                 </h3>
@@ -233,7 +234,7 @@
                                 <div class="barber-actions ui-actions">
 
                                     <a class="book-button"
-                                       href="/customer/barbers/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">
+                                       href="{{discoveryCardPath "/customer/barbers" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">
                                         View Barber
                                         <span>&rarr;</span>
                                     </a>
@@ -275,6 +276,7 @@
 
 </div>
 
+{{template "discovery-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

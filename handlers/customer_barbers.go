@@ -3,26 +3,20 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"strings"
 	"time"
 
-	"barber-booking/internal/geography"
 	"barber-booking/models"
 	"barber-booking/storage"
 )
 
 // barberCard is one barber in the customer's browse list, with the
 // number of styles they offer so an empty shop is obvious up front.
-type barberCard struct {
-	models.Barber
-
-	Hairstyles  int
-	FromPrice   float64
-	Rating      float64
-	ReviewCount int
-}
+type barberCard = storage.DiscoveryBarber
 
 type browseBarbersView struct {
+	Total         int
+	Pagination    discoveryPagination
+	ResultsLink   string
 	Items         []barberCard
 	SelectedState string
 	SelectedArea  string
@@ -45,70 +39,28 @@ func BrowseBarbersHandler(
 		return
 	}
 
-	barbers, err := storage.ListActiveBarbersResult(r.Context())
-	if err != nil {
-		serverError(w, "load barber discovery", err)
-		return
-	}
-
-	state, area, ok := discoveryLocation(r)
+	page, state, area, pagination, ok := readDiscoveryPage(w, r, "/customer/barbers")
 	if !ok {
-		journeyError(w, "Choose a valid state/FCT and an LGA or area council within it.", http.StatusBadRequest)
 		return
 	}
 
-	cards := make([]barberCard, 0, len(barbers))
-
-	for _, barber := range barbers {
-		barber.State, barber.LocalArea = geography.NormalizeLegacy(barber.State, barber.LocalArea)
-		// Both discovery surfaces require a selected state before listing shops.
-		if state == "" || !strings.EqualFold(barber.State, state) {
-			continue
-		}
-		if area != "" && !strings.EqualFold(barber.LocalArea, area) {
-			continue
-		}
-		barber.PasswordHash = ""
-
-		card := barberCard{Barber: barber}
-
-		styles, err := storage.ListAvailableHairstylesByBarberResult(r.Context(), barber.ID)
-		if err != nil {
-			serverError(w, "load discovery services", err)
-			return
-		}
-		for _, hairstyle := range styles {
-			card.Hairstyles++
-
-			if card.Hairstyles == 1 || hairstyle.Price < card.FromPrice {
-				card.FromPrice = hairstyle.Price
-			}
-		}
-
-		card.Rating, card.ReviewCount, err = storage.ReviewSummaryResult(r.Context(), barber.ID)
-		if err != nil {
-			serverError(w, "load discovery rating", err)
-			return
-		}
-
-		cards = append(cards, card)
-	}
-
-	render(w, "customer/barber-list.html", browseBarbersView{Items: cards, SelectedState: state, SelectedArea: area, CSRF: s.CSRFToken})
+	render(w, "customer/barber-list.html", browseBarbersView{Items: page.Items, Total: page.Total, Pagination: pagination, ResultsLink: discoveryCardPath("/customer/barbers", 0, state, area, pagination.After, pagination.Before), SelectedState: state, SelectedArea: area, CSRF: s.CSRFToken})
 }
 
 // barberDetailView is one barber's shop as a customer sees it: their
 // details, what they offer, and the form to book it.
 type barberDetailView struct {
-	Slots         []string
-	Timezone      string
-	DateMax       string
-	ResultsLink   string
-	SelectedState string
-	SelectedArea  string
-	Barber        models.Barber
-	Hairstyles    []models.Hairstyle
-	Products      []models.Product
+	Slots          []string
+	Timezone       string
+	DateMax        string
+	ResultsLink    string
+	SelectedState  string
+	SelectedArea   string
+	SelectedAfter  string
+	SelectedBefore string
+	Barber         models.Barber
+	Hairstyles     []models.Hairstyle
+	Products       []models.Product
 
 	// Selected pre-picks a style when the customer arrived from a link.
 	Selected int
@@ -266,27 +218,29 @@ func renderBarberDetail(
 	}
 	canReview := reviewErr == nil
 	renderStatus(w, status, "customer/barber-detail.html", barberDetailView{
-		Barber:        barber,
-		ResultsLink:   discoveryPath("/customer/barbers", discoveryQuery(r)),
-		SelectedState: discoveryQuery(r).Get("state"),
-		SelectedArea:  discoveryQuery(r).Get("area"),
-		Hairstyles:    styles,
-		Products:      products,
-		Selected:      selected,
-		Today:         time.Now().In(location).Format("2006-01-02"),
-		DateMax:       time.Now().In(location).AddDate(0, 0, calendar.HorizonDays).Format("2006-01-02"),
-		Timezone:      calendar.Timezone,
-		Slots:         slots,
-		Opening:       formatHour(openingHour),
-		Closing:       formatHour(closingHour),
-		ChatLink:      chatPath("/customer/chats/", barber.ID),
-		CSRF:          s.CSRFToken,
-		Error:         problem,
-		Values:        values,
-		Reviews:       reviews,
-		Rating:        rating,
-		ReviewCount:   count,
-		CanReview:     canReview,
+		Barber:         barber,
+		ResultsLink:    discoveryPath("/customer/barbers", discoveryQuery(r)),
+		SelectedState:  discoveryQuery(r).Get("state"),
+		SelectedArea:   discoveryQuery(r).Get("area"),
+		SelectedAfter:  discoveryQuery(r).Get("after"),
+		SelectedBefore: discoveryQuery(r).Get("before"),
+		Hairstyles:     styles,
+		Products:       products,
+		Selected:       selected,
+		Today:          time.Now().In(location).Format("2006-01-02"),
+		DateMax:        time.Now().In(location).AddDate(0, 0, calendar.HorizonDays).Format("2006-01-02"),
+		Timezone:       calendar.Timezone,
+		Slots:          slots,
+		Opening:        formatHour(openingHour),
+		Closing:        formatHour(closingHour),
+		ChatLink:       chatPath("/customer/chats/", barber.ID),
+		CSRF:           s.CSRFToken,
+		Error:          problem,
+		Values:         values,
+		Reviews:        reviews,
+		Rating:         rating,
+		ReviewCount:    count,
+		CanReview:      canReview,
 	})
 }
 

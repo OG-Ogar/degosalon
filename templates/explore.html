@@ -38,19 +38,20 @@
 
 {{if .SelectedState}}
 <section class="barbers-section" aria-labelledby="results-title">
-<div class="section-heading"><div><p class="eyebrow"><span></span> 02 · Results</p><h2 id="results-title">{{if .SelectedArea}}Barbers in {{.SelectedArea}}, {{.SelectedState}}{{else}}Barbers in {{.SelectedState}}{{end}}</h2></div>{{if .Items}}<span class="barber-count">{{len .Items}} found</span>{{end}}</div>
+<div class="section-heading"><div><p class="eyebrow"><span></span> 02 · Results</p><h2 id="results-title">{{if .SelectedArea}}Barbers in {{.SelectedArea}}, {{.SelectedState}}{{else}}Barbers in {{.SelectedState}}{{end}}</h2></div><span class="barber-count">{{.Total}} found</span></div>
+<p class="discovery-count">{{.Total}} active shops in this location. Up to 24 shops per page.</p>
 {{if .Items}}
 <div class="barber-grid">
 {{range .Items}}
 <article class="barber-card">
-<a class="barber-image" href="/explore/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">{{if .ProfileImage}}<img src="{{.ProfileImage}}" alt="{{.ShopName}}" loading="lazy" srcset="{{imageSrcset .ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" decoding="async">{{else if .PersonalImage}}<img src="{{.PersonalImage}}" alt="{{.FullName}}" loading="lazy" srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" decoding="async">{{else}}<span class="image-placeholder">DG</span>{{end}}<span class="view-cue">View profile ↗</span></a>
+<a class="barber-image" href="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">{{if .ProfileImage}}<img src="{{.ProfileImage}}" alt="{{.ShopName}}" loading="lazy" srcset="{{imageSrcset .ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" decoding="async">{{else if .PersonalImage}}<img src="{{.PersonalImage}}" alt="{{.FullName}}" loading="lazy" srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" decoding="async">{{else}}<span class="image-placeholder">DG</span>{{end}}<span class="view-cue">View profile ↗</span></a>
 <div class="barber-information">
 <div class="card-topline"><p class="card-label">BARBER SHOP</p>{{if .ReviewCount}}<span class="rating-badge">★ {{printf "%.1f" .Rating}}</span>{{else}}<span class="new-badge">New</span>{{end}}</div>
-<h3><a href="/explore/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">{{.ShopName}}</a></h3>
+<h3><a href="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">{{.ShopName}}</a></h3>
 <p class="barber-name">with {{.FullName}}</p>
 <div class="barber-location"><span class="location-icon" aria-hidden="true">⌖</span><span>{{if .ShopAddress}}{{.ShopAddress}}<br>{{end}}<strong>{{.LocalArea}}, {{.State}}</strong></span></div>
 <div class="barber-details"><div class="detail-item"><strong>{{.Hairstyles}}</strong><span>Services</span></div><div class="detail-divider"></div><div class="detail-item">{{if .Hairstyles}}<strong>{{naira .FromPrice}}</strong><span>Starting price</span>{{else}}<strong>—</strong><span>Prices coming soon</span>{{end}}</div>{{if .ReviewCount}}<div class="detail-divider"></div><div class="detail-item"><strong>{{.ReviewCount}}</strong><span>Reviews</span></div>{{end}}</div>
-<div class="barber-actions ui-actions"><a class="book-button" href="/explore/{{.ID}}?state={{urlquery $.SelectedState}}&amp;area={{urlquery $.SelectedArea}}">See handwork & prices <span aria-hidden="true">→</span></a></div>
+<div class="barber-actions ui-actions"><a class="book-button" href="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">See handwork & prices <span aria-hidden="true">→</span></a></div>
 </div>
 </article>
 {{end}}
@@ -67,6 +68,7 @@
 {{end}}
 </main>
 </div>
+{{template "discovery-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

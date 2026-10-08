@@ -1,0 +1,1 @@
+{{define "discovery-pagination"}}{{if or .PreviousLink .NextLink}}<nav class="discovery-pagination" aria-label="Barber results pages">{{if .PreviousLink}}<a href="{{.PreviousLink}}" rel="prev">Previous shops</a>{{end}}{{if or .After .Before}}<a href="{{.FirstLink}}">First page</a>{{end}}{{if .NextLink}}<a href="{{.NextLink}}" rel="next">Next shops</a>{{end}}</nav>{{end}}{{end}}

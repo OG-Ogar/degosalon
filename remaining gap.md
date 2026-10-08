@@ -1,6 +1,6 @@
 # Remaining implementation gaps
 
-Updated: 7 October 2026. Baseline: main at `a84e418016c87511b94e13b96959a23b163a3cbc` (including merged PR #91). This list reconciles the original gap IDs with merged source. Implementation and production acceptance are tracked separately.
+Updated: 8 October 2026. Baseline: main at `8cc1fbc2f497b829abd3ce307c21f5bb265fc8a7` (including merged PR #107), with discovery completion on PR #102. This list reconciles the original gap IDs with merged source. Implementation and production acceptance are tracked separately.
 
 ## Deployment checkpoint
 
@@ -15,21 +15,22 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 | FE-02 | Implemented and merged in PR #103 | Shared page/panel/form/field/control/action primitives now serve all template families; barber and admin archive confirmations share a CSRF-preserving partial. See `ui-primitives.md`. Full browser acceptance remains FE-26. |
 | FE-21 | Implemented and merged in PR #104 | Audited all template-rendered error forms, shared server summaries and no-script form associations; associated remaining field/upload help and repaired native select feedback clearing. See `form-feedback-audit.md`. Full visual/browser acceptance stays FE-26. |
 | FE-24 | Implemented and merged in PR #105 | Owned responsive thumbnails, srcset/sizes, reserved slots, eager responsive heroes, original enlargement and deferred videos; measured fixture/browser budgets are recorded in `media-performance.md`. Real deployed-device performance remains production acceptance. |
-| FE-25 | Approved content implemented; CI/merge and deployed-origin acceptance pending | Support publishes owner-approved 08128162561 and 09164226427. Privacy/terms remain explicit placeholders by owner instruction; they no longer require replacement for this scope. Trusted-origin metadata is covered locally; verify the actual deployed canonical origin when Render access is available. |
-| BE-18 | Scoped queries and stable pagination | Messages are scoped and review aggregates use SQL. Push discovery filters/counts into SQL, avoid per-shop loading where appropriate and bound lists/threads. |
+| FE-25 | Implemented and merged in PR #106; deployed-origin acceptance pending | Support publishes owner-approved 08128162561 and 09164226427. Privacy/terms remain explicit placeholders by owner instruction; they no longer require replacement for this scope. Trusted-origin metadata is covered locally; verify the actual deployed canonical origin when Render access is available. |
+| BE-18 | Remaining list/thread bounds and query scoping | Discovery is scoped and paginated with page-batched summaries; messages are scoped and review aggregates use SQL. Bound remaining lists/threads and remove remaining per-record loading where appropriate. |
+
 | BE-22 | Operational lifecycle and audit tooling | Add dedicated liveness/readiness, signal-driven graceful shutdown including workers, correlated structured logs and durable admin audit events. |
 | BE-23 | Broader browser journey coverage | Go tests/vet/race, frontend checks, PostgreSQL CI, Playwright browser CI and dedicated security-package tests exist. Broader browser journey coverage remains aligned with FE-26. |
 | FE-26 | Browser accessibility/responsiveness acceptance | Finish contrast, keyboard/focus, 200% zoom, 320px width, touch targets, long content and broken-media checks across all page families. Fix findings and retain evidence. |
 
 ## PR #85 reconciliation
 
-PR #85's image navigation and native dialog implementation is superseded by merged PRs #86 and #91. The current browser suite retains its keyboard isolation, Escape/focus return and selection checks. Reconciliation extends that suite with close/backdrop dismissal, image-click persistence, and a real uploaded-service journey verifying separate selection/enlargement plus server-rendered summaries and selection without JavaScript. The older duplicate fixture/configuration should not be merged. Close #85 as superseded after the reconciliation PR passes CI and merges.
+PR #85's image navigation and native dialog implementation is superseded by merged PRs #86 and #91. The current browser suite retains its keyboard isolation, Escape/focus return and selection checks. Reconciliation extends that suite with close/backdrop dismissal, image-click persistence, and a real uploaded-service journey verifying separate selection/enlargement plus server-rendered summaries and selection without JavaScript. The older duplicate fixture/configuration should not be merged. Reconciliation PR #107 passed verify/PostgreSQL/browser CI and merged; #85 is closed as superseded.
 
 ## Reconciled messaging and browser implementation
 
 [PR #91](https://github.com/OG-Ogar/degosalon/pull/91), `feat/frontend-messaging-browser-verification`, merged on 7 October 2026. Final checked head: `8e53fb81095ca6e81ab66301bc900242311b3851`. The [final PR CI run](https://github.com/OG-Ogar/degosalon/actions/runs/37597022175) passed `verify`, `postgres` and `browser`; CodeRabbit also reported success. Earlier failed runs are superseded by this final head.
 
-FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. Expanded field feedback is merged, but FE-21's audit of remaining forms and server errors stays open. Browser CI is implemented; BE-23's broader browser journeys and FE-26's full browser acceptance remain open; dedicated security coverage is merged. Passing this scoped suite does not certify production or every page family.
+FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. FE-21's remaining-form/server-error audit is merged in PR #104; full browser acceptance stays under FE-26. Browser CI is implemented; BE-23's broader browser journeys and FE-26's full browser acceptance remain open; dedicated security coverage is merged. Passing this scoped suite does not certify production or every page family.
 
 ## Production acceptance still outstanding
 
@@ -42,6 +43,10 @@ These are verification tasks for existing implementations, not necessarily missi
 - Render build and runtime logs, live application responses and deployed commit identity.
 
 ## Merged repairs excluded from the backlog
+
+BE-13/14's media completion checks reject cancellation or response-body read failures even when the provider returned success headers, for both uploads and deletes. Generic retry errors retain provider-detail secrecy; bounded response draining remains in place. Deterministic success-header interruption tests and repeated deadline/race checks cover this boundary. Actual provider durability and outage recovery remain production acceptance work.
+
+BE-18's discovery batch uses canonical SQL location predicates, a separate filtered count and one bounded card query with page-scoped service/review aggregates. Public/customer discovery uses 24-shop ID cursor pages with next/previous/first navigation; aliases and whole-state broadening retain their semantics. Public cards do not select password hashes, account emails or phone numbers. Cursor context survives profile, availability and auth return links; stale empty pages recover to the first page of the selected location. Composite/covering indexes support the filters, cursor and compact aggregate values. Memory/PostgreSQL tests cover paging in both directions, summaries, hidden/archived/suspended exclusion, insert/archive stability, unknown legacy areas and cancellation; driver tests bound query count and preserve operational errors. Remaining list/thread bounds stay open under BE-18.
 
 FE-16's shared presentation catalog and badge partial cover appointment, barber-account, order, item fulfillment and catalogue availability states. Labels, descriptions and five visual treatments are centralized; unknown or cross-domain values render a neutral Unknown status and never become CSS classes. All current status views use the shared component. Booking details now describe the stored current state instead of always promising pending approval, including when revisiting rejected/cancelled/completed appointments. A real booking/cancellation browser journey retains the revisited status check and fixes the booking-details theme contrast it exposed. Persisted lifecycle values and mutation rules remain unchanged.
 
@@ -69,10 +74,10 @@ Online payments are optional under the current collection policy. Email/barber v
 
 ## Execution order
 
-1. Restore and verify the Render deployment.
-2. Reconcile merged messaging/browser status and verify the manual-refresh conversation contract; retain full browser acceptance as separate work.
-3. Implement validation, exact money and appointment-time semantics in independently reviewable branches.
-4. Finish storage/query/lifecycle/security work.
-5. Complete media, content and cross-page browser acceptance.
+1. Finish PR #102 discovery pagination and merge after final-head CI passes.
+2. Complete BE-22 lifecycle, health, correlated logging and durable administrator audit events.
+3. Complete BE-18 remaining catalogue/list/thread scoping, aggregates and pagination.
+4. Expand BE-23 journeys and complete FE-26 cross-page browser acceptance.
+5. Verify live deployment and production provider/recovery acceptance separately.
 
 For each batch: branch from current main, implement and verify, push, wait for CI to pass, merge, then begin the next batch.

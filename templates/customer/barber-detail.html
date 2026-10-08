@@ -192,7 +192,7 @@
         {{if .Hairstyles}}
 
             <form method="get" action="/customer/barbers/{{.Barber.ID}}#booking" class="availability-form ui-form">
- <input type="hidden" name="state" value="{{.SelectedState}}"><input type="hidden" name="area" value="{{.SelectedArea}}">
+ <input type="hidden" name="state" value="{{.SelectedState}}"><input type="hidden" name="area" value="{{.SelectedArea}}"><input type="hidden" name="after" value="{{.SelectedAfter}}"><input type="hidden" name="before" value="{{.SelectedBefore}}">
  <label for="availability-service">Service</label><select id="availability-service" name="hairstyle">{{range .Hairstyles}}<option value="{{.ID}}" {{if eq $.Selected .ID}}selected{{end}}>{{.Name}} · {{.Duration}} minutes</option>{{end}}</select>
  <label for="availability-date">Date ({{.Timezone}})</label><input id="availability-date" name="date" type="date" value="{{index .Values "date"}}" min="{{.Today}}" max="{{.DateMax}}" required>
  <button type="submit" class="ui-control">Show available times</button>
@@ -204,7 +204,7 @@
                   action="/customer/book"
                   id="booking" {{if .Error}}aria-describedby="form-error"{{end}}>
  <input type="hidden" name="state" value="{{.SelectedState}}">
- <input type="hidden" name="area" value="{{.SelectedArea}}">
+ <input type="hidden" name="area" value="{{.SelectedArea}}"><input type="hidden" name="after" value="{{.SelectedAfter}}"><input type="hidden" name="before" value="{{.SelectedBefore}}">
 
                 <input
                     type="hidden"

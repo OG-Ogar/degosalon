@@ -1,6 +1,6 @@
 # Remaining implementation gaps
 
-Updated: 7 October 2026. Baseline: main at `a84e418016c87511b94e13b96959a23b163a3cbc` (including merged PR #91). This list reconciles the original gap IDs with merged source. Implementation and production acceptance are tracked separately.
+Updated: 8 October 2026. Baseline: main at `8cc1fbc2f497b829abd3ce307c21f5bb265fc8a7` (including merged PR #107), with discovery completion on PR #102. This list reconciles the original gap IDs with merged source. Implementation and production acceptance are tracked separately.
 
 ## Deployment checkpoint
 
@@ -24,13 +24,13 @@ The repository Blueprint builds the frontend, app, migration CLI and media CLI, 
 
 ## PR #85 reconciliation
 
-PR #85's image navigation and native dialog implementation is superseded by merged PRs #86 and #91. The current browser suite retains its keyboard isolation, Escape/focus return and selection checks. Reconciliation extends that suite with close/backdrop dismissal, image-click persistence, and a real uploaded-service journey verifying separate selection/enlargement plus server-rendered summaries and selection without JavaScript. The older duplicate fixture/configuration should not be merged. Close #85 as superseded after the reconciliation PR passes CI and merges.
+PR #85's image navigation and native dialog implementation is superseded by merged PRs #86 and #91. The current browser suite retains its keyboard isolation, Escape/focus return and selection checks. Reconciliation extends that suite with close/backdrop dismissal, image-click persistence, and a real uploaded-service journey verifying separate selection/enlargement plus server-rendered summaries and selection without JavaScript. The older duplicate fixture/configuration should not be merged. Reconciliation PR #107 passed verify/PostgreSQL/browser CI and merged; #85 is closed as superseded.
 
 ## Reconciled messaging and browser implementation
 
 [PR #91](https://github.com/OG-Ogar/degosalon/pull/91), `feat/frontend-messaging-browser-verification`, merged on 7 October 2026. Final checked head: `8e53fb81095ca6e81ab66301bc900242311b3851`. The [final PR CI run](https://github.com/OG-Ogar/degosalon/actions/runs/37597022175) passed `verify`, `postgres` and `browser`; CodeRabbit also reported success. Earlier failed runs are superseded by this final head.
 
-FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. Expanded field feedback is merged, but FE-21's audit of remaining forms and server errors stays open. Browser CI is implemented; BE-23's broader browser journeys and FE-26's full browser acceptance remain open; dedicated security coverage is merged. Passing this scoped suite does not certify production or every page family.
+FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. FE-21's remaining-form/server-error audit is merged in PR #104; full browser acceptance stays under FE-26. Browser CI is implemented; BE-23's broader browser journeys and FE-26's full browser acceptance remain open; dedicated security coverage is merged. Passing this scoped suite does not certify production or every page family.
 
 ## Production acceptance still outstanding
 
@@ -74,10 +74,10 @@ Online payments are optional under the current collection policy. Email/barber v
 
 ## Execution order
 
-1. Restore and verify the Render deployment.
-2. Reconcile merged messaging/browser status and verify the manual-refresh conversation contract; retain full browser acceptance as separate work.
-3. Implement validation, exact money and appointment-time semantics in independently reviewable branches.
-4. Finish storage/query/lifecycle/security work.
-5. Complete media, content and cross-page browser acceptance.
+1. Finish PR #102 discovery pagination and merge after final-head CI passes.
+2. Complete BE-22 lifecycle, health, correlated logging and durable administrator audit events.
+3. Complete BE-18 remaining catalogue/list/thread scoping, aggregates and pagination.
+4. Expand BE-23 journeys and complete FE-26 cross-page browser acceptance.
+5. Verify live deployment and production provider/recovery acceptance separately.
 
 For each batch: branch from current main, implement and verify, push, wait for CI to pass, merge, then begin the next batch.

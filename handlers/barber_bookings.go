@@ -12,12 +12,14 @@ import (
 // barberBookingsView splits the schedule into the three groups a barber
 // actually acts on, so the page does not need template logic to filter.
 type barberBookingsView struct {
-	Pending   []bookingRow
-	Upcoming  []bookingRow
-	Finished  []bookingRow
-	FollowUp  []bookingRow
-	CSRF      string
-	ActionURL string
+	Pending    []bookingRow
+	Upcoming   []bookingRow
+	Finished   []bookingRow
+	FollowUp   []bookingRow
+	CSRF       string
+	ActionURL  string
+	Pagination listPagination
+	Group      string
 }
 
 // BarberBookingsHandler lists the requests and appointments for the
@@ -39,18 +41,29 @@ func BarberBookingsHandler(
 		ActionURL: "/barber/bookings/",
 	}
 
-	bookings, err := storage.ListBookingsByBarberResult(r.Context(), barber.ID)
-	if err != nil {
-		serverError(w, "load barber bookings", err)
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
 		return
 	}
+	group, ok := readBookingGroup(w, r)
+	if !ok {
+		return
+	}
+	view.Group = group
 	now := time.Now()
-	for _, booking := range bookings {
-		row, err := describeBooking(r.Context(), booking)
-		if err != nil {
-			serverError(w, "load appointment details", err)
-			return
-		}
+	filter := storage.BookingFilter{BarberID: barber.ID, Group: group, Now: now, LegacyTimezone: BookingTimezone()}
+	page, err := storage.BookingPage(r.Context(), filter, cursor)
+	if err != nil {
+		serverError(w, "load barber booking page", err)
+		return
+	}
+	view.Pagination = bookingPagination(r, cursor, page)
+	if len(page.Items) == 0 && (cursor.After > 0 || cursor.Before > 0) {
+		http.Redirect(w, r, view.Pagination.FirstLink, 303)
+		return
+	}
+	for _, row := range page.Items {
+		booking := row.Booking
 
 		switch classifyAppointment(booking, now) {
 		case appointmentFollowUp:

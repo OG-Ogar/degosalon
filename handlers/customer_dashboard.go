@@ -21,7 +21,9 @@ type customerEditView struct {
 type customerDashboardView struct {
 	models.Customer
 
-	CSRF string
+	CSRF            string
+	OrderPagination listPagination
+	UpcomingCount   int
 
 	Barbers       int
 	Upcoming      []bookingRow
@@ -47,25 +49,37 @@ func CustomerDashboardHandler(
 		return
 	}
 
-	orders, err := storage.ListProductOrdersByCustomer(r.Context(), customer.ID)
+	cursor, ok := readNamedPageCursor(w, r, "orders")
+	if !ok {
+		return
+	}
+	orders, err := storage.CustomerOrderPage(r.Context(), customer.ID, cursor)
 	if err != nil {
-		serverError(w, "load customer order history", err)
+		serverError(w, "load customer order page", err)
+		return
+	}
+	orderLinks := orderPagination(r, "orders", cursor, orders.Items, orders.HasPrevious, orders.HasNext)
+	if len(orders.Items) == 0 && (cursor.Before > 0 || cursor.After > 0) {
+		http.Redirect(w, r, orderLinks.FirstLink, 303)
+		return
+	}
+	now := time.Now()
+	filter := storage.BookingFilter{CustomerID: customer.ID, Now: now, LegacyTimezone: BookingTimezone()}
+	counts, err := storage.DashboardTotals(r.Context(), filter)
+	if err != nil {
+		serverError(w, "load customer dashboard totals", err)
+		return
+	}
+	filter.Group = "upcoming"
+	preview, err := storage.BookingPage(r.Context(), filter, storage.PageCursor{Limit: 6})
+	if err != nil {
+		serverError(w, "load upcoming preview", err)
 		return
 	}
 
 	cartCount, err := storage.CartItemCount(r.Context(), customer.ID)
 	if err != nil {
 		serverError(w, "load dashboard cart count", err)
-		return
-	}
-	barbers, err := storage.ListActiveBarbersResult(r.Context())
-	if err != nil {
-		serverError(w, "load dashboard barbers", err)
-		return
-	}
-	bookings, err := storage.ListBookingsByCustomerResult(r.Context(), customer.ID)
-	if err != nil {
-		serverError(w, "load dashboard bookings", err)
 		return
 	}
 	conversations, err := storage.ConversationCountForCustomer(r.Context(), customer.ID)
@@ -80,31 +94,19 @@ func CustomerDashboardHandler(
 	}
 	view := customerDashboardView{
 		Customer:        customer,
-		ProductOrders:   orders,
+		ProductOrders:   orders.Items,
+		OrderPagination: orderLinks,
+		UpcomingCount:   counts.Upcoming,
+		Upcoming:        preview.Items,
+		Pending:         counts.Pending,
 		CSRF:            s.CSRFToken,
-		Barbers:         len(barbers),
+		Barbers:         counts.Barbers,
 		Conversations:   conversations,
 		CartCount:       cartCount,
 		BackgroundImage: backgroundImage,
 	}
 
 	view.Customer.PasswordHash = ""
-
-	now := time.Now()
-	for _, booking := range bookings {
-		row, err := describeBooking(r.Context(), booking)
-		if err != nil {
-			serverError(w, "load dashboard appointment", err)
-			return
-		}
-
-		if booking.Status == models.StatusPending {
-			view.Pending++
-		}
-		if classifyAppointment(booking, now) == appointmentUpcoming {
-			view.Upcoming = append(view.Upcoming, row)
-		}
-	}
 
 	render(w, "customer/dashboard.html", view)
 }

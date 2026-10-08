@@ -54,7 +54,8 @@
 
     <h2>Hairstyles</h2>
 
-    {{if .Hairstyles}}
+    <p id="services">Up to 24 services on this page.</p>{{template "list-pagination" .ServicePagination}}
+{{if .Hairstyles}}
         <div class="grid">
             {{range .Hairstyles}}
                 <article class="card">
@@ -84,7 +85,8 @@
 
     <h2>Bookings</h2>
 
-    {{if .Bookings}}
+    <p id="bookings">Up to 24 appointments on this page, newest requests first.</p>{{template "list-pagination" .BookingPagination}}
+{{if .Bookings}}
         <table>
             <caption>Every booking made with this barber.</caption>
             <thead>

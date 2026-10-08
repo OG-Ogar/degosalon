@@ -30,6 +30,7 @@
     <h1 class="barber-title">
         Bookings
     </h1>
+{{template "booking-filter" .Group}}
 
     <p class="barber-lede">
         Manage customer requests and your confirmed appointments.
@@ -489,6 +490,7 @@
 {{end}}
 </main>
 
+{{template "list-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

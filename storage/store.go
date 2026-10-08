@@ -120,6 +120,8 @@ func Reset() {
 	lastBookingID = 0
 	lastMessageID = 0
 	lastProductID = 0
+	auditEvents = nil
+	lastAuditID = 0
 	reviews = nil
 	lastReviewID = 0
 }

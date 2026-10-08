@@ -1,9 +1,11 @@
 package main
 
 import (
+	"barber-booking/internal/observability"
 	"context"
 	"fmt"
 	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"os"
@@ -30,7 +32,7 @@ func listenAddress() string {
 }
 
 func main() {
-	log.SetFlags(log.LstdFlags)
+	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
 	if err := run(); err != nil {
 		log.Printf("server stopped: %v", err)
 		os.Exit(1)
@@ -129,7 +131,7 @@ func run() error {
 
 	server := &http.Server{
 		Addr:    listenAddress(),
-		Handler: mux,
+		Handler: observability.Requests(slog.Default(), mux),
 
 		// Without these a slow or idle client can hold a connection open
 		// indefinitely. WriteTimeout is the longest because it also

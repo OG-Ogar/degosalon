@@ -30,6 +30,10 @@ func AdminRouter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	withAdminAudit(w, r, func(w http.ResponseWriter, r *http.Request) { dispatchAdmin(w, r, s, parts) })
+}
+
+func dispatchAdmin(w http.ResponseWriter, r *http.Request, s sessionData, parts []string) {
 	switch {
 
 	case len(parts) == 2 && parts[1] == "logout":

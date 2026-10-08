@@ -247,7 +247,7 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 			return
 		}
 
-		_, err = storage.CreateBarberContext(r.Context(), models.Barber{
+		created, err := storage.CreateBarberContext(r.Context(), models.Barber{
 			FullName:     form.FullName,
 			PhoneNumber:  form.Phone,
 			Email:        form.Email,
@@ -271,6 +271,7 @@ func NewBarberHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 			return
 		}
 
+		setCreatedAuditTarget(r, created.ID)
 		http.Redirect(w, r, "/admin/barbers", http.StatusSeeOther)
 
 	default:

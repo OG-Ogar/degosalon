@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"io/fs"
-	"log"
+ "log/slog"
 	"math"
 	"net/url"
 	"reflect"
@@ -84,7 +84,7 @@ func render(w http.ResponseWriter, name string, data any) {
 func renderStatus(w http.ResponseWriter, status int, name string, data any) {
 	tmpl, found := templates[name]
 	if !found {
-		log.Printf("render: template %q is not loaded", name)
+		slog.Error("template_missing", "request_id", w.Header().Get("X-Request-ID"), "template", name)
 		journeyError(w, "Template Error", http.StatusInternalServerError)
 
 		return
@@ -93,7 +93,7 @@ func renderStatus(w http.ResponseWriter, status int, name string, data any) {
 	var buf bytes.Buffer
 
 	if err := tmpl.Execute(&buf, data); err != nil {
-		log.Printf("render %s: %v", name, err)
+		slog.Error("template_failed", "request_id", w.Header().Get("X-Request-ID"), "template", name, "error", err)
 		journeyError(w, "Template Execution Error", http.StatusInternalServerError)
 
 		return
@@ -103,14 +103,14 @@ func renderStatus(w http.ResponseWriter, status int, name string, data any) {
 	w.WriteHeader(status)
 
 	if _, err := buf.WriteTo(w); err != nil {
-		log.Printf("write %s: %v", name, err)
+		slog.Error("response_write_failed", "request_id", w.Header().Get("X-Request-ID"), "template", name, "error", err)
 	}
 }
 
 // serverError logs the real cause and shows the visitor a generic
 // message, so internal details never reach the browser.
 func serverError(w http.ResponseWriter, context string, err error) {
-	log.Printf("%s: %v", context, err)
+	slog.Error("request_error", "request_id", w.Header().Get("X-Request-ID"), "operation", context, "error", err)
 	journeyError(w, "Something went wrong. Please try again.", http.StatusInternalServerError)
 }
 

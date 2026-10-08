@@ -55,6 +55,7 @@ type hairstyleView struct {
 
 // listView renders a table or card grid of anything.
 type listView[T any] struct {
+	Query      string
 	Pagination listPagination
 	Items      []T
 	CSRF       string

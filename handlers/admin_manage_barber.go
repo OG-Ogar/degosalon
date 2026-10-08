@@ -92,42 +92,36 @@ func ListBarbersHandler(w http.ResponseWriter, r *http.Request, s sessionData) {
 		return
 	}
 
-	barbers, err := storage.ListBarbersResult(r.Context())
-	if err != nil {
-		serverError(w, "load admin barbers", err)
+	cursor, ok := readPageCursor(w, r)
+	if !ok {
 		return
 	}
-
-	rows := make([]adminBarberRow, 0, len(barbers))
-
-	for _, barber := range barbers {
-		styles, err := storage.ListHairstylesByBarberResult(r.Context(), barber.ID)
-		if err != nil {
-			serverError(w, "load admin service counts", err)
-			return
-		}
-		bookings, err := storage.ListBookingsByBarberResult(r.Context(), barber.ID)
-		if err != nil {
-			serverError(w, "load admin booking counts", err)
-			return
-		}
-
-		rows = append(rows, adminBarberRow{
-			ID:          barber.ID,
-			FullName:    barber.FullName,
-			PhoneNumber: barber.PhoneNumber,
-			Email:       barber.Email,
-			ShopName:    barber.ShopName,
-			Status:      barber.Status,
-			Active:      barber.IsActive(),
-			Hairstyles:  len(styles),
-			Bookings:    len(bookings),
-		})
+	search, ok := readListSearch(w, r)
+	if !ok {
+		return
+	}
+	page, err := storage.AdminBarberPage(r.Context(), search, cursor)
+	if err != nil {
+		serverError(w, "load admin barber page", err)
+		return
+	}
+	pagination := paginationLinks(r, cursor, 0, 0, false, false, false)
+	if len(page.Items) > 0 {
+		pagination = paginationLinks(r, cursor, page.Items[0].ID, page.Items[len(page.Items)-1].ID, false, page.HasPrevious, page.HasNext)
+	} else if cursor.Before > 0 || cursor.After > 0 {
+		http.Redirect(w, r, pagination.FirstLink, http.StatusSeeOther)
+		return
+	}
+	rows := make([]adminBarberRow, 0, len(page.Items))
+	for _, barber := range page.Items {
+		rows = append(rows, adminBarberRow{ID: barber.ID, FullName: barber.FullName, PhoneNumber: barber.PhoneNumber, Email: barber.Email, ShopName: barber.ShopName, Status: barber.Status, Active: barber.IsActive(), Hairstyles: barber.Hairstyles, Bookings: barber.Bookings})
 	}
 
 	render(w, "admin/barber-list.html", listView[adminBarberRow]{
-		Items: rows,
-		CSRF:  s.CSRFToken,
+		Items:      rows,
+		Pagination: pagination,
+		Query:      search,
+		CSRF:       s.CSRFToken,
 	})
 }
 

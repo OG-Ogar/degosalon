@@ -359,3 +359,23 @@ test('both roles page message history chronologically and refresh to latest repl
   await checkPage(customer,testInfo,'paged-history-mobile');
  }finally{await customerContext.close();await barberContext.close();}
 });
+
+test('admin account search reaches older pages without JavaScript',async({page,browser},testInfo)=>{
+ expect((await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}})).ok()).toBeTruthy();
+ await page.goto('/admin/barbers/new');const csrf=await page.locator('main input[name=csrf_token]').inputValue(),suffix=Date.now();
+ for(let i=0;i<25;i++){
+  const response=await page.request.post('/admin/barbers/new',{maxRedirects:0,form:{csrf_token:csrf,fullname:'Account Paging '+suffix+' '+i,phone:'08012345678',email:'admin-paging-'+suffix+'-'+i+'@example.test',shopname:'Account Shop '+i,shopaddress:'12 Example Street',state:'Osun',local_area:'Osogbo',password:'browser-pass-123'}});expect(response.status()).toBe(303);
+ }
+ const context=await browser.newContext({javaScriptEnabled:false,storageState:await page.context().storageState()});
+ try{
+  const native=await context.newPage();await native.goto('/admin/barbers');await expect(native.locator('tbody tr')).toHaveCount(24);
+  await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toHaveCount(0);
+  await native.getByRole('link',{name:'Next page',exact:true}).click();await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toBeVisible();
+  await native.getByRole('link',{name:'Previous page',exact:true}).click();await native.getByRole('searchbox',{name:'Search barbers',exact:true}).fill('admin-paging-'+suffix+'-0@');await native.getByRole('button',{name:'Search barbers',exact:true}).click();
+  await expect(native.locator('tbody tr')).toHaveCount(1);await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toBeVisible();
+  await native.getByRole('searchbox',{name:'Search barbers',exact:true}).fill('absent-account-'+suffix);await native.getByRole('button',{name:'Search barbers',exact:true}).click();await expect(native.getByText('No barber accounts match this page or search.')).toBeVisible();
+  await page.setViewportSize({width:320,height:900});await page.goto('/admin/barbers?q=admin-paging-'+suffix);await checkPage(page,testInfo,'admin-account-pages-320');
+  await page.goto('/admin/customers');await expect(page.getByRole('searchbox',{name:'Search customers',exact:true})).toBeVisible();await checkPage(page,testInfo,'admin-customer-pages-320');
+  expect((await page.request.get('/admin/barbers?q='+encodeURIComponent('x'.repeat(201)))).status()).toBe(400);
+ }finally{await context.close();}
+});

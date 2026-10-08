@@ -23,19 +23,17 @@
         <a class="button primary" href="/admin/barbers/new">Add a barber</a>
     </div>
 
+    <form method="get" action="/admin/barbers" class="toolbar ui-form">
+      <div class="field ui-field"><label for="filter">Search barbers</label><input id="filter" name="q" type="search" value="{{.Query}}" maxlength="200" placeholder="Name, shop, email or status" autocomplete="off"></div>
+      <button type="submit" class="ui-control">Search barbers</button>
+    </form>
+    <p>Up to 24 accounts per page, newest first.</p>
     {{if .Items}}
         {{$view := .}}
 
-        <div class="toolbar">
-            <div class="field ui-field">
-                <label for="filter">Search barbers</label>
-                <input id="filter" type="search" data-filter="table tbody tr"
-                       placeholder="Name, shop, email or status" autocomplete="off">
-            </div>
-        </div>
 
         <table>
-            <caption>Every barber account on the platform.</caption>
+            <caption>Barber accounts on this page.</caption>
             <thead>
                 <tr>
                     <th scope="col">Barber</th>
@@ -89,13 +87,14 @@
         </table>
     {{else}}
         <p class="empty">
-            No barbers registered yet.
-            <a href="/admin/barbers/new">Add the first one</a>.
+            No barber accounts match this page or search.
+            <a href="/admin/barbers/new">Add a barber</a>.
         </p>
     {{end}}
 
 </main>
 
+{{template "list-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

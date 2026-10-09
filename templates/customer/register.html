@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, follow">
 
     <title>Create a Customer Account - De Go Salon</title>
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/login.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
@@ -20,12 +21,28 @@
     <section class="auth-card">
 
         <div class="auth-brand">
-            <a href="/">De Go Salon</a>
+            <a class="site-brand" href="/" aria-label="De Go Salon home">
+                <span class="site-brand-mark" aria-hidden="true">DG</span>
+                <span class="auth-brand-name">De Go Salon</span>
+            </a>
+        </div>
+
+        <nav class="auth-role-switch" aria-label="Registration role">
+            <a href="/customer/register{{if index .Values "next"}}?next={{urlquery (index .Values "next")}}{{end}}" class="role-pill active" aria-current="page">Customer</a>
+            <a href="/barber/register{{if index .Values "next"}}?next={{urlquery (index .Values "next")}}{{end}}" class="role-pill">Barber Shop</a>
+        </nav>
+
+        <div class="auth-steps-indicator" aria-label="Onboarding steps">
+            <div class="step-badge active"><span class="step-dot">1</span> Account</div>
+            <div class="step-connector"></div>
+            <div class="step-badge"><span class="step-dot">2</span> Find Barber</div>
+            <div class="step-connector"></div>
+            <div class="step-badge"><span class="step-dot">3</span> Book & Style</div>
         </div>
 
         <div class="auth-header">
             <h1>Create an Account</h1>
-            <p>Create your customer account to get started.</p>
+            <p>Create your customer account to start booking top-rated barbers.</p>
         </div>
 
         {{template "form-error" .Error}}
@@ -34,7 +51,7 @@
               method="post"
               action="/customer/register"
               enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
- <input type="hidden" name="next" value="{{index .Values "next"}}">
+            <input type="hidden" name="next" value="{{index .Values "next"}}">
 
             <div class="auth-field ui-field">
 
@@ -47,7 +64,7 @@
                     type="file"
                     name="profile_image"
                     accept="image/jpeg,image/png,image/gif,image/webp"
-                 aria-describedby="profile_image-help">
+                    aria-describedby="profile_image-help">
 
                 <p class="hint" id="profile_image-help">
                     Optional. JPG, PNG, GIF or WebP, up to 5 MB.

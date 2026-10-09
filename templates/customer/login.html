@@ -1,106 +1,109 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, follow">
 
+    <title>Customer Login - De Go Salon</title>
 
-<title>Customer Login - De Go Salon</title>
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/login.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
-<link rel="stylesheet" href="/static/app.css">
-<link rel="stylesheet" href="/static/login.css">
-<link rel="stylesheet" href="/static/ui.css">
-
-<script src="/static/app.js" defer></script>
-
-
+    <script src="/static/app.js" defer></script>
 </head>
 
 <body class="auth-page customer-auth modern-customer-page">
 
 <main class="auth-layout">
 
+    <section class="auth-card">
 
-<section class="auth-card">
-
-    <div class="auth-brand">
-        <a href="/">De Go Salon</a>
-    </div>
-
-    <div class="auth-header">
-        <h1>Customer Login</h1>
-        <p>Welcome back. Sign in to continue.</p>
-    </div>
-
-    {{if .Notice}}
-        <p class="auth-message auth-notice" role="status">
-            {{.Notice}}
-        </p>
-    {{end}}
-
-    {{template "form-error" .Error}}
-
-    <form class="auth-form ui-form"
-          method="post"
-          action="/customer/login" {{if .Error}}aria-describedby="form-error"{{end}}>
-        <input type="hidden" name="next" value="{{index .Values "next"}}">
-
-        <div class="auth-field ui-field">
-            <label for="email">Email</label>
-
-            <input
-                id="email"
-                type="email"
-                name="email"
-                value="{{index .Values "email"}}"
-                autocomplete="email"
-                placeholder="Enter your email"
-                required
-            >
-        </div>
-
-        <div class="auth-field ui-field">
-            <label for="password">Password</label>
-
-            <input
-                id="password"
-                type="password"
-                name="password"
-                autocomplete="current-password"
-                placeholder="Enter your password"
-                required
-            >
-        </div>
-
-        <div class="auth-options">
-            <a href="/customer/forgot-password">
-                Forgot your password?
+        <div class="auth-brand">
+            <a class="site-brand" href="/" aria-label="De Go Salon home">
+                <span class="site-brand-mark" aria-hidden="true">DG</span>
+                <span class="auth-brand-name">De Go Salon</span>
             </a>
         </div>
 
-        <button class="auth-submit ui-control" type="submit">
-            Sign In
-        </button>
+        <nav class="auth-role-switch" aria-label="Sign-in role">
+            <a href="/customer/login{{if index .Values "next"}}?next={{urlquery (index .Values "next")}}{{end}}" class="role-pill active" aria-current="page">Customer</a>
+            <a href="/barber/login{{if index .Values "next"}}?next={{urlquery (index .Values "next")}}{{end}}" class="role-pill">Barber Shop</a>
+        </nav>
 
-    </form>
+        <div class="auth-header">
+            <h1>Customer Login</h1>
+            <p>Welcome back. Sign in to your customer account to continue.</p>
+        </div>
 
-    <div class="auth-register">
-        <span>Don't have an account?</span>
+        {{if .Notice}}
+            <p class="auth-message auth-notice" role="status">
+                {{.Notice}}
+            </p>
+        {{end}}
 
-        <a href="/customer/register?next={{urlquery (index .Values "next")}}">
-            Create an account
-        </a>
-    </div>
+        {{template "form-error" .Error}}
 
-    <div class="auth-footer">
-        <a href="/">
-            ← Back to De Go Salon
-        </a>
-    </div>
+        <form class="auth-form ui-form"
+              method="post"
+              action="/customer/login" {{if .Error}}aria-describedby="form-error"{{end}}>
+            <input type="hidden" name="next" value="{{index .Values "next"}}">
 
-</section>
+            <div class="auth-field ui-field">
+                <label for="email">Email</label>
 
+                <input
+                    id="email"
+                    type="email"
+                    name="email"
+                    value="{{index .Values "email"}}"
+                    autocomplete="email"
+                    placeholder="Enter your email"
+                    required
+                >
+            </div>
+
+            <div class="auth-field ui-field">
+                <label for="password">Password</label>
+
+                <input
+                    id="password"
+                    type="password"
+                    name="password"
+                    autocomplete="current-password"
+                    placeholder="Enter your password"
+                    required
+                >
+            </div>
+
+            <div class="auth-options">
+                <a href="/customer/forgot-password">
+                    Forgot your password?
+                </a>
+            </div>
+
+            <button class="auth-submit ui-control" type="submit">
+                Sign In
+            </button>
+
+        </form>
+
+        <div class="auth-register">
+            <span>Don't have an account?</span>
+
+            <a href="/customer/register?next={{urlquery (index .Values "next")}}">
+                Create an account
+            </a>
+        </div>
+
+        <div class="auth-footer">
+            <a href="/">
+                ← Back to De Go Salon
+            </a>
+        </div>
+
+    </section>
 
 </main>
 

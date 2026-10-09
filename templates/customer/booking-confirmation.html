@@ -4,15 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-
     <link rel="stylesheet" href="/static/app.css">
-<title>Booking Details - De Go Salon</title>
+    <title>Booking Details - De Go Salon</title>
 
-    <link
-        rel="stylesheet"
-        href="/static/customer-booking-confirmation.css"
-    >
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/customer-booking-confirmation.css">
+    <link rel="stylesheet" href="/static/ui.css">
+    <script src="/static/app.js" defer></script>
 </head>
 
 <body class="modern-customer-page">
@@ -24,7 +21,7 @@
 
     <main class="confirmation-main ui-page">
 
-        <section class="confirmation-card">
+        <section class="confirmation-card ui-panel">
 
 
             <p class="eyebrow">Appointment Request</p>
@@ -104,6 +101,11 @@
                 >
                     Back to Barber
                 </a>
+
+                <button type="button" class="secondary-button share-trigger ui-control" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;" data-share-title="Haircut booking at {{.Barber.ShopName}}" data-share-text="I just booked {{.Hairstyle.Name}} at {{.Barber.ShopName}} on {{.Booking.Date}} via De Go Salon!" data-share-url="/customer/bookings">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Share Booking
+                </button>
 
             </div>
 

@@ -42,8 +42,8 @@
 @media(max-width:960px){.shell-rail{position:static}}
 
 /* Mobile sticky bottom action bar (Facebook Marketplace standard) */
-.mobile-sticky-action-bar{position:fixed;bottom:0;left:0;right:0;z-index:45;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.75rem 1rem;padding-bottom:max(0.75rem, env(safe-area-inset-bottom));background:rgba(9,22,19,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.25);transform:translateY(110%);transition:transform .24s cubic-bezier(0.16,1,0.3,1)}
-.mobile-sticky-action-bar.visible{transform:translateY(0)}
+.mobile-sticky-action-bar{position:fixed;bottom:0;left:0;right:0;z-index:45;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.75rem 1rem;padding-bottom:max(0.75rem, env(safe-area-inset-bottom));background:rgba(9,22,19,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.25);transform:translateY(110%);visibility:hidden;pointer-events:none;transition:transform .24s cubic-bezier(0.16,1,0.3,1),visibility .24s ease}
+.mobile-sticky-action-bar.visible{transform:translateY(0);visibility:visible;pointer-events:auto}
 @media(min-width:761px){.mobile-sticky-action-bar{display:none!important}}
 
 /* Accessible Web Share modal & fallback sheet (X & Facebook standard) */

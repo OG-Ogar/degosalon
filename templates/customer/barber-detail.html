@@ -8,9 +8,8 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    
     <link rel="stylesheet" href="/static/app.css">
-<title>
+    <title>
         {{.Barber.ShopName}} - De Go Salon
     </title>
 
@@ -19,7 +18,7 @@
 
     <link rel="stylesheet"
           href="/static/image-viewer.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js"
             defer></script>
@@ -46,7 +45,7 @@
     </a>
 
 
-    <section class="barber-card ui-panel">
+    <section class="barber-card ui-panel hero-section">
 
         <div class="barber-photo">
 
@@ -117,10 +116,15 @@
                     Message Barber
                 </a>
 
-                <a class="book-button"
+                <a class="book-button hero-cta-btn"
                    href="#booking">
                     Book a Haircut
                 </a>
+
+                <button type="button" class="action-btn share-trigger ui-control" style="padding:0.6rem 1.1rem;font-size:0.85rem;display:inline-flex;align-items:center;gap:6px;border-radius:10px;border:1px solid var(--border,#355348);background:var(--surface-hi,#254137);color:var(--ink,#f8f5e9);cursor:pointer;" data-share-title="{{.Barber.ShopName}} on De Go Salon" data-share-text="Check out {{.Barber.ShopName}} on De Go Salon" data-share-url="/explore/{{.Barber.ID}}">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                    Share
+                </button>
 
             </div>
 
@@ -448,6 +452,14 @@
     <p><a class="message-button" href="/customer/products?barber={{.Barber.ID}}">Shop this barber’s products</a></p>
 
 </main>
+
+<aside class="mobile-sticky-action-bar" aria-label="Quick booking bar" data-sticky-action-bar>
+    <div class="mobile-sticky-info">
+        <strong style="display:block;font-size:0.92rem;color:var(--ink,#f8f5e9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px;">{{.Barber.ShopName}}</strong>
+        <span style="font-size:0.75rem;color:var(--signal,#f4cb78);font-weight:700;">Book Appointment</span>
+    </div>
+    <a href="#booking" class="hero-button" tabindex="-1" style="padding:8px 18px;font-size:0.85rem;text-decoration:none;white-space:nowrap;">Book Now</a>
+</aside>
 
 </div>
 

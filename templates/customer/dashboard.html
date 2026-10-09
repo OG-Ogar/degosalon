@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    
     <link rel="stylesheet" href="/static/app.css">
-<title>My dashboard - De Go Salon</title>
+    <title>My dashboard - De Go Salon</title>
 
     <link rel="stylesheet" href="/static/customer-dashboard.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
 
@@ -28,265 +27,284 @@
 
     {{template "role-header" (navigation "customer" "dashboard" .)}}
 
-    <main class="customer-content ui-page">
+    <main class="customer-content ui-page shell-layout">
 
-        <section class="welcome">
+        <div class="shell-feed">
 
-            <p class="eyebrow">
-                Welcome back
-            </p>
+            <section class="welcome">
 
-            <h1>
-                Hello, {{.FullName}}
-            </h1>
+                <p class="eyebrow">
+                    Welcome back
+                </p>
 
-            <p class="welcome-text">
-                Book your next haircut, manage your appointments,
-                and stay connected with your barber.
-            </p>
+                <h1>
+                    Hello, {{.FullName}}
+                </h1>
 
-            <a class="hero-button"
-               href="/customer/barbers">
-                Find a barber
-            </a>
+                <p class="welcome-text">
+                    Book your next haircut, manage your appointments,
+                    and stay connected with your barber.
+                </p>
 
-        </section>
-
-        <section class="customer-stats"
-                 aria-label="Dashboard summary">
-
-            <article class="stat-card">
-
-                <span class="stat-number">
-                    {{.Barbers}}
-                </span>
-
-                <span class="stat-label">
-                    Barbers available
-                </span>
-
-            </article>
-
-            <article class="stat-card">
-
-                <span class="stat-number">
-                    {{.Pending}}
-                </span>
-
-                <span class="stat-label">
-                    Awaiting confirmation
-                </span>
-
-            </article>
-
-            <article class="stat-card">
-
-                <span class="stat-number">
-                    {{.UpcomingCount}}
-                </span>
-
-                <span class="stat-label">
-                    Upcoming appointments
-                </span>
-
-            </article>
-
-            <article class="stat-card">
-
-                <span class="stat-number">
-                    {{.Conversations}}
-                </span>
-
-                <span class="stat-label">
-                    Conversations
-                </span>
-
-            </article>
-
-        </section>
-
-
-        <section class="appointments">
-
-            <div class="section-heading">
-
-                <div>
-                    <p class="eyebrow">
-                        Your schedule
-                    </p>
-
-                    <h2>
-                        Next appointments
-                    </h2>
-                </div>
-
-                <a class="section-link"
-                   href="/customer/bookings?group=upcoming">
-                    See all bookings
+                <a class="hero-button"
+                   href="/customer/barbers">
+                    Find a barber
                 </a>
 
-            </div>
+            </section>
 
-            <p>Up to six upcoming appointments, newest requests first. Open all bookings for the full list.</p>
-{{if .Upcoming}}
+            <section class="customer-stats"
+                     aria-label="Dashboard summary">
 
-                <div class="appointment-list">
+                <article class="stat-card">
 
-                    {{range .Upcoming}}
+                    <span class="stat-number">
+                        {{.Barbers}}
+                    </span>
 
-                        <article class="appointment-card">
+                    <span class="stat-label">
+                        Barbers available
+                    </span>
 
-                            <div class="appointment-date">
-                                <span>{{.Date}}</span>
-                                <strong>{{.Time}}</strong>
-                            </div>
+                </article>
 
-                            <div class="appointment-details">
+                <article class="stat-card">
 
-                                <h3>
-                                    {{.HairstyleName}}
-                                </h3>
+                    <span class="stat-number">
+                        {{.Pending}}
+                    </span>
 
-                                <p>
-                                    {{.BarberName}}
-                                </p>
+                    <span class="stat-label">
+                        Awaiting confirmation
+                    </span>
 
-                                <span>
-                                    {{.ShopName}}
-                                </span>
+                </article>
 
-                            </div>
+                <article class="stat-card">
 
-                            <div class="appointment-status">
+                    <span class="stat-number">
+                        {{.UpcomingCount}}
+                    </span>
 
-                                {{template "domain-status" (domainStatus "booking" .Status)}}
+                    <span class="stat-label">
+                        Upcoming appointments
+                    </span>
 
-                            </div>
+                </article>
 
-                        </article>
+                <article class="stat-card">
 
-                    {{end}}
+                    <span class="stat-number">
+                        {{.Conversations}}
+                    </span>
 
-                </div>
+                    <span class="stat-label">
+                        Conversations
+                    </span>
 
-            {{else}}
+                </article>
 
-                <div class="empty-appointments">
+            </section>
 
-                    <h3>
-                        No appointments yet
-                    </h3>
 
-                    <p>
-                        Find a barber and book your first haircut.
-                    </p>
+            <section class="appointments">
 
-                    <a class="hero-button"
-                       href="/customer/barbers">
-                        Browse barbers
+                <div class="section-heading">
+
+                    <div>
+                        <p class="eyebrow">
+                            Your schedule
+                        </p>
+
+                        <h2>
+                            Next appointments
+                        </h2>
+                    </div>
+
+                    <a class="section-link"
+                       href="/customer/bookings?group=upcoming">
+                        See all bookings
                     </a>
 
                 </div>
 
-            {{end}}
+                <p>Up to six upcoming appointments, newest requests first. Open all bookings for the full list.</p>
+                {{if .Upcoming}}
 
-        </section>
+                    <div class="appointment-list">
+
+                        {{range .Upcoming}}
+
+                            <article class="appointment-card">
+
+                                <div class="appointment-date">
+                                    <span>{{.Date}}</span>
+                                    <strong>{{.Time}}</strong>
+                                </div>
+
+                                <div class="appointment-details">
+
+                                    <h3>
+                                        {{.HairstyleName}}
+                                    </h3>
+
+                                    <p>
+                                        {{.BarberName}}
+                                    </p>
+
+                                    <span>
+                                        {{.ShopName}}
+                                    </span>
+
+                                </div>
+
+                                <div class="appointment-status">
+
+                                    {{template "domain-status" (domainStatus "booking" .Status)}}
+
+                                </div>
+
+                            </article>
+
+                        {{end}}
+
+                    </div>
+
+                {{else}}
+
+                    <div class="empty-appointments">
+
+                        <h3>
+                            No appointments yet
+                        </h3>
+
+                        <p>
+                            Find a barber and book your first haircut.
+                        </p>
+
+                        <a class="hero-button"
+                           href="/customer/barbers">
+                            Browse barbers
+                        </a>
+
+                    </div>
+
+                {{end}}
+
+            </section>
 
 
-        <section class="appointments">
+            <section class="appointments">
 
-            <div class="section-heading">
+                <div class="section-heading">
 
-                <div>
-                    <p class="eyebrow">
-                        Your purchases
-                    </p>
+                    <div>
+                        <p class="eyebrow">
+                            Your purchases
+                        </p>
 
-                    <h2>
-                        My Product Orders
-                    </h2>
-                </div>
+                        <h2>
+                            My Product Orders
+                        </h2>
+                    </div>
 
-                <a class="section-link"
-                   href="/customer/products">
-                    Shop products
-                </a>
-
-            </div>
-
-            <p id="orders">Up to 24 orders per page, newest first.</p>
-{{template "list-pagination" .OrderPagination}}
-{{if .ProductOrders}}
-
-                <div class="appointment-list">
-
-                    {{range .ProductOrders}}
-
-                        <article class="appointment-card">
-
-                            <div class="appointment-date">
-
-                                <span>
-                                    Order #{{.ID}}
-                                </span>
-
-                                <strong>
-                                    {{.CreatedAt.Format "02 Jan 2006"}}
-                                </strong>
-
-                            </div>
-
-                            <div class="appointment-details">
-
-                                <h3>
-                                    {{naira .TotalAmount}}
-                                </h3>
-
-                                <p>
-                                    {{.CustomerName}}
-                                </p>
-
-                                {{template "domain-status" (domainStatus "order" .Status)}}
-
-                            </div>
-
-                            <div class="appointment-status">
-
-                                <a class="section-link"
-                                   href="/customer/order-confirmation/{{.ID}}">
-                                    View order
-                                </a>
-
-                            </div>
-
-                        </article>
-
-                    {{end}}
-
-                </div>
-
-            {{else}}
-
-                <div class="empty-appointments">
-
-                    <h3>
-                        No product orders yet
-                    </h3>
-
-                    <p>
-                        Browse products from barbers and make your first purchase.
-                    </p>
-
-                    <a class="hero-button"
+                    <a class="section-link"
                        href="/customer/products">
-                        Browse products
+                        Shop products
                     </a>
 
                 </div>
 
-            {{end}}
+                <p id="orders">Up to 24 orders per page, newest first.</p>
+                {{template "list-pagination" .OrderPagination}}
+                {{if .ProductOrders}}
 
-        </section>
+                    <div class="appointment-list">
+
+                        {{range .ProductOrders}}
+
+                            <article class="appointment-card">
+
+                                <div class="appointment-date">
+
+                                    <span>
+                                        Order #{{.ID}}
+                                    </span>
+
+                                    <strong>
+                                        {{.CreatedAt.Format "02 Jan 2006"}}
+                                    </strong>
+
+                                </div>
+
+                                <div class="appointment-details">
+
+                                    <h3>
+                                        {{naira .TotalAmount}}
+                                    </h3>
+
+                                    <p>
+                                        {{.CustomerName}}
+                                    </p>
+
+                                    {{template "domain-status" (domainStatus "order" .Status)}}
+
+                                </div>
+
+                                <div class="appointment-status">
+
+                                    <a class="section-link"
+                                       href="/customer/order-confirmation/{{.ID}}">
+                                        View order
+                                    </a>
+
+                                </div>
+
+                            </article>
+
+                        {{end}}
+
+                    </div>
+
+                {{else}}
+
+                    <div class="empty-appointments">
+
+                        <h3>
+                            No product orders yet
+                        </h3>
+
+                        <p>
+                            Browse products from barbers and make your first purchase.
+                        </p>
+
+                        <a class="hero-button"
+                           href="/customer/products">
+                            Browse products
+                        </a>
+
+                    </div>
+
+                {{end}}
+
+            </section>
+
+        </div>
+
+        <aside class="shell-rail" aria-label="Quick shortcuts and recommendations">
+            <div class="ui-panel" style="padding:1.25rem;border-radius:16px;background:var(--surface,#193129);border:1px solid var(--border,#355348);">
+                <p class="eyebrow" style="margin-top:0">Quick Actions</p>
+                <div style="display:flex;flex-direction:column;gap:0.75rem;margin-top:0.75rem;">
+                    <a class="hero-button" href="/customer/barbers" style="text-align:center;text-decoration:none;display:block;">Find a Barber &rarr;</a>
+                    <a class="section-link" href="/customer/products" style="text-align:center;text-decoration:none;display:block;padding:0.7rem;border:1px solid var(--border,#355348);border-radius:8px;color:var(--ink,#f8f5e9);">Shop Accessories</a>
+                    <a class="section-link" href="/customer/bookings?group=upcoming" style="text-align:center;text-decoration:none;display:block;padding:0.7rem;border:1px solid var(--border,#355348);border-radius:8px;color:var(--ink,#f8f5e9);">View All Bookings</a>
+                </div>
+            </div>
+            <div class="ui-panel" style="padding:1.25rem;border-radius:16px;background:var(--surface,#193129);border:1px solid var(--border,#355348);">
+                <p class="eyebrow" style="margin-top:0">De Go Standard</p>
+                <p style="margin:0.5rem 0 0;font-size:0.85rem;color:var(--ink-muted,#c2d4c7);line-height:1.5;">Direct messaging with verified master barbers, transparent Naira pricing, and guaranteed appointment slots across all 36 states and FCT.</p>
+            </div>
+        </aside>
 
     </main>
 

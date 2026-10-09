@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="/static/customer-barber-profile.css">
 <link rel="stylesheet" href="/static/image-viewer.css">
 <link rel="stylesheet" href="/static/ui.css"><script src="/static/image-viewer.js" defer></script>
+<script src="/static/app.js" defer></script>
 {{template "public-metadata" (publicMetadata (printf "/explore/%d" .Barber.ID) (printf "%s - De Go Salon" .Barber.ShopName) (printf "Explore %s in %s, %s. Compare services, prices and completed-booking reviews." .Barber.ShopName .Barber.LocalArea .Barber.State) (or .Barber.ProfileImage .Barber.PersonalImage) .Barber.ShopName "profile" "summary_large_image" (salonSchema .Barber .Rating .ReviewCount))}}
 </head>
 <body class="public-profile-page"><div class="barber-page">
@@ -23,7 +24,7 @@
 <div class="barber-identity">{{if .Barber.PersonalImage}}<img class="avatar" src="{{.Barber.PersonalImage}}" alt="{{.Barber.FullName}}" data-fullscreen-image decoding="async" srcset="{{imageSrcset .Barber.PersonalImage}}" sizes="96px" width="640" height="480" loading="lazy">{{else}}<span class="avatar avatar-placeholder" aria-hidden="true">DG</span>{{end}}<div><small>Your barber</small><p class="barber-name">{{.Barber.FullName}}</p></div></div>
 <p class="barber-address"><span aria-hidden="true">⌖</span>{{if .Barber.ShopAddress}}{{.Barber.ShopAddress}} · {{end}}{{.Barber.LocalArea}}, {{.Barber.State}}</p>
 <div class="shop-trust-row">{{if .ReviewCount}}<strong>★ {{printf "%.1f" .Rating}}</strong><small>{{.ReviewCount}} verified booking reviews</small>{{else}}<strong>New on De Go Salon</strong><small>No reviews yet</small>{{end}}</div>
-<div class="barber-actions ui-actions"><a class="book-button" href="{{.BookLink}}">Book this barber <span aria-hidden="true">→</span></a><a class="message-button" href="{{.MessageLink}}">Message barber</a></div>
+<div class="barber-actions ui-actions"><a class="book-button" href="{{.BookLink}}">Book this barber <span aria-hidden="true">→</span></a><a class="message-button" href="{{.MessageLink}}">Message barber</a><button type="button" class="share-profile-button ui-control" data-share data-share-title="{{.Barber.ShopName}} on De Go Salon" data-share-text="Discover services and haircuts from {{.Barber.ShopName}} in {{.Barber.LocalArea}}, {{.Barber.State}} on De Go Salon" data-share-url="/explore/{{.Barber.ID}}" aria-label="Share {{.Barber.ShopName}}"><span aria-hidden="true">↗</span> Share</button></div>
 {{if .CustomerSignedIn}}<p class="signin-note">You are signed in. Continue straight to booking or messaging.</p>{{else}}<p class="signin-note">You can view this barber and their handwork without signing in. Sign in only when you are ready to book or message.</p>{{end}}</div>
 </section>
 
@@ -38,5 +39,13 @@
 <section class="hairstyles-section" id="reviews"><div class="section-title"><div><p class="eyebrow"><span></span> Completed appointments</p><h2>Verified customer reviews</h2></div>{{if .ReviewCount}}<span class="count">★ {{printf "%.1f" .Rating}} · {{.ReviewCount}}</span>{{end}}</div><div class="public-review-list">{{range .Reviews}}<article class="public-review-card"><div class="review-heading"><strong>{{.CustomerName}}</strong><span>{{.Rating}}/5 ★</span></div>{{if .Comment}}<p>{{.Comment}}</p>{{end}}<small>Verified completed booking</small></article>{{else}}<div class="empty-state"><div class="empty-icon">★</div><h2>No reviews yet.</h2><p>Reviews appear here after customers complete appointments.</p></div>{{end}}</div>{{template "list-pagination" .ReviewPagination}}</section>
 
 <section class="shop-final-cta"><p class="eyebrow">Ready for your cut?</p><h2>Book {{.Barber.ShopName}}</h2>{{if .CustomerSignedIn}}<p>Choose your hairstyle and appointment time now.</p><div class="barber-actions ui-actions"><a class="book-button" href="{{.BookLink}}">Book now <span aria-hidden="true">→</span></a></div>{{else}}<p>Create an account or sign in when you are ready to book.</p><div class="barber-actions ui-actions"><a class="book-button" href="{{.BookLink}}">Sign in to Book <span aria-hidden="true">→</span></a><a class="message-button" href="{{.RegisterLink}}">Create Account</a></div>{{end}}</section>
-</main></div>{{template "public-footer" .}}
+</main>
+<div class="mobile-sticky-action-bar" aria-hidden="true" data-sticky-action-bar>
+<div class="sticky-action-info">
+<strong class="sticky-shop-name">{{.Barber.ShopName}}</strong>
+<small class="sticky-shop-loc">{{.Barber.LocalArea}}, {{.Barber.State}}</small>
+</div>
+<a class="book-button ui-control primary" href="{{.BookLink}}">Book Now <span aria-hidden="true">→</span></a>
+</div>
+</div>{{template "public-footer" .}}
 </body></html>

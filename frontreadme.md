@@ -769,7 +769,7 @@ function wireStickyMobileBookingBar() {
 - [x] Compile TypeScript to `static/app.js` (`npm run build`).
 
 ### 6.4 Phase 4 — Page-by-Page Modernization
-- [ ] Modernize Public Domain: `home.html`, `explore.html`, `explore-barber.html`, `public-content.html`.
+- [x] Modernize Public Domain: `home.html`, `explore.html`, `explore-barber.html`, `public-content.html`.
 - [ ] Modernize Customer Authentication: `login.html`, `register.html`, `forgot-password.html`, `reset-password.html`.
 - [ ] Modernize Customer Application: `dashboard.html`, `barber-list.html`, `barber-detail.html`, `bookings.html`, `products.html`, `cart.html`, `profile.html`, `chats.html`, `chat.html`.
 - [ ] Modernize Barber Authentication & Onboarding: `login.html`, `register.html`, `forgot-password.html`, `reset-password.html`.

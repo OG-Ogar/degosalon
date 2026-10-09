@@ -3,17 +3,20 @@
 <title>{{.Title}} - De Go Salon</title>{{if .Placeholder}}<meta name="robots" content="noindex, follow">{{end}}
 {{template "public-metadata" (publicMetadata .Path (printf "%s - De Go Salon" .Title) .Description)}}
 <link rel="stylesheet" href="/static/app.css">
-<link rel="stylesheet" href="/static/ui.css"></head>
+<link rel="stylesheet" href="/static/ui.css">
+<script src="/static/app.js" defer></script></head>
 <body class="modern-role-page">
-<header class="site-header"><a class="site-brand" href="/">De Go Salon</a><nav class="site-navigation" aria-label="Public navigation"><a href="/explore">Find a Barber</a><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a></nav></header>
+<header class="site-header"><a class="site-brand" href="/" aria-label="De Go Salon home"><span class="site-brand-mark" aria-hidden="true">DG</span><span class="site-brand-copy"><span class="site-brand-name">De Go Salon</span><span class="site-brand-tag">Your complete barber ecosystem</span></span></a><nav class="site-navigation" aria-label="Public navigation"><a href="/explore">Find a Barber</a><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a></nav></header>
 <main class="public-content-card ui-page"><h1>{{.Title}}</h1>
 {{if .Placeholder}}<p class="content-placeholder"><strong>Placeholder — awaiting approved content.</strong></p>{{end}}
 {{if eq .Kind "help"}}
 <p>These quick steps describe the current app. The full help center is pending.</p>
-<h2>Find and book a barber</h2><p><a href="/explore">Choose your state/FCT and optional LGA or area council</a>, open a barber’s profile, and choose a service. Sign in as a customer to select a date and an available time, then submit your appointment request. Check My Bookings for its status.</p>
-<h2>Messages</h2><p>Open Messages from your dashboard. Send a message or use Refresh conversation to see new replies.</p>
-<h2>Products and collection</h2><p>Open Products from your customer dashboard, choose available items and review your cart before placing an order. Follow the collection and payment instructions shown with your order.</p>
-<h2>Account recovery</h2><p>Use Forgot password on your role’s sign-in page. If recovery is unavailable or your email does not arrive, <a href="/support">contact support</a>.</p>
+<div class="faq-accordion" aria-label="Frequently asked questions">
+<details class="faq-item" open><summary class="faq-summary">Find and book a barber</summary><div class="faq-content"><p><a href="/explore">Choose your state/FCT and optional LGA or area council</a>, open a barber’s profile, and choose a service. Sign in as a customer to select a date and an available time, then submit your appointment request. Check My Bookings for its status.</p></div></details>
+<details class="faq-item"><summary class="faq-summary">Messages</summary><div class="faq-content"><p>Open Messages from your dashboard. Send a message or use Refresh conversation to see new replies.</p></div></details>
+<details class="faq-item"><summary class="faq-summary">Products and collection</summary><div class="faq-content"><p>Open Products from your customer dashboard, choose available items and review your cart before placing an order. Follow the collection and payment instructions shown with your order.</p></div></details>
+<details class="faq-item"><summary class="faq-summary">Account recovery</summary><div class="faq-content"><p>Use Forgot password on your role’s sign-in page. If recovery is unavailable or your email does not arrive, <a href="/support">contact support</a>.</p></div></details>
+</div>
 {{else if eq .Kind "support"}}
 <p>Call De Go Salon support using either number below.</p><ul class="support-contacts"><li><a href="tel:+2348128162561">08128162561</a></li><li><a href="tel:+2349164226427">09164226427</a></li></ul><p>For a question about an appointment or shop, signed-in customers can use Messages to contact their barber. This is a shop conversation, not a support desk.</p><p><a href="/help">Read the app’s quick help</a></p>
 {{else if eq .Kind "privacy"}}

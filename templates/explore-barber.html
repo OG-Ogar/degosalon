@@ -40,12 +40,12 @@
 
 <section class="shop-final-cta"><p class="eyebrow">Ready for your cut?</p><h2>Book {{.Barber.ShopName}}</h2>{{if .CustomerSignedIn}}<p>Choose your hairstyle and appointment time now.</p><div class="barber-actions ui-actions"><a class="book-button" href="{{.BookLink}}">Book now <span aria-hidden="true">→</span></a></div>{{else}}<p>Create an account or sign in when you are ready to book.</p><div class="barber-actions ui-actions"><a class="book-button" href="{{.BookLink}}">Sign in to Book <span aria-hidden="true">→</span></a><a class="message-button" href="{{.RegisterLink}}">Create Account</a></div>{{end}}</section>
 </main>
-<div class="mobile-sticky-action-bar" aria-hidden="true" data-sticky-action-bar>
+<div class="mobile-sticky-action-bar" data-sticky-action-bar>
 <div class="sticky-action-info">
 <strong class="sticky-shop-name">{{.Barber.ShopName}}</strong>
 <small class="sticky-shop-loc">{{.Barber.LocalArea}}, {{.Barber.State}}</small>
 </div>
-<a class="book-button ui-control primary" href="{{.BookLink}}">Book Now <span aria-hidden="true">→</span></a>
+<a class="book-button ui-control primary" href="{{.BookLink}}" tabindex="-1">Book Now <span aria-hidden="true">→</span></a>
 </div>
 </div>{{template "public-footer" .}}
 </body></html>

@@ -4,14 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    
     <link rel="stylesheet" href="/static/app.css">
-<title>Find a Barber - De Go Salon</title>
+    <title>Find a Barber - De Go Salon</title>
 
     <link rel="stylesheet" href="/static/customer-barbers.css">
     <script src="/static/app.js" defer></script>
     <link rel="stylesheet" href="/static/image-viewer.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
     <script src="/static/image-viewer.js" defer></script>
 </head>
 
@@ -62,7 +61,7 @@
         {{if .SelectedState}}<p class="discovery-count">{{.Total}} active shops in this location. Up to 24 shops per page.</p>{{end}}
         {{if .Items}}
 
-            <!-- Search -->
+            <!-- Search & Quick Filters -->
             <section class="barber-filter-panel">
 
                 <div class="barber-filter-box">
@@ -78,6 +77,12 @@
                         placeholder="Search by shop, barber or location..."
                         autocomplete="off">
 
+                </div>
+
+                <div class="explore-chips-bar" role="toolbar" aria-label="Quick filters" style="display:flex;gap:8px;overflow-x:auto;padding:8px 0;scrollbar-width:none;-webkit-overflow-scrolling:touch;">
+                    <button type="button" class="chip active" data-chip-filter="" style="padding:6px 14px;border-radius:9999px;border:1px solid var(--signal);background:rgba(244,203,120,.12);color:var(--signal);font-size:0.8rem;font-weight:700;white-space:nowrap;cursor:pointer;">All Shops</button>
+                    <button type="button" class="chip" data-chip-filter="★" style="padding:6px 14px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:0.8rem;font-weight:600;white-space:nowrap;cursor:pointer;">★ Top Rated</button>
+                    <button type="button" class="chip" data-chip-filter="₦" style="padding:6px 14px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);color:var(--ink);font-size:0.8rem;font-weight:600;white-space:nowrap;cursor:pointer;">Prices Listed</button>
                 </div>
 
             </section>
@@ -244,6 +249,11 @@
                                         Message
                                     </a>
 
+                                    <button type="button" class="action-btn share-trigger ui-control" style="padding:0.45rem 0.85rem;font-size:0.8rem;display:inline-flex;align-items:center;gap:6px;border-radius:8px;border:1px solid var(--border);background:var(--surface-hi);color:var(--ink);cursor:pointer;" data-share-title="{{.ShopName}} on De Go Salon" data-share-text="Check out {{.ShopName}} in {{.LocalArea}}, {{.State}} on De Go Salon" data-share-url="{{discoveryCardPath "/customer/barbers" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+                                        Share
+                                    </button>
+
                                 </div>
 
                             </div>
@@ -262,7 +272,7 @@
                 <p class="eyebrow">No match in this location</p>
                 <h2>No registered barbers matched your selection.</h2>
                 <p>Try the state without an LGA/area council, or choose another location.</p>
- <a class="back-button" href="/customer/barbers?state={{urlquery .SelectedState}}">Search whole state</a>
+                <a class="back-button" href="/customer/barbers?state={{urlquery .SelectedState}}">Search whole state</a>
                 {{else}}
                 <p class="eyebrow">Choose your location</p>
                 <h2>Find a barber near you.</h2>

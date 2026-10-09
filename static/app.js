@@ -367,18 +367,26 @@
             return;
         const stickyBar = bar;
         const stickyTrigger = trigger;
+        function setBarActive(active) {
+            if (active) {
+                stickyBar.classList.add("visible");
+                stickyBar.querySelectorAll("a, button").forEach(function (el) {
+                    el.removeAttribute("tabindex");
+                });
+            }
+            else {
+                stickyBar.classList.remove("visible");
+                stickyBar.querySelectorAll("a, button").forEach(function (el) {
+                    el.setAttribute("tabindex", "-1");
+                });
+            }
+        }
+        setBarActive(false);
         if (typeof IntersectionObserver !== "undefined") {
             var observer = new IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
                     var scrolledPast = !entry.isIntersecting && entry.boundingClientRect.top < 0;
-                    if (scrolledPast) {
-                        stickyBar.classList.add("visible");
-                        stickyBar.removeAttribute("aria-hidden");
-                    }
-                    else {
-                        stickyBar.classList.remove("visible");
-                        stickyBar.setAttribute("aria-hidden", "true");
-                    }
+                    setBarActive(scrolledPast);
                 });
             }, { threshold: 0.1 });
             observer.observe(stickyTrigger);
@@ -386,12 +394,7 @@
         else {
             const onScroll = function () {
                 var rect = stickyTrigger.getBoundingClientRect();
-                if (rect.bottom < 0) {
-                    stickyBar.classList.add("visible");
-                }
-                else {
-                    stickyBar.classList.remove("visible");
-                }
+                setBarActive(rect.bottom < 0);
             };
             window.addEventListener("scroll", onScroll, { passive: true });
             onScroll();

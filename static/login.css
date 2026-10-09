@@ -7,3 +7,19 @@
 .auth-recovery-panel{display:grid;gap:10px;margin-top:18px;padding:16px;border:1px solid rgba(82,116,102,.45);border-radius:12px;background:rgba(9,22,19,.38)}
 .auth-link-button{display:flex;align-items:center;justify-content:center;text-decoration:none}
 @media(max-width:800px){.forgot-password-page .auth-layout{padding-top:32px}}
+
+/* Modernized auth brand mark & role switch */
+.auth-brand a{display:inline-flex;align-items:center;gap:10px;color:var(--signal,#f4cb78);text-decoration:none;font-size:.85rem;font-weight:850;letter-spacing:.08em;text-transform:uppercase}
+.auth-brand-name{color:var(--signal,#f4cb78);font-size:.82rem;font-weight:850;letter-spacing:.1em;text-transform:uppercase}
+
+.auth-role-switch{display:flex;padding:4px;background:var(--base,#10221d);border:1px solid var(--border,#355348);border-radius:9999px;margin:18px 0 24px;gap:4px}
+.auth-role-switch .role-pill{flex:1;display:inline-flex;align-items:center;justify-content:center;padding:8px 16px;border-radius:9999px;font-size:.82rem;font-weight:750;color:var(--ink-muted,#c2d4c7);text-decoration:none;transition:all .18s ease;text-align:center}
+.auth-role-switch .role-pill:hover{color:var(--ink,#f8f5e9);background:rgba(244,203,120,.08)}
+.auth-role-switch .role-pill.active{background:var(--surface-hi,#254137);color:var(--signal,#f4cb78);border:1px solid rgba(244,203,120,.35);box-shadow:0 2px 8px rgba(0,0,0,.25)}
+
+.auth-steps-indicator{display:flex;align-items:center;justify-content:space-between;margin:16px 0 24px;gap:6px}
+.auth-steps-indicator .step-badge{display:inline-flex;align-items:center;gap:6px;font-size:.72rem;font-weight:750;color:var(--ink-muted,#c2d4c7);text-transform:uppercase;letter-spacing:.04em}
+.auth-steps-indicator .step-badge.active{color:var(--signal,#f4cb78)}
+.auth-steps-indicator .step-dot{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--surface,#193129);border:1px solid var(--border,#355348);font-size:.68rem;font-weight:850;color:var(--ink-muted,#c2d4c7)}
+.auth-steps-indicator .step-badge.active .step-dot{background:var(--signal,#f4cb78);color:var(--signal-ink,#19251c);border-color:var(--signal,#f4cb78)}
+.auth-steps-indicator .step-connector{flex:1;height:1px;background:var(--border,#355348)}

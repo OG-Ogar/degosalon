@@ -38,6 +38,15 @@
                 <a class="landing-button" href="/explore">Explore Barbers <span aria-hidden="true">→</span></a>
                 {{if .CustomerSignedIn}}<a class="landing-secondary-button" href="/customer/dashboard">My dashboard</a>{{else}}<a class="landing-secondary-button" href="/customer/register">Create an Account</a>{{end}}
             </div>
+            <div class="landing-quick-locations" aria-label="Quick state discovery">
+                <span class="landing-quick-label">Browse state:</span>
+                <a href="/explore?state=Lagos" class="landing-loc-chip">Lagos</a>
+                <a href="/explore?state=FCT" class="landing-loc-chip">Abuja (FCT)</a>
+                <a href="/explore?state=Rivers" class="landing-loc-chip">Port Harcourt</a>
+                <a href="/explore?state=Oyo" class="landing-loc-chip">Ibadan</a>
+                <a href="/explore?state=Kano" class="landing-loc-chip">Kano</a>
+                <a href="/explore?state=Enugu" class="landing-loc-chip">Enugu</a>
+            </div>
             <div class="landing-steps" aria-label="How De Go Salon works">
                 <div><strong>01</strong><span>Discover</span><small>Find barbers by location.</small></div>
                 <div><strong>02</strong><span>Choose</span><small>See their work and prices.</small></div>
@@ -51,6 +60,23 @@
             <p>De Go Salon brings discovery, barber portfolios, services, products and appointments into one place.</p>
             <a href="/explore">Start exploring <span aria-hidden="true">↗</span></a>
         </aside>
+    </section>
+
+    <section class="landing-trust-banner" aria-label="Platform reach">
+        <div class="trust-stat">
+            <strong>36 States + FCT</strong>
+            <span>Nationwide discovery</span>
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-stat">
+            <strong>Verified Cuts</strong>
+            <span>Real photos & completed reviews</span>
+        </div>
+        <div class="trust-divider" aria-hidden="true"></div>
+        <div class="trust-stat">
+            <strong>Direct Booking</strong>
+            <span>Direct contact with your barber</span>
+        </div>
     </section>
 
     <section class="landing-value" aria-label="What you can do with De Go Salon">

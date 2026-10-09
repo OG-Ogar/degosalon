@@ -64,3 +64,14 @@
 .share-copy-input{flex:1;min-width:0;padding:10px 14px;font-size:.85rem;background:var(--void);border:1px solid var(--border);border-radius:10px;color:var(--ink)}
 .share-copy-btn{padding:10px 18px;border-radius:10px;font-weight:700;white-space:nowrap}
 .share-feedback{font-size:.8rem;color:var(--signal);min-height:1.2rem;margin:8px 0 0}
+
+/* Accessible FAQ accordion (Facebook & X standard) */
+.faq-accordion{display:flex;flex-direction:column;gap:12px;margin:24px 0}
+.faq-item{border:1px solid var(--border);border-radius:var(--control-radius);background:var(--surface);padding:0;overflow:hidden;transition:border-color .15s ease}
+.faq-item[open]{border-color:var(--signal)}
+.faq-summary{padding:14px 18px;font-weight:700;color:var(--ink);cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;user-select:none}
+.faq-summary::-webkit-details-marker{display:none}
+.faq-summary::after{content:"+";font-size:1.2rem;color:var(--signal);font-weight:900}
+.faq-item[open] .faq-summary::after{content:"−"}
+.faq-content{padding:0 18px 18px;color:var(--ink-muted);line-height:1.6}
+.faq-content p{margin:0}

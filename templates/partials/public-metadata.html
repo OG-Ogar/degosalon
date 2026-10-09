@@ -1,4 +1,22 @@
 {{define "public-metadata"}}<meta name="description" content="{{.Description}}">
-<meta property="og:type" content="website"><meta property="og:site_name" content="De Go Salon"><meta property="og:title" content="{{.Title}}"><meta property="og:description" content="{{.Description}}">
-<meta name="twitter:card" content="summary"><meta name="twitter:title" content="{{.Title}}"><meta name="twitter:description" content="{{.Description}}">
-{{if .Canonical}}<link rel="canonical" href="{{.Canonical}}"><meta property="og:url" content="{{.Canonical}}">{{end}}{{end}}
+<meta property="og:site_name" content="De Go Salon">
+<meta property="og:type" content="{{if .Type}}{{.Type}}{{else}}website{{end}}">
+<meta property="og:title" content="{{.Title}}">
+<meta property="og:description" content="{{.Description}}">
+<meta property="og:locale" content="en_NG">
+{{if .Canonical}}<link rel="canonical" href="{{.Canonical}}"><meta property="og:url" content="{{.Canonical}}">{{end}}
+{{if .Image}}<meta property="og:image" content="{{.Image}}">
+<meta property="og:image:secure_url" content="{{.Image}}">
+<meta property="og:image:width" content="{{if .ImageWidth}}{{.ImageWidth}}{{else}}1200{{end}}">
+<meta property="og:image:height" content="{{if .ImageHeight}}{{.ImageHeight}}{{else}}630{{end}}">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="{{if .ImageAlt}}{{.ImageAlt}}{{else}}{{.Title}}{{end}}">{{end}}
+{{if .FbAppID}}<meta property="fb:app_id" content="{{.FbAppID}}">{{end}}
+<meta name="twitter:card" content="{{if .TwitterCard}}{{.TwitterCard}}{{else}}summary_large_image{{end}}">
+<meta name="twitter:site" content="@degosalon">
+<meta name="twitter:creator" content="@degosalon">
+<meta name="twitter:title" content="{{.Title}}">
+<meta name="twitter:description" content="{{.Description}}">
+{{if .Image}}<meta name="twitter:image" content="{{.Image}}">
+<meta name="twitter:image:alt" content="{{if .ImageAlt}}{{.ImageAlt}}{{else}}{{.Title}}{{end}}">{{end}}
+{{if .StructuredData}}<script type="application/ld+json">{{.StructuredData}}</script>{{end}}{{end}}

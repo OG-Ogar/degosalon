@@ -445,23 +445,7 @@
     </section>
 
 
-    <!-- Products follow handwork so services and prices remain the primary booking journey. -->
-    {{if .Products}}
-    <section class="hairstyles-section" id="products">
-        <div class="section-title"><div><p class="eyebrow">From this barber</p><h2>Products for sale</h2></div><span class="count">{{len .Products}} available</span></div>
-        <div class="hairstyle-list">
-        {{range .Products}}
-            <article class="hairstyle-option" style="padding:1rem;margin-bottom:.75rem">
-                {{if .Image}}<div class="style-image"><img class="fullscreen-image" src="{{.Image}}" alt="{{.Name}}" data-fullscreen-image srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async"></div>{{end}}
-                <div class="style-info"><h3>{{.Name}}</h3><p>{{.Category}}</p>{{if .Description}}<span>{{.Description}}</span>{{end}}</div>
-                <div class="style-price"><strong>{{naira .Price}}</strong><span>{{.Quantity}} in stock</span></div>
-            </article>
-        {{end}}
-        </div>
-        {{template "list-pagination" .ProductPagination}}
-<a class="message-button" href="/customer/products?barber={{.Barber.ID}}">Shop products</a>
-    </section>
-    {{end}}
+    <p><a class="message-button" href="/customer/products?barber={{.Barber.ID}}">Shop this barber’s products</a></p>
 
 </main>
 

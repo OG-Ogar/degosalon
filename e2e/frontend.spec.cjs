@@ -398,7 +398,7 @@ test('inventory and portfolio pages preserve independent cursors and selected se
   await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:shop,exact:true}).first().click();const seller=customer.url().match(/\/barbers\/(\d+)/)[1];
   await customer.goto('/customer/barbers/'+seller+'?state=Lagos&area=Ikeja&after=41&hairstyle='+style);await expect(customer.locator('#availability-service option')).toHaveCount(25);await expect(customer.locator('[data-booking-summary]')).toContainText('Portfolio Style 24');
   await customer.getByRole('link',{name:'Next services',exact:true}).click();await expect(customer.locator('#availability-service option')).toHaveCount(1);expect(new URL(customer.url()).searchParams.get('after')).toBe('41');
-  await customer.getByRole('link',{name:'Next products',exact:true}).click();expect(new URL(customer.url()).searchParams.has('services_after')).toBe(true);expect(new URL(customer.url()).searchParams.has('products_after')).toBe(true);
+  await expect(customer.locator('#products')).toHaveCount(0);await expect(customer.getByText('Portfolio Product 0',{exact:true})).toHaveCount(0);
   await customer.getByRole('button',{name:'Show available times',exact:true}).click();await expect(customer.locator('#availability-service option')).toHaveCount(1);await expect(customer.locator('[data-booking-summary]')).toContainText('Portfolio Style 24');
   const portfolioURL=customer.url(),buyerCsrf=await customer.locator('#booking input[name=csrf_token]').inputValue();
   await customer.goto('/customer/products?barber='+seller);
@@ -409,6 +409,12 @@ test('inventory and portfolio pages preserve independent cursors and selected se
   await customer.getByRole('button',{name:/Place order/}).click();await expect(customer).toHaveURL(/order-confirmation/);await expect(customer.getByRole('heading',{name:'Portfolio Product 0 Pending',exact:true})).toBeVisible();await expect(customer.getByRole('heading',{name:'Portfolio Product 24 Pending',exact:true})).toBeVisible();
   await customer.goto(portfolioURL);
   await page.goto('/explore/'+seller+'?state=Lagos&area=Ikeja&after=41');await expect(page.locator('.public-style-card')).toHaveCount(24);await page.getByRole('link',{name:'Next services',exact:true}).click();await expect(page.locator('.public-style-card')).toHaveCount(1);
+  await expect(page.locator('.public-product-card')).toHaveCount(0);
+  await page.getByRole('link',{name:'Products',exact:true}).click();
+  await expect(page.locator('.public-product-card')).toHaveCount(24);await expect(page.locator('.public-style-card')).toHaveCount(0);
+  await page.getByRole('link',{name:'Next products',exact:true}).click();await expect(page.locator('.public-product-card')).toHaveCount(1);
+  expect(new URL(page.url()).searchParams.get('section')).toBe('products');
+  await page.getByRole('link',{name:'Handwork & prices',exact:true}).click();await expect(page.locator('.public-style-card')).toHaveCount(1);await expect(page.locator('.public-product-card')).toHaveCount(0);
   await page.setViewportSize({width:320,height:900});await checkPage(page,testInfo,'public-portfolio-pages-320');
   const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-portfolio-pages-320');}finally{await inspection.close();}
  }finally{await context.close();}

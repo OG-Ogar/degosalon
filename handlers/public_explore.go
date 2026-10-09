@@ -21,6 +21,8 @@ type exploreView struct {
 	SelectedState, SelectedArea string
 }
 type publicBarberView struct {
+	ShowProducts bool
+	HandworkLink, ProductsLink string
 	ServicePagination, ProductPagination, ReviewPagination listPagination
 	ResultsLink                                            string
 	LoginLink                                              string
@@ -132,7 +134,12 @@ func ExploreBarberHandler(w http.ResponseWriter, r *http.Request, idSegment stri
 		}
 		serviceLinks[style.ID] = destination
 	}
-	render(w, "explore-barber.html", publicBarberView{ServicePagination: portfolio.ServiceLinks, ProductPagination: portfolio.ProductLinks, ReviewPagination: portfolio.ReviewLinks, ResultsLink: discoveryPath("/explore", query), LoginLink: loginLink, RegisterLink: registerLink, ServiceLinks: serviceLinks, ProductLinks: productLinks, ShopLink: shopLink, Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
+	sections := r.URL.Query()
+	sections.Set("section", "handwork")
+	handworkLink := r.URL.Path + "?" + sections.Encode() + "#handwork"
+	sections.Set("section", "products")
+	productsLink := r.URL.Path + "?" + sections.Encode() + "#products"
+	render(w, "explore-barber.html", publicBarberView{ShowProducts: r.URL.Query().Get("section") == "products", HandworkLink: handworkLink, ProductsLink: productsLink, ServicePagination: portfolio.ServiceLinks, ProductPagination: portfolio.ProductLinks, ReviewPagination: portfolio.ReviewLinks, ResultsLink: discoveryPath("/explore", query), LoginLink: loginLink, RegisterLink: registerLink, ServiceLinks: serviceLinks, ProductLinks: productLinks, ShopLink: shopLink, Barber: b, Hairstyles: styles, Products: products, Reviews: reviews, Rating: rating, ReviewCount: count, CustomerSignedIn: signedIn, BookLink: bookLink, MessageLink: messageLink})
 }
 
 func publicCustomerSignedIn(r *http.Request) (bool, error) {

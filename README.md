@@ -377,3 +377,7 @@ Operators can run `go run ./cmd/audit -limit 100` with `DATABASE_URL` configured
 In the existing Render service's Environment settings, configure `BREVO_API_KEY`, `BREVO_FROM`, and a persistent `RESET_MAIL_KEY` of at least 32 random characters. Keep an existing `RESET_MAIL_KEY` unchanged; it encrypts queued recovery mail. `SITE_URL=https://degosalon.onrender.com` is optional when Render's `RENDER_EXTERNAL_URL` already matches the canonical site. Save and redeploy after changing configuration. Blueprint `sync: false` entries do not update an existing manually configured service. Keep keys out of Git and chat.
 
 After deployment, use Forgot password for an account and inbox you control. Check Brevo transactional logs and the inbox/spam folder, then verify the link resets the password and cannot be reused. A live Render deployment or an accepted provider receipt alone does not prove inbox delivery. The Brevo transport tests use fake HTTP responses and do not send real messages.
+
+### Customer gallery separation
+
+Public barber profiles open on Handwork & prices. The Products link opens a separate server-rendered product gallery; switching sections preserves independent pagination and discovery context. Customer booking pages show hairstyle selections and link to the seller's product catalogue. The remaining booking-photo, cart-reservation and chat-photo work is tracked in `remaining gap.md`.

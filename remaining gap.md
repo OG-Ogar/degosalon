@@ -1,3 +1,16 @@
+# Customer journey improvements — 9 October 2026
+
+Sequential workflow: branch, CI on the final head, merge, then verify Render before the next batch.
+
+1. **Separate galleries:** implemented in this batch. Public Handwork and Products use separate server-rendered views; booking pages contain hairstyle cards and a link to the product catalogue. Browser coverage checks switching and independent pagination.
+2. **Booking hairstyle photo:** pending. Persist the customer's selected hairstyle photo with the booking and show it in customer history and barber acceptance cards. Retain historical media references.
+3. **Cart stock reservations:** pending. The owner confirmed Buy adds to cart, not checkout. Reserve one unit on each accepted addition, release on removal or expiry, and consume reservations at checkout without double deduction. Include concurrent stock protection, clear expiry feedback and database migration.
+4. **Chat header photos:** pending. Show the conversation partner's profile picture above their name for both roles, with a fallback.
+
+Email configuration was completed on 9 October: Render deployment `dep-db4b1t59fdbs73bda4i0` was live and logged `password-recovery email worker configured`. Real-inbox acceptance remains unconfirmed.
+
+---
+
 # Remaining implementation gaps
 
 Updated: 8 October 2026. Baseline: main at `dfd5bfb3a6cdc6ae2a02897b7c74ca4b8c725e83`, including merged PR #115. The original scoped implementation gaps are merged. PR #115 passed verify, PostgreSQL and browser CI at final head `bcf7934dd2a6efd84604582b51919c2dbee6f493`. Production acceptance remains separate.

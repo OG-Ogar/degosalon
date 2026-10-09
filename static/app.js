@@ -148,6 +148,283 @@
             }
         });
     }
+    /* Auto-expanding textarea composer (Messenger & X DM standard). */
+    function wireAutoExpandTextarea(box) {
+        function adjust() {
+            box.style.height = "auto";
+            var nextHeight = Math.min(Math.max(box.scrollHeight, 48), 160);
+            box.style.height = nextHeight + "px";
+        }
+        box.addEventListener("input", adjust);
+        adjust();
+    }
+    /* Floating scroll-to-bottom indicator with smooth scroll jump. */
+    function wireScrollToBottom(thread) {
+        var button = document.createElement("button");
+        button.type = "button";
+        button.className = "chat-scroll-bottom";
+        button.setAttribute("aria-label", "Scroll to latest messages");
+        button.innerHTML = '<span aria-hidden="true">↓</span> Newest';
+        thread.insertAdjacentElement("afterend", button);
+        function checkScroll() {
+            var distanceFromBottom = thread.scrollHeight - thread.scrollTop - thread.clientHeight;
+            if (distanceFromBottom > 120) {
+                button.classList.add("visible");
+            }
+            else {
+                button.classList.remove("visible");
+            }
+        }
+        thread.addEventListener("scroll", checkScroll, { passive: true });
+        button.addEventListener("click", function () {
+            thread.scrollTo({ top: thread.scrollHeight, behavior: "smooth" });
+            button.classList.remove("visible");
+        });
+    }
+    function enhanceChat() {
+        var thread = document.querySelector(".thread");
+        if (thread) {
+            thread.scrollTop = thread.scrollHeight;
+            wireScrollToBottom(thread);
+        }
+        var send = document.querySelector("form.send");
+        var box = send && send.querySelector("textarea");
+        if (send && box) {
+            sendOnEnter(send, box);
+            wireAutoExpandTextarea(box);
+            if (window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+                box.focus();
+        }
+    }
+    /* ---- social share ---- */
+    /* Opens native Web Share API or accessible modal fallback with 1-click
+       links for X (Twitter), Facebook, WhatsApp, and clipboard copy. */
+    function wireSocialShare() {
+        var shareButtons = document.querySelectorAll("[data-share]");
+        if (!shareButtons.length)
+            return;
+        var shareDialog = null;
+        var lastShareOpener = null;
+        function getOrCreateShareDialog() {
+            if (shareDialog)
+                return shareDialog;
+            shareDialog = document.createElement("dialog");
+            shareDialog.className = "share-dialog";
+            shareDialog.setAttribute("aria-label", "Share options");
+            shareDialog.innerHTML =
+                '<div class="share-dialog-content">' +
+                    '<div class="share-dialog-header">' +
+                    '<h2 class="share-dialog-title">Share this page</h2>' +
+                    '<button type="button" class="share-dialog-close" aria-label="Close share options">&times;</button>' +
+                    '</div>' +
+                    '<div class="share-dialog-body">' +
+                    '<p class="share-dialog-desc"></p>' +
+                    '<div class="share-social-grid">' +
+                    '<a class="share-social-link share-x" target="_blank" rel="noopener noreferrer">' +
+                    '<span class="share-social-icon" aria-hidden="true">𝕏</span>' +
+                    '<span>Post on X</span>' +
+                    '</a>' +
+                    '<a class="share-social-link share-fb" target="_blank" rel="noopener noreferrer">' +
+                    '<span class="share-social-icon" aria-hidden="true">f</span>' +
+                    '<span>Facebook</span>' +
+                    '</a>' +
+                    '<a class="share-social-link share-wa" target="_blank" rel="noopener noreferrer">' +
+                    '<span class="share-social-icon" aria-hidden="true">💬</span>' +
+                    '<span>WhatsApp</span>' +
+                    '</a>' +
+                    '</div>' +
+                    '<div class="share-copy-row">' +
+                    '<label class="visually-hidden" for="share-copy-url">Link URL</label>' +
+                    '<input type="text" id="share-copy-url" class="share-copy-input" readonly>' +
+                    '<button type="button" class="primary share-copy-btn">Copy Link</button>' +
+                    '</div>' +
+                    '<p class="share-feedback" role="status" aria-live="polite"></p>' +
+                    '</div>' +
+                    '</div>';
+            document.body.appendChild(shareDialog);
+            var closeBtn = shareDialog.querySelector(".share-dialog-close");
+            closeBtn === null || closeBtn === void 0 ? void 0 : closeBtn.addEventListener("click", function () {
+                shareDialog === null || shareDialog === void 0 ? void 0 : shareDialog.close();
+            });
+            shareDialog.addEventListener("click", function (event) {
+                if (event.target === shareDialog) {
+                    shareDialog === null || shareDialog === void 0 ? void 0 : shareDialog.close();
+                }
+            });
+            shareDialog.addEventListener("close", function () {
+                var feedback = shareDialog === null || shareDialog === void 0 ? void 0 : shareDialog.querySelector(".share-feedback");
+                if (feedback)
+                    feedback.textContent = "";
+                if (lastShareOpener && lastShareOpener.isConnected) {
+                    lastShareOpener.focus();
+                }
+            });
+            var copyBtn = shareDialog.querySelector(".share-copy-btn");
+            var copyInput = shareDialog.querySelector(".share-copy-input");
+            var feedback = shareDialog.querySelector(".share-feedback");
+            copyBtn === null || copyBtn === void 0 ? void 0 : copyBtn.addEventListener("click", function () {
+                if (!copyInput)
+                    return;
+                var inputEl = copyInput;
+                inputEl.select();
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(inputEl.value).then(function () {
+                        if (copyBtn)
+                            copyBtn.textContent = "Copied! ✓";
+                        if (feedback)
+                            feedback.textContent = "Link copied to clipboard.";
+                        window.setTimeout(function () {
+                            if (copyBtn)
+                                copyBtn.textContent = "Copy Link";
+                        }, 2500);
+                    }).catch(function () {
+                        fallbackCopy(inputEl);
+                    });
+                }
+                else {
+                    fallbackCopy(inputEl);
+                }
+            });
+            function fallbackCopy(input) {
+                try {
+                    document.execCommand("copy");
+                    if (copyBtn)
+                        copyBtn.textContent = "Copied! ✓";
+                    if (feedback)
+                        feedback.textContent = "Link copied to clipboard.";
+                    window.setTimeout(function () {
+                        if (copyBtn)
+                            copyBtn.textContent = "Copy Link";
+                    }, 2500);
+                }
+                catch (_a) {
+                    if (feedback)
+                        feedback.textContent = "Please copy link manually.";
+                }
+            }
+            return shareDialog;
+        }
+        function openFallbackModal(title, text, url, trigger) {
+            lastShareOpener = trigger;
+            var dialog = getOrCreateShareDialog();
+            var desc = dialog.querySelector(".share-dialog-desc");
+            var xLink = dialog.querySelector(".share-x");
+            var fbLink = dialog.querySelector(".share-fb");
+            var waLink = dialog.querySelector(".share-wa");
+            var copyInput = dialog.querySelector(".share-copy-input");
+            if (desc)
+                desc.textContent = title;
+            if (copyInput)
+                copyInput.value = url;
+            var shareText = (text ? text + " - " : "") + title;
+            if (xLink)
+                xLink.href = "https://twitter.com/intent/tweet?text=" + encodeURIComponent(shareText) + "&url=" + encodeURIComponent(url);
+            if (fbLink)
+                fbLink.href = "https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(url);
+            if (waLink)
+                waLink.href = "https://api.whatsapp.com/send?text=" + encodeURIComponent(shareText + " " + url);
+            if (typeof dialog.showModal === "function") {
+                dialog.showModal();
+            }
+            else {
+                dialog.setAttribute("open", "");
+            }
+            var closeBtn = dialog.querySelector(".share-dialog-close");
+            closeBtn === null || closeBtn === void 0 ? void 0 : closeBtn.focus();
+        }
+        shareButtons.forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                var _a;
+                var title = btn.getAttribute("data-share-title") || document.title;
+                var text = btn.getAttribute("data-share-text") ||
+                    ((_a = document.querySelector('meta[name="description"]')) === null || _a === void 0 ? void 0 : _a.content) || "";
+                var url = btn.getAttribute("data-share-url") || window.location.href;
+                if (url.startsWith("/")) {
+                    url = window.location.origin + url;
+                }
+                if (navigator.share) {
+                    navigator.share({ title: title, text: text, url: url }).catch(function (err) {
+                        if (err && err.name !== "AbortError") {
+                            openFallbackModal(title, text, url, btn);
+                        }
+                    });
+                }
+                else {
+                    openFallbackModal(title, text, url, btn);
+                }
+            });
+        });
+    }
+    /* ---- sticky mobile action bar ---- */
+    /* On mobile viewports, when the hero CTA or trigger scrolls above the
+       viewport, slides in a sticky bottom action bar. */
+    function wireStickyMobileBar() {
+        var bar = document.querySelector(".mobile-sticky-action-bar, [data-sticky-action-bar]");
+        if (!bar)
+            return;
+        var trigger = document.querySelector("[data-sticky-trigger], .shop-hero, .barber-card");
+        if (!trigger)
+            return;
+        const stickyBar = bar;
+        const stickyTrigger = trigger;
+        if (typeof IntersectionObserver !== "undefined") {
+            var observer = new IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    var scrolledPast = !entry.isIntersecting && entry.boundingClientRect.top < 0;
+                    if (scrolledPast) {
+                        stickyBar.classList.add("visible");
+                        stickyBar.removeAttribute("aria-hidden");
+                    }
+                    else {
+                        stickyBar.classList.remove("visible");
+                        stickyBar.setAttribute("aria-hidden", "true");
+                    }
+                });
+            }, { threshold: 0.1 });
+            observer.observe(stickyTrigger);
+        }
+        else {
+            const onScroll = function () {
+                var rect = stickyTrigger.getBoundingClientRect();
+                if (rect.bottom < 0) {
+                    stickyBar.classList.add("visible");
+                }
+                else {
+                    stickyBar.classList.remove("visible");
+                }
+            };
+            window.addEventListener("scroll", onScroll, { passive: true });
+            onScroll();
+        }
+    }
+    /* ---- gallery keyboard navigation ---- */
+    /* Enhances any active image-viewer overlay with keyboard arrows and
+       touch gestures if not already wired by standalone script. */
+    function wireGalleryNavigation() {
+        var dialog = document.querySelector(".image-viewer-overlay");
+        if (!dialog)
+            return;
+        const overlay = dialog;
+        if (overlay.dataset.galleryEnhanced === "true")
+            return;
+        overlay.dataset.galleryEnhanced = "true";
+        overlay.addEventListener("keydown", function (event) {
+            if (event.key === "ArrowRight") {
+                var nextBtn = overlay.querySelector(".image-viewer-next");
+                if (nextBtn && !nextBtn.hidden) {
+                    event.preventDefault();
+                    nextBtn.click();
+                }
+            }
+            else if (event.key === "ArrowLeft") {
+                var prevBtn = overlay.querySelector(".image-viewer-prev");
+                if (prevBtn && !prevBtn.hidden) {
+                    event.preventDefault();
+                    prevBtn.click();
+                }
+            }
+        });
+    }
     /* ---- forms ---- */
     /* How much room is left in a capped text box. */
     function addCounter(box) {
@@ -333,19 +610,10 @@
         document.querySelectorAll("[data-filter]").forEach(wireFilter);
         document.querySelectorAll("textarea[maxlength]").forEach(addCounter);
         document.querySelectorAll('input[type="file"]').forEach(previewChosenPhoto);
-        // A conversation opens on its newest message, the way every other
-        // chat does, rather than at the oldest one.
-        var thread = document.querySelector(".thread");
-        if (thread) {
-            thread.scrollTop = thread.scrollHeight;
-        }
-        var send = document.querySelector("form.send");
-        var box = send && send.querySelector("textarea");
-        if (send && box) {
-            sendOnEnter(send, box);
-            if (window.matchMedia("(hover: hover) and (pointer: fine)").matches)
-                box.focus();
-        }
+        enhanceChat();
+        wireSocialShare();
+        wireStickyMobileBar();
+        wireGalleryNavigation();
     }
     // Buttons disabled by the submit guard are freed when the browser
     // restores this page from its history cache.

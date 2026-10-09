@@ -46,3 +46,21 @@
 .mobile-sticky-action-bar.visible{transform:translateY(0)}
 @media(min-width:761px){.mobile-sticky-action-bar{display:none!important}}
 
+/* Accessible Web Share modal & fallback sheet (X & Facebook standard) */
+.share-dialog{border:1px solid var(--border-hi);border-radius:20px;padding:0;background:var(--surface);color:var(--ink);max-width:440px;width:min(92vw,440px);box-shadow:0 24px 64px rgba(0,0,0,.7);overflow:hidden}
+.share-dialog::backdrop{background:rgba(9,22,19,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.share-dialog-content{display:flex;flex-direction:column}
+.share-dialog-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
+.share-dialog-title{font-size:1.15rem;font-weight:700;color:var(--ink);margin:0}
+.share-dialog-close{background:transparent;border:0;color:var(--ink-muted);font-size:24px;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;cursor:pointer}
+.share-dialog-close:hover{color:var(--ink);background:var(--surface-hi)}
+.share-dialog-body{padding:20px}
+.share-dialog-desc{font-size:.9rem;color:var(--ink-muted);margin:0 0 16px;overflow-wrap:anywhere}
+.share-social-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.share-social-link{display:flex;flex-direction:column;align-items:center;gap:8px;padding:12px 8px;background:var(--surface-hi);border:1px solid var(--border);border-radius:12px;color:var(--ink);text-decoration:none;font-size:.85rem;font-weight:600;transition:transform .15s ease,border-color .15s ease}
+.share-social-link:hover{transform:translateY(-2px);border-color:var(--signal);color:var(--signal)}
+.share-social-icon{font-size:1.3rem;line-height:1}
+.share-copy-row{display:flex;gap:8px;align-items:center}
+.share-copy-input{flex:1;min-width:0;padding:10px 14px;font-size:.85rem;background:var(--void);border:1px solid var(--border);border-radius:10px;color:var(--ink)}
+.share-copy-btn{padding:10px 18px;border-radius:10px;font-weight:700;white-space:nowrap}
+.share-feedback{font-size:.8rem;color:var(--signal);min-height:1.2rem;margin:8px 0 0}

@@ -14,15 +14,19 @@
 .messaging-page .last-message,.messaging-page .conversation-details,.messaging-page .open-chat-button{grid-column:1/-1}
 .messaging-page .last-message-text{overflow-wrap:anywhere;white-space:pre-wrap}
 .messaging-page .open-chat-button{display:block;padding:12px;background:var(--signal);color:var(--signal-ink);border-radius:8px;text-align:center;font-weight:700}
-.messaging-page .thread{min-height:280px;max-height:58dvh;overflow-y:auto;padding:16px;border:1px solid var(--border-hi);border-radius:16px;margin-bottom:1rem}
+.messaging-page .thread{min-height:280px;max-height:58dvh;overflow-y:auto;padding:16px;border:1px solid var(--border-hi);border-radius:16px;margin-bottom:1rem;scroll-behavior:smooth}
 .messaging-page .bubble{max-width:80%;width:fit-content;padding:12px;margin-bottom:12px;border-radius:12px;background:var(--surface)}
 .messaging-page .bubble.mine{margin-left:auto;background:var(--surface-hi)}
 .messaging-page .bubble .text{white-space:pre-wrap;overflow-wrap:anywhere;margin:0}
 .messaging-page .bubble .who,.messaging-page .bubble .when{display:block;font-size:.75rem;margin:4px 0}
+.chat-scroll-bottom{display:none;position:relative;margin:-48px 16px 16px auto;align-items:center;gap:6px;padding:8px 16px;border-radius:9999px;background:var(--surface-hi);color:var(--signal);border:1px solid var(--border-hi);font-size:.85rem;font-weight:700;box-shadow:0 6px 20px rgba(0,0,0,.45);cursor:pointer;z-index:5;transition:transform .15s ease,border-color .15s ease}
+.chat-scroll-bottom.visible{display:inline-flex}
+.chat-scroll-bottom:hover{border-color:var(--signal);transform:translateY(-2px)}
 .messaging-page .send{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
-.messaging-page .send textarea{width:100%;min-height:64px;max-height:180px;padding:12px;resize:vertical}
+.messaging-page .send textarea{width:100%;min-height:48px;max-height:160px;padding:12px;line-height:1.4;resize:none;overflow-y:auto;border-radius:12px}
 .messaging-page .send button{min-height:48px;padding:12px 24px}
 .messaging-page .empty-message,.messaging-page .empty-messages{padding:2rem;text-align:center}
 .messaging-page .message-refresh-note a{display:inline-flex;align-items:center;min-height:44px;color:var(--signal)}
 @media(max-width:600px){.messaging-page .send{grid-template-columns:1fr}.messaging-page .bubble{max-width:92%}}
 .messaging-page .thread:focus-visible{outline:3px solid var(--signal);outline-offset:3px}
+

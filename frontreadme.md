@@ -761,12 +761,12 @@ function wireStickyMobileBookingBar() {
 - [x] Verify safe-area-inset padding on mobile Safari and Android Chrome.
 
 ### 6.3 Phase 3 — Interaction Primitives & TypeScript
-- [ ] Implement native Web Share API helper with clipboard fallback modal in `frontend/app.ts`.
-- [ ] Implement multi-image arrow-navigable lightbox with swipe gestures in `frontend/app.ts`.
-- [ ] Implement auto-expanding textarea and floating scroll-to-bottom button for chat threads.
-- [ ] Implement mobile sticky bottom booking bar observer.
-- [ ] Add animated shimmer skeleton classes to `static/ui.css`.
-- [ ] Compile TypeScript to `static/app.js` (`npm run build`).
+- [x] Implement native Web Share API helper with clipboard fallback modal in `frontend/app.ts`.
+- [x] Implement multi-image arrow-navigable lightbox with swipe gestures in `frontend/app.ts` and `static/image-viewer.js`.
+- [x] Implement auto-expanding textarea and floating scroll-to-bottom button for chat threads in `frontend/app.ts` and `static/messages.css`.
+- [x] Implement mobile sticky bottom booking bar observer in `frontend/app.ts` and `static/ui.css`.
+- [x] Add animated shimmer skeleton classes and share modal styling to `static/ui.css`.
+- [x] Compile TypeScript to `static/app.js` (`npm run build`).
 
 ### 6.4 Phase 4 — Page-by-Page Modernization
 - [ ] Modernize Public Domain: `home.html`, `explore.html`, `explore-barber.html`, `public-content.html`.

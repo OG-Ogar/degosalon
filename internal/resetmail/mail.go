@@ -1,5 +1,5 @@
 // Package resetmail delivers password recovery messages over authenticated TLS.
-// Wire errors are deliberately replaced: SMTP replies can contain private data.
+// Provider errors are deliberately replaced because replies can contain private data.
 package resetmail
 
 import (
@@ -13,6 +13,7 @@ import (
 	"io"
 	"mime/quotedprintable"
 	"net"
+	"net/http"
 	"net/mail"
 	"net/smtp"
 	"net/url"
@@ -29,7 +30,9 @@ var (
 
 type Config struct {
 	host, port, username, password, from, origin, mode string
-	tlsConfig                                          *tls.Config
+	tlsConfig                                        *tls.Config
+	apiKey                                           string
+	httpClient                                       *http.Client
 }
 
 func FromEnvironment() (Config, error) { return fromEnvironment(os.Getenv) }
@@ -50,6 +53,13 @@ func fromEnvironment(getenv func(string) string) (Config, error) {
 	if c.origin == "" {
 		c.origin = getenv("RENDER_EXTERNAL_URL")
 	}
+	c.apiKey = getenv("BREVO_API_KEY")
+	if c.apiKey != "" {
+		c.from = getenv("BREVO_FROM")
+		if !validAddress(c.from) || len(c.apiKey) > 4096 || strings.ContainsAny(c.apiKey, " \r\n\t") {
+			return Config{}, ErrConfiguration
+		}
+	}
 	if c.port == "" {
 		c.port = "587"
 	}
@@ -57,7 +67,7 @@ func fromEnvironment(getenv func(string) string) (Config, error) {
 		c.mode = "starttls"
 	}
 	port, err := strconv.Atoi(c.port)
-	if err != nil || port < 1 || port > 65535 || c.host == "" || strings.ContainsAny(c.host, " /\r\n\t") || c.username == "" || c.password == "" || !validAddress(c.from) || (c.mode != "starttls" && c.mode != "implicit") {
+	if c.apiKey == "" && (err != nil || port < 1 || port > 65535 || c.host == "" || strings.ContainsAny(c.host, " /\r\n\t") || c.username == "" || c.password == "" || !validAddress(c.from) || (c.mode != "starttls" && c.mode != "implicit")) {
 		return Config{}, ErrConfiguration
 	}
 	u, err := url.Parse(c.origin)
@@ -89,8 +99,8 @@ func (c Config) ResetLink(role, token string) (string, error) {
 	return c.origin + "/" + role + "/reset-password?token=" + token, nil
 }
 
-// Send returns only after the relay has accepted DATA. Delivery to an inbox is
-// the provider's responsibility. Cancellation closes the socket immediately.
+// Send returns only after provider acceptance. Delivery to an inbox is the
+// provider's responsibility. Both transports honor cancellation and a timeout.
 func (c Config) Send(ctx context.Context, recipient, role, token string) error {
 	link, err := c.ResetLink(role, token)
 	if err != nil || !validAddress(recipient) {
@@ -98,6 +108,9 @@ func (c Config) Send(ctx context.Context, recipient, role, token string) error {
 	}
 	ctx, cancel := context.WithTimeout(ctx, 10*time.Second)
 	defer cancel()
+	if c.apiKey != "" {
+		return c.sendBrevo(ctx, recipient, link)
+	}
 	conn, err := (&net.Dialer{}).DialContext(ctx, "tcp", net.JoinHostPort(c.host, c.port))
 	if err != nil {
 		return deliveryError(ctx)

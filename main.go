@@ -156,9 +156,10 @@ func run() error {
 	mailConfig, mailErr := resetmail.FromEnvironment()
 	mailKey, keyErr := resetmail.DeliveryKeyFromEnvironment()
 	if mailErr == nil && keyErr == nil {
+		log.Print("password-recovery email worker configured")
 		startWorker(func(ctx context.Context) { runResetMailWorker(ctx, mailConfig, mailKey) })
 	} else {
-		log.Print("password-recovery email unavailable: configure SMTP settings, SITE_URL, and RESET_MAIL_KEY")
+		log.Print("password-recovery email unavailable: configure Brevo (BREVO_API_KEY/BREVO_FROM) or SMTP, HTTPS site origin, and RESET_MAIL_KEY")
 	}
 	workersDone = make(chan struct{})
 	go func() { workers.Wait(); close(workersDone) }()

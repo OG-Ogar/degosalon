@@ -1,8 +1,8 @@
 {{define "role-header"}}
 <header class="site-header">
-<a class="site-brand" href="/{{.Role}}/dashboard">De Go Salon</a>
+<a class="site-brand" href="/{{.Role}}/dashboard"><span class="site-brand-mark" aria-hidden="true">DG</span><span class="site-brand-copy"><span class="site-brand-name">De Go Salon</span><span class="site-brand-role">{{.Role}}</span></span></a>
 <nav class="site-navigation" aria-label="{{.Role}} navigation">
-{{range .Links}}<a href="{{.Path}}"{{if .Active}} aria-current="page"{{end}}>{{.Label}}</a>{{end}}
+{{range .Links}}<a class="site-nav-link" href="{{.Path}}"{{if .Active}} aria-current="page"{{end}}>{{.Label}}</a>{{end}}
 </nav>
 {{if .CSRF}}<form class="site-logout" method="post" action="/{{.Role}}/logout"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><button type="submit">Log out</button></form>{{end}}
 </header>

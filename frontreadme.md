@@ -755,10 +755,10 @@ function wireStickyMobileBookingBar() {
 - [x] Verify social preview cards using Facebook Sharing Debugger and X Card Validator specs.
 
 ### 6.2 Phase 2 — App Shell & Responsive Layouts
-- [ ] Upgrade `templates/partials/navigation.html` to render X-standard desktop left rail and mobile 5-tab bottom navigation bar.
-- [ ] Style left rail and bottom navigation bar in `static/app.css` using system theme tokens.
-- [ ] Add glassmorphic sticky top bar with `backdrop-filter: blur(16px)` across all authenticated views.
-- [ ] Verify safe-area-inset padding on mobile Safari and Android Chrome.
+- [x] Upgrade `templates/partials/navigation.html` to render X-standard desktop left rail and mobile 5-tab bottom navigation bar.
+- [x] Style left rail and bottom navigation bar in `static/app.css` using system theme tokens.
+- [x] Add glassmorphic sticky top bar with `backdrop-filter: blur(16px)` across all authenticated views.
+- [x] Verify safe-area-inset padding on mobile Safari and Android Chrome.
 
 ### 6.3 Phase 3 — Interaction Primitives & TypeScript
 - [ ] Implement native Web Share API helper with clipboard fallback modal in `frontend/app.ts`.

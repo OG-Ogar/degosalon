@@ -398,5 +398,5 @@ img,video{max-width:100%}
 .modern-role-page .barber-table-wrapper{background:var(--surface)!important;border-color:var(--border)!important}
 .modern-role-page .barber-table td{color:var(--role-muted)!important}
 /* Use an opaque keyboard indicator on every role's form controls. */
-:is(.modern-role-page,.modern-customer-page,.modern-admin-page,.auth-page,.explore-page,.public-profile-page,.barber-page) :is(input,select,textarea):focus-visible{outline:3px solid var(--signal)!important;outline-offset:3px;box-shadow:none!important}
+:is(.modern-role-page,.modern-customer-page,.modern-admin-page,.modern-barber-page,.auth-page,.explore-page,.public-profile-page,.barber-page) :is(input,select,textarea):focus-visible{outline:3px solid var(--signal)!important;outline-offset:3px;box-shadow:none!important}
 .modern-role-page .ui-form label{color:var(--role-muted)!important}

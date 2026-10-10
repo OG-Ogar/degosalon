@@ -1,22 +1,132 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Schedule — De Go Salon</title><link rel="stylesheet" href="/static/app.css">
-<link rel="stylesheet" href="/static/ui.css"><script src="/static/app.js" defer></script></head>
-<body class="barber-page">{{template "role-header" (navigation "barber" "schedule" .)}}
-<main class="calendar-page ui-page"><h1>Your booking schedule</h1><p>Set your weekly hours and time off. Existing appointments keep their booked duration; resolve any conflicting appointment before changing its hours.</p>
-{{template "form-error" .Error}}
-<form method="post" action="/barber/schedule" class="ui-form" {{if .Error}}aria-describedby="form-error"{{end}}>
-<input type="hidden" name="csrf_token" value="{{.CSRF}}">
-<label>Timezone <input name="timezone" value="{{.Calendar.Timezone}}" required maxlength="100" placeholder="Africa/Lagos"></label>
-<label>Minimum notice in minutes <input type="number" name="lead" min="0" max="10080" value="{{.Calendar.LeadMinutes}}" required></label>
-<label>Days customers can book ahead <input type="number" name="horizon" min="1" max="365" value="{{.Calendar.HorizonDays}}" required></label>
-{{range .Days}}<fieldset><legend>{{.Name}}</legend>
-<label><input type="checkbox" name="day_{{.Index}}_closed" value="yes" {{if .Closed}}checked{{end}}> Closed</label>
-<label>Opening time <input type="time" name="day_{{.Index}}_open" value="{{.Open}}"></label>
-<label>Closing time (24:00 means end of day) <input type="text" maxlength="5" placeholder="20:00" name="day_{{.Index}}_close" value="{{.Close}}"></label>
-<label>Break starts (optional) <input type="time" name="day_{{.Index}}_break_start" value="{{.BreakStart}}"></label>
-<label>Break ends <input type="time" name="day_{{.Index}}_break_end" value="{{.BreakEnd}}"></label>
-</fieldset>{{end}}
-<label for="time-off">Time off</label><p id="time-off-help">One period per line: date, start, end. For example, 2026-12-24 08:00 20:00. Remove a line to cancel that period. Times use your timezone.</p>
-<textarea id="time-off" name="time_off" rows="6" maxlength="3000" aria-describedby="time-off-help">{{.TimeOff}}</textarea>
-<button type="submit" class="ui-control">Save schedule</button></form></main>{{template "public-footer" .}}
-</body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Schedule — De Go Salon</title>
+
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+    <link rel="stylesheet" href="/static/ui.css">
+
+    <script src="/static/app.js" defer></script>
+</head>
+
+<body class="barber-page modern-role-page modern-barber-page">
+
+{{template "role-header" (navigation "barber" "schedule" .)}}
+
+<main class="barber-main calendar-page ui-page">
+
+    <p class="barber-breadcrumb">
+        <a href="/barber/dashboard">Dashboard</a>
+        /
+        Schedule
+    </p>
+
+    <h1 class="barber-title">
+        Operating Schedule
+    </h1>
+
+    <p class="barber-lede">
+        Set your weekly working hours, daily breaks, and scheduled time off. Existing appointments retain their booked durations.
+    </p>
+
+    {{template "form-error" .Error}}
+
+    <form method="post" action="/barber/schedule" class="ui-form schedule-editor-form" {{if .Error}}aria-describedby="form-error"{{end}}>
+
+        <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+
+        <!-- Booking Rules & Lead Time -->
+        <section class="barber-card ui-panel schedule-config-card">
+            <h2 class="barber-section-title">General Booking Rules</h2>
+
+            <div class="schedule-rules-grid">
+                <div class="field ui-field">
+                    <label for="timezone">Timezone</label>
+                    <input id="timezone" name="timezone" value="{{.Calendar.Timezone}}" required maxlength="100" placeholder="Africa/Lagos">
+                </div>
+
+                <div class="field ui-field">
+                    <label for="lead">Minimum notice (minutes)</label>
+                    <input id="lead" type="number" name="lead" min="0" max="10080" value="{{.Calendar.LeadMinutes}}" required>
+                    <p class="hint">Minimum notice required before a customer can book.</p>
+                </div>
+
+                <div class="field ui-field">
+                    <label for="horizon">Booking horizon (days ahead)</label>
+                    <input id="horizon" type="number" name="horizon" min="1" max="365" value="{{.Calendar.HorizonDays}}" required>
+                    <p class="hint">How far into the future customers can book appointments.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weekly Days Schedule Grid -->
+        <section class="schedule-days-section">
+            <h2 class="barber-section-title">Weekly Working Hours</h2>
+            <p class="barber-hint">Toggle open days and set your operating and break intervals.</p>
+
+            <div class="calendar-days-grid">
+                {{range .Days}}
+                    <fieldset class="calendar-day-card {{if .Closed}}day-closed{{end}}">
+                        <legend class="calendar-day-legend">{{.Name}}</legend>
+
+                        <div class="day-toggle-row">
+                            <label class="day-closed-label">
+                                <input type="checkbox" name="day_{{.Index}}_closed" value="yes" {{if .Closed}}checked{{end}}>
+                                <span>Closed on {{.Name}}</span>
+                            </label>
+                        </div>
+
+                        <div class="day-times-grid">
+                            <div class="field ui-field">
+                                <label>Opening time
+                                    <input type="time" name="day_{{.Index}}_open" value="{{.Open}}">
+                                </label>
+                            </div>
+
+                            <div class="field ui-field">
+                                <label>Closing time (24:00 means end of day)
+                                    <input type="text" maxlength="5" placeholder="20:00" name="day_{{.Index}}_close" value="{{.Close}}">
+                                </label>
+                            </div>
+
+                            <div class="field ui-field">
+                                <label>Break starts (optional)
+                                    <input type="time" name="day_{{.Index}}_break_start" value="{{.BreakStart}}">
+                                </label>
+                            </div>
+
+                            <div class="field ui-field">
+                                <label>Break ends
+                                    <input type="time" name="day_{{.Index}}_break_end" value="{{.BreakEnd}}">
+                                </label>
+                            </div>
+                        </div>
+                    </fieldset>
+                {{end}}
+            </div>
+        </section>
+
+        <!-- Time Off Section -->
+        <section class="barber-card ui-panel time-off-section">
+            <h2 class="barber-section-title">Scheduled Time Off</h2>
+            <label for="time-off">Time off entries</label>
+            <p id="time-off-help" class="hint">One period per line: date, start, end. For example: <code>2026-12-24 08:00 20:00</code>. Remove a line to cancel that period. Times use your timezone.</p>
+            <textarea id="time-off" name="time_off" rows="6" maxlength="3000" aria-describedby="time-off-help">{{.TimeOff}}</textarea>
+        </section>
+
+        <div class="barber-actions ui-actions">
+            <button type="submit" class="barber-button primary ui-control">Save schedule</button>
+            <a href="/barber/dashboard" class="barber-button">Back to Dashboard</a>
+        </div>
+
+    </form>
+
+</main>
+
+{{template "public-footer" .}}
+</body>
+</html>

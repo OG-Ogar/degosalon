@@ -8,12 +8,12 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "hairstyles" .)}}
 
@@ -32,14 +32,12 @@
     </h1>
 
     <p class="barber-lede">
-        Customers will see this hairstyle on your shop page and can book it.
+        Add a hairstyle or service customers can book at your shop.
     </p>
-
 
     {{template "form-error" .Error}}
 
-
-    <form class="barber-form ui-form"
+    <form class="barber-form ui-form ui-panel"
           method="post"
           action="/barber/hairstyles/new"
           enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
@@ -48,9 +46,7 @@
                name="csrf_token"
                value="{{.CSRF}}">
 
-
         <div class="barber-field ui-field">
-
             <label for="name">
                 Style Name
             </label>
@@ -59,13 +55,11 @@
                    type="text"
                    name="name"
                    value="{{index .Values "name"}}"
+                   placeholder="e.g. Low Fade with Wave Definition"
                    required>
-
         </div>
 
-
         <div class="barber-field ui-field">
-
             <label for="category">
                 Category
             </label>
@@ -74,31 +68,27 @@
                    type="text"
                    name="category"
                    value="{{index .Values "category"}}"
+                   placeholder="Fade, Braids, Buzz Cut, Beard Trim..."
                    required
                    aria-describedby="category-hint">
 
             <p class="barber-hint" id="category-hint">
                 For example: Fade, Braids or Beard trim.
             </p>
-
         </div>
 
-
         <div class="barber-field ui-field">
-
             <label for="description">
                 Description
             </label>
 
             <textarea id="description"
                       name="description"
+                      placeholder="Describe what is included in this service..."
                       required>{{index .Values "description"}}</textarea>
-
         </div>
 
-
         <div class="barber-field ui-field">
-
             <label for="price">
                 Price (&#8358;)
             </label>
@@ -108,14 +98,12 @@
                    name="price" max="9999999999.99"
                    step="0.01"
                    min="0"
+                   placeholder="3500.00"
                    value="{{index .Values "price"}}"
                    required>
-
         </div>
 
-
         <div class="barber-field ui-field">
-
             <label for="duration">
                 Duration (minutes)
             </label>
@@ -126,14 +114,12 @@
                    step="1"
                    min="1"
                    max="1440"
+                   placeholder="45"
                    value="{{index .Values "duration"}}"
                    required>
-
         </div>
 
-
         <div class="barber-field ui-field">
-
             <label for="image">
                 Photo (optional)
             </label>
@@ -142,61 +128,34 @@
                    type="file"
                    name="image"
                    accept=".jpg,.jpeg,.png,.gif,.webp"
+                   data-preview="photo"
                    aria-describedby="image-hint">
 
             <p class="barber-hint" id="image-hint">
                 JPG, PNG, GIF or WEBP, up to 5 MB.
                 Large pictures are resized automatically.
             </p>
-
         </div>
-
 
         <div class="barber-field ui-field">
-
-            <label for="video">
-                Video (optional)
-            </label>
-
-            <input id="video"
-                   type="file"
-                   name="video"
-                   accept=".mp4,.webm,.mov"
-                   aria-describedby="video-hint">
-
-            <p class="barber-hint" id="video-hint">
-                MP4, WEBM or MOV, up to 50 MB.
-            </p>
-
-        </div>
-
-
-        <div class="barber-check">
-
-            <input id="available"
-                   type="checkbox"
-                   name="available"
-                   {{if .Available}}checked{{end}}>
-
-            <label for="available">
+            <label>
+                <input type="checkbox"
+                       name="available"
+                       checked>
                 Available for booking
             </label>
-
         </div>
 
-
         <div class="barber-actions ui-actions">
-
             <button class="barber-button primary ui-control"
                     type="submit">
-                Save Hairstyle
+                Add Hairstyle
             </button>
 
             <a class="barber-button"
                href="/barber/hairstyles">
                 Cancel
             </a>
-
         </div>
 
     </form>

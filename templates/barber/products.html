@@ -9,17 +9,23 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
     <link rel="stylesheet" href="/static/products.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
     <script src="/static/image-viewer.js" defer></script>
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "products" .)}}
 
 <main class="barber-main ui-page">
+
+    <p class="barber-breadcrumb">
+        <a href="/barber/dashboard">Dashboard</a>
+        /
+        Products
+    </p>
 
     <section class="barber-dashboard-intro">
 
@@ -27,10 +33,10 @@
             <h1 class="barber-title">
                 Products
             </h1>
-<p>Up to 24 items per page, oldest first.</p>
+            <p>Up to 24 items per page, oldest first.</p>
 
             <p class="barber-lede">
-                Sell clippers, hair cream and other barbing accessories.
+                Sell clippers, hair cream and other barbing accessories to your customers.
             </p>
         </div>
 
@@ -39,7 +45,7 @@
                 class="barber-button primary"
                 href="/barber/products/new"
             >
-                Add Product
+                + Add Product
             </a>
         </div>
 
@@ -78,13 +84,25 @@
                             {{.Category}}
                         </p>
 
-                        <p>
+                        <p class="product-description">
                             {{.Description}}
                         </p>
 
-                        <strong class="product-price">
-                            {{naira .Price}}
-                        </strong>
+                        <div class="product-meta-row">
+                            <strong class="product-price">
+                                {{naira .Price}}
+                            </strong>
+
+                            <div class="product-stock-status">
+                                {{if le .Quantity 0}}
+                                    <span class="stock-badge out-of-stock">Out of stock</span>
+                                {{else if le .Quantity 5}}
+                                    <span class="stock-badge low-stock">Low stock: {{.Quantity}} left</span>
+                                {{else}}
+                                    <span class="stock-badge in-stock">{{.Quantity}} in stock</span>
+                                {{end}}
+                            </div>
+                        </div>
 
                         <p>
                             {{template "domain-status" (availabilityStatus .IsAvailable)}}
@@ -98,9 +116,8 @@
                         <form
                             method="post"
                             action="/barber/products/{{.ID}}/delete"
-                            data-confirm="Archive this product? It will leave the catalogue. Existing orders and media will be retained."
-                         class="ui-form">
-
+                            class="product-delete-form ui-form"
+                        >
                             <input
                                 type="hidden"
                                 name="csrf_token"
@@ -111,9 +128,8 @@
                                 class="barber-button danger ui-control"
                                 type="submit"
                             >
-                                Archive
+                                Delete Product
                             </button>
-
                         </form>
 
                     </div>
@@ -124,30 +140,29 @@
 
         </section>
 
+        {{template "list-pagination" .Pagination}}
+
     {{else}}
 
-        <section class="barber-card ui-panel">
-
-            <h2>No products yet</h2>
-
+        <div class="barber-card ui-panel">
             <p>
-                Add your first barbing accessory for customers to see.
+                You have not added any products yet.
             </p>
 
-            <a
-                class="barber-button primary"
-                href="/barber/products/new"
-            >
-                Add Product
-            </a>
-
-        </section>
+            <p>
+                <a
+                    class="barber-button primary"
+                    href="/barber/products/new"
+                >
+                    + Add Your First Product
+                </a>
+            </p>
+        </div>
 
     {{end}}
 
 </main>
 
-{{template "list-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

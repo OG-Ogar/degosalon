@@ -11,12 +11,12 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "products" .)}}
 
@@ -58,6 +58,7 @@
                     type="text"
                     name="name"
                     value="{{index .Values "name"}}"
+                    placeholder="e.g. Organic Beard Butter"
                     required
                 >
             </div>
@@ -81,12 +82,13 @@
                 <textarea
                     id="description"
                     name="description"
+                    placeholder="Describe product details, volume/size, and usage..."
                     required
                 >{{index .Values "description"}}</textarea>
             </div>
 
             <div class="barber-field ui-field">
-                <label for="price">Price</label>
+                <label for="price">Price (&#8358;)</label>
 
                 <input
                     id="price"
@@ -94,6 +96,7 @@
                     name="price" max="9999999999.99"
                     min="0"
                     step="0.01"
+                    placeholder="2500.00"
                     value="{{index .Values "price"}}"
                     required
                 >
@@ -110,12 +113,13 @@
                     name="quantity"
                     min="0"
                     step="1"
+                    placeholder="10"
                     value="{{index .Values "quantity"}}"
                     required
                  aria-describedby="quantity-help">
 
                 <p class="barber-hint" id="quantity-help">
-                    Enter how many units of this product are currently available.
+                    Enter how many units of this product are currently available in your shop.
                 </p>
             </div>
 
@@ -128,6 +132,7 @@
                     type="file"
                     name="image"
                     accept=".jpg,.jpeg,.png,.gif,.webp"
+                    data-preview="photo"
                  aria-describedby="image-help">
 
                 <p class="barber-hint" id="image-help">

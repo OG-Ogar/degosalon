@@ -9,13 +9,12 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
     <script src="/static/image-viewer.js" defer></script>
     <script src="/static/app.js" defer></script>
-    
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "profile" .)}}
 
@@ -35,37 +34,30 @@
         This is the information customers see about your barber shop.
     </p>
 
-
     <section class="barber-profile-card">
 
         {{if .ProfileImage}}
-
             <img
                 class="fullscreen-image"
                 src="{{.Barber.ProfileImage}}"
                 alt="{{.Barber.ShopName}}"
-               data-fullscreen-image
-             srcset="{{imageSrcset .Barber.ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
-         {{else}}
-
+                data-fullscreen-image
+                srcset="{{imageSrcset .Barber.ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+        {{else}}
             <p class="barber-hint">
                 You have not added a shop photo yet.
             </p>
-
         {{end}}
-
 
         <div class="barber-personal-area">
 
             {{if .PersonalImage}}
-
                 <img class="barber-personal-photo fullscreen-image"
-                src="{{.PersonalImage}}"
-                alt="Your picture, as customers see it"
-                data-fullscreen-image srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+                    src="{{.PersonalImage}}"
+                    alt="Your picture, as customers see it"
+                    data-fullscreen-image srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                 <div>
-
                     <strong>
                         {{.FullName}}
                     </strong>
@@ -73,13 +65,9 @@
                     <p class="barber-hint">
                         This is the picture customers see beside your name.
                     </p>
-
                 </div>
-
             {{else}}
-
                 <div>
-
                     <strong>
                         {{.FullName}}
                     </strong>
@@ -87,13 +75,10 @@
                     <p class="barber-hint">
                         You have not added a personal picture yet.
                     </p>
-
                 </div>
-
             {{end}}
 
         </div>
-
 
         <table class="barber-profile-table">
 
@@ -109,7 +94,6 @@
                     </td>
                 </tr>
 
-
                 <tr>
                     <th scope="row">
                         Email
@@ -119,7 +103,6 @@
                         {{.Email}}
                     </td>
                 </tr>
-
 
                 <tr>
                     <th scope="row">
@@ -131,7 +114,6 @@
                     </td>
                 </tr>
 
-
                 <tr>
                     <th scope="row">
                         Shop Name
@@ -141,7 +123,6 @@
                         {{.ShopName}}
                     </td>
                 </tr>
-
 
                 <tr>
                     <th scope="row">
@@ -153,24 +134,19 @@
                     </td>
                 </tr>
 
-
                 <tr>
                     <th scope="row">
                         Account Status
                     </th>
 
                     <td>
-
                         {{template "domain-status" (domainStatus "account" .Status)}}
-
                     </td>
-
                 </tr>
 
             </tbody>
 
         </table>
-
 
         <div class="barber-actions ui-actions">
 
@@ -180,15 +156,18 @@
             </a>
 
             <a class="barber-button"
+               href="/explore/{{.ID}}" target="_blank" rel="noopener">
+                View Public Profile as Customer ↗
+            </a>
+
+            <a class="barber-button"
                href="/barber/dashboard">
                 Back to Dashboard
             </a>
 
         </div>
 
-
         <!-- Logout is intentionally only on the profile page. -->
-
         <div class="barber-logout">
 
             <h2 class="barber-logout-title">
@@ -198,7 +177,6 @@
             <p class="barber-logout-text">
                 Finished using your barber account? You can safely log out here.
             </p>
-
 
             <form method="post"
                   action="/barber/logout" class="ui-form">

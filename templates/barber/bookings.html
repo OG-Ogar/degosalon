@@ -14,27 +14,37 @@
     <script src="/static/app.js" defer></script>
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "bookings" .)}}
 
-<p><a href="/barber/schedule">Manage hours and time off</a></p>
 <main class="barber-main ui-page">
 
-    <p class="barber-breadcrumb">
-        <a href="/barber/dashboard">Dashboard</a>
-        /
-        Bookings
-    </p>
+    <div class="barber-dashboard-intro">
+        <div>
+            <p class="barber-breadcrumb">
+                <a href="/barber/dashboard">Dashboard</a>
+                /
+                Bookings
+            </p>
 
-    <h1 class="barber-title">
-        Bookings
-    </h1>
-{{template "booking-filter" .Group}}
+            <h1 class="barber-title">
+                Bookings
+            </h1>
 
-    <p class="barber-lede">
-        Manage customer requests and your confirmed appointments.
-    </p>
+            <p class="barber-lede">
+                Manage customer requests and your confirmed appointments.
+            </p>
+        </div>
+
+        <div class="barber-actions ui-actions">
+            <a class="barber-button primary" href="/barber/schedule">
+                Manage hours and time off
+            </a>
+        </div>
+    </div>
+
+    {{template "booking-filter" .Group}}
 
 
     {{$view := .}}

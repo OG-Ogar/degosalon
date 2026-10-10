@@ -23,3 +23,21 @@
 .auth-steps-indicator .step-dot{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--surface,#193129);border:1px solid var(--border,#355348);font-size:.68rem;font-weight:850;color:var(--ink-muted,#c2d4c7)}
 .auth-steps-indicator .step-badge.active .step-dot{background:var(--signal,#f4cb78);color:var(--signal-ink,#19251c);border-color:var(--signal,#f4cb78)}
 .auth-steps-indicator .step-connector{flex:1;height:1px;background:var(--border,#355348)}
+
+/* Progressive multi-step onboarding sections */
+.auth-section{display:grid;gap:16px;padding:20px 0 16px;border-top:1px solid rgba(82,116,102,.32)}
+.auth-section:first-of-type{border-top:none;padding-top:0}
+.auth-section-header{margin-bottom:2px}
+.auth-section-step{display:inline-block;font-size:.68rem;font-weight:850;color:var(--signal,#f4cb78);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px}
+.auth-section-title{margin:0;font-size:1.05rem;font-weight:800;color:var(--ink,#f8f5e9);letter-spacing:-.02em}
+.auth-section-desc{margin:4px 0 0;font-size:.78rem;color:var(--ink-muted,#c2d4c7);line-height:1.45}
+
+/* Side-by-side photo role guidance cards */
+.auth-photo-roles-info{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:8px 0 4px}
+.photo-role-card{padding:12px;border-radius:10px;background:var(--base,#10221d);border:1px solid var(--border,#355348)}
+.photo-role-card.hint-card{background:rgba(16,34,29,.5);border-style:dashed}
+.photo-role-badge{display:inline-block;padding:2px 7px;border-radius:6px;background:var(--signal,#f4cb78);color:var(--signal-ink,#19251c);font-size:.65rem;font-weight:850;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.photo-role-badge.outline{background:transparent;color:var(--ink-muted,#c2d4c7);border:1px solid var(--border,#355348)}
+.photo-role-card strong{display:block;font-size:.8rem;color:var(--ink,#f8f5e9);margin-bottom:4px}
+.photo-role-card p{margin:0;font-size:.72rem;color:var(--ink-faint,#9db9a8);line-height:1.4}
+@media(max-width:520px){.auth-photo-roles-info{grid-template-columns:1fr}}

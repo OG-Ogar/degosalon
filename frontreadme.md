@@ -772,7 +772,7 @@ function wireStickyMobileBookingBar() {
 - [x] Modernize Public Domain: `home.html`, `explore.html`, `explore-barber.html`, `public-content.html`.
 - [x] Modernize Customer Authentication: `login.html`, `register.html`, `forgot-password.html`, `reset-password.html`.
 - [x] Modernize Customer Application: `dashboard.html`, `barber-list.html`, `barber-detail.html`, `bookings.html`, `products.html`, `cart.html`, `profile.html`, `chats.html`, `chat.html`.
-- [ ] Modernize Barber Authentication & Onboarding: `login.html`, `register.html`, `forgot-password.html`, `reset-password.html`.
+- [x] Modernize Barber Authentication & Onboarding: `login.html`, `register.html`, `forgot-password.html`, `reset-password.html`.
 - [ ] Modernize Barber Operational Workspace: `dashboard.html`, `profile.html`, `schedule.html`, `hairstyle-list.html`, `products.html`, `bookings.html`, `chats.html`, `chat.html`.
 - [ ] Modernize Admin Operations: `dashboard.html`, `barber-list.html`, `customers.html`, `bookings.html`.
 

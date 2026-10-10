@@ -634,16 +634,16 @@
     }
     /* Interactive time slot chip selector that syncs with native select#time */
     function wireTimeSlotChips() {
-        var chips = document.querySelectorAll(".time-slot-chip");
+        const chips = document.querySelectorAll(".time-slot-chip");
         if (!chips.length)
             return;
-        var timeSelect = document.querySelector("select#time");
+        const timeSelect = document.querySelector("select#time");
         if (!timeSelect)
             return;
         chips.forEach(function (chip) {
             chip.addEventListener("click", function () {
-                var slot = chip.getAttribute("data-slot");
-                if (!slot || !timeSelect)
+                const slot = chip.getAttribute("data-slot");
+                if (!slot)
                     return;
                 timeSelect.value = slot;
                 timeSelect.dispatchEvent(new Event("change", { bubbles: true }));
@@ -654,7 +654,7 @@
             });
         });
         timeSelect.addEventListener("change", function () {
-            var selectedVal = timeSelect.value;
+            const selectedVal = timeSelect.value;
             chips.forEach(function (chip) {
                 chip.classList.toggle("selected", chip.getAttribute("data-slot") === selectedVal);
             });
@@ -662,17 +662,17 @@
     }
     /* Cart quantity stepper buttons (+ / -) */
     function wireCartSteppers() {
-        var steppers = document.querySelectorAll(".cart-stepper-control");
+        const steppers = document.querySelectorAll(".cart-stepper-control");
         steppers.forEach(function (stepper) {
-            var input = stepper.querySelector("input[type=number]");
-            var minusBtn = stepper.querySelector(".stepper-btn.minus");
-            var plusBtn = stepper.querySelector(".stepper-btn.plus");
+            const input = stepper.querySelector("input[type=number]");
+            const minusBtn = stepper.querySelector(".stepper-btn.minus");
+            const plusBtn = stepper.querySelector(".stepper-btn.plus");
             if (!input)
                 return;
-            var min = parseInt(input.min, 10) || 0;
-            var max = parseInt(input.max, 10) || 2147483647;
+            const min = parseInt(input.min, 10) || 0;
+            const max = parseInt(input.max, 10) || 2147483647;
             minusBtn === null || minusBtn === void 0 ? void 0 : minusBtn.addEventListener("click", function () {
-                var current = parseInt(input.value, 10) || 0;
+                const current = parseInt(input.value, 10) || 0;
                 if (current > min) {
                     input.value = String(current - 1);
                     input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -680,7 +680,7 @@
                 }
             });
             plusBtn === null || plusBtn === void 0 ? void 0 : plusBtn.addEventListener("click", function () {
-                var current = parseInt(input.value, 10) || 0;
+                const current = parseInt(input.value, 10) || 0;
                 if (current < max) {
                     input.value = String(current + 1);
                     input.dispatchEvent(new Event("input", { bubbles: true }));
@@ -691,28 +691,28 @@
     }
     /* Calendar export (.ics file generator and Google Calendar URL) */
     function wireCalendarExport() {
-        var card = document.querySelector(".calendar-export-card");
+        const card = document.querySelector(".calendar-export-card");
         if (!card)
             return;
-        var title = card.getAttribute("data-calendar-title") || "Appointment on De Go Salon";
-        var description = card.getAttribute("data-calendar-description") || "";
-        var location = card.getAttribute("data-calendar-location") || "";
-        var date = card.getAttribute("data-calendar-date") || "";
-        var time = card.getAttribute("data-calendar-time") || "";
-        var durationMinutes = parseInt(card.getAttribute("data-calendar-duration") || "45", 10) || 45;
+        const title = card.getAttribute("data-calendar-title") || "Appointment on De Go Salon";
+        const description = card.getAttribute("data-calendar-description") || "";
+        const location = card.getAttribute("data-calendar-location") || "";
+        const date = card.getAttribute("data-calendar-date") || "";
+        const time = card.getAttribute("data-calendar-time") || "";
+        const durationMinutes = parseInt(card.getAttribute("data-calendar-duration") || "45", 10) || 45;
         if (!date || !time)
             return;
-        var parts = date.split("-");
-        var timeParts = time.split(":");
+        const parts = date.split("-");
+        const timeParts = time.split(":");
         if (parts.length < 3 || timeParts.length < 2)
             return;
-        var year = parseInt(parts[0], 10);
-        var month = parseInt(parts[1], 10) - 1;
-        var day = parseInt(parts[2], 10);
-        var hour = parseInt(timeParts[0], 10);
-        var minute = parseInt(timeParts[1], 10);
-        var startDate = new Date(year, month, day, hour, minute);
-        var endDate = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
+        const year = parseInt(parts[0], 10);
+        const month = parseInt(parts[1], 10) - 1;
+        const day = parseInt(parts[2], 10);
+        const hour = parseInt(timeParts[0], 10);
+        const minute = parseInt(timeParts[1], 10);
+        const startDate = new Date(year, month, day, hour, minute);
+        const endDate = new Date(startDate.getTime() + durationMinutes * 60 * 1000);
         function formatIsoUtc(d) {
             return d.getUTCFullYear() +
                 String(d.getUTCMonth() + 1).padStart(2, "0") +
@@ -721,20 +721,20 @@
                 String(d.getUTCMinutes()).padStart(2, "0") +
                 String(d.getUTCSeconds()).padStart(2, "0") + "Z";
         }
-        var startIso = formatIsoUtc(startDate);
-        var endIso = formatIsoUtc(endDate);
-        var googleBtn = card.querySelector('[data-calendar-action="google"]');
+        const startIso = formatIsoUtc(startDate);
+        const endIso = formatIsoUtc(endDate);
+        const googleBtn = card.querySelector('[data-calendar-action="google"]');
         googleBtn === null || googleBtn === void 0 ? void 0 : googleBtn.addEventListener("click", function () {
-            var googleUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+            const googleUrl = "https://calendar.google.com/calendar/render?action=TEMPLATE" +
                 "&text=" + encodeURIComponent(title) +
                 "&dates=" + startIso + "/" + endIso +
                 "&details=" + encodeURIComponent(description) +
                 "&location=" + encodeURIComponent(location);
             window.open(googleUrl, "_blank", "noopener,noreferrer");
         });
-        var icsBtn = card.querySelector('[data-calendar-action="ics"]');
+        const icsBtn = card.querySelector('[data-calendar-action="ics"]');
         icsBtn === null || icsBtn === void 0 ? void 0 : icsBtn.addEventListener("click", function () {
-            var icsContent = [
+            const icsContent = [
                 "BEGIN:VCALENDAR",
                 "VERSION:2.0",
                 "PRODID:-//De Go Salon//Appointment Booking//EN",
@@ -751,9 +751,9 @@
                 "END:VEVENT",
                 "END:VCALENDAR"
             ].join("\r\n");
-            var blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
-            var url = URL.createObjectURL(blob);
-            var a = document.createElement("a");
+            const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
             a.href = url;
             a.download = "appointment.ics";
             document.body.appendChild(a);

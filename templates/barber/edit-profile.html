@@ -8,12 +8,12 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber-profile.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "profile" .)}}
 
@@ -203,6 +203,7 @@
                         type="file"
                         name="profile_image"
                         accept=".jpg,.jpeg,.png,.gif,.webp"
+                        data-preview="photo"
                         aria-describedby="shop-photo-hint"
                     >
 

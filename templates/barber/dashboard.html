@@ -8,12 +8,12 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "dashboard" .)}}
 
@@ -22,32 +22,26 @@
     <section class="barber-dashboard-intro barber-dashboard-hero">
 
         <div class="barber-dashboard-photo">
-
             {{if .PersonalImage}}
-
                 <a href="/barber/profile"
                    aria-label="View your profile">
-
                     <img src="{{.PersonalImage}}"
                          alt="Profile photo of {{.FullName}}" srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
-
                 </a>
-
             {{else}}
-
                 <a class="barber-dashboard-placeholder"
                    href="/barber/profile"
                    aria-label="View your profile">
-
                     {{.FullName}}
-
                 </a>
-
             {{end}}
-
         </div>
 
-        <div>
+        <div class="barber-hero-content">
+            <div class="barber-hero-status-row">
+                <span class="barber-badge Active">Verified Barber Shop</span>
+                {{template "domain-status" (domainStatus "account" .Status)}}
+            </div>
 
             <h1 class="barber-title">
                 Welcome, {{.FullName}}
@@ -56,103 +50,104 @@
             <p class="barber-lede">
                 {{.ShopName}} &middot; {{.ShopAddress}}
             </p>
+        </div>
 
+        <div class="barber-hero-quick-actions ui-actions">
+            <a class="barber-button" href="/explore/{{.ID}}" target="_blank" rel="noopener">
+                View Public Profile ↗
+            </a>
+            <a class="barber-button primary" href="/barber/schedule">
+                Manage Schedule
+            </a>
         </div>
 
     </section>
 
-
     <section class="barber-stat-grid">
 
         <article class="barber-stat-card">
-
-            <span class="barber-stat-number">
-                {{.PendingBookings}}
-            </span>
+            <div class="stat-card-header">
+                <span class="barber-stat-number">
+                    {{.PendingBookings}}
+                </span>
+                {{if gt .PendingBookings 0}}
+                    <span class="barber-badge Suspended">Pending</span>
+                {{end}}
+            </div>
 
             <span class="barber-stat-label">
                 Booking requests
             </span>
 
             <div class="barber-actions ui-actions">
-
                 <a class="barber-button primary"
                    href="/barber/bookings">
                     Review
                 </a>
-
             </div>
-
         </article>
 
-
         <article class="barber-stat-card">
-
-            <span class="barber-stat-number">
-                {{.UpcomingBookings}}
-            </span>
+            <div class="stat-card-header">
+                <span class="barber-stat-number">
+                    {{.UpcomingBookings}}
+                </span>
+                {{if gt .UpcomingBookings 0}}
+                    <span class="barber-badge Active">Confirmed</span>
+                {{end}}
+            </div>
 
             <span class="barber-stat-label">
                 Confirmed appointments
             </span>
 
             <div class="barber-actions ui-actions">
-
                 <a class="barber-button"
                    href="/barber/bookings">
                     Schedule
                 </a>
-
             </div>
-
         </article>
 
-
         <article class="barber-stat-card">
-
-            <span class="barber-stat-number">
-                {{.Hairstyles}}
-            </span>
+            <div class="stat-card-header">
+                <span class="barber-stat-number">
+                    {{.Hairstyles}}
+                </span>
+            </div>
 
             <span class="barber-stat-label">
                 Hairstyles listed
             </span>
 
             <div class="barber-actions ui-actions">
-
                 <a class="barber-button"
                    href="/barber/hairstyles">
                     Manage
                 </a>
-
             </div>
-
         </article>
 
-
         <article class="barber-stat-card">
-
-            <span class="barber-stat-number">
-                {{.Conversations}}
-            </span>
+            <div class="stat-card-header">
+                <span class="barber-stat-number">
+                    {{.Conversations}}
+                </span>
+            </div>
 
             <span class="barber-stat-label">
                 Customer conversations
             </span>
 
             <div class="barber-actions ui-actions">
-
                 <a class="barber-button"
                    href="/barber/chats">
                     Messages
                 </a>
-
             </div>
-
         </article>
 
     </section>
-
 
     <section class="barber-section barber-dashboard-section">
 
@@ -204,7 +199,6 @@
 
             </table>
 
-
             <div class="barber-actions ui-actions">
 
                 <a class="barber-button primary"
@@ -217,12 +211,16 @@
                     Edit Details
                 </a>
 
+                <a class="barber-button"
+                   href="/explore/{{.ID}}" target="_blank" rel="noopener">
+                    Preview as Customer ↗
+                </a>
+
             </div>
 
         </div>
 
     </section>
-
 
     <section class="barber-section barber-dashboard-section">
 

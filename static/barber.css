@@ -821,3 +821,43 @@
 }
 /* De Go Salon barber workspace refinement */
 .barber-header{background:#171311}.barber-brand{font-weight:900;letter-spacing:-.025em}.barber-nav{gap:5px}.barber-nav a{border-radius:999px}.barber-title{letter-spacing:-.04em}.barber-card,.barber-profile-card,.barber-form,.barber-hairstyle-card{border-radius:16px;box-shadow:0 10px 30px rgba(31,24,20,.06)}@media(max-width:600px){.barber-nav{flex-wrap:nowrap;justify-content:flex-start;overflow-x:auto;padding-bottom:6px}.barber-nav a{flex:0 0 auto;min-width:auto}.barber-main{width:calc(100% - 24px)}}
+
+/* Modern Barber Operational Workspace styles */
+.barber-hero-content{flex:1}
+.barber-hero-status-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.barber-hero-quick-actions{display:flex;align-items:center;gap:10px;margin-left:auto}
+.stat-card-header{display:flex;align-items:center;justify-content:space-between;width:100%}
+
+/* Hairstyle card media & badges */
+.barber-hairstyle-media-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:12px;background:var(--surface-hi,#254137)}
+.barber-hairstyle-media-wrap img{width:100%;height:100%;object-fit:cover;display:block}
+.barber-duration-badge{position:absolute;bottom:8px;right:8px;padding:3px 8px;border-radius:6px;background:rgba(9,22,19,.88);color:var(--signal,#f4cb78);font-size:.72rem;font-weight:750;backdrop-filter:blur(8px);border:1px solid rgba(244,203,120,.25)}
+.barber-card-pricing{margin:6px 0}
+.barber-showcase-media{width:100%;max-width:540px;aspect-ratio:16/9;overflow:hidden;border-radius:14px;margin-bottom:20px}
+.barber-showcase-media img{width:100%;height:100%;object-fit:cover}
+
+/* Schedule weekly calendar grid */
+.schedule-editor-form{display:grid;gap:24px}
+.schedule-rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:14px}
+.calendar-days-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px}
+.calendar-day-card{margin:0;padding:18px;border:1px solid rgba(82,116,102,.42);border-radius:14px;background:linear-gradient(145deg,rgba(37,65,55,.5),rgba(25,49,41,.38))}
+.calendar-day-legend{padding:0 8px;font-size:1.05rem;font-weight:800;color:var(--signal,#f4cb78);letter-spacing:-.02em}
+.calendar-day-card.day-closed{opacity:.72;border-style:dashed}
+.day-toggle-row{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(194,212,199,.1)}
+.day-closed-label{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;color:var(--ink,#f8f5e9);cursor:pointer}
+.day-times-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.day-times-grid label{font-size:.76rem;color:var(--ink-muted,#c2d4c7);font-weight:700}
+.day-times-grid input{width:100%;min-height:40px;padding:6px 10px;border:1px solid var(--border,#355348);border-radius:8px;background:var(--base,#10221d);color:var(--ink,#f8f5e9);font:inherit}
+.time-off-section textarea{width:100%;padding:12px;border:1px solid var(--border,#355348);border-radius:10px;background:var(--base,#10221d);color:var(--ink,#f8f5e9);font:inherit;margin-top:8px}
+
+/* Product stock warning badges */
+.product-meta-row{display:flex;align-items:center;justify-content:space-between;margin:8px 0;gap:8px}
+.stock-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:750;letter-spacing:.02em}
+.stock-badge.in-stock{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.35)}
+.stock-badge.low-stock{background:rgba(244,203,120,.15);color:var(--signal,#f4cb78);border:1px solid rgba(244,203,120,.4)}
+.stock-badge.out-of-stock{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
+
+@media(max-width:768px){
+    .barber-hero-quick-actions{margin-left:0;margin-top:12px;width:100%;flex-wrap:wrap}
+    .day-times-grid{grid-template-columns:1fr}
+}

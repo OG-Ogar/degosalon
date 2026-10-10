@@ -8,12 +8,12 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "hairstyles" .)}}
 
@@ -28,22 +28,18 @@
     <h1 class="barber-title">
         Manage Hairstyles
     </h1>
-<p>Up to 24 items per page, oldest first.</p>
+    <p>Up to 24 items per page, oldest first.</p>
 
     <p class="barber-lede">
-        Add, edit and manage the hairstyles customers can book.
+        Add, edit and manage the hairstyles and services customers can book at your shop.
     </p>
 
-
     <div class="barber-actions ui-actions">
-
         <a class="barber-button primary"
            href="/barber/hairstyles/new">
             + Add a Hairstyle
         </a>
-
     </div>
-
 
     <section class="barber-section">
 
@@ -55,58 +51,45 @@
 
                     <article class="barber-hairstyle-card">
 
-                        {{if .Image}}
+                        <div class="barber-hairstyle-media-wrap">
+                            {{if .Image}}
+                                <img class="barber-hairstyle-image"
+                                     src="{{.Image}}"
+                                     alt="{{.Name}}" srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+                            {{else}}
+                                <div class="barber-hairstyle-no-image">
+                                    No photo
+                                </div>
+                            {{end}}
 
-                            <img class="barber-hairstyle-image"
-                                 src="{{.Image}}"
-                                 alt="{{.Name}}" srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
-
-                        {{else}}
-
-                            <div class="barber-hairstyle-no-image">
-                                No photo
-                            </div>
-
-                        {{end}}
-
+                            <span class="barber-duration-badge" aria-label="Duration">
+                                ⏱ {{.Duration}} min
+                            </span>
+                        </div>
 
                         <div class="barber-hairstyle-content">
 
                             <h2 class="barber-hairstyle-name">
-
                                 <a href="/barber/hairstyles/{{.ID}}">
                                     {{.Name}}
                                 </a>
-
                             </h2>
 
-                            <p class="barber-category">
+                            <span class="barber-category">
                                 {{.Category}}
-                            </p>
+                            </span>
 
-
-                            <p>
-
-                                <span class="barber-price">
+                            <p class="barber-card-pricing">
+                                <strong class="barber-price">
                                     {{naira .Price}}
-                                </span>
-
-                                <span class="barber-duration">
-                                    &middot; {{.Duration}} minutes
-                                </span>
-
+                                </strong>
                             </p>
 
-
-                            <p>
-
-                                {{template "domain-status" (availabilityStatus .IsAvailable)}}
-
+                            <p class="barber-description">
+                                {{.Description}}
                             </p>
-
 
                             <div class="barber-actions ui-actions">
-
                                 <a class="barber-button"
                                    href="/barber/hairstyles/{{.ID}}">
                                     View
@@ -119,9 +102,8 @@
 
                                 <a class="barber-button danger"
                                    href="/barber/hairstyles/{{.ID}}/delete">
-                                    Archive
+                                    Delete
                                 </a>
-
                             </div>
 
                         </div>
@@ -132,19 +114,21 @@
 
             </div>
 
+            {{template "list-pagination" .Pagination}}
+
         {{else}}
 
-            <div class="barber-empty">
-
+            <div class="barber-card ui-panel">
                 <p>
-                    You have not listed any hairstyles yet.
+                    You have not added any hairstyles yet.
                 </p>
 
-                <a class="barber-button primary"
-                   href="/barber/hairstyles/new">
-                    Add your first hairstyle
-                </a>
-
+                <p>
+                    <a class="barber-button primary"
+                       href="/barber/hairstyles/new">
+                        + Add Your First Hairstyle
+                    </a>
+                </p>
             </div>
 
         {{end}}
@@ -153,7 +137,6 @@
 
 </main>
 
-{{template "list-pagination" .Pagination}}
 {{template "public-footer" .}}
 </body>
 </html>

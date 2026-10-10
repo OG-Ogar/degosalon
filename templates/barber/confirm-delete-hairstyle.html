@@ -5,18 +5,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{.Title}} - De Go Salon</title>
     <link rel="stylesheet" href="/static/app.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/barber.css">
+    <link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
 </head>
-<body class="modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "hairstyles" .)}}
 
-<main class="wrap ui-page ui-confirmation">
+<main class="barber-main wrap ui-page ui-confirmation">
 
-    <h1>{{.Title}}</h1>
+    <p class="barber-breadcrumb">
+        <a href="/barber/dashboard">Dashboard</a>
+        /
+        <a href="/barber/hairstyles">Hairstyles</a>
+        /
+        Delete
+    </p>
 
-    <div class="panel ui-panel">
+    <h1 class="barber-title">{{.Title}}</h1>
+
+    <div class="panel ui-panel barber-card">
 
         <p>{{.Message}}</p>
 

@@ -8,55 +8,46 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
 </head>
 
-<body class="barber-page modern-role-page">
+<body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "hairstyles" .)}}
 
 <main class="barber-main ui-page">
 
     <p class="barber-breadcrumb">
-
         <a href="/barber/dashboard">
             Dashboard
         </a>
-
         /
-
         <a href="/barber/hairstyles">
             Hairstyles
         </a>
-
         /
-
         {{.Name}}
-
     </p>
-
 
     <h1 class="barber-title">
         {{.Name}}
     </h1>
 
     <p class="barber-lede">
-        {{.Category}}
+        <span class="barber-category">{{.Category}}</span> &middot; {{.Duration}} minutes &middot; {{naira .Price}}
     </p>
 
-
-    <section class="barber-profile-card">
+    <section class="barber-profile-card ui-panel">
 
         {{if .Image}}
-
-            <img class="barber-shop-photo"
-                 src="{{.Image}}"
-                 alt="Photo of {{.Name}}" srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
-
+            <div class="barber-showcase-media">
+                <img class="barber-shop-photo"
+                     src="{{.Image}}"
+                     alt="Photo of {{.Name}}" srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+            </div>
         {{end}}
-
 
         <table class="barber-profile-table">
 
@@ -68,10 +59,9 @@
                     </th>
 
                     <td class="barber-price">
-                        {{naira .Price}}
+                        <strong>{{naira .Price}}</strong>
                     </td>
                 </tr>
-
 
                 <tr>
                     <th scope="row">
@@ -83,7 +73,6 @@
                     </td>
                 </tr>
 
-
                 <tr>
                     <th scope="row">
                         Category
@@ -93,7 +82,6 @@
                         {{.Category}}
                     </td>
                 </tr>
-
 
                 <tr>
                     <th scope="row">
@@ -105,16 +93,13 @@
                     </td>
                 </tr>
 
-
                 <tr>
                     <th scope="row">
                         Status
                     </th>
 
                     <td>
-
                         {{template "domain-status" (availabilityStatus .IsAvailable)}}
-
                     </td>
                 </tr>
 
@@ -122,22 +107,21 @@
 
         </table>
 
-
         <div class="barber-actions ui-actions">
 
             <a class="barber-button primary"
                href="/barber/hairstyles/{{.ID}}/edit">
-                Edit
-            </a>
-
-            <a class="barber-button danger"
-               href="/barber/hairstyles/{{.ID}}/delete">
-                Archive
+                Edit Hairstyle
             </a>
 
             <a class="barber-button"
                href="/barber/hairstyles">
                 Back to Hairstyles
+            </a>
+
+            <a class="barber-button danger"
+               href="/barber/hairstyles/{{.ID}}/delete">
+                Delete Hairstyle
             </a>
 
         </div>

@@ -355,8 +355,8 @@ graph LR
 | Asset | Current Status | Gaps & Optimization Target |
 | :--- | :--- | :--- |
 | `templates/partials/public-metadata.html` | 4 lines: basic title, description, generic website type, `summary` card. | **CRITICAL GAP:** Must be upgraded to support dynamic `summary_large_image`, 1200x630 dimensions, custom image URLs, OpenGraph types (`website`, `profile`, `product`), `fb:app_id`, and JSON-LD schema injection. |
-| `templates/partials/navigation.html` | Single horizontal `<header>` with simple link list. | Must support the dual navigation paradigm: Desktop Left Rail + Mobile 5-Tab Bottom Bar with active gold states and unread badge pills. |
-| `templates/partials/public-footer.html` | 4 plain links (`/help`, `/support`, `/privacy`, `/terms`). | Expand with brand mark, social links (X, Facebook, Instagram), localized copyright, and country switcher pill (Nigeria 🇳🇬). |
+| `templates/partials/navigation.html` | Meta & X standard glassmorphic sticky shell with centered layout, cart badge pill, and tactile navigation pills. | Implemented & verified (Batch 1). |
+| `templates/partials/public-footer.html` | Expanded rich footer with brand mark, platform description, social pills, country switcher, and accessible policy navigation. | Implemented & verified (Batch 1). |
 | `frontend/app.ts` | 435 lines of progressive helpers (password reveal, double submit, basic filter). | Expand to include: Web Share API coordinator, Photo Lightbox with keyboard navigation, auto-resizing chat composer, chat scroll-to-bottom button, time-slot pill selector, and shimmer skeleton coordinator. |
 | `static/app.css` & `static/ui.css` | Design tokens, basic panel, card, and button styles. | Add layout classes for 3-column app shell, mobile bottom nav, shimmer skeleton animations, media lightbox, sticky bottom action bar, and split-view chat. |
 

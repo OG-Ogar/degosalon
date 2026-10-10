@@ -121,7 +121,11 @@
                         <form class="cart-quantity-form" method="post" action="/customer/cart/{{.Product.ID}}/update" {{if $.Problem}}aria-describedby="form-error"{{end}}>
                             <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
                             <label for="quantity-{{.Product.ID}}">Quantity for {{.Product.Name}}</label>
-                            <input id="quantity-{{.Product.ID}}" name="quantity" type="number" min="0" max="2147483647" step="1" value="{{.Quantity}}" required inputmode="numeric">
+                            <div class="cart-stepper-control">
+                                <button type="button" class="stepper-btn minus" aria-label="Decrease quantity">−</button>
+                                <input id="quantity-{{.Product.ID}}" name="quantity" type="number" min="0" max="2147483647" step="1" value="{{.Quantity}}" required inputmode="numeric">
+                                <button type="button" class="stepper-btn plus" aria-label="Increase quantity">+</button>
+                            </div>
                             <button type="submit" class="ui-control">Update quantity</button>
                             <button type="submit" name="remove" value="yes" formnovalidate class="ui-control">Remove item</button>
                         </form>

@@ -361,6 +361,15 @@
                             </label>
 
  <select id="time" name="time" required><option value="">Choose an available time</option>{{range .Slots}}<option value="{{.}}" {{if eq (index $.Values "time") .}}selected{{end}}>{{.}}</option>{{end}}</select>
+                            {{if .Slots}}
+                            <div class="time-slot-chips-grid" role="group" aria-label="Available time slots">
+                                {{range .Slots}}
+                                <button type="button" class="time-slot-chip{{if eq (index $.Values "time") .}} selected{{end}}" data-slot="{{.}}">
+                                    <span class="chip-clock" aria-hidden="true">⏱</span> {{.}}
+                                </button>
+                                {{end}}
+                            </div>
+                            {{end}}
 
                         </div>
 

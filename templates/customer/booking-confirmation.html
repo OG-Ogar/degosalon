@@ -84,6 +84,35 @@
 
             </section>
 
+            <div class="calendar-export-card"
+                 data-calendar-title="Haircut at {{.Barber.ShopName}}"
+                 data-calendar-description="Service: {{.Hairstyle.Name}} with {{.Barber.FullName}}"
+                 data-calendar-location="{{.Barber.ShopAddress}}"
+                 data-calendar-date="{{.Booking.Date}}"
+                 data-calendar-time="{{.Booking.Time}}"
+                 data-calendar-duration="{{if .Hairstyle.Duration}}{{.Hairstyle.Duration}}{{else}}45{{end}}">
+                <div class="calendar-export-header">
+                    <span class="calendar-export-icon" aria-hidden="true">📅</span>
+                    <div>
+                        <strong>Add to your Calendar</strong>
+                        <p>Sync your appointment so you never miss your haircut.</p>
+                    </div>
+                </div>
+                <div class="calendar-export-actions">
+                    <button type="button" class="calendar-btn google-cal-btn" data-calendar-action="google">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                        Google Calendar
+                    </button>
+                    <button type="button" class="calendar-btn ics-export-btn" data-calendar-action="ics">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                        Download (.ics)
+                    </button>
+                    <a href="https://api.whatsapp.com/send?text={{urlquery "I just booked " .Hairstyle.Name " at " .Barber.ShopName " on " .Booking.Date " via De Go Salon!"}}" target="_blank" rel="noopener noreferrer" class="whatsapp-share-btn">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.301-.15-1.78-.879-2.056-.98-.276-.1-.477-.15-.678.15-.2.301-.779.98-.955 1.181-.176.2-.351.226-.653.075s-1.272-.469-2.424-1.496c-.896-.799-1.5-1.787-1.677-2.088-.176-.301-.019-.464.132-.614.136-.135.301-.351.452-.527.15-.176.2-.301.3-.502.101-.2.05-.376-.025-.527-.075-.15-.678-1.635-.93-2.24-.244-.588-.492-.508-.677-.518l-.578-.01c-.2 0-.527.075-.803.376s-1.054 1.03-1.054 2.512 1.08 2.913 1.23 3.114c.15.2 2.125 3.245 5.148 4.551.719.311 1.28.497 1.719.637.724.23 1.383.197 1.904.12.58-.087 1.78-.728 2.032-1.43.251-.703.251-1.306.176-1.43-.075-.125-.276-.2-.577-.35z"/></svg>
+                        Share on WhatsApp
+                    </a>
+                </div>
+            </div>
 
             <div class="confirmation-actions ui-actions">
 

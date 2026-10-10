@@ -5,7 +5,8 @@
 .messaging-page .barber-chat,.messaging-page .customer-chat,.messaging-page .barber-messages,.messaging-page .customer-messages{width:min(100%,920px);margin:auto}
 .messaging-page .messages-title-box{margin:2rem 0}
 .messaging-page .conversation-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:1rem}
-.messaging-page .conversation-card{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:20px;border:1px solid var(--border-hi);border-radius:16px;color:var(--ink);text-decoration:none;background:var(--surface);min-width:0}
+.messaging-page .conversation-card{display:grid;grid-template-columns:64px 1fr;gap:12px;padding:20px;border:1px solid var(--border-hi);border-radius:16px;color:var(--ink);text-decoration:none;background:var(--surface);min-width:0;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+.messaging-page .conversation-card:hover{transform:translateY(-2px);border-color:rgba(244,203,120,.45);box-shadow:0 8px 24px rgba(0,0,0,.25)}
 .messaging-page .customer-photo,.messaging-page .customer-photo-placeholder{width:64px;height:64px;border-radius:14px;object-fit:cover;display:grid;place-items:center;background:var(--surface-hi)}
 .messaging-page .customer-card{padding:20px;text-align:center;border-radius:16px;margin:1rem 0}
 .messaging-page .customer-card img{margin:0 auto}
@@ -29,4 +30,43 @@
 .messaging-page .message-refresh-note a{display:inline-flex;align-items:center;min-height:44px;color:var(--signal)}
 @media(max-width:600px){.messaging-page .send{grid-template-columns:1fr}.messaging-page .bubble{max-width:92%}}
 .messaging-page .thread:focus-visible{outline:3px solid var(--signal);outline-offset:3px}
+
+/* Messenger & X DM Desktop Split-View Architecture */
+.messaging-page .barber-chat,.messaging-page .customer-chat{width:min(100%,1120px);margin:auto}
+.chat-split-container{display:grid;grid-template-columns:300px minmax(0,1fr);gap:24px;align-items:start;margin-top:16px}
+.chat-partner-sidebar{display:grid;gap:14px;position:sticky;top:80px}
+.chat-back-link{display:inline-flex;align-items:center;gap:6px;color:var(--signal);font-size:.84rem;font-weight:750;text-decoration:none;padding:6px 0;transition:opacity .15s ease}
+.chat-back-link:hover{opacity:.85}
+.chat-partner-card{padding:20px;border-radius:16px;background:var(--surface);border:1px solid var(--border-hi);text-align:center;display:grid;gap:12px;place-items:center}
+.chat-partner-card .customer-photo,.chat-partner-card .barber-photo,.chat-partner-card .customer-photo-placeholder,.chat-partner-card .barber-photo-placeholder{width:80px;height:80px;border-radius:20px;margin:0 auto}
+.partner-meta{display:grid;gap:4px}
+.partner-online-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:9999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35);color:#86efac;font-size:.7rem;font-weight:750;margin:0 auto 4px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e}
+.chat-tips-card{padding:16px;border-radius:14px;background:rgba(16,34,29,.6);border:1px solid var(--border);font-size:.78rem;line-height:1.5}
+.chat-tips-card strong{display:block;color:var(--signal);margin-bottom:4px;font-size:.82rem}
+.chat-tips-card p{margin:0;color:var(--ink-muted)}
+
+/* Right Main Chat Stream */
+.chat-stream-pane{display:grid;gap:12px;min-width:0}
+.chat-stream-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.messaging-page .thread{min-height:360px;max-height:60dvh;background:linear-gradient(180deg,rgba(16,34,29,.4),rgba(9,22,19,.5))}
+
+/* Modern Message Bubbles with Tails */
+.messaging-page .bubble{position:relative;max-width:78%;padding:10px 14px;border-radius:16px;word-break:break-word}
+.messaging-page .bubble:not(.mine){margin-right:auto;border-bottom-left-radius:4px;background:var(--surface);border:1px solid var(--border-hi);color:var(--ink)}
+.messaging-page .bubble.mine{margin-left:auto;border-bottom-right-radius:4px;background:var(--surface-hi);border:1px solid rgba(244,203,120,.26);color:var(--ink)}
+.messaging-page .bubble-meta{display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:4px}
+.messaging-page .bubble-status{color:var(--signal);font-size:.72rem;font-weight:800;letter-spacing:-.05em}
+
+/* Quick Response Template Chips */
+.chat-quick-responses{display:flex;flex-wrap:wrap;gap:8px;padding:4px 0}
+.quick-reply-chip{padding:6px 14px;border-radius:9999px;border:1px solid var(--border);background:var(--base);color:var(--ink-muted);font:inherit;font-size:.76rem;font-weight:700;cursor:pointer;transition:all .18s ease;white-space:nowrap}
+.quick-reply-chip:hover{background:var(--surface-hi);color:var(--signal);border-color:rgba(244,203,120,.4);transform:translateY(-1px)}
+.quick-reply-chip:active{transform:scale(.97)}
+
+@media(max-width:860px){
+    .chat-split-container{grid-template-columns:1fr;gap:16px}
+    .chat-partner-sidebar{position:static;display:none}
+    .messaging-page .barber-chat,.messaging-page .customer-chat{width:100%}
+}
 

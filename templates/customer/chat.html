@@ -7,110 +7,154 @@
     <link rel="stylesheet" href="/static/app.css">
     <script src="/static/app.js" defer></script>
 
-    
-<link rel="stylesheet" href="/static/messages.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/messages.css">
+    <link rel="stylesheet" href="/static/ui.css">
 </head>
 
 <body class="modern-customer-page messaging-page">
+
+{{template "role-header" (navigation "customer" "chats" .)}}
 
 <main class="customer-chat-page ui-page">
 
     <div class="customer-chat">
 
-        {{template "role-header" (navigation "customer" "chats" .)}}
+        <div class="chat-split-container">
 
-        <section class="barber-card ui-panel">
+            <!-- Desktop Left Sidebar: Barber Profile Context -->
+            <aside class="chat-partner-sidebar">
+                <a class="chat-back-link" href="{{.BackLink}}">
+                    ← All Conversations
+                </a>
 
-            {{if .BarberImage}}
-                <img
-                    class="barber-photo customer-chat-avatar"
-                    src="{{.BarberImage}}" loading="lazy" decoding="async"
-                    alt="{{.Title}}"
-                 srcset="{{imageSrcset .BarberImage}}" sizes="96px" width="640" height="480">
-            {{else}}
-                <div class="barber-photo-placeholder"
-                     aria-hidden="true">
-                    {{printf "%.1s" .Title}}
-                </div>
-            {{end}}
+                <section class="barber-card ui-panel chat-partner-card">
+                    {{if .BarberImage}}
+                        <img
+                            class="barber-photo customer-chat-avatar"
+                            src="{{.BarberImage}}" loading="lazy" decoding="async"
+                            alt="{{.Title}}"
+                            srcset="{{imageSrcset .BarberImage}}" sizes="96px" width="640" height="480">
+                    {{else}}
+                        <div class="barber-photo-placeholder"
+                             aria-hidden="true">
+                            {{printf "%.1s" .Title}}
+                        </div>
+                    {{end}}
 
-            <h1 class="barber-name">{{.Title}}</h1>
-
-            {{if .Subtitle}}
-                <p class="barber-shop">{{.Subtitle}}</p>
-            {{end}}
-
-        </section>
-
-        {{template "form-error" .Error}}
-
-        <p class="message-refresh-note">New messages appear when you refresh or send. Each page shows up to 100 messages in time order. <a href="{{.Action}}">Refresh conversation</a></p>
-{{template "list-pagination" .Pagination}}
-<section class="thread" tabindex="0" aria-label="Conversation">
-
-            {{if .Messages}}
-
-                {{range .Messages}}
-
-                    <div class="bubble {{if not .FromBarber}}mine{{end}}">
-
-                        <span class="who">
-                            {{.SenderName}}
+                    <div class="partner-meta">
+                        <span class="partner-online-badge">
+                            <span class="online-dot" aria-hidden="true"></span>
+                            Active Barber
                         </span>
+                        <h1 class="barber-name">{{.Title}}</h1>
 
-                        <p class="text">
-                            {{.Text}}
+                        {{if .Subtitle}}
+                            <p class="barber-shop">{{.Subtitle}}</p>
+                        {{end}}
+                    </div>
+                </section>
+
+                <div class="chat-tips-card">
+                    <strong>Direct Barber Messaging</strong>
+                    <p>Confirm chair arrival, discuss cut preferences, or ask about product recommendations before your session.</p>
+                </div>
+            </aside>
+
+            <!-- Right Pane: Active Message Stream -->
+            <section class="chat-stream-pane">
+
+                {{template "form-error" .Error}}
+
+                <div class="chat-stream-header">
+                    <p class="message-refresh-note">
+                        New messages appear when you refresh or send. Each page shows up to 100 messages in time order.
+                        <a href="{{.Action}}">Refresh conversation</a>
+                    </p>
+                </div>
+
+                {{template "list-pagination" .Pagination}}
+
+                <section class="thread" tabindex="0" aria-label="Conversation">
+
+                    {{if .Messages}}
+
+                        {{range .Messages}}
+
+                            <div class="bubble {{if not .FromBarber}}mine{{end}}">
+
+                                <span class="who">
+                                    {{.SenderName}}
+                                </span>
+
+                                <p class="text">
+                                    {{.Text}}
+                                </p>
+
+                                <div class="bubble-meta">
+                                    <span class="when">
+                                        {{.SentAt.Format "2 Jan 2006, 15:04"}}
+                                    </span>
+                                    {{if not .FromBarber}}
+                                        <span class="bubble-status" title="Delivered">✓✓</span>
+                                    {{end}}
+                                </div>
+
+                            </div>
+
+                        {{end}}
+
+                    {{else}}
+
+                        <p class="empty-message">
+                            No messages yet. Say hello to {{.Title}}.
                         </p>
 
-                        <span class="when">
-                            {{.SentAt.Format "2 Jan 2006, 15:04"}}
-                        </span>
+                    {{end}}
 
-                    </div>
+                </section>
 
-                {{end}}
+                <!-- Quick Response Template Chips -->
+                <div class="chat-quick-responses" aria-label="Suggested quick replies">
+                    <button type="button" class="quick-reply-chip" data-reply="Hi! I'm on my way now.">On my way</button>
+                    <button type="button" class="quick-reply-chip" data-reply="What's the best landmark near your shop?">Nearest landmark?</button>
+                    <button type="button" class="quick-reply-chip" data-reply="Do you have parking space available?">Parking space?</button>
+                    <button type="button" class="quick-reply-chip" data-reply="Thank you! See you shortly.">Thank you!</button>
+                </div>
 
-            {{else}}
+                <form class="send"
+                      method="post"
+                      action="{{.Action}}" {{if .Error}}aria-describedby="form-error"{{end}}>
 
-                <p class="empty-message">
-                    No messages yet. Say hello to {{.Title}}.
-                </p>
+                    <input
+                        type="hidden"
+                        name="csrf_token"
+                        value="{{.CSRF}}"
+                    >
 
-            {{end}}
+                    <label
+                        class="visually-hidden"
+                        for="text">
+                        Your message
+                    </label>
 
-        </section>
+                    <textarea
+                        id="text"
+                        name="text"
+                        maxlength="1000"
+                        placeholder="Type your message... (Press Enter to send)"
+                        required></textarea>
 
-        <form class="send"
-              method="post"
-              action="{{.Action}}" {{if .Error}}aria-describedby="form-error"{{end}}>
+                    <button
+                        class="primary ui-control"
+                        type="submit">
+                        Send
+                    </button>
 
-            <input
-                type="hidden"
-                name="csrf_token"
-                value="{{.CSRF}}"
-            >
+                </form>
 
-            <label
-                class="visually-hidden"
-                for="text">
-                Your message
-            </label>
+            </section>
 
-            <textarea
-                id="text"
-                name="text"
-                maxlength="1000"
-                placeholder="Type your message..."
-                required></textarea>
-
-            <button
-                class="primary ui-control"
-                type="submit">
-                Send
-            </button>
-
-        </form>
+        </div>
 
     </div>
 

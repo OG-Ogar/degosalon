@@ -194,6 +194,17 @@
             wireAutoExpandTextarea(box);
             if (window.matchMedia("(hover: hover) and (pointer: fine)").matches)
                 box.focus();
+            var quickChips = document.querySelectorAll(".quick-reply-chip");
+            quickChips.forEach(function (chip) {
+                chip.addEventListener("click", function () {
+                    var reply = chip.getAttribute("data-reply");
+                    if (reply) {
+                        box.value = reply;
+                        box.dispatchEvent(new Event("input", { bubbles: true }));
+                        box.focus();
+                    }
+                });
+            });
         }
     }
     /* ---- social share ---- */

@@ -8,11 +8,45 @@ A Go web platform connecting barbers and customers through barber services, appo
 
 ## Current Status
 
-**MVP deployed and in active development.**
+**Feature-rich MVP in active validation — source review updated 12 October 2026.**
 
-The repository already contains functional application flows for administrators, barbers, and customers. The README previously described an early product plan and no longer matched the implementation.
+De Go Salon implements public discovery and authenticated customer, barber and administrator journeys. It uses Go server-rendered templates with progressive TypeScript enhancement, PostgreSQL persistence and configurable cloud media/recovery delivery.
 
-The application is deployed on Render and uses Supabase PostgreSQL for persistent application data. Core records therefore survive application restarts.
+The original 5 October gap report is historical. Subsequent reconciliation records implementation of the original scoped frontend/backend repairs through PR #115. This review cross-checked current feature code and browser tests; it is not an exhaustive fresh certification of every gap or a live deployment audit. New regressions and newer product requests remain below.
+
+### Feature status at a glance
+
+| Area | Implemented in source | Remaining work / limits |
+| --- | --- | --- |
+| Discovery | State/LGA filtering, paginated barber listings, public portfolios, service prices/reviews and preserved sign-in return context | Live journey acceptance; remembered locality and distance search are optional |
+| Accounts | Customer/barber registration, role sessions, password recovery, profile editing, CSRF and throttling | Real-inbox delivery and deployed cookie/proxy acceptance |
+| Appointments | Schedules, timezone/lead-time rules, available slots, guarded lifecycle, customer confirmation/history and barber management | Empty-catalogue booking CTA, historical hairstyle photo and notification delivery described below |
+| Booking interaction | CTA scroll/focus feedback, dynamic slot loading, date/service synchronization, time chips and selected-service summary | Two server forms remain; test recovery and JavaScript-disabled paths after recent enhancements |
+| Commerce | Products, editable carts, transactional retry-safe checkout, exact kobo arithmetic, owned order history and collection/fulfillment states | Cart additions do not reserve inventory; online payment is not implemented under the collection policy |
+| Messaging | Persistent paginated conversations, partner photos/fallbacks in both roles, IME-safe send and explicit refresh behavior | Realtime receive, unread state and delivery notifications are deferred |
+| Shared frontend | Role navigation, recovery layouts, shared controls/status/error surfaces, accessible image viewer and responsive media | Real-device/screen-reader and deployed performance acceptance |
+| Operations | Versioned migrations, production configuration guards, bounded database access, durable media tooling, health endpoints, shutdown, structured logs and admin audit | Provider durability, backup restoration, outage drills and service-configuration alignment |
+| Automated verification | Frontend build/typecheck; Go tests/vet/race; PostgreSQL integration; Playwright journeys and accessibility/reflow matrix | Passing a historical run does not certify the current branch or production |
+
+### Current work and ordered backlog
+
+1. **Landing contrast and build regression:** PR #133 adds a forest overlay above the homepage photo and fixes the dashboard `States` field mismatch that blocked compilation. Check its final-head CI and merge/deployment status; a successful source merge alone is not live visual acceptance.
+2. **Booking CTA with no services — confirmed open:** the profile still renders a `#booking` link while the target form is conditional on available hairstyles. Render an honest unavailable state or a useful alternative when no services exist. The newer scroll/focus enhancement handles an existing target, but does not create a missing one.
+3. **Historical hairstyle photo — requested, not implemented:** the booking snapshot retains service name, price, duration and shop details, but no service-image field. Persist an image reference with retention rules and display it in customer history and barber booking cards.
+4. **Cart reservation policy — requested, not implemented:** `storage/cart_store.go` explicitly reserves no stock; checkout performs the stock deduction. Reserving on add requires transactional reservation ownership, expiry/release, concurrency protection and checkout conversion without double deduction. Preserve the currently safe checkout behavior until that replacement is implemented and tested.
+5. **Booking notifications — not established:** the booking handler persists the request, logs creation and redirects to confirmation. This inspected path does not dispatch email, SMS or push notifications. Choose channels and implement durable delivery/retries before promising automatic alerts; barber booking-list visibility is already implemented.
+6. **Production acceptance:** verify real recovery email and one-time reset, durable uploads across restart and cleanup, actual canonical origin, secure cookies/proxy configuration, migrations, readiness, backup restore and outage recovery. Earlier notes record Render health-check/build-command drift; recheck the actual service before changing it.
+7. **Further optimization proposals:** simplify the two-form booking experience while preserving no-JavaScript operation; measure deployed mobile image/loading budgets; audit recent interactive additions for keyboard and error recovery. These are follow-up proposals, not completed features.
+
+**Already implemented despite older pending notes:** separate public Handwork/Products galleries and chat partner photos/fallbacks for both customer and barber views are present in current templates and handlers. Their live visual acceptance is separate.
+
+**Deferred product decisions:** realtime/unread messaging, online payments, identity verification, review moderation, remembered locality, customer deletion/retention extensions and administrator recovery/MFA. Privacy and terms remain explicit placeholders by prior owner instruction.
+
+### Verification evidence and limits
+
+The configured CI jobs are `verify`, `postgres` and `browser`. Browser coverage documents 46 full-page templates and 52 route variants, plus lifecycle, recovery, ownership, accessibility and reflow scenarios. This is coverage scope, not a claim that all current checks passed. Consult the exact PR head before merging.
+
+This review read current feature implementation, models, styles, CI configuration and representative browser tests through GitHub. A local clone was unavailable, so no fresh local full-suite result is claimed. Production was not inspected in this review. Historical deployment/provider evidence remains in [remaining gap.md](remaining%20gap.md); automated coverage limits are in [browser-acceptance.md](browser-acceptance.md).
 
 ## Users
 
@@ -37,12 +71,12 @@ Current capabilities:
 - Register, sign in, sign out, and reset passwords
 - View a barber dashboard
 - View and edit their profile
-- Create, view, edit, and delete hairstyles
+- Create, view, edit, and archive hairstyles
 - Upload images
 - Set hairstyle information and pricing
 - View bookings and perform booking actions
 - View conversations and chat with customers
-- Create, view, and delete products
+- Create, view, edit, and archive products
 
 ### Customer
 The current implementation uses customer accounts, which is a change from the original plan where customers would not need accounts.
@@ -66,9 +100,9 @@ Current capabilities:
 
 Customer selects **Explore Barbers** → chooses a structured location (state, then LGA/local area) → sees registered barbers serving that locality → compares barber profiles, services, pricing, portfolio, availability, ratings and reviews → opens a barber profile → books an appointment.
 
-Barber discovery should use structured location data rather than relying only on free-text addresses. Barber profiles should store a state and LGA/local area, with an optional more specific address. This gives customers consistent locality matching now and leaves room for coordinate/distance-based discovery later.
+Barber discovery uses a canonical state/LGA catalog and structured shop location, with a more specific address. Coordinate/distance-based discovery remains optional future work.
 
-Each public barber profile should provide enough information for a customer to make a booking decision, including the barber/shop identity, portfolio, services and prices, location, availability, customer reviews/comments, and a clear **Book Appointment** action. Reviews should be tied to genuine customer/booking activity as the review system matures.
+Each public barber profile should provide enough information for a customer to make a booking decision, including the barber/shop identity, portfolio, services and prices, location, availability, customer reviews/comments, and a clear **Book Appointment** action. Reviews are restricted to eligible completed bookings.
 
 **Product hierarchy:** De Go Salon is the public brand and product; Barber Multiverse is the barber ecosystem customers enter through discovery.
 
@@ -144,7 +178,7 @@ The server uses environment configuration where applicable.
 
 - `PORT` — overrides the default HTTP port (`8080`).
 - `DATABASE_URL` — PostgreSQL connection string used by the application. The deployed Render service uses Supabase's IPv4-compatible session pooler.
-- Admin credentials are initialized from environment configuration; when no admin password is supplied, the application generates one for that run.
+- Production requires configured administrator credentials and persistent storage. Generated administrator credentials are limited to development; see the production configuration details below.
 - Booking hours are configurable without changing application code.
 
 ## Known MVP Gaps / Production Readiness

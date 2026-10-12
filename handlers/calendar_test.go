@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -73,3 +74,95 @@ func TestCalendarFormsAndAvailableTimeSelection(t *testing.T) {
 		t.Fatal("calendar mutation lacks CSRF protection")
 	}
 }
+
+func TestBarberSlotsEndpoint(t *testing.T) {
+	storage.Reset()
+	t.Cleanup(storage.Reset)
+
+	barber, err := storage.CreateBarber(models.Barber{Email: "slots_test@example.com"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	customer, err := storage.CreateCustomer(models.Customer{Email: "slots_customer@example.com"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	style, err := storage.CreateHairstyle(models.Hairstyle{
+		BarberID:    barber.ID,
+		Name:        "Slots Test Haircut",
+		Price:       1500,
+		Duration:    30,
+		IsAvailable: true,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := sessionData{CSRFToken: "test"}
+
+	// Save calendar
+	calendar := models.Calendar{
+		LeadMinutes: 30,
+		HorizonDays: 30,
+		Timezone:    "Africa/Lagos",
+	}
+	for i := range calendar.Week {
+		calendar.Week[i] = models.DayHours{Open: "09:00", Close: "17:00", BreakStart: "12:00", BreakEnd: "13:00"}
+	}
+	if err := storage.SaveBarberCalendar(context.Background(), barber.ID, calendar); err != nil {
+		t.Fatal(err)
+	}
+
+	date := time.Now().AddDate(0, 0, 3).Format("2006-01-02")
+
+	// 1. Successful query
+	req := httptest.NewRequest(http.MethodGet, "/customer/barbers/"+strconv.Itoa(barber.ID)+"/slots?hairstyle="+strconv.Itoa(style.ID)+"&date="+date, nil)
+	rec := httptest.NewRecorder()
+	BarberSlotsHandler(rec, req, customer, s, strconv.Itoa(barber.ID))
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	var res slotsResponse
+	if err := json.Unmarshal(rec.Body.Bytes(), &res); err != nil {
+		t.Fatalf("failed to parse JSON response: %v", err)
+	}
+	if len(res.Slots) == 0 {
+		t.Fatalf("expected non-empty slots, got %+v", res)
+	}
+	if res.Date != date {
+		t.Fatalf("expected date %s, got %s", date, res.Date)
+	}
+	if res.Timezone != "Africa/Lagos" {
+		t.Fatalf("expected timezone Africa/Lagos, got %s", res.Timezone)
+	}
+
+	// 2. Missing hairstyle -> 400
+	reqMissingStyle := httptest.NewRequest(http.MethodGet, "/customer/barbers/"+strconv.Itoa(barber.ID)+"/slots?date="+date, nil)
+	recMissingStyle := httptest.NewRecorder()
+	BarberSlotsHandler(recMissingStyle, reqMissingStyle, customer, s, strconv.Itoa(barber.ID))
+	if recMissingStyle.Code != http.StatusBadRequest {
+		t.Fatalf("expected 400 for missing hairstyle, got %d", recMissingStyle.Code)
+	}
+
+	// 3. Date outside schedule -> 200 with empty slots and message
+	reqFar := httptest.NewRequest(http.MethodGet, "/customer/barbers/"+strconv.Itoa(barber.ID)+"/slots?hairstyle="+strconv.Itoa(style.ID)+"&date=2099-01-01", nil)
+	recFar := httptest.NewRecorder()
+	BarberSlotsHandler(recFar, reqFar, customer, s, strconv.Itoa(barber.ID))
+	if recFar.Code != http.StatusOK {
+		t.Fatalf("expected 200 for outside schedule, got %d", recFar.Code)
+	}
+	var resFar slotsResponse
+	_ = json.Unmarshal(recFar.Body.Bytes(), &resFar)
+	if len(resFar.Slots) != 0 || resFar.Message == "" {
+		t.Fatalf("expected empty slots with message, got %+v", resFar)
+	}
+
+	// 4. Non-GET -> 405
+	reqPost := httptest.NewRequest(http.MethodPost, "/customer/barbers/"+strconv.Itoa(barber.ID)+"/slots", nil)
+	recPost := httptest.NewRecorder()
+	BarberSlotsHandler(recPost, reqPost, customer, s, strconv.Itoa(barber.ID))
+	if recPost.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("expected 405 for POST, got %d", recPost.Code)
+	}
+}
+

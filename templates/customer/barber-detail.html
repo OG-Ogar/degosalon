@@ -209,12 +209,12 @@
 <form method="get" action="/customer/barbers/{{.Barber.ID}}#booking" class="availability-form ui-form">
  <input type="hidden" name="state" value="{{.SelectedState}}"><input type="hidden" name="area" value="{{.SelectedArea}}"><input type="hidden" name="after" value="{{.SelectedAfter}}"><input type="hidden" name="before" value="{{.SelectedBefore}}">
  <input type="hidden" name="services_after" value="{{index .Values "services_after"}}"><input type="hidden" name="services_before" value="{{index .Values "services_before"}}">
-<label for="availability-service">Service</label><select id="availability-service" name="hairstyle">{{range .Hairstyles}}<option value="{{.ID}}" {{if eq $.Selected .ID}}selected{{end}}>{{.Name}} · {{.Duration}} minutes</option>{{end}}</select>
+<label for="availability-service">Service</label><select id="availability-service" name="hairstyle">{{range .Hairstyles}}<option value="{{.ID}}" data-name="{{.Name}}" data-price="{{printf "%.2f" .Price}}" data-duration="{{.Duration}}" data-price-formatted="{{naira .Price}}" {{if eq $.Selected .ID}}selected{{end}}>{{.Name}} · {{.Duration}} minutes</option>{{end}}</select>
  <label for="availability-date">Date ({{.Timezone}})</label><input id="availability-date" name="date" type="date" value="{{index .Values "date"}}" min="{{.Today}}" max="{{.DateMax}}" required>
  <button type="submit" class="ui-control">Show available times</button>
  </form>
  <p>Times use {{.Timezone}}. Availability is checked again when you submit.</p>
- {{if not .Slots}}<p role="status">No start times are available for this service and date. Choose another date above.</p>{{end}}
+ <p class="slots-availability-status" role="status" id="slots-availability-status">{{if not .Slots}}No start times are available for this service and date. Choose another date above.{{end}}</p>
             <form class="booking-form ui-form"
                   method="post"
                   action="/customer/book"
@@ -355,7 +355,7 @@
                                 type="date"
                                 name="date"
                                 min="{{.Today}}"
-                                max="{{.DateMax}}" readonly
+                                max="{{.DateMax}}"
                                 value="{{index .Values "date"}}"
                                 required>
 
@@ -369,15 +369,13 @@
                             </label>
 
  <select id="time" name="time" required><option value="">Choose an available time</option>{{range .Slots}}<option value="{{.}}" {{if eq (index $.Values "time") .}}selected{{end}}>{{.}}</option>{{end}}</select>
-                            {{if .Slots}}
-                            <div class="time-slot-chips-grid" role="group" aria-label="Available time slots">
+                            <div class="time-slot-chips-grid" id="time-slot-chips-grid" role="group" aria-label="Available time slots">
                                 {{range .Slots}}
                                 <button type="button" class="time-slot-chip{{if eq (index $.Values "time") .}} selected{{end}}" data-slot="{{.}}">
                                     <span class="chip-clock" aria-hidden="true">⏱</span> {{.}}
                                 </button>
                                 {{end}}
                             </div>
-                            {{end}}
 
                         </div>
 
@@ -423,11 +421,12 @@
 
                         <button
                             class="request-button ui-control"
-                            type="submit">
+                            type="submit"
+                            id="booking-submit-btn">
 
                             Request Appointment
 
-                            <span>
+                            <span aria-hidden="true">
                                 &rarr;
                             </span>
 

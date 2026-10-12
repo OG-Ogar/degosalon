@@ -521,3 +521,88 @@ test('booking CTA navigates smoothly to booking form and guards against missing 
   await barberContext.close();
  }
 });
+
+test('unified booking flow dynamically updates slots on date change and submits appointment', async ({ browser }, testInfo) => {
+ const suffix = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
+ const barberContext = await browser.newContext({ extraHTTPHeaders: { 'X-Forwarded-For': '198.51.100.88' } });
+ const customerContext = await browser.newContext({ extraHTTPHeaders: { 'X-Forwarded-For': '198.51.100.88' } });
+ try {
+  const barber = await barberContext.newPage();
+  const customer = await customerContext.newPage();
+  const email = 'flow-barber-' + suffix + '@example.test';
+  const shop = 'Flow Shop ' + suffix;
+
+  expect((await barber.request.post('/barber/register', {
+   multipart: {
+    fullname: 'Flow Barber',
+    phone: '08012345678',
+    email,
+    shopname: shop,
+    shopaddress: '100 Unified Way, Ikeja',
+    state: 'Lagos',
+    local_area: 'Ikeja',
+    password: 'browser-pass-123',
+    confirm_password: 'browser-pass-123',
+    personal_image: { name: 'profile.png', mimeType: 'image/png', buffer: PNG }
+   }
+  })).ok()).toBeTruthy();
+
+  expect((await customer.request.post('/customer/register', {
+   multipart: {
+    fullname: 'Flow Customer',
+    phone: '08012345678',
+    email: 'flow-customer-' + suffix + '@example.test',
+    password: 'browser-pass-123',
+    confirm_password: 'browser-pass-123'
+   }
+  })).ok()).toBeTruthy();
+
+  expect((await barber.request.post('/barber/login', { form: { email, password: 'browser-pass-123' } })).ok()).toBeTruthy();
+  await barber.goto('/barber/hairstyles/new');
+  const csrf = await barber.locator('main input[name=csrf_token]').inputValue();
+  expect((await barber.request.post('/barber/hairstyles/new', {
+   maxRedirects: 0,
+   multipart: {
+    csrf_token: csrf,
+    name: 'Flow Hairstyle ' + suffix,
+    category: 'Style',
+    description: 'Dynamic slot flow.',
+    price: '3000',
+    duration: '30',
+    available: 'on'
+   }
+  })).status()).toBe(303);
+
+  await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');
+  await customer.getByRole('link', { name: shop, exact: true }).first().click();
+
+  // Verify #date is editable (not readonly)
+  const dateInput = customer.locator('#date');
+  await expect(dateInput).toBeVisible();
+  expect(await dateInput.getAttribute('readonly')).toBeNull();
+
+  // Pick a future date (3 days ahead)
+  const targetDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+  await dateInput.fill(targetDate);
+  await dateInput.dispatchEvent('change');
+
+  // Verify available times are dynamically loaded
+  const chip = customer.locator('.time-slot-chip').first();
+  await expect(chip).toBeVisible({ timeout: 10000 });
+  const slotText = (await chip.getAttribute('data-slot')) || '09:00';
+
+  // Click the chip to select
+  await chip.click();
+  await expect(chip).toHaveClass(/selected/);
+  expect(await customer.locator('#time').inputValue()).toBe(slotText);
+
+  // Submit the appointment request
+  await customer.getByRole('button', { name: /Request Appointment/ }).click();
+  await expect(customer).toHaveURL(/\/customer\/booking-confirmation\/\d+/);
+  await expect(customer.locator('.domain-status').filter({ hasText: 'Pending' })).toHaveCount(2);
+ } finally {
+  await customerContext.close();
+  await barberContext.close();
+ }
+});
+

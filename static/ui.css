@@ -78,10 +78,12 @@
 
 /* Interactive time-slot chips */
 .time-slot-chips-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px;margin-top:10px}
-.time-slot-chip{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:8px 10px;border-radius:10px;border:1px solid var(--border-hi);background:var(--void);color:var(--ink);font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s ease}
+.time-slot-chip{display:inline-flex;align-items:center;justify-content:center;gap:4px;padding:8px 10px;min-height:44px;min-width:44px;border-radius:10px;border:1px solid var(--border-hi);background:var(--void);color:var(--ink);font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;transition:all .15s ease}
 .time-slot-chip:hover{border-color:var(--signal);color:var(--signal);transform:translateY(-1px)}
 .time-slot-chip.selected{background:var(--signal);color:var(--signal-ink);border-color:var(--signal);box-shadow:0 0 10px rgba(244,203,120,.4)}
 .chip-clock{font-size:.78rem;opacity:.8}
+.slots-availability-status{margin:8px 0;font-size:.84rem;color:var(--ink-muted);line-height:1.45}
+.slots-availability-status:not(:empty){padding:6px 12px;border-radius:8px;background:rgba(244,203,120,.08);border:1px solid rgba(244,203,120,.2)}
 
 /* Cart quantity stepper control */
 .cart-stepper-control{display:inline-flex;align-items:center;border:1px solid var(--border-hi);border-radius:10px;overflow:hidden;background:var(--void);margin-right:8px}

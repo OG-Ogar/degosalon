@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"encoding/json"
 	"errors"
 	"net/http"
 	"time"
@@ -252,5 +253,104 @@ func renderBarberDetail(
 		Rating:         rating,
 		ReviewCount:    count,
 		CanReview:      canReview,
+	})
+}
+
+// slotsResponse represents available time slots for a barber on a specific date and service.
+type slotsResponse struct {
+	Slots    []string `json:"slots"`
+	Date     string   `json:"date"`
+	Timezone string   `json:"timezone"`
+	Message  string   `json:"message,omitempty"`
+}
+
+// BarberSlotsHandler returns available booking time slots as JSON for dynamic client updates.
+func BarberSlotsHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	customer models.Customer,
+	s sessionData,
+	idSegment string,
+) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+		return
+	}
+
+	barber, ok := bookableBarber(w, r, idSegment)
+	if !ok {
+		return
+	}
+
+	styleID, _ := parseID(r.URL.Query().Get("hairstyle"))
+	if styleID == 0 {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusBadRequest)
+		_ = json.NewEncoder(w).Encode(slotsResponse{
+			Slots:   []string{},
+			Message: "A hairstyle is required to check available times.",
+		})
+		return
+	}
+
+	calendar, err := storage.CalendarForBarber(r.Context(), barber.ID)
+	if err != nil {
+		serverError(w, "load booking calendar", err)
+		return
+	}
+	location, err := time.LoadLocation(calendar.Timezone)
+	if err != nil {
+		serverError(w, "load booking timezone", err)
+		return
+	}
+
+	day := trimmedField(r.URL.Query().Get("date"))
+	if day == "" {
+		day = time.Now().In(location).Format("2006-01-02")
+	}
+
+	slots, _, err := storage.AvailableSlots(r.Context(), barber.ID, styleID, day)
+	if errors.Is(err, storage.ErrOutsideSchedule) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		_ = json.NewEncoder(w).Encode(slotsResponse{
+			Slots:    []string{},
+			Date:     day,
+			Timezone: calendar.Timezone,
+			Message:  "No start times are available for this date. Choose another date.",
+		})
+		return
+	}
+	if errors.Is(err, storage.ErrNotFound) || errors.Is(err, storage.ErrForbidden) || errors.Is(err, storage.ErrUnavailable) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+		w.WriteHeader(http.StatusNotFound)
+		_ = json.NewEncoder(w).Encode(slotsResponse{
+			Slots:   []string{},
+			Date:     day,
+			Timezone: calendar.Timezone,
+			Message:  "That hairstyle is not available.",
+		})
+		return
+	}
+	if err != nil {
+		serverError(w, "load available slots", err)
+		return
+	}
+
+	if slots == nil {
+		slots = []string{}
+	}
+
+	msg := ""
+	if len(slots) == 0 {
+		msg = "No start times are available for this date. Choose another date."
+	}
+
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	_ = json.NewEncoder(w).Encode(slotsResponse{
+		Slots:    slots,
+		Date:     day,
+		Timezone: calendar.Timezone,
+		Message:  msg,
 	})
 }

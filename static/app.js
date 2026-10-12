@@ -627,6 +627,7 @@
         enhanceChat();
         wireSocialShare();
         wireBookingNavigation();
+        wireUnifiedBooking();
         wireStickyMobileBar();
         wireGalleryNavigation();
         wireTimeSlotChips();
@@ -679,6 +680,224 @@
             if (initialTarget) {
                 initialTarget.classList.add("booking-highlight-pulse");
             }
+        }
+    }
+    /* Unified booking flow: syncs availability controls, unlocks dynamic slots, and updates time chips */
+    function wireUnifiedBooking() {
+        const bookingForm = document.getElementById("booking");
+        if (!bookingForm)
+            return;
+        const barberIdInput = bookingForm.querySelector('input[name="barber_id"]');
+        const barberId = barberIdInput ? barberIdInput.value : "";
+        if (!barberId)
+            return;
+        const dateInput = document.getElementById("date");
+        const availabilityDate = document.getElementById("availability-date");
+        const availabilityService = document.getElementById("availability-service");
+        const timeSelect = document.getElementById("time");
+        const chipsGrid = document.getElementById("time-slot-chips-grid");
+        const statusNotice = document.getElementById("slots-availability-status");
+        const submitBtn = bookingForm.querySelector('button[type="submit"].request-button');
+        function getSelectedHairstyleId() {
+            const checkedRadio = bookingForm === null || bookingForm === void 0 ? void 0 : bookingForm.querySelector('input[name="hairstyle_id"]:checked');
+            if (checkedRadio && checkedRadio.value)
+                return checkedRadio.value;
+            if (availabilityService && availabilityService.value)
+                return availabilityService.value;
+            const anyRadio = bookingForm === null || bookingForm === void 0 ? void 0 : bookingForm.querySelector('input[name="hairstyle_id"]');
+            return anyRadio ? anyRadio.value : "";
+        }
+        function getSelectedDate() {
+            if (dateInput && dateInput.value)
+                return dateInput.value;
+            if (availabilityDate && availabilityDate.value)
+                return availabilityDate.value;
+            return "";
+        }
+        let abortController = null;
+        function renderChips(slots, selectedVal) {
+            if (!chipsGrid || !timeSelect)
+                return;
+            chipsGrid.innerHTML = "";
+            slots.forEach(function (slot) {
+                const chip = document.createElement("button");
+                chip.type = "button";
+                chip.className = "time-slot-chip" + (slot === selectedVal ? " selected" : "");
+                chip.setAttribute("data-slot", slot);
+                const clock = document.createElement("span");
+                clock.className = "chip-clock";
+                clock.setAttribute("aria-hidden", "true");
+                clock.textContent = "⏱";
+                chip.appendChild(clock);
+                chip.appendChild(document.createTextNode(" " + slot));
+                chip.addEventListener("click", function () {
+                    timeSelect.value = slot;
+                    timeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+                    timeSelect.dispatchEvent(new Event("input", { bubbles: true }));
+                    const allChips = chipsGrid.querySelectorAll(".time-slot-chip");
+                    allChips.forEach(function (c) {
+                        c.classList.toggle("selected", c === chip);
+                    });
+                });
+                chipsGrid.appendChild(chip);
+            });
+        }
+        function updateSlots(slots, message) {
+            if (!timeSelect)
+                return;
+            const prev = timeSelect.value;
+            timeSelect.innerHTML = "";
+            const placeholder = document.createElement("option");
+            placeholder.value = "";
+            placeholder.textContent = slots.length > 0 ? "Choose an available time" : "No times available on this date";
+            timeSelect.appendChild(placeholder);
+            let matched = false;
+            slots.forEach(function (slot) {
+                const opt = document.createElement("option");
+                opt.value = slot;
+                opt.textContent = slot;
+                if (slot === prev) {
+                    opt.selected = true;
+                    matched = true;
+                }
+                timeSelect.appendChild(opt);
+            });
+            if (matched) {
+                timeSelect.value = prev;
+            }
+            else {
+                timeSelect.value = "";
+            }
+            renderChips(slots, timeSelect.value);
+            if (statusNotice) {
+                if (slots.length === 0) {
+                    statusNotice.textContent = message || "No start times are available for this service and date. Choose another date above.";
+                }
+                else {
+                    statusNotice.textContent = slots.length + (slots.length === 1 ? " appointment time available." : " appointment times available.");
+                }
+            }
+            if (submitBtn) {
+                if (slots.length === 0) {
+                    submitBtn.setAttribute("aria-disabled", "true");
+                }
+                else {
+                    submitBtn.removeAttribute("aria-disabled");
+                }
+            }
+        }
+        async function fetchAvailableSlots() {
+            const styleId = getSelectedHairstyleId();
+            const dateVal = getSelectedDate();
+            if (!styleId || !dateVal)
+                return;
+            if (abortController) {
+                abortController.abort();
+            }
+            abortController = new AbortController();
+            if (statusNotice) {
+                statusNotice.textContent = "Checking available times…";
+            }
+            try {
+                const url = "/customer/barbers/" + encodeURIComponent(barberId) + "/slots?hairstyle=" + encodeURIComponent(styleId) + "&date=" + encodeURIComponent(dateVal);
+                const resp = await fetch(url, {
+                    headers: { "Accept": "application/json" },
+                    signal: abortController.signal
+                });
+                if (!resp.ok) {
+                    const data = await resp.json().catch(() => ({}));
+                    updateSlots([], data.message || "That hairstyle or date is not available.");
+                    return;
+                }
+                const data = await resp.json();
+                updateSlots(data.slots || [], data.message || "");
+            }
+            catch (err) {
+                if (err instanceof DOMException && err.name === "AbortError") {
+                    return;
+                }
+                if (statusNotice) {
+                    statusNotice.textContent = "Unable to load times. You can submit to check availability.";
+                }
+            }
+        }
+        // Date sync and slot loading
+        if (dateInput) {
+            dateInput.addEventListener("change", function () {
+                if (availabilityDate && availabilityDate.value !== dateInput.value) {
+                    availabilityDate.value = dateInput.value;
+                }
+                fetchAvailableSlots();
+            });
+            dateInput.addEventListener("input", function () {
+                if (availabilityDate && availabilityDate.value !== dateInput.value) {
+                    availabilityDate.value = dateInput.value;
+                }
+            });
+        }
+        if (availabilityDate) {
+            availabilityDate.addEventListener("change", function () {
+                if (dateInput && dateInput.value !== availabilityDate.value) {
+                    dateInput.value = availabilityDate.value;
+                }
+                fetchAvailableSlots();
+            });
+            availabilityDate.addEventListener("input", function () {
+                if (dateInput && dateInput.value !== availabilityDate.value) {
+                    dateInput.value = availabilityDate.value;
+                }
+            });
+        }
+        // Service sync and slot loading
+        if (availabilityService) {
+            availabilityService.addEventListener("change", function () {
+                const selectedOption = availabilityService.selectedOptions[0];
+                const styleId = availabilityService.value;
+                const matchingRadio = bookingForm.querySelector('input[name="hairstyle_id"][value="' + styleId + '"]');
+                if (matchingRadio) {
+                    matchingRadio.checked = true;
+                    matchingRadio.dispatchEvent(new Event("change", { bubbles: true }));
+                }
+                else {
+                    const singleRadio = bookingForm.querySelector('input[name="hairstyle_id"]');
+                    if (singleRadio && selectedOption) {
+                        singleRadio.value = styleId;
+                        singleRadio.checked = true;
+                        singleRadio.setAttribute("data-name", selectedOption.getAttribute("data-name") || "");
+                        singleRadio.setAttribute("data-price", selectedOption.getAttribute("data-price") || "");
+                        singleRadio.setAttribute("data-duration", selectedOption.getAttribute("data-duration") || "");
+                        const summary = bookingForm.querySelector("[data-booking-summary]");
+                        if (summary) {
+                            summary.textContent = "Selected service: " + (selectedOption.getAttribute("data-name") || "") +
+                                " · " + (selectedOption.getAttribute("data-price-formatted") || "") +
+                                " · " + (selectedOption.getAttribute("data-duration") || "") + " minutes.";
+                        }
+                    }
+                }
+                fetchAvailableSlots();
+            });
+        }
+        const styleRadios = bookingForm.querySelectorAll('input[name="hairstyle_id"]');
+        styleRadios.forEach(function (radio) {
+            radio.addEventListener("change", function () {
+                if (radio.checked) {
+                    if (availabilityService && availabilityService.value !== radio.value) {
+                        availabilityService.value = radio.value;
+                    }
+                    fetchAvailableSlots();
+                }
+            });
+        });
+        if (timeSelect) {
+            timeSelect.addEventListener("change", function () {
+                const selectedVal = timeSelect.value;
+                if (chipsGrid) {
+                    const allChips = chipsGrid.querySelectorAll(".time-slot-chip");
+                    allChips.forEach(function (chip) {
+                        chip.classList.toggle("selected", chip.getAttribute("data-slot") === selectedVal);
+                    });
+                }
+            });
         }
     }
     /* Interactive time slot chip selector that syncs with native select#time */

@@ -28,7 +28,7 @@ type customerDashboardView struct {
 	UpcomingCount   int
 
 	Barbers       int
-	states        []string
+	States        []string
 	Upcoming      []bookingRow
 	Pending       int
 	Conversations int

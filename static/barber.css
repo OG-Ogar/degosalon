@@ -861,3 +861,43 @@
     .barber-hero-quick-actions{margin-left:0;margin-top:12px;width:100%;flex-wrap:wrap}
     .day-times-grid{grid-template-columns:1fr}
 }
+
+@media (max-width: 700px) {
+    .barber-dashboard-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .barber-dashboard-hero > * {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .barber-hero-status-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .barber-hero-status-row .barber-badge,
+    .barber-hero-status-row span {
+        white-space: nowrap;
+        writing-mode: horizontal-tb;
+        word-break: normal;
+        overflow-wrap: normal;
+    }
+
+    .barber-hero-content .barber-title {
+        word-break: normal;
+        overflow-wrap: break-word;
+    }
+
+    .barber-hero-quick-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}

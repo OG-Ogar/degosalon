@@ -3,6 +3,8 @@ package handlers
 import (
 	"errors"
 	"net/http"
+	"sort"
+	"strings"
 	"time"
 
 	"barber-booking/models"
@@ -26,6 +28,7 @@ type customerDashboardView struct {
 	UpcomingCount   int
 
 	Barbers       int
+	states        []string
 	Upcoming      []bookingRow
 	Pending       int
 	Conversations int
@@ -92,8 +95,24 @@ func CustomerDashboardHandler(
 		serverError(w, "load dashboard image setting", err)
 		return
 	}
+	activeBarbers, err := storage.ListActiveBarbersResult(r.Context())
+	if err != nil {
+		serverError(w, "load dashboard states", err)
+		return
+	}
+	var states []string
+	seenStates := map[string]bool{}
+	for _, b := range activeBarbers {
+		key := strings.ToLower(b.State)
+		if b.State != "" && !seenStates[key] {
+			states = append(states, b.State)
+			seenStates[key] = true
+		}
+	}
+	sort.Strings(states)
 	view := customerDashboardView{
 		Customer:        customer,
+		States:          states,
 		ProductOrders:   orders.Items,
 		OrderPagination: orderLinks,
 		UpcomingCount:   counts.Upcoming,

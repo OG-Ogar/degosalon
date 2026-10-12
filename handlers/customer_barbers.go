@@ -19,6 +19,7 @@ type browseBarbersView struct {
 	Pagination    discoveryPagination
 	ResultsLink   string
 	Items         []barberCard
+	States		  []string
 	SelectedState string
 	SelectedArea  string
 	CSRF          string

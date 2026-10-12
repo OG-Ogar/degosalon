@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"strings"
 )
 
 const DiscoveryPageSize = 24
@@ -16,8 +17,8 @@ const maxDiscoveryPageSize = 48
 var ErrInvalidDiscoveryFilter = errors.New("invalid discovery filter")
 
 type DiscoveryFilter struct {
-	StateID, AreaID      string
-	After, Before, Limit int
+	StateID, AreaID, Query string
+	After, Before, Limit   int
 }
 type DiscoveryBarber struct {
 	models.Barber
@@ -31,12 +32,22 @@ type DiscoveryPage struct {
 	HasPrevious, HasNext bool
 }
 
+var likeEscaper = strings.NewReplacer(`\`, `\\`, `%`, `\%`, `_`, `\_`)
+
 func discoveryStatements(filter DiscoveryFilter) (string, []any, string, []any) {
-	where := "b.status='Active' and b.state_id=$1"
-	args := []any{filter.StateID}
+	where := "b.status='Active'"
+	args := []any{}
+	if filter.StateID != "" {
+		args = append(args, filter.StateID)
+		where += fmt.Sprintf(" and b.state_id=$%d", len(args))
+	}
 	if filter.AreaID != "" {
 		args = append(args, filter.AreaID)
 		where += fmt.Sprintf(" and b.local_area_id=$%d", len(args))
+	}
+	if filter.Query != "" {
+		args = append(args, "%"+likeEscaper.Replace(filter.Query)+"%")
+		where += fmt.Sprintf(" and (b.full_name ilike $%d escape '\\' or b.shop_name ilike $%d escape '\\')", len(args), len(args))
 	}
 	count := "select count(*) from public.barbers b where " + where
 	countArgs := append([]any(nil), args...)
@@ -82,23 +93,30 @@ func DiscoveryPageResult(ctx context.Context, filter DiscoveryFilter) (Discovery
 	if filter.Limit < 1 || filter.Limit > maxDiscoveryPageSize || filter.After < 0 || filter.Before < 0 || (filter.After > 0 && filter.Before > 0) {
 		return DiscoveryPage{}, ErrInvalidDiscoveryFilter
 	}
+	filter.Query = strings.TrimSpace(filter.Query)
+	if len(filter.Query) > 80 {
+		filter.Query = filter.Query[:80]
+	}
 	if filter.StateID == "" {
 		if filter.AreaID != "" {
 			return DiscoveryPage{}, ErrInvalidDiscoveryFilter
 		}
-		return DiscoveryPage{}, nil
-	}
-	state, ok := geography.FindState(filter.StateID)
-	if !ok {
-		return DiscoveryPage{}, ErrInvalidDiscoveryFilter
-	}
-	filter.StateID = state.ID
-	if filter.AreaID != "" {
-		area, ok := geography.FindArea(state, filter.AreaID)
+		if filter.Query == "" {
+			return DiscoveryPage{}, nil
+		}
+	} else {
+		state, ok := geography.FindState(filter.StateID)
 		if !ok {
 			return DiscoveryPage{}, ErrInvalidDiscoveryFilter
 		}
-		filter.AreaID = area.ID
+		filter.StateID = state.ID
+		if filter.AreaID != "" {
+			area, ok := geography.FindArea(state, filter.AreaID)
+			if !ok {
+				return DiscoveryPage{}, ErrInvalidDiscoveryFilter
+			}
+			filter.AreaID = area.ID
+		}
 	}
 	var page DiscoveryPage
 	if databaseEnabled() {
@@ -120,8 +138,18 @@ func DiscoveryPageResult(ctx context.Context, filter DiscoveryFilter) (Discovery
 		defer mu.RUnlock()
 		for _, b := range barbers {
 			s, ok := geography.FindState(b.State)
-			if !b.IsActive() || !ok || s.ID != filter.StateID {
+			if !b.IsActive() {
 				continue
+			}
+			if filter.StateID != "" && (!ok || s.ID != filter.StateID) {
+				continue
+			}
+			if filter.Query != "" {
+				needle := strings.ToLower(filter.Query)
+				if !strings.Contains(strings.ToLower(b.FullName), needle) &&
+					!strings.Contains(strings.ToLower(b.ShopName), needle) {
+					continue
+				}
 			}
 			if filter.AreaID != "" {
 				a, ok := geography.FindArea(s, b.LocalArea)

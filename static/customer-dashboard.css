@@ -359,3 +359,24 @@ body {
 /* De Go Salon customer refinement */
 .customer-brand{font-weight:900;letter-spacing:-.025em}.customer-nav{display:flex;flex-wrap:wrap;gap:6px}.customer-nav a{border-radius:999px}.welcome h1{letter-spacing:-.05em}.customer-stats>*,.appointments,.appointment-card{border-radius:16px}@media(max-width:560px){.customer-nav{flex-wrap:nowrap;overflow-x:auto;padding-bottom:6px}.customer-nav a{flex:0 0 auto}.welcome h1{font-size:clamp(2.4rem,12vw,3rem)}}
 img.dashboard-background{width:100%;height:100%;object-fit:cover}
+
+.barber-search {
+    margin: 1.5rem 0;
+    padding: 1.25rem;
+    border-radius: 16px;
+    background: var(--surface, #193129);
+    border: 1px solid var(--border, #355348);
+}
+.barber-search-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 0.75rem;
+    align-items: end;
+}
+.barber-search-wide { grid-column: 1 / -1; }
+.barber-search-field label { display: block; margin-bottom: 0.35rem; font-size: 0.8rem; }
+.barber-search-field input,
+.barber-search-field select { width: 100%; }
+@media (max-width: 700px) {
+    .barber-search-form { grid-template-columns: 1fr; }
+}

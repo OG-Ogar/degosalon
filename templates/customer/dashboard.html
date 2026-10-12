@@ -53,6 +53,35 @@
 
             </section>
 
+            <section class="barber-search" aria-label="Find a barber">
+    <p class="eyebrow">Find a barber</p>
+    <h2>Where do you need a barber?</h2>
+
+    <form method="get" action="/customer/barbers" class="barber-search-form ui-form">
+        <div class="barber-search-field barber-search-wide">
+            <label for="q">Barber or shop name <span>Optional</span></label>
+            <input id="q" name="q" type="search" placeholder="e.g. Dego Cuts">
+        </div>
+
+        <div class="barber-search-field">
+            <label for="state">State</label>
+            <select id="state" name="state">
+                <option value="">Select state</option>
+                {{range .States}}
+                <option value="{{.}}">{{.}}</option>
+                {{end}}
+            </select>
+            </div>
+
+           <div class="barber-search-field">
+            <label for="area">LGA / Local area <span>Optional</span></label>
+            <input id="area" name="area" type="text" placeholder="e.g. Ikeja">
+            </div>
+
+            <button type="submit" class="hero-button">Find barbers &rarr;</button>
+            </form>
+            </section>
+
             <section class="customer-stats"
                      aria-label="Dashboard summary">
 

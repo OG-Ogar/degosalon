@@ -91,23 +91,24 @@
 .stepper-btn:hover{background:var(--surface-hi)}
 
 /* Calendar export card */
-.calendar-export-card{margin-top:20px;padding:20px;border:1px solid var(--border-hi);border-radius:16px;background:var(--surface);display:grid;gap:14px}
-.calendar-export-header{display:flex;align-items:center;gap:12px}
-.calendar-export-icon{font-size:1.8rem;line-height:1}
+.calendar-export-card{margin-top:20px;padding:16px;border:1px solid var(--border-hi);border-radius:16px;background:var(--surface);display:grid;gap:14px;box-sizing:border-box;max-width:100%}
+.calendar-export-header{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.calendar-export-icon{font-size:1.8rem;line-height:1;flex-shrink:0}
 .calendar-export-header strong{display:block;color:var(--ink);font-size:1.05rem}
 .calendar-export-header p{margin:2px 0 0;color:var(--ink-muted);font-size:.82rem}
-.calendar-export-actions{display:flex;flex-wrap:wrap;gap:10px}
-.calendar-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:10px;font-size:.84rem;font-weight:750;text-decoration:none;border:1px solid var(--border-hi);background:var(--void);color:var(--ink);cursor:pointer;transition:all .15s ease}
+.calendar-export-actions{display:flex;flex-wrap:wrap;gap:8px;max-width:100%}
+.calendar-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:10px;font-size:.82rem;font-weight:750;text-decoration:none;border:1px solid var(--border-hi);background:var(--void);color:var(--ink);cursor:pointer;transition:all .15s ease;max-width:100%;box-sizing:border-box}
 .calendar-btn:hover{border-color:var(--signal);color:var(--signal);transform:translateY(-1px)}
 .google-cal-btn{background:var(--surface-hi);border-color:rgba(244,203,120,.35);color:var(--signal)}
 
 /* WhatsApp order receipt share button */
-.whatsapp-share-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:8px;border:1px solid rgba(34,197,94,.4);background:rgba(34,197,94,.12);color:#86efac;font-size:.85rem;font-weight:750;text-decoration:none;cursor:pointer;transition:all .15s ease}
+.whatsapp-share-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:8px;border:1px solid rgba(34,197,94,.4);background:rgba(34,197,94,.12);color:#86efac;font-size:.82rem;font-weight:750;text-decoration:none;cursor:pointer;transition:all .15s ease;max-width:100%;box-sizing:border-box}
 .whatsapp-share-btn:hover{background:rgba(34,197,94,.22);transform:translateY(-1px)}
 
 /* Floating cart pill on mobile */
 .floating-cart-pill{display:none}
 @media(max-width:768px){
-    .floating-cart-pill{display:inline-flex;position:fixed;bottom:24px;right:20px;z-index:46;align-items:center;gap:8px;padding:12px 20px;border-radius:9999px;background:var(--signal);color:var(--signal-ink);font-weight:850;font-size:.9rem;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.4);border:1px solid rgba(244,203,120,.6);transition:transform .15s ease}
+    .floating-cart-pill{display:inline-flex;position:fixed;bottom:24px;right:20px;z-index:46;align-items:center;gap:8px;padding:12px 20px;border-radius:9999px;background:var(--signal,#f4cb78);color:var(--signal-ink,#19251c)!important;font-weight:850;font-size:.9rem;text-decoration:none;box-shadow:0 8px 24px rgba(0,0,0,.4);border:1px solid rgba(244,203,120,.6);transition:transform .15s ease}
+    .floating-cart-pill span,.floating-cart-pill svg{color:var(--signal-ink,#19251c)!important}
     .floating-cart-pill:active{transform:scale(.95)}
 }

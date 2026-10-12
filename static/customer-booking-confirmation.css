@@ -277,9 +277,10 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 20px;
+    gap: 12px;
 
     border-bottom: 1px solid #355348;
+    flex-wrap: wrap;
 }
 
 .detail-row span {
@@ -291,6 +292,7 @@ h1 {
         sans-serif;
 
     font-size: 13px;
+    min-width: 0;
 }
 
 .detail-row strong {
@@ -302,6 +304,9 @@ h1 {
         sans-serif;
 
     font-size: 14px;
+    min-width: 0;
+    word-break: break-word;
+    overflow-wrap: anywhere;
 }
 
 .pending-status {
@@ -384,10 +389,14 @@ h1 {
     .confirmation-main {
         width: min(100% - 20px, 760px);
         margin: 20px auto;
+        box-sizing: border-box;
     }
 
     .confirmation-card {
-        padding: 30px 20px;
+        padding: 24px 14px;
+        box-sizing: border-box;
+        max-width: 100%;
+        overflow-wrap: anywhere;
     }
 
     .confirmation-actions {
@@ -397,5 +406,6 @@ h1 {
     .primary-button,
     .secondary-button {
         width: 100%;
+        box-sizing: border-box;
     }
 }

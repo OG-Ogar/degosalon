@@ -626,11 +626,60 @@
         document.querySelectorAll('input[type="file"]').forEach(previewChosenPhoto);
         enhanceChat();
         wireSocialShare();
+        wireBookingNavigation();
         wireStickyMobileBar();
         wireGalleryNavigation();
         wireTimeSlotChips();
         wireCartSteppers();
         wireCalendarExport();
+    }
+    /* Smooth scroll, focus, and visual pulse feedback for booking CTA navigation */
+    function wireBookingNavigation() {
+        const bookingLinks = document.querySelectorAll('a[href="#booking"]');
+        if (!bookingLinks.length)
+            return;
+        bookingLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                const availabilityForm = document.querySelector(".availability-form");
+                const bookingForm = document.getElementById("booking");
+                const target = availabilityForm || bookingForm;
+                if (!target)
+                    return;
+                event.preventDefault();
+                const prefersReducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+                target.scrollIntoView({
+                    behavior: prefersReducedMotion ? "auto" : "smooth",
+                    block: "start"
+                });
+                // Apply pulse highlight for visual feedback
+                target.classList.remove("booking-highlight-pulse");
+                void target.offsetWidth;
+                target.classList.add("booking-highlight-pulse");
+                if (bookingForm && bookingForm !== target) {
+                    bookingForm.classList.remove("booking-highlight-pulse");
+                    void bookingForm.offsetWidth;
+                    bookingForm.classList.add("booking-highlight-pulse");
+                }
+                // Manage focus for keyboard and screen-reader accessibility
+                target.setAttribute("tabindex", "-1");
+                target.focus({ preventScroll: true });
+                if (window.location.hash !== "#booking") {
+                    if (window.history && window.history.pushState) {
+                        window.history.pushState(null, "", "#booking");
+                    }
+                    else {
+                        window.location.hash = "booking";
+                    }
+                }
+            });
+        });
+        // Trigger pulse highlight if page loaded with #booking in hash
+        if (window.location.hash === "#booking") {
+            const initialTarget = document.querySelector(".availability-form") || document.getElementById("booking");
+            if (initialTarget) {
+                initialTarget.classList.add("booking-highlight-pulse");
+            }
+        }
     }
     /* Interactive time slot chip selector that syncs with native select#time */
     function wireTimeSlotChips() {

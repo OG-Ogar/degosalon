@@ -446,3 +446,78 @@ test('booking and order histories remain bounded with complete dashboard totals'
  const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-orders-paged-320');}finally{await inspection.close();}
  }finally{await context.close();}
 });
+
+test('booking CTA navigates smoothly to booking form and guards against missing hairstyles', async ({ browser }) => {
+ const barberContext = await browser.newContext();
+ const customerContext = await browser.newContext();
+ try {
+  const barber = await barberContext.newPage();
+  const customer = await customerContext.newPage();
+  const suffix = Date.now();
+  const emailEmpty = 'empty-barber-' + suffix + '@example.test';
+  const shopEmpty = 'Empty Shop ' + suffix;
+
+  expect((await barber.request.post('/barber/register', {
+   multipart: {
+    fullname: 'Empty Barber',
+    phone: '08012345678',
+    email: emailEmpty,
+    shopname: shopEmpty,
+    shopaddress: '12 Example Street',
+    state: 'Lagos',
+    local_area: 'Ikeja',
+    password: 'browser-pass-123',
+    confirm_password: 'browser-pass-123',
+    personal_image: { name: 'profile.png', mimeType: 'image/png', buffer: PNG }
+   }
+  })).ok()).toBeTruthy();
+
+  expect((await customer.request.post('/customer/register', {
+   multipart: {
+    fullname: 'Booking Customer',
+    phone: '08012345678',
+    email: 'booking-customer-' + suffix + '@example.test',
+    password: 'browser-pass-123',
+    confirm_password: 'browser-pass-123'
+   }
+  })).ok()).toBeTruthy();
+
+  await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');
+  await customer.getByRole('link', { name: shopEmpty, exact: true }).first().click();
+  await expect(customer.locator('a.hero-cta-btn[href="#booking"]')).toHaveCount(0);
+  await expect(customer.locator('.hero-cta-btn.disabled')).toBeVisible();
+  await expect(customer.locator('.hero-cta-btn.disabled')).toHaveText('Booking Unavailable');
+
+  await expect(customer.locator('.mobile-sticky-action-bar a[href="#booking"]')).toHaveCount(0);
+  await expect(customer.locator('.mobile-sticky-action-bar a')).toHaveText('Message');
+
+  expect((await barber.request.post('/barber/login', { form: { email: emailEmpty, password: 'browser-pass-123' } })).ok()).toBeTruthy();
+  await barber.goto('/barber/hairstyles/new');
+  const csrf = await barber.locator('main input[name=csrf_token]').inputValue();
+  expect((await barber.request.post('/barber/hairstyles/new', {
+   maxRedirects: 0,
+   multipart: {
+    csrf_token: csrf,
+    name: 'Fade Cut ' + suffix,
+    category: 'Style',
+    description: 'Classic fade.',
+    price: '2500',
+    duration: '30',
+    available: 'on'
+   }
+  })).status()).toBe(303);
+
+  await customer.reload();
+  const bookCta = customer.locator('a.hero-cta-btn[href="#booking"]');
+  await expect(bookCta).toBeVisible();
+  await expect(bookCta).toHaveText('Book a Haircut');
+
+  await bookCta.click();
+  await expect(customer).toHaveURL(/#booking/);
+  const target = customer.locator('.availability-form, #booking').first();
+  await expect(target).toHaveClass(/booking-highlight-pulse/);
+ } finally {
+  await customerContext.close();
+  await barberContext.close();
+ }
+});

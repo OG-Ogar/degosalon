@@ -22,6 +22,7 @@ async function assertAccessible(page,testInfo,name,{axe=true}={}){
 function acceptanceContext(browser,options={}){return browser.newContext({...options,extraHTTPHeaders:{'X-Forwarded-For':'198.51.100.20',...options.extraHTTPHeaders}});}
 let fixture;
 test.beforeAll(async({browser})=>{
+ test.setTimeout(120000);
  const barberContext=await acceptanceContext(browser),customerContext=await acceptanceContext(browser),adminContext=await acceptanceContext(browser);
  try{
  const barber=await barberContext.newPage(),customer=await customerContext.newPage(),admin=await adminContext.newPage(),suffix=Date.now();

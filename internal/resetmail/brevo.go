@@ -22,13 +22,12 @@ type brevoMessage struct {
 	TextContent string         `json:"textContent"`
 }
 
-func (c Config) sendBrevo(ctx context.Context, recipient, link string) error {
+func (c Config) sendBrevoMessage(ctx context.Context, recipient, subject, textContent string) error {
 	payload, err := json.Marshal(brevoMessage{
-		Sender:  brevoAddress{Email: c.from},
-		To:      []brevoAddress{{Email: recipient}},
-		Subject: "Reset your password",
-		TextContent: "A password reset was requested for your account.\n\n" + link +
-			"\n\nThis link expires after 30 minutes and works once. If you did not request this, you can ignore this message.\n",
+		Sender:      brevoAddress{Email: c.from},
+		To:          []brevoAddress{{Email: recipient}},
+		Subject:     subject,
+		TextContent: textContent,
 	})
 	if err != nil {
 		return ErrDelivery
@@ -63,4 +62,10 @@ func (c Config) sendBrevo(ctx context.Context, recipient, link string) error {
 		return ErrDelivery
 	}
 	return nil
+}
+
+func (c Config) sendBrevo(ctx context.Context, recipient, link string) error {
+	return c.sendBrevoMessage(ctx, recipient, "Reset your password",
+		"A password reset was requested for your account.\n\n"+link+
+			"\n\nThis link expires after 30 minutes and works once. If you did not request this, you can ignore this message.\n")
 }

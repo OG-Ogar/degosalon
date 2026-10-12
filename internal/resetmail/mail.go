@@ -99,6 +99,11 @@ func (c Config) ResetLink(role, token string) (string, error) {
 	return c.origin + "/" + role + "/reset-password?token=" + token, nil
 }
 
+// Origin returns the configured canonical HTTPS site origin.
+func (c Config) Origin() string {
+	return c.origin
+}
+
 // Send returns only after provider acceptance. Delivery to an inbox is the
 // provider's responsibility. Both transports honor cancellation and a timeout.
 func (c Config) Send(ctx context.Context, recipient, role, token string) error {
@@ -111,6 +116,11 @@ func (c Config) Send(ctx context.Context, recipient, role, token string) error {
 	if c.apiKey != "" {
 		return c.sendBrevo(ctx, recipient, link)
 	}
+	bodyText := "A password reset was requested for your account.\r\n\r\n" + link + "\r\n\r\nThis link expires after 30 minutes and works once. If you did not request this, you can ignore this message.\r\n"
+	return c.sendSMTP(ctx, recipient, "Reset your password", bodyText)
+}
+
+func (c Config) sendSMTP(ctx context.Context, recipient, subject, bodyText string) error {
 	conn, err := (&net.Dialer{}).DialContext(ctx, "tcp", net.JoinHostPort(c.host, c.port))
 	if err != nil {
 		return deliveryError(ctx)
@@ -163,12 +173,17 @@ func (c Config) Send(ctx context.Context, recipient, role, token string) error {
 	if _, err := rand.Read(id); err != nil {
 		return ErrDelivery
 	}
-	_, err = fmt.Fprintf(w, "From: %s\r\nTo: %s\r\nSubject: Reset your password\r\nDate: %s\r\nMessage-ID: <%s@%s>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n", c.from, recipient, time.Now().UTC().Format(time.RFC1123Z), hex.EncodeToString(id), strings.Split(c.from, "@")[1])
+	fromDomain := "localhost"
+	if parts := strings.Split(c.from, "@"); len(parts) == 2 {
+		fromDomain = parts[1]
+	}
+	_, err = fmt.Fprintf(w, "From: %s\r\nTo: %s\r\nSubject: %s\r\nDate: %s\r\nMessage-ID: <%s@%s>\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\nContent-Transfer-Encoding: quoted-printable\r\n\r\n", c.from, recipient, subject, time.Now().UTC().Format(time.RFC1123Z), hex.EncodeToString(id), fromDomain)
 	if err != nil {
 		return deliveryError(ctx)
 	}
 	body := quotedprintable.NewWriter(w)
-	if _, err := io.WriteString(body, "A password reset was requested for your account.\r\n\r\n"+link+"\r\n\r\nThis link expires after 30 minutes and works once. If you did not request this, you can ignore this message.\r\n"); err != nil {
+	crlfBody := strings.ReplaceAll(strings.ReplaceAll(bodyText, "\r\n", "\n"), "\n", "\r\n")
+	if _, err := io.WriteString(body, crlfBody); err != nil {
 		return deliveryError(ctx)
 	}
 	if err := body.Close(); err != nil {

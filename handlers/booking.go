@@ -1,13 +1,17 @@
 package handlers
 
 import (
-	"barber-booking/internal/observability"
+	"context"
 	"errors"
 	"log/slog"
 	"net/http"
 	"strconv"
+	"strings"
+	"sync"
 	"time"
 
+	"barber-booking/internal/observability"
+	"barber-booking/internal/resetmail"
 	"barber-booking/models"
 	"barber-booking/storage"
 )
@@ -167,6 +171,8 @@ func BookHairstyleHandler(
 
 	slog.InfoContext(r.Context(), "booking_created", "request_id", observability.RequestID(r.Context()), "booking_id", booking.ID)
 
+	sendBookingNotificationAsync(booking, barber)
+
 	// The booking was successfully created.
 	// Send the customer to the confirmation page instead of
 	// immediately sending them to the bookings list.
@@ -176,6 +182,91 @@ func BookHairstyleHandler(
 		"/customer/booking-confirmation/"+strconv.Itoa(booking.ID),
 		http.StatusSeeOther,
 	)
+}
+
+var bookingMailSender = func(ctx context.Context, n resetmail.BookingNotification) error {
+	cfg, err := resetmail.FromEnvironment()
+	if err != nil {
+		return err
+	}
+	return cfg.SendBookingNotification(ctx, n)
+}
+
+var (
+	bookingNotificationWG          sync.WaitGroup
+	onBookingNotificationDispatched func(booking models.Booking, barber models.Barber, err error)
+)
+
+// sendBookingNotificationAsync dispatches an email alert to the barber in a background goroutine.
+// It is non-blocking: mail delays or delivery failures never delay or block the customer's redirect.
+func sendBookingNotificationAsync(booking models.Booking, barber models.Barber) {
+	if strings.TrimSpace(barber.Email) == "" {
+		slog.Info("booking_notification_email_skipped_no_barber_email", "booking_id", booking.ID, "barber_id", barber.ID)
+		if onBookingNotificationDispatched != nil {
+			onBookingNotificationDispatched(booking, barber, resetmail.ErrConfiguration)
+		}
+		return
+	}
+
+	notification := resetmail.BookingNotification{
+		BarberEmail:     barber.Email,
+		BarberName:      barber.FullName,
+		ShopName:        booking.ShopName,
+		ShopAddress:     booking.ShopAddress,
+		CustomerName:    booking.CustomerName,
+		CustomerPhone:   booking.CustomerPhone,
+		CustomerEmail:   booking.CustomerEmail,
+		ServiceName:     booking.ServiceName,
+		ServicePrice:    booking.ServicePrice,
+		ServiceDuration: booking.ServiceDuration,
+		Date:            booking.Date,
+		Time:            booking.Time,
+		Notes:           booking.Notes,
+		BookingID:       booking.ID,
+	}
+	if notification.ShopName == "" {
+		notification.ShopName = barber.ShopName
+	}
+	if notification.ShopAddress == "" {
+		notification.ShopAddress = barber.ShopAddress
+	}
+	if notification.BarberName == "" {
+		notification.BarberName = barber.FullName
+	}
+
+	bookingNotificationWG.Add(1)
+	go func() {
+		defer bookingNotificationWG.Done()
+
+		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+		defer cancel()
+
+		err := bookingMailSender(ctx, notification)
+		if err != nil {
+			if errors.Is(err, resetmail.ErrConfiguration) {
+				slog.InfoContext(ctx, "booking_notification_email_skipped_unconfigured",
+					"booking_id", booking.ID,
+					"barber_id", barber.ID,
+				)
+			} else {
+				slog.ErrorContext(ctx, "booking_notification_email_failed",
+					"booking_id", booking.ID,
+					"barber_id", barber.ID,
+					"error", err,
+				)
+			}
+		} else {
+			slog.InfoContext(ctx, "booking_notification_email_sent",
+				"booking_id", booking.ID,
+				"barber_id", barber.ID,
+				"recipient", barber.Email,
+			)
+		}
+
+		if onBookingNotificationDispatched != nil {
+			onBookingNotificationDispatched(booking, barber, err)
+		}
+	}()
 }
 
 // BookingConfirmationHandler displays the successful booking request.

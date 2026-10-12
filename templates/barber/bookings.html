@@ -480,6 +480,22 @@
     <p>These open appointments have reached their start time or their recorded time needs checking. Confirm the outcome with the customer. They are not automatically marked as no-shows.</p>
     {{range .FollowUp}}
     <article class="barber-card">
+    <div class="booking-hairstyle">
+        <div class="booking-hairstyle-image">
+            {{if .HairstyleImage}}
+                <img src="{{.HairstyleImage}}"
+                     alt="Photo of {{.HairstyleName}}"
+                     srcset="{{imageSrcset .HairstyleImage}}"
+                     sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px"
+                     width="640" height="480" loading="lazy" decoding="async">
+            {{else}}
+                <span>DG</span>
+            {{end}}
+        </div>
+        <div class="booking-hairstyle-info">
+            <h3>{{.CustomerName}} · {{.HairstyleName}}</h3>
+        </div>
+         </div>
         <h3>{{.CustomerName}} · {{.HairstyleName}}</h3>
         <p>{{.Date}} at {{.Time}} {{.BookingTimezone}} · {{template "domain-status" (domainStatus "booking" .Status)}}</p>
         <a class="barber-button" href="/barber/chats/{{.CustomerID}}">Message customer</a>

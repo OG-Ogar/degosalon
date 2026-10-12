@@ -73,15 +73,18 @@ func bookingMatches(b models.Booking, f BookingFilter) bool {
 }
 func bookingCard(b models.Booking) BookingCard {
 	card := BookingCard{Booking: b, BarberName: b.BarberName, ShopName: b.ShopName, HairstyleName: b.ServiceName, Price: b.ServicePrice, Duration: b.ServiceDuration}
-	if b.ServiceDuration > 0 {
-		return card
-	}
-	if barber, ok := findBarberByID(b.BarberID); ok {
-		card.BarberName, card.ShopName = barber.FullName, barber.ShopName
+	legacy := b.ServiceDuration == 0
+	if legacy {
+		if barber, ok := findBarberByID(b.BarberID); ok {
+			card.BarberName, card.ShopName = barber.FullName, barber.ShopName
+		}
 	}
 	for _, style := range hairstyles {
 		if style.ID == b.HairstyleID {
-			card.HairstyleName, card.HairstyleImage, card.Price, card.Duration = style.Name, style.Image, style.Price, style.Duration
+			card.HairstyleImage = style.Image
+			if legacy {
+				card.HairstyleName, card.Price, card.Duration = style.Name, style.Price, style.Duration
+			}
 			break
 		}
 	}
@@ -106,7 +109,7 @@ func BookingPage(ctx context.Context, f BookingFilter, cursor PageCursor) (Page[
 		} else if f.Group != "" && f.Group != "all" {
 			predicate += " and (" + bookingClassificationSQL(f, &args) + ")='" + f.Group + "'"
 		}
-		query := `select b.id,b.barber_id,b.hairstyle_id,b.customer_id,b.customer_name,b.customer_phone,b.customer_email,b.booking_date::text,b.booking_time::text,b.notes,b.status,b.created_at,b.barber_name,b.shop_name,b.shop_address,b.service_name,b.service_price,b.service_duration,coalesce(b.booking_timezone,''),case when b.service_duration>0 then b.barber_name else coalesce(s.full_name,'') end,case when b.service_duration>0 then b.shop_name else coalesce(s.shop_name,'') end,case when b.service_duration>0 then b.service_name else coalesce(h.name,'') end,case when b.service_duration>0 then '' else coalesce(h.image,'') end,case when b.service_duration>0 then b.service_price else coalesce(h.price,0) end,case when b.service_duration>0 then b.service_duration else coalesce(h.duration,0) end from public.bookings b left join public.barbers s on s.id=b.barber_id left join public.hairstyles h on h.id=b.hairstyle_id where ` + predicate + pageSQL("b.id", cursor, false, &args)
+		query := `select b.id,b.barber_id,b.hairstyle_id,b.customer_id,b.customer_name,b.customer_phone,b.customer_email,b.booking_date::text,b.booking_time::text,b.notes,b.status,b.created_at,b.barber_name,b.shop_name,b.shop_address,b.service_name,b.service_price,b.service_duration,coalesce(b.booking_timezone,''),case when b.service_duration>0 then b.barber_name else coalesce(s.full_name,'') end,case when b.service_duration>0 then b.shop_name else coalesce(s.shop_name,'') end,case when b.service_duration>0 then b.service_name else coalesce(h.name,'') end,coalesce(h.image,''),case when b.service_duration>0 then b.service_price else coalesce(h.price,0) end,case when b.service_duration>0 then b.service_duration else coalesce(h.duration,0) end from public.bookings b left join public.barbers s on s.id=b.barber_id left join public.hairstyles h on h.id=b.hairstyle_id where ` + predicate + pageSQL("b.id", cursor, false, &args)
 		items, err = queryRecords(ctx, query, func(rows *sql.Rows) (BookingCard, error) {
 			var v BookingCard
 			err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.Booking.BarberName, &v.Booking.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone, &v.BarberName, &v.ShopName, &v.HairstyleName, &v.HairstyleImage, &v.Price, &v.Duration)

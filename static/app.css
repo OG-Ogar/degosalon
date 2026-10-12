@@ -21,10 +21,12 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
   radial-gradient(circle at 73% 28%,rgba(244,203,120,.12),transparent 26%),
   var(--landing-image,linear-gradient(135deg,#10221d,#254137));
   background-position:center;background-size:cover;background-repeat:no-repeat}
-.landing::before{content:"";position:absolute;inset:0;pointer-events:none;background:
+/* Keep the forest scrim above the photograph and below foreground content. */
+.landing::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:
+  linear-gradient(105deg,rgba(9,22,19,.68) 0%,rgba(9,22,19,.52) 43%,rgba(9,22,19,.32) 73%,rgba(9,22,19,.48) 100%),
   linear-gradient(rgba(244,203,120,.035) 1px,transparent 1px),
   linear-gradient(90deg,rgba(244,203,120,.035) 1px,transparent 1px);
-  background-size:56px 56px;mask-image:linear-gradient(to bottom,black,transparent 75%)}
+  background-size:cover,56px 56px,56px 56px}
 .landing::after{content:"";position:absolute;width:430px;height:430px;border:1px solid rgba(244,203,120,.12);border-radius:50%;right:-160px;top:16%;box-shadow:0 0 0 75px rgba(244,203,120,.025),0 0 0 150px rgba(244,203,120,.018);pointer-events:none}
 
 .landing-header{position:relative;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:24px;width:min(100% - 48px,1180px);margin:auto;padding:24px 0;border-bottom:1px solid rgba(194,212,199,.16)}

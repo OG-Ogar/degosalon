@@ -20,7 +20,7 @@ The original 5 October gap report is historical. Subsequent reconciliation recor
 | --- | --- | --- |
 | Discovery | State/LGA filtering, paginated barber listings, public portfolios, service prices/reviews and preserved sign-in return context | Live journey acceptance; remembered locality and distance search are optional |
 | Accounts | Customer/barber registration, role sessions, password recovery, profile editing, CSRF and throttling | Real-inbox delivery and deployed cookie/proxy acceptance |
-| Appointments | Schedules, timezone/lead-time rules, available slots, guarded lifecycle, customer confirmation/history and barber management | Empty-catalogue booking CTA, historical hairstyle photo and notification delivery described below |
+| Appointments | Schedules, timezone/lead-time rules, available slots, guarded lifecycle, customer confirmation/history and barber management | Historical hairstyle photo and notification delivery described below; empty-catalogue CTAs already have fallback states |
 | Booking interaction | CTA scroll/focus feedback, dynamic slot loading, date/service synchronization, time chips and selected-service summary | Two server forms remain; test recovery and JavaScript-disabled paths after recent enhancements |
 | Commerce | Products, editable carts, transactional retry-safe checkout, exact kobo arithmetic, owned order history and collection/fulfillment states | Cart additions do not reserve inventory; online payment is not implemented under the collection policy |
 | Messaging | Persistent paginated conversations, partner photos/fallbacks in both roles, IME-safe send and explicit refresh behavior | Realtime receive, unread state and delivery notifications are deferred |
@@ -31,7 +31,7 @@ The original 5 October gap report is historical. Subsequent reconciliation recor
 ### Current work and ordered backlog
 
 1. **Landing contrast and build regression:** PR #133 adds a forest overlay above the homepage photo and fixes the dashboard `States` field mismatch that blocked compilation. Check its final-head CI and merge/deployment status; a successful source merge alone is not live visual acceptance.
-2. **Booking CTA with no services — confirmed open:** the profile still renders a `#booking` link while the target form is conditional on available hairstyles. Render an honest unavailable state or a useful alternative when no services exist. The newer scroll/focus enhancement handles an existing target, but does not create a missing one.
+2. **Booking CTA with no services — implemented:** both booking actions are conditional on available hairstyles. The main action displays Booking Unavailable and the mobile action links to messaging; the empty state also offers Message Barber. Preserve this behavior and include it in browser regression coverage. An earlier review incorrectly classified this as open after examining link matches without their surrounding template conditions.
 3. **Historical hairstyle photo — requested, not implemented:** the booking snapshot retains service name, price, duration and shop details, but no service-image field. Persist an image reference with retention rules and display it in customer history and barber booking cards.
 4. **Cart reservation policy — requested, not implemented:** `storage/cart_store.go` explicitly reserves no stock; checkout performs the stock deduction. Reserving on add requires transactional reservation ownership, expiry/release, concurrency protection and checkout conversion without double deduction. Preserve the currently safe checkout behavior until that replacement is implemented and tested.
 5. **Booking notifications — not established:** the booking handler persists the request, logs creation and redirects to confirmation. This inspected path does not dispatch email, SMS or push notifications. Choose channels and implement durable delivery/retries before promising automatic alerts; barber booking-list visibility is already implemented.
@@ -41,6 +41,10 @@ The original 5 October gap report is historical. Subsequent reconciliation recor
 **Already implemented despite older pending notes:** separate public Handwork/Products galleries and chat partner photos/fallbacks for both customer and barber views are present in current templates and handlers. Their live visual acceptance is separate.
 
 **Deferred product decisions:** realtime/unread messaging, online payments, identity verification, review moderation, remembered locality, customer deletion/retention extensions and administrator recovery/MFA. Privacy and terms remain explicit placeholders by prior owner instruction.
+
+### Current CI blockers
+
+On 12 October, the inspected runs for PRs #133 and #134 passed application and PostgreSQL jobs but failed browser checks. Failures include a hidden barber-dashboard heading and an archival journey expecting a removed public profile but receiving HTTP 200. Diagnose these before merging; do not weaken checks or assume the archival failure is a backend defect without tracing the submitted action. Neither run establishes release readiness.
 
 ### Verification evidence and limits
 

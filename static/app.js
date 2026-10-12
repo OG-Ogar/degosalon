@@ -198,7 +198,7 @@
             quickChips.forEach(function (chip) {
                 chip.addEventListener("click", function () {
                     var reply = chip.getAttribute("data-reply");
-                    if (reply) {
+                    if (reply && box) {
                         box.value = reply;
                         box.dispatchEvent(new Event("input", { bubbles: true }));
                         box.focus();

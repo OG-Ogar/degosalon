@@ -186,7 +186,7 @@ PRODUCT PHOTO
     display: block;
 
     width: 100%;
-    height: 100px;
+    height: 150px;
 
     object-fit: cover;
 }
@@ -194,7 +194,6 @@ PRODUCT PHOTO
 .fullscreen-image {
     cursor: zoom-in;
 }
-
 .product-image-placeholder {
     display: flex;
 

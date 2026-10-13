@@ -19,9 +19,10 @@ type browseBarbersView struct {
 	Pagination    discoveryPagination
 	ResultsLink   string
 	Items         []barberCard
-	States		  []string
+	States        []string
 	SelectedState string
 	SelectedArea  string
+	Query         string
 	CSRF          string
 }
 
@@ -45,8 +46,8 @@ func BrowseBarbersHandler(
 	if !ok {
 		return
 	}
-
-	render(w, "customer/barber-list.html", browseBarbersView{Items: page.Items, Total: page.Total, Pagination: pagination, ResultsLink: discoveryCardPath("/customer/barbers", 0, state, area, pagination.After, pagination.Before), SelectedState: state, SelectedArea: area, CSRF: s.CSRFToken})
+	q := r.URL.Query().Get("q")
+	render(w, "customer/barber-list.html", browseBarbersView{Items: page.Items, Total: page.Total, Pagination: pagination, ResultsLink: discoveryCardPath("/customer/barbers", 0, state, area, pagination.After, pagination.Before, q), SelectedState: state, SelectedArea: area, Query: q, CSRF: s.CSRFToken})
 }
 
 // barberDetailView is one barber's shop as a customer sees it: their
@@ -325,7 +326,7 @@ func BarberSlotsHandler(
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 		w.WriteHeader(http.StatusNotFound)
 		_ = json.NewEncoder(w).Encode(slotsResponse{
-			Slots:   []string{},
+			Slots:    []string{},
 			Date:     day,
 			Timezone: calendar.Timezone,
 			Message:  "That hairstyle is not available.",

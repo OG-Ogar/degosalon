@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 )
 
 type discoveryPagination struct {
@@ -13,10 +14,16 @@ type discoveryPagination struct {
 	After, Before                     int
 }
 
-func discoveryCardPath(base string, id int, state, area string, after, before int) string {
-	query := url.Values{"state": {state}}
+func discoveryCardPath(base string, id int, state, area string, after, before int, q ...string) string {
+	query := url.Values{}
+	if state != "" {
+		query.Set("state", state)
+	}
 	if area != "" {
 		query.Set("area", area)
+	}
+	if len(q) > 0 && q[0] != "" {
+		query.Set("q", q[0])
 	}
 	if after > 0 {
 		query.Set("after", strconv.Itoa(after))
@@ -35,7 +42,10 @@ func readDiscoveryPage(w http.ResponseWriter, r *http.Request, base string) (sto
 		journeyError(w, "Choose a valid state/FCT and an LGA or area council within it.", http.StatusBadRequest)
 		return storage.DiscoveryPage{}, "", "", discoveryPagination{}, false
 	}
-	filter := storage.DiscoveryFilter{StateID: geography.StateID(state), AreaID: geography.AreaID(state, area), Limit: storage.DiscoveryPageSize}
+
+	q := strings.TrimSpace(r.URL.Query().Get("q"))
+
+	filter := storage.DiscoveryFilter{StateID: geography.StateID(state), AreaID: geography.AreaID(state, area), Query: q, Limit: storage.DiscoveryPageSize}
 	for key, target := range map[string]*int{"after": &filter.After, "before": &filter.Before} {
 		values, exists := r.URL.Query()[key]
 		if !exists {
@@ -61,7 +71,7 @@ func readDiscoveryPage(w http.ResponseWriter, r *http.Request, base string) (sto
 		serverError(w, "load scoped discovery", err)
 		return storage.DiscoveryPage{}, "", "", discoveryPagination{}, false
 	}
-	pagination := discoveryPagination{FirstLink: discoveryCardPath(base, 0, state, area, 0, 0), After: filter.After, Before: filter.Before}
+	pagination := discoveryPagination{FirstLink: discoveryCardPath(base, 0, state, area, 0, 0, q), After: filter.After, Before: filter.Before}
 	if len(page.Items) == 0 && page.Total > 0 && (filter.After > 0 || filter.Before > 0) {
 		http.Redirect(w, r, pagination.FirstLink, http.StatusSeeOther)
 		return storage.DiscoveryPage{}, "", "", pagination, false

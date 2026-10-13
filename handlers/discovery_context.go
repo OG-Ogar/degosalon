@@ -10,7 +10,7 @@ import (
 
 func discoveryQuery(r *http.Request) url.Values {
 	query := url.Values{}
-	for _, key := range []string{"state", "area", "after", "before"} {
+	for _, key := range []string{"state", "area", "q", "after", "before"} {
 		value := strings.TrimSpace(r.URL.Query().Get(key))
 		if value == "" && r.Method == http.MethodPost {
 			value = strings.TrimSpace(r.PostFormValue(key))

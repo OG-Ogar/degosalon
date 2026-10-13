@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	_ "golang.org/x/image/webp"
 	"image"
 	"image/color"
 	_ "image/gif"
@@ -11,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	_ "golang.org/x/image/webp"
 )
 
 const (
@@ -60,9 +61,22 @@ func normalizeStoredImage(path string) error {
 	if config.Width < 1 || config.Height < 1 || config.Width > maxImageDimension || config.Height > maxImageDimension || config.Width > maxImagePixels/config.Height {
 		return fmt.Errorf("image exceeds the limit of 16 megapixels or 10000 pixels per side")
 	}
-	expected := map[string]string{".jpg": "jpeg", ".jpeg": "jpeg", ".png": "png", ".gif": "gif", ".webp": "webp"}[extension]
-	if expected == "" || format != expected {
-		return fmt.Errorf("image content does not match its filename type")
+	switch format {
+	case "jpeg", "png", "gif", "webp":
+		// supported real formats; the filename extension is ignored
+	default:
+		return fmt.Errorf("unsupported image format")
+	}
+	// Decide how to treat the file by its real content, not its name.
+	switch format {
+	case "jpeg":
+		extension = ".jpg"
+	case "png":
+		extension = ".png"
+	case "gif":
+		extension = ".gif"
+	case "webp":
+		extension = ".webp"
 	}
 	if extension == ".gif" || extension == ".webp" {
 		return nil

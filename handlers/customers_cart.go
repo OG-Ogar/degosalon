@@ -3,6 +3,7 @@ package handlers
 import (
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
@@ -36,15 +37,37 @@ func AddToCartHandler(
 
 	_, err := storage.AddToCartContext(r.Context(), customer.ID, id)
 	if errors.Is(err, storage.ErrInsufficientStock) || errors.Is(err, storage.ErrUnavailable) {
+		if wantsJSON(r) {
+			writeCartJSON(w, http.StatusConflict, map[string]any{"ok": false, "message": "No more stock available for this product."})
+			return
+		}
 		renderCustomerCart(w, r, customer, s, http.StatusConflict, "This product is unavailable or does not have enough stock. Adjust or remove it below, or continue shopping.")
 		return
 	}
 	if errors.Is(err, storage.ErrNotFound) {
+		if wantsJSON(r) {
+			writeCartJSON(w, http.StatusNotFound, map[string]any{"ok": false, "message": "Product not found."})
+			return
+		}
 		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
 	}
 	if err != nil {
+		if wantsJSON(r) {
+			writeCartJSON(w, http.StatusInternalServerError, map[string]any{"ok": false, "message": "Could not add to cart. Try again."})
+			return
+		}
 		serverError(w, "add product to cart", err)
+		return
+	}
+
+	if wantsJSON(r) {
+		count, err := storage.CartItemCount(r.Context(), customer.ID)
+		if err != nil {
+			writeCartJSON(w, http.StatusInternalServerError, map[string]any{"ok": false, "message": "Could not read your cart."})
+			return
+		}
+		writeCartJSON(w, http.StatusOK, map[string]any{"ok": true, "cartCount": count})
 		return
 	}
 
@@ -194,4 +217,16 @@ func UpdateCartItemHandler(w http.ResponseWriter, r *http.Request, customer mode
 		return
 	}
 	http.Redirect(w, r, "/customer/cart", http.StatusSeeOther)
+}
+
+// wantsJSON is true for the background "quick add" request from the products page.
+func wantsJSON(r *http.Request) bool {
+	return r.Header.Get("X-Quick-Add") == "1"
+}
+
+func writeCartJSON(w http.ResponseWriter, status int, body map[string]any) {
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(body)
 }

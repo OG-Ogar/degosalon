@@ -65,7 +65,7 @@ func SellerOrderItemPage(ctx context.Context, barberID int, status string, curso
 	var items []models.ProductOrderItem
 	if databaseEnabled() {
 		args := []any{barberID}
-		query := `select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status,i.fulfillment_status,i.seller_name,i.seller_shop_name,i.seller_shop_address,i.seller_phone,i.product_category,i.product_description from public.product_order_items i join public.product_orders o on o.id=i.order_id where i.barber_id=$1`
+		query := `select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status,i.fulfillment_status,i.seller_name,i.seller_shop_name,i.seller_shop_address,i.seller_phone,i.product_category,i.product_description,coalesce(p.image,'') from public.product_order_items i join public.product_orders o on o.id=i.order_id left join public.products p on p.id=i.product_id where i.barber_id=$1`
 		if status != "" && status != "all" {
 			args = append(args, status)
 			query += " and i.fulfillment_status=$2"
@@ -73,7 +73,7 @@ func SellerOrderItemPage(ctx context.Context, barberID int, status string, curso
 		query += pageSQL("i.id", cursor, false, &args)
 		items, err = queryRecords(ctx, query, func(rows *sql.Rows) (models.ProductOrderItem, error) {
 			var v models.ProductOrderItem
-			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.OrderStatus, &v.FulfillmentStatus, &v.SellerName, &v.SellerShopName, &v.SellerShopAddress, &v.SellerPhone, &v.ProductCategory, &v.ProductDescription)
+			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.OrderStatus, &v.FulfillmentStatus, &v.SellerName, &v.SellerShopName, &v.SellerShopAddress, &v.SellerPhone, &v.ProductCategory, &v.ProductDescription, &v.ProductImage)
 			return v, err
 		}, args...)
 		if err != nil {

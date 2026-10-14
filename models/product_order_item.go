@@ -15,6 +15,7 @@ type ProductOrderItem struct {
 	ProductCategory    string
 	ProductDescription string
 	ProductName        string
+	ProductImage	   string
 	Price              float64
 	Quantity           int
 	Subtotal           float64

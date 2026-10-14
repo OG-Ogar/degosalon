@@ -226,7 +226,7 @@
                                                 <img src="{{.ProductImage}}"
                                                      alt="Photo of {{.ProductName}}"
                                                      srcset="{{imageSrcset .ProductImage}}"
-                                                     sizes="80px"
+                                                     sizes="(max-width: 600px) 200px, 240px"
                                                      width="640" height="480" loading="lazy" decoding="async">
                                             {{else}}
                                                 <span>DG</span>

@@ -977,3 +977,46 @@
         gap: 0.75rem;
     }
 }
+
+
+/* =========================================
+   PRODUCT ORDER PHOTOS (barber dashboard)
+   ========================================= */
+
+.order-product {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.order-product-image {
+    width: 80px;
+    height: 80px;
+    flex: 0 0 80px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--surface-hi, #254137);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: var(--signal, #f4cb78);
+}
+
+.order-product-image img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .order-product-image {
+        width: 72px;
+        height: 72px;
+        flex-basis: 72px;
+    }
+}

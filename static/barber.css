@@ -654,15 +654,21 @@
     box-shadow: 0 4px 15px rgba(55, 37, 24, 0.06);
 }
 
+/* Shop photo on the profile page: a fixed 16:10 frame, cropped neatly.
+   To make it taller or shorter, change the aspect-ratio (e.g. 4 / 3 is taller,
+   2 / 1 is shorter) and the max-height. */
 .barber-shop-photo {
-    width: 100%;
-    max-height: 360px;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 10;
+    max-height: 340px !important;
 
     display: block;
 
     object-fit: cover;
+    object-position: center;
 
-    border-radius: 8px;
+    border-radius: 12px;
 
     margin-bottom: 25px;
 }

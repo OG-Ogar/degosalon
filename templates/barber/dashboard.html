@@ -115,55 +115,6 @@
     </section>
 
 
-    <!-- YOUR SHOP -->
-    <section class="barber-section barber-dashboard-section">
-
-        <h2 class="barber-section-title">Your shop</h2>
-
-        <div class="barber-card ui-panel">
-
-            <table class="barber-profile-table">
-                <tbody>
-                    <tr>
-                        <th scope="row">Name</th>
-                        <td>{{.FullName}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Phone</th>
-                        <td>{{.PhoneNumber}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Email</th>
-                        <td>{{.Email}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Shop</th>
-                        <td>{{.ShopName}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Address</th>
-                        <td>{{.ShopAddress}}</td>
-                    </tr>
-                    <tr>
-                        <th scope="row">Status</th>
-                        <td>{{template "domain-status" (domainStatus "account" .Status)}}</td>
-                    </tr>
-                </tbody>
-            </table>
-
-            <div class="barber-actions ui-actions">
-                <a class="barber-button primary" href="/barber/profile">View Profile</a>
-                <a class="barber-button" href="/barber/profile/edit">Edit Details</a>
-                <a class="barber-button" href="/explore/{{.ID}}" target="_blank" rel="noopener">
-                    Preview as Customer ↗
-                </a>
-            </div>
-
-        </div>
-
-    </section>
-
-
     <!-- PRODUCT ORDERS -->
     <section class="barber-section barber-dashboard-section">
 

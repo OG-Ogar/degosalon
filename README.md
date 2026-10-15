@@ -8,11 +8,13 @@ A Go web platform connecting barbers and customers through barber services, appo
 
 ## Current Status
 
-**MVP deployed and in active development.**
+**Feature-rich MVP deployed and in active validation.**
 
-The repository already contains functional application flows for administrators, barbers, and customers. The README previously described an early product plan and no longer matched the implementation.
+De Go Salon implements public discovery plus authenticated customer, barber, and administrator journeys. It uses Go server-rendered templates with progressive TypeScript enhancement, PostgreSQL persistence, and configurable cloud media and password-recovery delivery.
 
-The application is deployed on Render and uses Supabase PostgreSQL for persistent application data. Core records therefore survive application restarts.
+The application is deployed on Render and uses Supabase PostgreSQL for persistent application data, so core records survive application restarts.
+
+The application surfaces were modernised and extended after the original MVP write-up: the public pages, the customer and barber workspaces, messaging, commerce, and a unified booking flow were reworked through PRs #119–#133. The admin workspace styling has not yet had the same pass. The backend, media, recovery, and operational behaviour described later in this document remains current, and the work still outstanding is listed under [Known MVP Gaps / Production Readiness](#known-mvp-gaps--production-readiness).
 
 ## Users
 
@@ -37,12 +39,14 @@ Current capabilities:
 - Register, sign in, sign out, and reset passwords
 - View a barber dashboard
 - View and edit their profile
-- Create, view, edit, and delete hairstyles
+- Create, view, edit, and archive hairstyles
 - Upload images
 - Set hairstyle information and pricing
+- Manage a weekly schedule with opening hours, breaks, and time off
 - View bookings and perform booking actions
 - View conversations and chat with customers
-- Create, view, and delete products
+- Create, view, edit, and archive products
+- Fulfil collected product orders (Pending → Ready → Collected)
 
 ### Customer
 The current implementation uses customer accounts, which is a change from the original plan where customers would not need accounts.
@@ -52,12 +56,13 @@ Current capabilities:
 - View a customer dashboard
 - View and edit their profile
 - Browse barbers and barber profiles
-- Select a hairstyle and create a booking
-- View booking confirmation and booking history
+- Select a hairstyle and see available start times for a chosen date
+- Create a booking and view booking confirmation and booking history
+- Add an appointment to a calendar (.ics or Google Calendar)
 - Cancel bookings
 - Chat with barbers
 - Browse products
-- Add products to a cart
+- Add products to a cart with quick add and quantity steppers
 - Place product orders and view order confirmation
 
 ## Core MVP Flows
@@ -92,23 +97,43 @@ Admin signs in → manages barbers → reviews customers/bookings → suspends o
 ## Implemented Application Areas
 
 - Role-based routing for admin, barber, and customer areas
-- Session-based authentication
+- Session-based authentication with durable PostgreSQL-backed sessions
 - Password hashing/security utilities
-- Password-reset flow
+- Password-reset flow with durable encrypted mail jobs (Brevo HTTPS or authenticated SMTP)
 - CSRF protection in authenticated forms
-- Admin access control
+- Admin access control, authentication throttling, and production configuration guards
 - Barber and customer profiles
-- Hairstyle catalogue management
-- Appointment booking and cancellation
-- Barber booking actions
-- Barber/customer chat
-- Product catalogue
-- Shopping cart and product ordering
-- Image uploads and image serving
+- Canonical Nigeria state/LGA geography for discovery and profiles
+- Hairstyle and product catalogue management with archival that retains history and media
+- Per-barber weekly schedule, breaks, time off, and available-slot selection
+- Unified booking flow with dynamic time-slot loading and a no-JavaScript fallback
+- Appointment booking, lifecycle guards, immutable booking snapshots, and cancellation
+- Barber booking actions and per-seller order fulfillment
+- Barber/customer chat with partner photos, quick replies, and an expanding composer
+- Product catalogue, quick add, cart editing, and retry-safe transactional checkout
+- Image and video uploads with durable cloud storage and reconciliation
+- Responsive image variants (srcset/sizes) and an accessible tap-to-zoom image viewer
 - Configurable booking hours
-- HTTP server timeouts
+- Health endpoints, graceful shutdown, and HTTP server timeouts
+- Structured JSON request logs and a private administrator audit trail
 - HTML templates and responsive styling
+- Progressive TypeScript enhancements (dynamic slots, social share, cart steppers, calendar export, chat)
 - Automated tests covering storage, validation, uploads/images, password reset, and application flows
+- Playwright browser and accessibility/reflow coverage
+
+### Recent enhancements
+
+The following were added after the original MVP documentation and are present in the current source:
+
+- **Unified booking flow with dynamic slot selection.** Customers choose a service and date and receive available start times from `GET /customer/barbers/{id}/slots`; the server-rendered form still works without JavaScript.
+- **Cart and checkout ergonomics.** Quick add from the product catalogue, cart quantity steppers, and exact kobo arithmetic across checkout.
+- **Calendar export.** The booking confirmation can generate an `.ics` file or a Google Calendar link.
+- **Messaging upgrades.** Split-view conversations, quick-reply chips, an auto-expanding composer, a scroll-to-bottom control, and partner photos with fallbacks for both roles.
+- **Social share.** Native Web Share API with an accessible fallback modal for X, Facebook, WhatsApp, and copy-link.
+- **App shell and public footer.** Shared navigation, pill navigation, and a footer across public and authenticated page families.
+- **Catalogue archival.** Removing a hairstyle or product archives it, retaining media and historical booking/order references, and blocks new use.
+- **Empty-service booking guard.** A barber with no available services shows a clear "Booking Unavailable" action rather than a dead link.
+- **Tap-to-zoom photos.** Small product, order, and hairstyle photos open a full-resolution viewer when tapped, with a labelled zoom control for keyboard and screen-reader use.
 
 ## MVP Architecture
 
@@ -116,27 +141,32 @@ Admin signs in → manages barbers → reviews customers/bookings → suspends o
 degosalon/
 ├── main.go
 ├── go.mod
+├── cmd/          # migrate, media and audit command-line tools
 ├── handlers/     # HTTP routing, authentication and application flows
 ├── models/       # Domain models
 ├── storage/      # PostgreSQL persistence and data access
+├── internal/     # dbmigrate, geography, mediastore, money, observability, resetmail, runtimeconfig
+├── frontend/     # TypeScript source compiled to static/
 ├── session/      # Session management
 ├── security/     # Password/security utilities
 ├── reset/        # Password-reset token handling
+├── supabase/     # SQL migrations and baseline schema
 ├── templates/    # Admin, barber and customer HTML templates
-├── static/       # CSS and JavaScript
+├── static/       # CSS, JavaScript and compiled TypeScript
+├── e2e/          # Playwright browser tests
 ├── uploads/      # Uploaded application images
 └── README.md
 ```
 
 ## Technology
 
-- **Backend:** Go 1.22.2
+- **Backend:** Go 1.23
 - **HTTP:** Go standard library `net/http`
 - **Frontend:** Server-rendered HTML/CSS with TypeScript-enhanced browser interactions
 - **Database:** Supabase PostgreSQL
 - **Database driver:** pgx v5
 - **Hosting:** Render
-- **Testing:** Go `testing` and `httptest`
+- **Testing:** Go `testing` and `httptest`; Playwright browser and accessibility tests
 
 ## Configuration
 
@@ -144,7 +174,7 @@ The server uses environment configuration where applicable.
 
 - `PORT` — overrides the default HTTP port (`8080`).
 - `DATABASE_URL` — PostgreSQL connection string used by the application. The deployed Render service uses Supabase's IPv4-compatible session pooler.
-- Admin credentials are initialized from environment configuration; when no admin password is supplied, the application generates one for that run.
+- Admin credentials are initialized from environment configuration. Production requires `ADMIN_USERNAME` and a sufficiently long `ADMIN_PASSWORD`; local development without them generates a one-run password.
 - Booking hours are configurable without changing application code.
 
 ## Known MVP Gaps / Production Readiness
@@ -158,6 +188,7 @@ Priority work includes:
 3. **Browser and device acceptance** — CI covers authorization, booking/order lifecycle, recovery and the page accessibility matrix; real-device and screen-reader checks remain separate.
 4. **Operational acceptance** — readiness, graceful shutdown, structured logs and admin audit are implemented; verify production configuration and backup/restoration procedures.
 5. **Security review** — continue verifying authentication, authorization, secrets, session handling, and database access boundaries.
+6. **Requested feature work not yet implemented** — persist the selected hairstyle photo with a booking, reserve cart stock at add-to-cart time, and add booking notifications. Online payment, realtime/unread chat, identity verification, review moderation, remembered locality, customer deletion/retention extensions, and administrator recovery/MFA remain optional product decisions.
 
 ## Deployment
 
@@ -226,7 +257,7 @@ go test ./...
 
 ## Current implementation and acceptance backlog
 
-The earlier visual and interaction backlog is implemented through PR #115. Shared navigation, messaging styles, authentication controls, location-preserving discovery, status feedback, mobile data views and shared UI primitives are covered by the current source and automated browser suite.
+The original scoped visual and interaction backlog was implemented through PR #115, and the application surfaces were modernised further through PRs #119–#133. Shared navigation and the app shell, the public footer, customer and barber workspace updates, messaging split-view and quick replies, commerce and booking ergonomics, social share, and the unified booking flow with dynamic slot selection are covered by the current source and the automated browser suite.
 
 See [remaining gap.md](remaining%20gap.md) for the reconciled scope and [browser-acceptance.md](browser-acceptance.md) for automated coverage and its limits. Production mail delivery, provider durability, backup restoration and real-device/screen-reader checks remain acceptance work. Optional product features are deferred.
 
@@ -242,6 +273,12 @@ Frontend checks:
 npm install --no-audit --no-fund
 npm run typecheck
 npm run build
+```
+
+Browser and accessibility checks run Playwright against a server the test config starts automatically:
+
+```bash
+npm run test:browser
 ```
 
 ## PostgreSQL integration verification
@@ -380,4 +417,4 @@ After deployment, use Forgot password for an account and inbox you control. Chec
 
 ### Customer gallery separation
 
-Public barber profiles open on Handwork & prices. The Products link opens a separate server-rendered product gallery; switching sections preserves independent pagination and discovery context. Customer booking pages show hairstyle selections and link to the seller's product catalogue. The remaining booking-photo, cart-reservation and chat-photo work is tracked in `remaining gap.md`.
+Public barber profiles open on Handwork & prices. The Products link opens a separate server-rendered product gallery; switching sections preserves independent pagination and discovery context. Customer booking pages show hairstyle selections and link to the seller's product catalogue. Conversations show the partner's profile photo with a fallback for both roles. The remaining booking-photo and cart-reservation work is tracked in `remaining gap.md`.

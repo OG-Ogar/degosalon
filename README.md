@@ -133,7 +133,7 @@ The following were added after the original MVP documentation and are present in
 - **App shell and public footer.** Shared navigation, pill navigation, and a footer across public and authenticated page families.
 - **Catalogue archival.** Removing a hairstyle or product archives it, retaining media and historical booking/order references, and blocks new use.
 - **Empty-service booking guard.** A barber with no available services shows a clear "Booking Unavailable" action rather than a dead link.
-- **Tap-to-zoom photos.** Small product, order, and hairstyle photos open a full-resolution viewer when tapped, with a labelled zoom control for keyboard and screen-reader use.
+- **Tap-to-zoom photos.** Product, order, hairstyle, profile, and partner photos open a full-resolution viewer when the photo itself is tapped or activated with Enter/Space; there is no separate "Enlarge" button. Photos that are part of a profile link keep their navigation.
 
 ## MVP Architecture
 

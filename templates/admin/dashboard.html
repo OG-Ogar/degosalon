@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
+    <link rel="stylesheet" href="/static/image-viewer.css">
+    <script src="/static/image-viewer.js" defer></script>
 </head>
 <body class="modern-admin-page">
 
@@ -88,7 +90,7 @@
 
             <img class="photo"
                  src="{{.LandingImage}}"
-                 alt="Current homepage background" srcset="{{imageSrcset .LandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+                 alt="Current homepage background" data-fullscreen-image srcset="{{imageSrcset .LandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             <p class="muted">
                 This is the image currently displayed on the homepage.
@@ -153,7 +155,7 @@
 
             <img class="photo"
                  src="{{.CustomerLandingImage}}"
-                 alt="Current customer dashboard background" srcset="{{imageSrcset .CustomerLandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+                 alt="Current customer dashboard background" data-fullscreen-image srcset="{{imageSrcset .CustomerLandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
             <p class="muted">
                 This is the image currently displayed behind

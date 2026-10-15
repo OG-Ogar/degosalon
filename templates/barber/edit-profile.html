@@ -11,6 +11,8 @@
     <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
+    <link rel="stylesheet" href="/static/image-viewer.css">
+    <script src="/static/image-viewer.js" defer></script>
 </head>
 
 <body class="barber-page modern-role-page modern-barber-page">
@@ -187,6 +189,7 @@
                         <img
                             src="{{index .Values "profile_image"}}"
                             alt="Your current shop photo"
+                            data-fullscreen-image
                          srcset="{{imageSrcset (index .Values "profile_image")}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
                     </div>
                 {{end}}
@@ -242,6 +245,7 @@
                         <img
                             src="{{index .Values "personal_image"}}"
                             alt="Your current personal photo"
+                            data-fullscreen-image
                          srcset="{{imageSrcset (index .Values "personal_image")}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
                     </div>
                 {{end}}

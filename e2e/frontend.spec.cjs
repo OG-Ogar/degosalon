@@ -218,7 +218,7 @@ test('shared forms and archive confirmations work at phone width',async({page},t
  await page.goto('/barber/hairstyles/new');
  for(const [name,value] of Object.entries({name:'Archive journey cut',category:'Fade',description:'A simple cut',price:'1000',duration:'30'}))await page.locator('[name="'+name+'"]').fill(value);
  await page.locator('[name="available"]').check();await page.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
- await page.locator('a[href$="/delete"]').filter({hasText:/archive/i}).first().click();
+ await page.locator('a[href$="/delete"]').filter({hasText:/delete/i}).first().click();
  await checkPage(page,testInfo,'primitives-archive-hairstyle');
  await expect(page.locator('.ui-actions input[name=csrf_token]')).toHaveValue(/\S+/);
  await page.getByRole('link',{name:'No, keep it',exact:true}).click();

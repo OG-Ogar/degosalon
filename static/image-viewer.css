@@ -98,85 +98,12 @@
     border-color: var(--signal, #f4cb78);
     color: var(--signal, #f4cb78);
 }
+/* Any photo that can be opened is tappable directly, with no visible
+   button or label. The zoom cursor and focus ring are the only affordances. */
 img.image-zoomable {
     cursor: zoom-in;
 }
-.image-viewer-trigger {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-height: 44px;
-    min-width: 44px;
-    margin: 8px 0;
-    padding: 8px 16px;
-    border: 1px solid var(--border, #355348);
-    border-radius: 10px;
-    background: var(--surface-hi, #254137);
-    color: var(--ink, #f8f5e9);
-    font: inherit;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: border-color 0.15s ease, color 0.15s ease;
-}
-.image-viewer-trigger:hover {
-    border-color: var(--signal, #f4cb78);
-    color: var(--signal, #f4cb78);
-}
-.image-viewer-trigger-icon {
-    font-size: 1rem;
-    line-height: 1;
-}
-/* Small fixed-size thumbnails: render the trigger as a compact tap-to-zoom
-   badge over the photo. This keeps the thumbnail layout intact and avoids the
-   container's overflow clipping the control. */
-.order-product-image,
-.booking-hairstyle-image,
-.customer-booking-image,
-.barber-hairstyle-media-wrap {
-    position: relative;
-}
-.order-product-image > .image-viewer-trigger,
-.booking-hairstyle-image > .image-viewer-trigger,
-.customer-booking-image > .image-viewer-trigger,
-.barber-hairstyle-media-wrap > .image-viewer-trigger {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    z-index: 2;
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-    margin: 0;
-    padding: 0;
-    gap: 0;
-    border-radius: 999px;
-    background: rgba(9, 22, 19, 0.8);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-}
-/* Keep clear of the duration badge on the hairstyle media card. */
-.barber-hairstyle-media-wrap > .image-viewer-trigger {
-    top: 8px;
-    bottom: auto;
-}
-.order-product-image > .image-viewer-trigger .image-viewer-trigger-text,
-.booking-hairstyle-image > .image-viewer-trigger .image-viewer-trigger-text,
-.customer-booking-image > .image-viewer-trigger .image-viewer-trigger-text,
-.barber-hairstyle-media-wrap > .image-viewer-trigger .image-viewer-trigger-text {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    margin: -1px;
-    padding: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-    border: 0;
-}
-.image-viewer-trigger:focus-visible, .image-viewer-close:focus-visible, .image-viewer-prev:focus-visible, .image-viewer-next:focus-visible {
+img.image-zoomable:focus-visible, .image-viewer-close:focus-visible, .image-viewer-prev:focus-visible, .image-viewer-next:focus-visible {
     outline: 3px solid var(--signal, #f4cb78);
     outline-offset: 3px;
 }

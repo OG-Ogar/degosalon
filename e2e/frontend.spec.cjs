@@ -87,22 +87,25 @@ test('barber and admin navigation and mobile field labels',async({page},testInfo
  await expect(label).toBeVisible();
  expect(await label.evaluate(el=>getComputedStyle(el,'::before').content)).toBe('"Barber"');
 });
-test('native viewer keeps profile links and service selection keyboard accessible',async({page})=>{
+test('tap-to-zoom photos keep profile links intact and stay keyboard accessible',async({page})=>{
  await page.goto('/');
  await page.setContent('<a id="profile" href="/explore">Profile<img data-fullscreen-image src="data:image/png;base64,'+PNG.toString('base64')+'" alt="Profile"></a><input id="style" type="radio"><label for="style"><img data-fullscreen-image src="data:image/png;base64,'+PNG.toString('base64')+'" alt="Haircut"></label>');
  await page.addScriptTag({content:fs.readFileSync('static/image-viewer.js','utf8')});
  await page.evaluate(()=>document.dispatchEvent(new Event('DOMContentLoaded')));
- await page.locator('label img').click();await expect(page.locator('#style')).toBeChecked();
- const trigger=page.getByRole('button',{name:'Enlarge Haircut'});
- await trigger.focus();await page.keyboard.press('Enter');
+ await expect(page.locator('.image-viewer-trigger')).toHaveCount(0);
+ const photo=page.locator('label img');
+ await expect(photo).toHaveAttribute('role','button');
+ await photo.click();
  const dialog=page.getByRole('dialog',{name:'Full-size image'});await expect(dialog).toBeVisible();
+ await expect(page.locator('#style')).not.toBeChecked();
  const close=page.getByRole('button',{name:'Close image'});await expect(close).toBeFocused();
  await page.keyboard.press('Tab');await expect(close).toBeFocused();
  await page.evaluate(()=>document.querySelector('#profile').focus());await expect(close).toBeFocused();
- await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
- await trigger.click();await dialog.locator('img').click();await expect(dialog).toBeVisible();
- await close.click();await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
- await trigger.click();await page.mouse.click(1,1);await expect(dialog).not.toBeVisible();await expect(trigger).toBeFocused();
+ await page.keyboard.press('Escape');await expect(dialog).not.toBeVisible();await expect(photo).toBeFocused();
+ await photo.focus();await page.keyboard.press('Enter');await expect(dialog).toBeVisible();
+ await dialog.locator('img').click();await expect(dialog).toBeVisible();
+ await close.click();await expect(dialog).not.toBeVisible();await expect(photo).toBeFocused();
+ await photo.click();await page.mouse.click(1,1);await expect(dialog).not.toBeVisible();await expect(photo).toBeFocused();
  await expect(page.locator('body')).not.toHaveClass(/image-viewer-open/);
  await page.locator('#profile').click();await expect(page).toHaveURL(/\/explore$/);
 });
@@ -174,11 +177,11 @@ test('booking details reflect cancellation after the original request',async({br
   await expect(customer.locator('[data-booking-summary]')).toContainText('Status Journey Cut · ₦1,000.00 · 30 minutes');
   const service=customer.locator('input[name=hairstyle_id]');
   await service.evaluate(input=>{input.checked=false;});
-  await customer.locator('label .style-image img').click();await expect(service).toBeChecked();
-  await expect(customer.getByRole('dialog')).toBeHidden();
-  const enlarge=customer.getByRole('button',{name:'Enlarge Photo of Status Journey Cut',exact:true});
-  await enlarge.click();await expect(customer.getByRole('dialog')).toBeVisible();await expect(service).toBeChecked();
-  await customer.keyboard.press('Escape');await expect(enlarge).toBeFocused();
+  const stylePhoto=customer.locator('label .style-image img');
+  await stylePhoto.click();await expect(customer.getByRole('dialog')).toBeVisible();
+  await expect(service).not.toBeChecked();
+  await customer.keyboard.press('Escape');await expect(customer.getByRole('dialog')).toBeHidden();await expect(stylePhoto).toBeFocused();
+  await customer.locator('label .style-info h3').first().click();await expect(service).toBeChecked();
   const nativeContext=await browser.newContext({javaScriptEnabled:false});
   try {
    const native=await nativeContext.newPage();

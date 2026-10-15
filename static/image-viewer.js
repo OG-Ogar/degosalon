@@ -62,42 +62,40 @@ document.addEventListener("DOMContentLoaded", () => {
         closeButton.focus();
     }
 
-    // Keep profile links as navigation; enlargement is a separate action there.
-    // Any other small photo can also be tapped directly to zoom, and every
-    // zoomable photo keeps a labelled button so the action stays reachable by
-    // keyboard and screen readers.
+    // Every photo with data-fullscreen-image becomes a tap-to-zoom control.
+    // There is no visible button or wording: tapping the photo opens it.
+    // Profile-link photos keep their navigation, and photos inside a service
+    // selection label zoom instead of choosing the service, so the rest of
+    // that card stays the way to select it.
     document.querySelectorAll("img[data-fullscreen-image]").forEach((image) => {
         if (image.closest("a")) return;
         image.removeAttribute("data-fullscreen-image");
 
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "image-viewer-trigger";
-        button.innerHTML = '<span class="image-viewer-trigger-icon" aria-hidden="true">&#128269;</span>' +
-            '<span class="image-viewer-trigger-text">Enlarge image</span>';
-        button.setAttribute("aria-label", "Enlarge " + (image.alt || "image"));
-        button.setAttribute("aria-haspopup", "dialog");
         const label = image.closest("label");
-        if (label) label.after(button);
-        else image.after(button);
-
         const index = gallery.length;
-        gallery.push({ image, button });
+        gallery.push({ image, button: image });
 
-        button.addEventListener("click", () => {
-            opener = button;
+        image.classList.add("image-zoomable");
+        image.setAttribute("role", "button");
+        image.setAttribute("tabindex", "0");
+        if (!image.alt) image.setAttribute("aria-label", "Photo");
+
+        function activate(event) {
+            if (label) {
+                // Tapping the photo must not also choose the service.
+                event.preventDefault();
+                event.stopPropagation();
+            }
             openViewer(index);
-        });
-
-        // Inside a selection label a tap chooses that service, so only the
-        // labelled button zooms there. Everywhere else the photo itself zooms.
-        if (!label) {
-            image.classList.add("image-zoomable");
-            image.addEventListener("click", () => {
-                opener = button;
-                openViewer(index);
-            });
         }
+
+        image.addEventListener("click", activate);
+        image.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                activate(event);
+            }
+        });
     });
 
     closeButton.addEventListener("click", () => dialog.close());

@@ -10,9 +10,11 @@
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/booking-images.css">
 <link rel="stylesheet" href="/static/customer-bookings.css">
+<link rel="stylesheet" href="/static/image-viewer.css">
 <link rel="stylesheet" href="/static/ui.css">
 
 <script src="/static/app.js" defer></script>
+<script src="/static/image-viewer.js" defer></script>
 </head>
 
 <body class="customer-bookings-page modern-customer-page">
@@ -89,6 +91,7 @@
 
                                     <img loading="lazy" decoding="async" src="{{.HairstyleImage}}"
                                         alt="Photo of {{.HairstyleName}}"
+                                        data-fullscreen-image
                                      srcset="{{imageSrcset .HairstyleImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480">
 
                                 {{else}}
@@ -286,6 +289,7 @@
 
                                     <img loading="lazy" decoding="async" src="{{.HairstyleImage}}"
                                         alt="Photo of {{.HairstyleName}}"
+                                        data-fullscreen-image
                                      srcset="{{imageSrcset .HairstyleImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480">
 
                                 {{else}}

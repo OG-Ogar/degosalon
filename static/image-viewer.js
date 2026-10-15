@@ -54,14 +54,27 @@ document.addEventListener("DOMContentLoaded", () => {
         updateView();
     }
 
-    // Keep links and selection labels intact; enlargement is a separate action.
+    function openViewer(index) {
+        currentIndex = index;
+        updateView();
+        dialog.showModal();
+        document.body.classList.add("image-viewer-open");
+        closeButton.focus();
+    }
+
+    // Keep profile links as navigation; enlargement is a separate action there.
+    // Any other small photo can also be tapped directly to zoom, and every
+    // zoomable photo keeps a labelled button so the action stays reachable by
+    // keyboard and screen readers.
     document.querySelectorAll("img[data-fullscreen-image]").forEach((image) => {
         if (image.closest("a")) return;
         image.removeAttribute("data-fullscreen-image");
+
         const button = document.createElement("button");
         button.type = "button";
         button.className = "image-viewer-trigger";
-        button.textContent = "Enlarge image";
+        button.innerHTML = '<span class="image-viewer-trigger-icon" aria-hidden="true">&#128269;</span>' +
+            '<span class="image-viewer-trigger-text">Enlarge image</span>';
         button.setAttribute("aria-label", "Enlarge " + (image.alt || "image"));
         button.setAttribute("aria-haspopup", "dialog");
         const label = image.closest("label");
@@ -72,13 +85,19 @@ document.addEventListener("DOMContentLoaded", () => {
         gallery.push({ image, button });
 
         button.addEventListener("click", () => {
-            currentIndex = index;
             opener = button;
-            updateView();
-            dialog.showModal();
-            document.body.classList.add("image-viewer-open");
-            closeButton.focus();
+            openViewer(index);
         });
+
+        // Inside a selection label a tap chooses that service, so only the
+        // labelled button zooms there. Everywhere else the photo itself zooms.
+        if (!label) {
+            image.classList.add("image-zoomable");
+            image.addEventListener("click", () => {
+                opener = button;
+                openViewer(index);
+            });
+        }
     });
 
     closeButton.addEventListener("click", () => dialog.close());

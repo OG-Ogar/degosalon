@@ -8,9 +8,11 @@
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
     <link rel="stylesheet" href="/static/booking-images.css">
+    <link rel="stylesheet" href="/static/image-viewer.css">
 <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
+    <script src="/static/image-viewer.js" defer></script>
 </head>
 
 <body class="barber-page modern-role-page modern-barber-page">
@@ -113,6 +115,7 @@
                                                 <img
                                                     src="{{.HairstyleImage}}"
                                                     alt="Photo of {{.HairstyleName}}"
+                                                    data-fullscreen-image
                                                  srcset="{{imageSrcset .HairstyleImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                                             {{else}}
@@ -287,6 +290,7 @@
                                                 <img
                                                     src="{{.HairstyleImage}}"
                                                     alt="Photo of {{.HairstyleName}}"
+                                                    data-fullscreen-image
                                                  srcset="{{imageSrcset .HairstyleImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                                             {{else}}
@@ -431,6 +435,7 @@
                                                 <img
                                                     src="{{.HairstyleImage}}"
                                                     alt="Photo of {{.HairstyleName}}"
+                                                    data-fullscreen-image
                                                  srcset="{{imageSrcset .HairstyleImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
 
                                             {{else}}
@@ -484,6 +489,7 @@
             {{if .HairstyleImage}}
                 <img src="{{.HairstyleImage}}"
                      alt="Photo of {{.HairstyleName}}"
+                     data-fullscreen-image
                      srcset="{{imageSrcset .HairstyleImage}}"
                      sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px"
                      width="640" height="480" loading="lazy" decoding="async">

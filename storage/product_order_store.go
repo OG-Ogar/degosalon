@@ -456,6 +456,9 @@ func ListProductOrderItemsByBarber(ctx context.Context, barberID int) ([]models.
 				break
 			}
 		}
+		if product, ok := findProductByID(v.ProductID); ok {
+			v.ProductImage = product.Image
+		}
 		out = append(out, v)
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].ID > out[j].ID })

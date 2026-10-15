@@ -92,11 +92,13 @@ func BarberChatHandler(
 		renderChat(w, r, s, barber, customer, "")
 
 	case http.MethodPost:
+		limitRequestBodyFor(w, r, 1)
 		if !requireCSRF(w, r, s) {
 			return
 		}
+		defer cleanupMultipart(r)
 
-		text, problem := readMessage(r)
+		text, image, audio, problem := readChatMessage(r)
 		if problem != "" {
 			renderChat(w, r, s, barber, customer, problem)
 
@@ -109,9 +111,13 @@ func BarberChatHandler(
 			SenderRole: models.SenderBarber,
 			SenderName: barber.FullName,
 			Text:       text,
+			Image:      image,
+			Audio:      audio,
 		})
 
 		if err != nil {
+			removeChatMedia(image)
+			removeChatMedia(audio)
 			serverError(w, "send message", err)
 
 			return

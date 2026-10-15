@@ -23,11 +23,27 @@ type Message struct {
 	SenderRole string
 	SenderName string
 
-	Text   string
+	Text string
+
+	// Image and Audio hold the stored file names of an attached photo or
+	// voice note. Both are empty for a plain text message.
+	Image string
+	Audio string
+
 	SentAt time.Time
 }
 
 // FromBarber reports whether the barber wrote this message.
 func (m Message) FromBarber() bool {
 	return m.SenderRole == SenderBarber
+}
+
+// HasImage reports whether the message carries a photo.
+func (m Message) HasImage() bool {
+	return m.Image != ""
+}
+
+// HasAudio reports whether the message carries a voice note.
+func (m Message) HasAudio() bool {
+	return m.Audio != ""
 }

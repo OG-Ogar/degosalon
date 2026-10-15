@@ -1,14 +1,15 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
 )
 
-// readMessage validates a chat submission. An empty message is rejected
-// rather than stored, and an over-long one is trimmed to the cap instead
-// of being thrown away.
+// readMessage validates a text-only chat submission. An empty message is
+// rejected rather than stored, and an over-long one is trimmed to the cap
+// instead of being thrown away.
 func readMessage(r *http.Request) (string, string) {
 	text := trimmedField(r.PostFormValue("text"))
 
@@ -21,6 +22,45 @@ func readMessage(r *http.Request) (string, string) {
 	}
 
 	return text, ""
+}
+
+// readChatMessage validates a submission that may carry text, a photo
+// (field "photo") or a voice note (field "voice"). Text is optional when
+// an attachment is present. A message with none of the three is rejected.
+func readChatMessage(r *http.Request) (text, image, audio, problem string) {
+	text = trimmedField(r.PostFormValue("text"))
+
+	if len(text) > maxMessageLength {
+		text = text[:maxMessageLength]
+	}
+
+	var err error
+
+	image, err = chatImages.save(r, "photo")
+	if err != nil {
+		if !errors.Is(err, errNoUpload) {
+			return text, "", "", "The photo could not be sent. Use a JPEG, PNG or WebP image under 5 MB."
+		}
+
+		image = ""
+	}
+
+	audio, err = chatVoice.save(r, "voice")
+	if err != nil {
+		if !errors.Is(err, errNoUpload) {
+			removeChatMedia(image)
+
+			return text, "", "", "The voice note could not be sent. Keep it under 2 minutes and try again."
+		}
+
+		audio = ""
+	}
+
+	if text == "" && image == "" && audio == "" {
+		return "", "", "", "Type a message, add a photo or record a voice note."
+	}
+
+	return text, image, audio, ""
 }
 
 // chatPath builds the URL of one conversation thread.

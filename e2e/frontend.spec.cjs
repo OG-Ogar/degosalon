@@ -197,7 +197,17 @@ test('booking details reflect cancellation after the original request',async({br
   const time=await customer.locator('#time option').nth(1).getAttribute('value');expect(time).toBeTruthy();await customer.locator('#time').selectOption(time);
   await customer.getByRole('button',{name:/Request Appointment/}).click();await expect(customer).toHaveURL(/\/customer\/booking-confirmation\/\d+/);
   const confirmation=customer.url();await expect(customer.locator('.domain-status').filter({hasText:'Pending'})).toHaveCount(2);
-  await customer.goto('/customer/bookings');customer.once('dialog',dialog=>dialog.accept());await customer.locator('form[action$="/cancel"] button').first().click();
+  await barber.goto('/barber/bookings');
+  const barberBookedPhoto=barber.locator('.booking-hairstyle-image img.image-zoomable').first();
+  await expect(barberBookedPhoto).toHaveAttribute('role','button');
+  await barberBookedPhoto.click();await expect(barber.getByRole('dialog',{name:'Full-size image'})).toBeVisible();
+  await barber.keyboard.press('Escape');await expect(barber.getByRole('dialog')).not.toBeVisible();
+  await customer.goto('/customer/bookings');
+  const customerBookedPhoto=customer.locator('.customer-booking-image img.image-zoomable').first();
+  await expect(customerBookedPhoto).toHaveAttribute('role','button');
+  await customerBookedPhoto.click();await expect(customer.getByRole('dialog',{name:'Full-size image'})).toBeVisible();
+  await customer.keyboard.press('Escape');await expect(customer.getByRole('dialog')).not.toBeVisible();
+  customer.once('dialog',dialog=>dialog.accept());await customer.locator('form[action$="/cancel"] button').first().click();
   await customer.goto(confirmation);await expect(customer.locator('.domain-status').filter({hasText:'Cancelled'})).toHaveCount(2);
   await expect(customer.getByText('This appointment has been cancelled.',{exact:true})).toBeVisible();
   await expect(customer.getByText('Pending Barber Approval',{exact:true})).toHaveCount(0);
@@ -428,7 +438,11 @@ test('booking and order histories remain bounded with complete dashboard totals'
  expect((await page.request.post('/barber/register',{multipart:{fullname:'History Seller',phone:'08012345678',email,shopname:shop,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}})).ok()).toBeTruthy();
  expect((await page.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();await page.goto('/barber/hairstyles/new');const sellerCsrf=await page.locator('main input[name=csrf_token]').inputValue();
  expect((await page.request.post('/barber/hairstyles/new',{multipart:{csrf_token:sellerCsrf,name:'History Service',category:'Style',description:'History appointment service.',price:'1250.25',duration:'30',available:'on'}})).ok()).toBeTruthy();
- expect((await page.request.post('/barber/products/new',{multipart:{csrf_token:sellerCsrf,name:'History Product',category:'Care',description:'History product.',price:'1250.25',quantity:'40',available:'on'}})).ok()).toBeTruthy();
+ await page.goto('/barber/products/new');
+ for(const [name,value] of Object.entries({name:'History Product',category:'Care',description:'History product.',price:'1250.25',quantity:'40'})){await page.locator('[name="'+name+'"]').fill(value);}
+ await page.locator('[name="image"]').setInputFiles({name:'product.png',mimeType:'image/png',buffer:PNG});
+ await page.locator('[name="available"]').check();
+ await page.getByRole('button',{name:'Add Product',exact:true}).click();
  const context=await browser.newContext({javaScriptEnabled:false});try{
  const customer=await context.newPage();expect((await customer.request.post('/customer/register',{multipart:{fullname:'History Buyer',phone:'08012345678',email:'history-buyer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}})).ok()).toBeTruthy();
  await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:shop,exact:true}).first().click();const seller=customer.url().match(/\/barbers\/(\d+)/)[1],style=await customer.locator('#availability-service').inputValue(),csrf=await customer.locator('#booking input[name=csrf_token]').inputValue();
@@ -445,6 +459,10 @@ test('booking and order histories remain bounded with complete dashboard totals'
  await page.goto('/barber/dashboard');await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(24);await page.getByRole('link',{name:'Next orders',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(1);
  await page.getByRole('combobox',{name:'Fulfillment state',exact:true}).selectOption('Collected');await page.getByRole('button',{name:'Show order items',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(0);
  await page.getByRole('combobox',{name:'Fulfillment state',exact:true}).selectOption('Pending');await page.getByRole('button',{name:'Show order items',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(24);
+ const orderPhoto=page.locator('.barber-section:has(#orders) .order-product-image img.image-zoomable').first();
+ await expect(orderPhoto).toHaveAttribute('role','button');
+ await orderPhoto.click();await expect(page.getByRole('dialog',{name:'Full-size image'})).toBeVisible();
+ await page.getByRole('button',{name:'Close image',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
  await page.setViewportSize({width:320,height:900});await checkPage(page,testInfo,'seller-orders-paged-320');
  const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-orders-paged-320');}finally{await inspection.close();}
  }finally{await context.close();}

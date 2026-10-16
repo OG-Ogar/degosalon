@@ -1,42 +1,80 @@
-.chat-composer { display: flex; flex-direction: column; gap: 0.5rem; }
+/* Chat composer layout */
+.chat-composer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
 
+/* Keep the photo, message input, microphone, and Send button in one row. */
 .composer-row {
     display: flex;
+    flex-direction: row;
     align-items: flex-end;
     gap: 0.5rem;
     width: 100%;
-}
-
-.composer-row textarea {
-    flex: 1;
     min-width: 0;
-    min-height: 44px;
-    max-height: 140px;
-    resize: none;
 }
 
+/* Message input */
+.composer-row textarea {
+    flex: 1 1 0%;
+    width: 0;
+    min-width: 0;
+    max-width: none;
+    min-height: 48px;
+    max-height: 140px;
+    padding: 12px;
+    line-height: 1.4;
+    resize: none;
+    overflow-y: auto;
+    border-radius: 12px;
+}
+
+/* Photo attachment and microphone controls */
 .composer-plus,
 .composer-mic {
     flex: 0 0 44px;
     width: 44px;
     height: 44px;
+    min-height: 44px;
+    max-width: 44px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: 50%;
+    box-sizing: border-box;
+    padding: 0 !important;
     border: 1px solid var(--border, #355348);
+    border-radius: 50%;
     background: var(--surface, #193129);
     color: var(--ink, #f8f5e9);
     font-size: 1.6rem;
     line-height: 1;
     cursor: pointer;
-    padding: 0;
     touch-action: none;
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
 }
 
+/* Keep the microphone icon visible and correctly sized. */
+.composer-mic svg {
+    display: block;
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    overflow: visible;
+}
+
+/* Respect the hidden attribute when recording is unavailable. */
+.composer-mic[hidden] {
+    display: none !important;
+}
+
+/* Microphone appearance while recording */
 .composer-mic.recording {
     background: #c0392b;
     border-color: #c0392b;
@@ -45,16 +83,37 @@
 }
 
 @keyframes rec-pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.5); }
-    50% { box-shadow: 0 0 0 10px rgba(192, 57, 43, 0); }
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(192, 57, 43, 0);
+    }
 }
 
-/* Mic when empty, Send when there is text or a photo. Without JavaScript both stay usable. */
-.chat-composer .composer-send { display: none; }
-.chat-composer.has-content .composer-send { display: inline-flex; }
-.chat-composer.has-content .composer-mic { display: none; }
-.chat-composer:not(.has-content) .composer-send { display: none; }
+/* Hide the microphone when there is text or a photo to send. */
+.chat-composer.has-content .composer-mic {
+    display: none !important;
+}
 
+/* Hide Send until there is something to send. */
+.chat-composer .composer-send {
+    display: none;
+}
+
+.chat-composer.has-content .composer-send {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-composer:not(.has-content) .composer-send {
+    display: none;
+}
+
+/* Photo preview */
 .composer-preview {
     position: relative;
     align-self: flex-start;
@@ -64,16 +123,28 @@
     overflow: hidden;
     border: 1px solid var(--border, #355348);
 }
-.composer-preview[hidden] { display: none; }
-.composer-preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+.composer-preview[hidden] {
+    display: none !important;
+}
+
+.composer-preview img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
 .composer-preview-remove {
     position: absolute;
     top: 4px;
     right: 4px;
     width: 28px;
     height: 28px;
-    border-radius: 50%;
+    min-height: 28px;
+    padding: 0;
     border: 0;
+    border-radius: 50%;
     background: rgba(0, 0, 0, 0.7);
     color: #fff;
     font-size: 1.1rem;
@@ -81,6 +152,7 @@
     cursor: pointer;
 }
 
+/* Voice recording status */
 .composer-recording {
     display: flex;
     align-items: center;
@@ -91,12 +163,32 @@
     color: var(--ink, #f8f5e9);
     font-size: 0.9rem;
 }
-.composer-recording[hidden] { display: none; }
-.rec-dot { width: 10px; height: 10px; border-radius: 50%; background: #e74c3c; animation: rec-pulse 1s infinite; }
-.rec-hint { margin-left: auto; font-size: 0.75rem; opacity: 0.8; }
+
+.composer-recording[hidden] {
+    display: none !important;
+}
+
+.rec-dot {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
+    border-radius: 50%;
+    background: #e74c3c;
+    animation: rec-pulse 1s infinite;
+}
+
+.rec-hint {
+    margin-left: auto;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
 
 /* Attachments inside message bubbles */
-.chat-photo-link { display: block; margin: 0.35rem 0; }
+.chat-photo-link {
+    display: block;
+    margin: 0.35rem 0;
+}
+
 .chat-photo {
     display: block;
     width: 100%;
@@ -105,4 +197,66 @@
     object-fit: cover;
     border-radius: 12px;
 }
-.chat-audio { display: block; width: 100%; max-width: 260px; margin: 0.35rem 0; }
+
+.chat-audio {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    margin: 0.35rem 0;
+}
+
+/* Override the older chat form grid layout. */
+.messaging-page form.chat-composer.send,
+.customer-chat form.chat-composer.send {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    grid-template-columns: none;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Keep the photo button, message field, and microphone/send control
+   on the same horizontal row. */
+.messaging-page form.chat-composer.send .composer-row,
+.customer-chat form.chat-composer.send .composer-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Allow the message field to use the remaining space. */
+.messaging-page form.chat-composer.send .composer-row textarea,
+.customer-chat form.chat-composer.send .composer-row textarea {
+    flex: 1 1 0%;
+    width: 0;
+    min-width: 0;
+    max-width: none;
+}
+
+/* Keep the photo and microphone buttons circular and correctly sized. */
+.messaging-page form.chat-composer.send .composer-row .composer-plus,
+.messaging-page form.chat-composer.send .composer-row .composer-mic,
+.customer-chat form.chat-composer.send .composer-row .composer-plus,
+.customer-chat form.chat-composer.send .composer-row .composer-mic {
+    flex: 0 0 44px;
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 !important;
+}
+
+/* Make sure the microphone drawing is visible. */
+.messaging-page form.chat-composer.send .composer-mic svg,
+.customer-chat form.chat-composer.send .composer-mic svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    stroke: currentColor;
+}

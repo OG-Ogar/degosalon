@@ -7,7 +7,6 @@
 
   var photoInput = form.querySelector('[data-photo-input]');
   var preview = form.querySelector('[data-photo-preview]');
-  var previewImg = form.querySelector('[data-photo-preview-img]');
   var removeBtn = form.querySelector('[data-photo-remove]');
   var mic = form.querySelector('[data-mic]');
   var textarea = form.querySelector('textarea');
@@ -22,13 +21,13 @@
   }
   textarea.addEventListener('input', refresh);
 
-  // ---------- Photo preview ----------
+  // ---------- Photo preview (small thumbnail drawn as a background) ----------
   var previewUrl = null;
   function clearPhoto() {
     photoInput.value = '';
     preview.hidden = true;
+    preview.style.backgroundImage = '';
     if (previewUrl) { URL.revokeObjectURL(previewUrl); previewUrl = null; }
-    previewImg.removeAttribute('src');
     refresh();
   }
   photoInput.addEventListener('change', function () {
@@ -41,7 +40,7 @@
     }
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     previewUrl = URL.createObjectURL(file);
-    previewImg.src = previewUrl;
+    preview.style.backgroundImage = 'url("' + previewUrl + '")';
     preview.hidden = false;
     refresh();
   });
@@ -125,13 +124,13 @@
     data.append('voice', blob, 'voice-note.' + ext);
 
     mic.disabled = true;
-    fetch(form.action, { method: 'POST', body: data, credentials: 'same-origin' })
+    fetch(form.action, { method: 'POST', body: data, credentials: 'same-origin', redirect: 'follow' })
       .then(function (res) {
+        mic.disabled = false;
         if (res.ok) {
           window.location.href = form.action;
         } else {
-          mic.disabled = false;
-          alert('The voice note could not be sent. Please try again.');
+          alert('The voice note could not be sent (status ' + res.status + '). Please tell the developer this number.');
         }
       })
       .catch(function () {

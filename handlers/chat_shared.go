@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"errors"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -39,6 +40,9 @@ func readChatMessage(r *http.Request) (text, image, audio, problem string) {
 	image, err = chatImages.save(r, "photo")
 	if err != nil {
 		if !errors.Is(err, errNoUpload) {
+			// The real reason goes to the server log, never to the page.
+			log.Printf("chat photo upload failed: %v", err)
+
 			return text, "", "", "The photo could not be sent. Use a JPEG, PNG or WebP image under 5 MB."
 		}
 
@@ -48,6 +52,7 @@ func readChatMessage(r *http.Request) (text, image, audio, problem string) {
 	audio, err = chatVoice.save(r, "voice")
 	if err != nil {
 		if !errors.Is(err, errNoUpload) {
+			log.Printf("chat voice upload failed: %v", err)
 			removeChatMedia(image)
 
 			return text, "", "", "The voice note could not be sent. Keep it under 2 minutes and try again."

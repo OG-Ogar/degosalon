@@ -24,7 +24,7 @@
 .chat-scroll-bottom.visible{display:inline-flex}
 .chat-scroll-bottom:hover{border-color:var(--signal);transform:translateY(-2px)}
 .messaging-page .send{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
-.messaging-page .send textarea {display: block;box-sizing: border-box;width: 100%;min-width: 0;min-height: 48px;max-height: 160px;padding: 12px;line-height: 1.4;resize: none;overflow-y: auto;overflow-wrap: normal;word-break: normal;border-radius: 12px;}.messaging-page .send button{min-height:48px;padding:12px 24px}
+.messaging-page .send textarea {display: block;box-sizing: border-box;width: 100%;min-width: 0;min-height: 60px;max-height: 200px;padding: 12px;line-height: 1.4;resize: none;overflow-y: auto;overflow-wrap: normal;word-break: normal;border-radius: 12px;}.messaging-page .send button{min-height:48px;padding:12px 24px}
 .messaging-page .empty-message,.messaging-page .empty-messages{padding:2rem;text-align:center}
 .messaging-page .message-refresh-note a{display:inline-flex;align-items:center;min-height:44px;color:var(--signal)}
 @media(max-width:600px){.messaging-page .send{grid-template-columns:1fr}.messaging-page .bubble{max-width:92%}}

@@ -965,7 +965,7 @@ flowchart LR
 - [ ] Add `templates/partials/theme-boot.html`, included in `<head>` before page stylesheets, setting `data-theme`/`data-text-size` from the session plus the pre-paint `localStorage` script and `theme-color` (§2.3B).
 - [ ] Extend `user_preferences` with `theme`/`text_size` and add `GET`/`PUT /{role}/settings/preferences` with a server-side allowlist (§5.7).
 - [ ] Wire the theme swatch grid and text-size controls in `frontend/app.ts` with the allowlist normaliser, `localStorage`-first apply, and best-effort server sync (§2.3A).
-- [ ] Add `data-density="sharp"` overrides to `static/ui.css` for barber/admin workspaces; confirm it composes with all five themes (§2.3D).
+- [x] Add `data-density="sharp"` overrides to `static/ui.css` for barber/admin workspaces; confirm it composes with all five themes (§2.3D).
 - [ ] Verify WCAG 2.1 AA contrast for every theme (§2.2 rule 5) and the `prefers-reduced-motion` / `prefers-reduced-transparency` / no-JavaScript fallbacks (§2.3E).
 
 ### 6.6 Mandatory Pre-Merge Test Gates

@@ -114,3 +114,86 @@
     .floating-cart-pill span,.floating-cart-pill svg{color:var(--signal-ink,#19251c)!important}
     .floating-cart-pill:active{transform:scale(.95)}
 }
+
+/* =========================================================
+   SHARP OPERATIONAL MODE (FE-30, frontreadme.md §2.3D)
+   Density & tabular posture for barber and admin workspaces.
+   Composes with all 5 colour themes without forking them.
+   ========================================================= */
+
+[data-density="sharp"],
+body[data-density="sharp"] {
+  --ui-space: 0.5rem;
+  --panel-radius: 8px;
+  --control-radius: 6px;
+  --ui-control-height: 38px;
+}
+
+/* Hairline structure & crisp contrast */
+[data-density="sharp"] .ui-panel,
+[data-density="sharp"] .panel,
+[data-density="sharp"] .card,
+[data-density="sharp"] .toolbar,
+[data-density="sharp"] .barber-section,
+[data-density="sharp"] .barber-card {
+  border-radius: var(--panel-radius) !important;
+  border-width: 1px !important;
+  box-shadow: none !important;
+}
+
+/* Dense information-rich grid and tighter paddings */
+[data-density="sharp"] .ui-panel,
+[data-density="sharp"] .panel,
+[data-density="sharp"] .card {
+  padding: clamp(0.75rem, 2vw, 1.15rem) !important;
+}
+
+[data-density="sharp"] .grid,
+[data-density="sharp"] .ui-grid,
+[data-density="sharp"] .admin-ops-grid {
+  gap: 10px !important;
+}
+
+/* Tabular precision: IDs, times, prices, stats, counts render without jitter */
+[data-density="sharp"] table,
+[data-density="sharp"] .stat,
+[data-density="sharp"] .price,
+[data-density="sharp"] .schedule-time,
+[data-density="sharp"] .badge,
+[data-density="sharp"] .domain-status,
+[data-density="sharp"] code,
+[data-density="sharp"] time,
+[data-density="sharp"] [data-label="ID"],
+[data-density="sharp"] [data-label="Price"],
+[data-density="sharp"] [data-label="Time"],
+[data-density="sharp"] [data-label="Date"],
+[data-density="sharp"] [data-label="Bookings"],
+[data-density="sharp"] [data-label="Styles"] {
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+}
+
+/* Compact scannable table rows in operational mode */
+[data-density="sharp"] table th,
+[data-density="sharp"] table td {
+  padding: 8px 10px !important;
+  font-size: 0.86rem;
+}
+
+[data-density="sharp"] table th {
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  padding: 10px 10px !important;
+}
+
+/* Restrained motion: 150-250ms purposeful transitions, never decorative loops */
+[data-density="sharp"] * {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 150ms !important;
+}
+
+[data-density="sharp"] .skeleton {
+  animation: none !important;
+  background: rgba(37, 65, 55, 0.45) !important;
+}

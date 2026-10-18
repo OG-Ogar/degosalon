@@ -117,6 +117,9 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 3 && parts[1] == "chats":
 		BarberChatHandler(w, r, barber, s, parts[2])
 
+	case len(parts) == 3 && parts[1] == "settings" && parts[2] == "preferences":
+		BarberPreferencesHandler(w, r, barber, s)
+
 	default:
 		journeyError(w, "Page not found.", http.StatusNotFound)
 	}

@@ -1,0 +1,109 @@
+/* =========================================================
+   DE GO SALON — MULTI-THEME TOKEN LAYER (FE-27)
+   =========================================================
+   `static/app.css` defines the Dawn Canopy **Forest** palette in
+   `:root`, and every page already loads it. This file re-colours the
+   same semantic tokens to add four more themes:
+
+       forest (default, from :root) · midnight · daylight · ocean · stone
+
+   Contract (frontreadme.md §2.2):
+   - A theme re-assigns *existing* tokens only. It never invents a new
+     token name, so nothing downstream can depend on a theme being set.
+   - `--danger` / `--warning` / `--success` keep their meaning in every
+     theme; red stays reserved for destructive and urgent states.
+   - `html[data-theme="…"]` (0,1,1) outranks `:root` (0,1,0), so load
+     order does not matter — templates still load this after app.css and
+     ui.css so the cascade reads top-to-bottom.
+   - Setting the theme value, persisting it, and tracking `theme-color`
+     are FE-28 (display preferences); this file is the token layer only.
+
+   No attribute is required for Forest: with `data-theme` absent the
+   `:root` values apply, so existing pages are pixel-identical.
+   ========================================================= */
+
+html[data-theme="forest"] {
+  color-scheme: dark;
+}
+
+html[data-theme="midnight"] {
+  color-scheme: dark;
+  --void: #000000;
+  --base: #0a0a0a;
+  --surface: #141414;
+  --surface-hi: #1e1e1e;
+  --border: #2a2a2a;
+  --border-hi: #3a3a3a;
+  --ink: #f5f5f5;
+  --ink-muted: #b5b5b5;
+  --ink-faint: #888888;
+  --signal: #f4cb78;
+  --signal-ink: #121212;
+}
+
+html[data-theme="daylight"] {
+  color-scheme: light;
+  --void: #d8d8d2;
+  --base: #f7f7f5;
+  --surface: #ffffff;
+  --surface-hi: #ebebe8;
+  --border: #d0d0cc;
+  --border-hi: #a8a8a4;
+  --ink: #1a1a1a;
+  --ink-muted: #4a4a4a;
+  --ink-faint: #707070;
+  --signal: #b8851a;
+  --signal-ink: #ffffff;
+}
+
+html[data-theme="ocean"] {
+  color-scheme: dark;
+  --void: #051025;
+  --base: #0a1a30;
+  --surface: #10263f;
+  --surface-hi: #173354;
+  --border: #22456d;
+  --border-hi: #356090;
+  --ink: #eaf2fb;
+  --ink-muted: #b6cbe4;
+  --ink-faint: #7f9dbf;
+  --signal: #8bd3f7;
+  --signal-ink: #082238;
+}
+
+html[data-theme="stone"] {
+  color-scheme: dark;
+  --void: #1a1714;
+  --base: #232019;
+  --surface: #2f2a22;
+  --surface-hi: #3d372d;
+  --border: #4d463b;
+  --border-hi: #6a6052;
+  --ink: #f4ede0;
+  --ink-muted: #c9bda9;
+  --ink-faint: #9a8e7a;
+  --signal: #e8b478;
+  --signal-ink: #231a0c;
+}
+
+/* ---- Text size — an accessibility scale (frontreadme.md §2.3C) ----
+   A root font-size scale propagates through every `rem` dimension, so
+   type, spacing and minimum tap targets grow together. `standard` is the
+   default, so no attribute means the current 100% rendering. */
+html[data-text-size="standard"] {
+  font-size: 100%;
+}
+html[data-text-size="large"] {
+  font-size: 112.5%;
+}
+html[data-text-size="xlarge"] {
+  font-size: 125%;
+}
+html[data-text-size="xxlarge"] {
+  font-size: 140%;
+}
+
+/* Respect the OS preference for people who ask for less motion: the
+   shimmer/hero animations live in app.css and ui.css; this is a tokens
+   file, so it only carries the scale above. Reduced-motion handling for
+   the theme atmosphere ships with the atmosphere work (FE-30/FE-31). */

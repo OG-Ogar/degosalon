@@ -109,6 +109,7 @@ func Reset() {
 	calendars = make(map[int]models.Calendar)
 	authBuckets = make(map[string]authBucket)
 	siteImages = make(map[string]string)
+	displayPreferences = make(map[string]models.DisplayPreferences)
 	mediaObjects = make(map[string]mediaObject)
 	productOrders = nil
 	productOrderItems = nil

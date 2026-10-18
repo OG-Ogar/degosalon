@@ -54,6 +54,9 @@ func dispatchAdmin(w http.ResponseWriter, r *http.Request, s sessionData, parts 
 	case len(parts) == 2 && parts[1] == "customers":
 		AdminCustomersHandler(w, r, s)
 
+	case len(parts) == 3 && parts[1] == "settings" && parts[2] == "preferences":
+		AdminPreferencesHandler(w, r, s)
+
 	case len(parts) == 2 && parts[1] == "barbers":
 		ListBarbersHandler(w, r, s)
 

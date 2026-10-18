@@ -90,6 +90,9 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 4 && parts[1] == "cart" && parts[3] == "update":
 		UpdateCartItemHandler(w, r, customer, s, parts[2])
 
+	case len(parts) == 3 && parts[1] == "settings" && parts[2] == "preferences":
+		CustomerPreferencesHandler(w, r, customer, s)
+
 	case len(parts) == 2 && parts[1] == "cart":
 		CustomerCartHandler(w, r, customer, s)
 

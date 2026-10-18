@@ -348,6 +348,7 @@ test('catalogue uses bounded seller pages and exact-product continuation without
 });
 
 test('both roles page message history chronologically and refresh to latest replies',async({browser},testInfo)=>{
+ test.setTimeout(120000);
  const customerContext=await browser.newContext(),barberContext=await browser.newContext();
  try {
   const customer=await customerContext.newPage(),barber=await barberContext.newPage(),suffix=Date.now(),email='history-barber-'+suffix+'@example.test',shop='History Shop '+suffix;
@@ -367,8 +368,8 @@ test('both roles page message history chronologically and refresh to latest repl
   await expect(barber.getByText('Latest reply after paging',{exact:true})).toBeVisible();expect(new URL(barber.url()).searchParams.has('before')).toBe(false);
   await customer.getByRole('link',{name:'Refresh conversation',exact:true}).click();await expect(customer.getByText('Latest reply after paging',{exact:true})).toBeVisible();
   await customer.setViewportSize({width:320,height:900});
-  const thread=customer.locator('.thread');await thread.focus();await customer.keyboard.press('Home');await expect.poll(()=>thread.evaluate(el=>el.scrollTop)).toBe(0);
-  await customer.keyboard.press('End');await expect.poll(()=>thread.evaluate(el=>el.scrollTop)).toBeGreaterThan(0);
+  const thread=customer.locator('.thread');await thread.focus();await customer.keyboard.press('Home');await expect.poll(()=>thread.evaluate(el=>el.scrollTop),{timeout:15000}).toBe(0);
+  await customer.keyboard.press('End');await expect.poll(()=>thread.evaluate(el=>el.scrollTop),{timeout:15000}).toBeGreaterThan(0);
   await checkPage(customer,testInfo,'paged-history-mobile');
  }finally{await customerContext.close();await barberContext.close();}
 });

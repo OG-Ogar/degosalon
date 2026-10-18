@@ -3,11 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookings - De Go Salon admin</title>
+    <title>All Bookings Ledger - De Go Salon Admin</title>
     <link rel="stylesheet" href="/static/app.css">
-<link rel="stylesheet" href="/static/ui.css">
-<link rel="stylesheet" href="/static/theme.css">
+    <link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/theme.css">
     <script src="/static/app.js" defer></script>
+    <style>
+        .admin-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .admin-table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 16px;
+            border-radius: var(--panel-radius);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+        .schedule-chip {
+            display: inline-flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .schedule-date {
+            font-weight: 800;
+            color: var(--ink);
+            font-size: 0.9rem;
+        }
+        .schedule-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.78rem;
+            color: var(--signal);
+            font-weight: 700;
+        }
+        .service-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(37, 65, 55, 0.6);
+            border: 1px solid rgba(82, 116, 102, 0.4);
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--ink);
+        }
+        .booking-price {
+            font-size: 1rem;
+            font-weight: 900;
+            color: var(--signal);
+            letter-spacing: -0.02em;
+        }
+        .contact-link {
+            color: var(--ink-muted);
+            text-decoration: none;
+            transition: color 0.15s ease;
+        }
+        .contact-link:hover {
+            color: var(--signal);
+            text-decoration: underline;
+        }
+        @media (max-width: 760px) {
+            .mobile-booking-drawer {
+                display: block;
+                margin-top: 6px;
+                padding-top: 6px;
+                border-top: 1px dashed rgba(194, 212, 199, 0.12);
+            }
+            .mobile-booking-drawer summary {
+                font-size: 0.75rem;
+                font-weight: 750;
+                color: var(--signal);
+                cursor: pointer;
+            }
+        }
+    </style>
 </head>
 <body class="modern-admin-page" data-density="sharp">
 
@@ -15,48 +89,90 @@
 
 <main class="wrap ui-page">
 
-    <p class="crumbs"><a href="/admin/dashboard">Dashboard</a> / Bookings</p>
+    <div class="admin-page-header">
+        <div>
+            <p class="crumbs">
+                <a href="/admin/dashboard">Dashboard</a> / Bookings
+            </p>
+            <h1>Appointment Ledger &amp; Auditing</h1>
+            <p class="lede">
+                Master schedule of every appointment on the platform. Barbers accept or decline their own requests.
+            </p>
+        </div>
+    </div>
 
-    <h1>All bookings</h1>
-{{template "booking-filter" .Query}}
-    <p class="lede">Every appointment on the platform, earliest first.</p>
+    <!-- FILTER TOOLBAR -->
+    <div class="panel ui-panel" style="margin-bottom: 24px; padding: 18px 20px;">
+        {{template "booking-filter" .Query}}
+    </div>
 
     {{if .Items}}
-        <table>
-            <caption>Read-only: barbers accept or decline their own bookings.</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Time</th>
-                    <th scope="col">Customer</th>
-                    <th scope="col">Barber</th>
-                    <th scope="col">Hairstyle</th>
-                    <th scope="col">Price</th>
-                    <th scope="col">Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .Items}}
+        <div class="admin-table-container">
+            <table>
+                <caption>Read-only system ledger of appointments (24 per page, newest first).</caption>
+                <thead>
                     <tr>
-                        <td data-label="Date">{{.Date}}</td>
-                        <td data-label="Time">{{.Time}}</td>
-                        <td data-label="Customer">
-                            {{.CustomerName}}
-                            <br><span class="muted">{{.CustomerPhone}}</span>
-                        </td>
-                        <td data-label="Barber">
-                            {{.BarberName}}
-                            <br><span class="muted">{{.ShopName}}</span>
-                        </td>
-                        <td data-label="Hairstyle">{{.HairstyleName}}</td>
-                        <td class="price" data-label="Price">{{naira .Price}}</td>
-                        <td data-label="Status">{{template "domain-status" (domainStatus "booking" .Status)}}</td>
+                        <th scope="col">Schedule</th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Barber &amp; Shop</th>
+                        <th scope="col">Hairstyle</th>
+                        <th scope="col">Fee</th>
+                        <th scope="col" style="text-align: right;">Booking Status</th>
                     </tr>
-                {{end}}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {{range .Items}}
+                        <tr>
+                            <td data-label="Date">
+                                <div class="schedule-chip">
+                                    <span class="schedule-date">{{.Date}}</span>
+                                    <span class="schedule-time">
+                                        <span aria-hidden="true">&bull;</span> {{.Time}}
+                                    </span>
+                                </div>
+                            </td>
+                            <td data-label="Customer">
+                                <strong style="color: var(--ink); font-size: 0.95rem;">{{.CustomerName}}</strong>
+                                <br>
+                                <a href="tel:{{.CustomerPhone}}" class="contact-link" style="font-size: 0.82rem;">
+                                    {{.CustomerPhone}}
+                                </a>
+                            </td>
+                            <td data-label="Barber">
+                                <strong style="color: var(--ink); font-size: 0.95rem;">{{.BarberName}}</strong>
+                                <br>
+                                <span class="muted" style="font-size: 0.82rem;">{{.ShopName}}</span>
+                            </td>
+                            <td data-label="Hairstyle">
+                                <span class="service-badge">{{.HairstyleName}}</span>
+                            </td>
+                            <td class="price" data-label="Price">
+                                <span class="booking-price">{{naira .Price}}</span>
+                            </td>
+                            <td data-label="Status" style="text-align: right;">
+                                {{template "domain-status" (domainStatus "booking" .Status)}}
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
     {{else}}
-        <p class="empty">No bookings have been made yet.</p>
+        <div class="empty" style="text-align: center; padding: 48px 24px;">
+            <p style="font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px;">
+                No bookings match this filter
+            </p>
+            <p class="muted" style="margin-bottom: 20px;">
+                {{if .Query}}
+                    No appointment records found for group "{{.Query}}".
+                {{else}}
+                    No bookings have been made yet on the platform.
+                {{end}}
+            </p>
+            <div class="ui-actions" style="justify-content: center;">
+                <a class="button" href="/admin/bookings">View All Appointments</a>
+            </div>
+        </div>
     {{end}}
 
 </main>

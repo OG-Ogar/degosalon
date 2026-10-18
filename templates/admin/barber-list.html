@@ -3,10 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Barbers - De Go Salon admin</title>
+    <title>Barber Accounts Management - De Go Salon Admin</title>
     <link rel="stylesheet" href="/static/app.css">
-<link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/ui.css">
     <script src="/static/app.js" defer></script>
+    <style>
+        .admin-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .admin-filter-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .admin-filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 9999px;
+            border: 1px solid var(--border-hi);
+            background: var(--surface);
+            color: var(--ink-muted);
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 700;
+            transition: all 0.15s ease;
+        }
+        .admin-filter-pill:hover {
+            border-color: var(--signal);
+            color: var(--signal);
+            transform: translateY(-1px);
+        }
+        .admin-filter-pill.active {
+            background: var(--signal);
+            color: var(--signal-ink);
+            border-color: var(--signal);
+        }
+        .admin-avatar-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(244, 203, 120, 0.15);
+            border: 1px solid rgba(244, 203, 120, 0.3);
+            color: var(--signal);
+            font-weight: 850;
+            font-size: 0.85rem;
+            margin-right: 10px;
+            flex-shrink: 0;
+            vertical-align: middle;
+        }
+        .admin-barber-cell {
+            display: flex;
+            align-items: center;
+        }
+        .admin-table-container {
+            width: 100%;
+            overflow-x: auto;
+            margin-top: 16px;
+            border-radius: var(--panel-radius);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        }
+        .admin-action-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .admin-action-row form {
+            margin: 0;
+            display: inline;
+        }
+        @media (max-width: 760px) {
+            .admin-barber-card-mobile {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+                padding: 16px;
+                background: linear-gradient(145deg, rgba(37, 65, 55, 0.5), rgba(25, 49, 41, 0.4));
+                border: 1px solid rgba(82, 116, 102, 0.4);
+                border-radius: var(--panel-radius);
+                margin-bottom: 12px;
+            }
+            .admin-barber-card-mobile .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .admin-barber-card-mobile .meta-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+                font-size: 0.85rem;
+                padding: 8px 0;
+                border-top: 1px solid rgba(194, 212, 199, 0.1);
+                border-bottom: 1px solid rgba(194, 212, 199, 0.1);
+            }
+        }
+    </style>
 </head>
 <body class="modern-admin-page">
 
@@ -14,82 +117,169 @@
 
 <main class="wrap ui-page">
 
-    <p class="crumbs"><a href="/admin/dashboard">Dashboard</a> / Barbers</p>
-
-    <h1>Barbers</h1>
-    <p class="lede">Suspending a barber signs them out and hides them from customers.</p>
-
-    <div class="actions ui-actions">
-        <a class="button primary" href="/admin/barbers/new">Add a barber</a>
+    <div class="admin-page-header">
+        <div>
+            <p class="crumbs">
+                <a href="/admin/dashboard">Dashboard</a> / Barbers
+            </p>
+            <h1>Barbers Directory &amp; Management</h1>
+            <p class="lede">
+                Monitor barber shop profiles, service availability, and account status across all 36 states and FCT.
+            </p>
+        </div>
+        <div class="actions ui-actions">
+            <a class="button primary ui-control" href="/admin/barbers/new">
+                + Add a Barber Account
+            </a>
+        </div>
     </div>
 
-    <form method="get" action="/admin/barbers" class="toolbar ui-form">
-      <div class="field ui-field"><label for="filter">Search barbers</label><input id="filter" name="q" type="search" value="{{.Query}}" maxlength="200" placeholder="Name, shop, email or status" autocomplete="off"></div>
-      <button type="submit" class="ui-control">Search barbers</button>
-    </form>
-    <p>Up to 24 accounts per page, newest first.</p>
+    <!-- SEARCH & STATUS FILTERS -->
+    <div class="panel ui-panel" style="margin-bottom: 24px; padding: 18px 20px;">
+        <form method="get" action="/admin/barbers" class="ui-form" style="display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end;">
+            <div class="ui-field" style="flex: 1 1 280px; margin-bottom: 0;">
+                <label for="filter" style="font-weight: 700; font-size: 0.88rem; margin-bottom: 6px;">
+                    Search fleet
+                </label>
+                <input id="filter"
+                       name="q"
+                       type="search"
+                       value="{{.Query}}"
+                       maxlength="200"
+                       placeholder="Search by barber name, shop, email, or status..."
+                       autocomplete="off">
+            </div>
+            <button type="submit" class="ui-control primary" style="min-height: 44px; padding: 0 20px;">
+                Filter Barbers
+            </button>
+            {{if .Query}}
+                <a href="/admin/barbers" class="button ui-control" style="min-height: 44px;">
+                    Clear filter
+                </a>
+            {{end}}
+        </form>
+
+        <!-- Status Filter Pills -->
+        <div class="admin-filter-pills" role="navigation" aria-label="Quick status filters">
+            <span style="font-size: 0.8rem; font-weight: 750; color: var(--ink-faint); align-self: center; margin-right: 4px;">Quick Filters:</span>
+            <a href="/admin/barbers" class="admin-filter-pill {{if eq .Query ""}}active{{end}}">
+                All Accounts
+            </a>
+            <a href="/admin/barbers?q=Active" class="admin-filter-pill {{if eq .Query "Active"}}active{{end}}">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #22c55e;"></span>
+                Active Only
+            </a>
+            <a href="/admin/barbers?q=Suspended" class="admin-filter-pill {{if eq .Query "Suspended"}}active{{end}}">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: #ef4444;"></span>
+                Suspended
+            </a>
+            <a href="/admin/barbers?q=Archived" class="admin-filter-pill {{if eq .Query "Archived"}}active{{end}}">
+                <span style="display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ink-faint);"></span>
+                Archived
+            </a>
+        </div>
+    </div>
+
     {{if .Items}}
         {{$view := .}}
 
-
-        <table>
-            <caption>Barber accounts on this page.</caption>
-            <thead>
-                <tr>
-                    <th scope="col">Barber</th>
-                    <th scope="col">Shop</th>
-                    <th scope="col">Contact</th>
-                    <th scope="col">Styles</th>
-                    <th scope="col">Bookings</th>
-                    <th scope="col">Status</th>
-                    <th scope="col"><span class="visually-hidden">Actions</span></th>
-                </tr>
-            </thead>
-            <tbody>
-                {{range .Items}}
+        <div class="admin-table-container">
+            <table>
+                <caption>Active roster of barber accounts (24 per page, newest first).</caption>
+                <thead>
                     <tr>
-                        <td data-label="Barber"><a href="/admin/barbers/{{.ID}}">{{.FullName}}</a></td>
-                        <td data-label="Shop">{{.ShopName}}</td>
-                        <td data-label="Contact">
-                            {{.Email}}
-                            <br><span class="muted">{{.PhoneNumber}}</span>
-                        </td>
-                        <td data-label="Styles">{{.Hairstyles}}</td>
-                        <td data-label="Bookings">{{.Bookings}}</td>
-                        <td data-label="Status">{{template "domain-status" (domainStatus "account" .Status)}}</td>
-                        <td data-label="Actions">
-                            {{if ne .Status "Archived"}}
-                            <a class="button small" href="/admin/barbers/{{.ID}}/edit">Edit</a>
-
-                            {{if .Active}}
-                                <form class="inline" method="post"
-                                      action="/admin/barbers/{{.ID}}/suspend">
-                                    <input type="hidden" name="csrf_token"
-                                           value="{{$view.CSRF}}">
-                                    <button class="small ui-control" type="submit">Suspend</button>
-                                </form>
-                            {{else}}
-                                <form class="inline" method="post"
-                                      action="/admin/barbers/{{.ID}}/activate">
-                                    <input type="hidden" name="csrf_token"
-                                           value="{{$view.CSRF}}">
-                                    <button class="small ui-control" type="submit">Activate</button>
-                                </form>
-                            {{end}}
-
-                            <a class="button small danger"
-                               href="/admin/barbers/{{.ID}}/delete">Archive</a>
-                            {{end}}
-                        </td>
+                        <th scope="col">Barber Account</th>
+                        <th scope="col">Shop &amp; Location</th>
+                        <th scope="col">Contact Details</th>
+                        <th scope="col">Catalog</th>
+                        <th scope="col">Bookings</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" style="text-align: right;">Operations</th>
                     </tr>
-                {{end}}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {{range .Items}}
+                        <tr>
+                            <td data-label="Barber">
+                                <div class="admin-barber-cell">
+                                    <span class="admin-avatar-pill" aria-hidden="true">{{slice .FullName 0 1}}</span>
+                                    <a href="/admin/barbers/{{.ID}}" style="font-weight: 800; font-size: 0.95rem;">
+                                        {{.FullName}}
+                                    </a>
+                                </div>
+                            </td>
+                            <td data-label="Shop">
+                                <strong>{{.ShopName}}</strong>
+                            </td>
+                            <td data-label="Contact">
+                                <a href="mailto:{{.Email}}" style="color: var(--ink-muted); font-size: 0.85rem;">{{.Email}}</a>
+                                <br>
+                                <a href="tel:{{.PhoneNumber}}" class="muted" style="font-size: 0.82rem;">{{.PhoneNumber}}</a>
+                            </td>
+                            <td data-label="Styles">
+                                <span class="badge" style="font-size: 0.78rem;">{{.Hairstyles}} hairstyles</span>
+                            </td>
+                            <td data-label="Bookings">
+                                <span class="badge" style="font-size: 0.78rem;">{{.Bookings}} bookings</span>
+                            </td>
+                            <td data-label="Status">
+                                {{template "domain-status" (domainStatus "account" .Status)}}
+                            </td>
+                            <td data-label="Actions" style="text-align: right;">
+                                <div class="admin-action-row" style="justify-content: flex-end;">
+                                    {{if ne .Status "Archived"}}
+                                        <a class="button small" href="/admin/barbers/{{.ID}}/edit">
+                                            Edit
+                                        </a>
+
+                                        {{if .Active}}
+                                            <form method="post" action="/admin/barbers/{{.ID}}/suspend">
+                                                <input type="hidden" name="csrf_token" value="{{$view.CSRF}}">
+                                                <button class="small ui-control" type="submit" title="Hide barber from catalog">
+                                                    Suspend
+                                                </button>
+                                            </form>
+                                        {{else}}
+                                            <form method="post" action="/admin/barbers/{{.ID}}/activate">
+                                                <input type="hidden" name="csrf_token" value="{{$view.CSRF}}">
+                                                <button class="small ui-control primary" type="submit" title="Reactivate storefront presence">
+                                                    Activate
+                                                </button>
+                                            </form>
+                                        {{end}}
+
+                                        <a class="button small danger" href="/admin/barbers/{{.ID}}/delete" title="Archive account">
+                                            Archive
+                                        </a>
+                                    {{else}}
+                                        <span class="muted" style="font-size: 0.82rem;">Archived</span>
+                                    {{end}}
+                                </div>
+                            </td>
+                        </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        </div>
     {{else}}
-        <p class="empty">
-            No barber accounts match this page or search.
-            <a href="/admin/barbers/new">Add a barber</a>.
-        </p>
+        <div class="empty" style="text-align: center; padding: 48px 24px;">
+            <p style="font-size: 1.1rem; font-weight: 700; color: var(--ink); margin-bottom: 8px;">
+                No barber accounts found
+            </p>
+            <p class="muted" style="margin-bottom: 20px;">
+                {{if .Query}}
+                    No barber profiles match the search filter "{{.Query}}".
+                {{else}}
+                    No barber accounts have been created yet on the platform.
+                {{end}}
+            </p>
+            <div class="ui-actions" style="justify-content: center;">
+                {{if .Query}}
+                    <a class="button" href="/admin/barbers">Clear Search Filter</a>
+                {{end}}
+                <a class="button primary" href="/admin/barbers/new">+ Add First Barber</a>
+            </div>
+        </div>
     {{end}}
 
 </main>

@@ -3,12 +3,166 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin dashboard - De Go Salon</title>
+    <title>Admin Operations Dashboard - De Go Salon</title>
     <link rel="stylesheet" href="/static/app.css">
-<link rel="stylesheet" href="/static/ui.css">
-    <script src="/static/app.js" defer></script>
+    <link rel="stylesheet" href="/static/ui.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
+    <script src="/static/app.js" defer></script>
     <script src="/static/image-viewer.js" defer></script>
+    <style>
+        .admin-ops-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .admin-status-banner {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            background: rgba(34, 197, 94, 0.08);
+            border: 1px solid rgba(34, 197, 94, 0.25);
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            color: #bbf7d0;
+            font-weight: 650;
+        }
+        .admin-status-pulse {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+            animation: pulse-dot 2s infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.85); }
+        }
+        .admin-ops-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .admin-ops-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(145deg, rgba(37, 65, 55, 0.55), rgba(25, 49, 41, 0.45));
+            border: 1px solid rgba(82, 116, 102, 0.45);
+            border-radius: var(--panel-radius);
+            padding: 20px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+            transition: transform 0.15s ease, border-color 0.15s ease;
+        }
+        .admin-ops-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(244, 203, 120, 0.4);
+        }
+        .admin-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .admin-card-tag {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+        }
+        .admin-ops-stat {
+            font-size: clamp(2rem, 3.5vw, 2.75rem);
+            font-weight: 900;
+            line-height: 1.1;
+            color: var(--signal);
+            letter-spacing: -0.04em;
+            margin: 4px 0 6px;
+        }
+        .admin-ops-meta {
+            font-size: 0.85rem;
+            color: var(--ink-faint);
+            margin: 0 0 16px;
+        }
+        .admin-media-section {
+            margin-top: 36px;
+        }
+        .admin-media-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.2fr);
+            gap: 24px;
+            align-items: start;
+            margin-top: 18px;
+        }
+        @media (max-width: 860px) {
+            .admin-media-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .admin-preview-box {
+            position: relative;
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            background: rgba(9, 22, 19, 0.8);
+            border: 1px solid rgba(82, 116, 102, 0.4);
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .admin-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+        .admin-preview-box img:hover {
+            transform: scale(1.02);
+        }
+        .admin-preview-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            padding: 4px 10px;
+            background: rgba(9, 22, 19, 0.88);
+            border: 1px solid rgba(244, 203, 120, 0.4);
+            border-radius: 6px;
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: var(--signal);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            backdrop-filter: blur(8px);
+        }
+        .admin-guidelines-box {
+            padding: 16px;
+            background: rgba(25, 49, 41, 0.35);
+            border: 1px dashed rgba(82, 116, 102, 0.5);
+            border-radius: 12px;
+            margin-bottom: 16px;
+        }
+        .admin-guidelines-box h4 {
+            margin: 0 0 8px;
+            font-size: 0.88rem;
+            color: var(--signal);
+            font-weight: 800;
+            letter-spacing: 0.02em;
+        }
+        .admin-guidelines-list {
+            margin: 0;
+            padding-left: 20px;
+            font-size: 0.82rem;
+            color: var(--ink-muted);
+            line-height: 1.6;
+        }
+    </style>
 </head>
 <body class="modern-admin-page">
 
@@ -16,197 +170,261 @@
 
 <main class="wrap ui-page">
 
-    <h1>Administrator dashboard</h1>
-
-    <p class="lede">
-        Everything on the platform at a glance.
-    </p>
+    <div class="admin-ops-header">
+        <div>
+            <p class="crumbs">
+                <span>Admin Operations</span> / Dashboard
+            </p>
+            <h1>Operations Dashboard</h1>
+            <p class="lede">
+                High-density platform oversight, real-time activity metrics, and media asset management.
+            </p>
+        </div>
+        <div class="admin-status-banner" role="status" aria-label="System status">
+            <span class="admin-status-pulse" aria-hidden="true"></span>
+            <span>Platform Operational &middot; PostgreSQL Active</span>
+        </div>
+    </div>
 
     {{template "form-error" .Error}}
 
-    <div class="grid">
+    <!-- OPERATIONAL METRICS GRID -->
+    <section class="admin-ops-grid" aria-label="Platform key metrics">
 
-        <div class="card">
-            <span class="stat">{{.Barbers}}</span>
-            Barber accounts
-
-            <p class="muted">
-                {{.ActiveBarbers}} active
-            </p>
-
-            <p>
-                <a class="button small"
-                   href="/admin/barbers">
-                    Manage barbers
-                </a>
-
-                <a class="button small primary"
-                   href="/admin/barbers/new">
-                    Add barber
-                </a>
-            </p>
-        </div>
-
-        <div class="card">
-            <span class="stat">{{.Customers}}</span>
-            Registered customers
-
-            <p>
-                <a class="button small"
-                   href="/admin/customers">
-                    View customers
-                </a>
-            </p>
-        </div>
-
-        <div class="card">
-            <span class="stat">{{.Bookings}}</span>
-            Bookings all time
-
-            <p>
-                <a class="button small"
-                   href="/admin/bookings">
-                    View bookings
-                </a>
-            </p>
-        </div>
-
-        <div class="card">
-            <span class="stat">{{.PendingBookings}}</span>
-            Awaiting a barber's decision
-        </div>
-
-    </div>
-
-    <section class="panel ui-panel">
-
-        <h2>Homepage background</h2>
-
-        <p class="lede">
-            Upload the large photo displayed on the main landing page.
-        </p>
-
-        {{if .LandingImage}}
-
-            <img class="photo"
-                 src="{{.LandingImage}}"
-                 alt="Current homepage background" data-fullscreen-image srcset="{{imageSrcset .LandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
-
-            <p class="muted">
-                This is the image currently displayed on the homepage.
-            </p>
-
-        {{else}}
-
-            <p class="muted">
-                No homepage background has been uploaded yet.
-            </p>
-
-        {{end}}
-
-        <form class="stack ui-form"
-              method="post"
-              action="/admin/landing-image"
-              enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
-
-            <input type="hidden"
-                   name="csrf_token"
-                   value="{{.CSRF}}">
-
-            <label for="landing_image">
-                Choose homepage photo
-            </label>
-
-            <input id="landing_image"
-                   type="file"
-                   name="landing_image"
-                   accept=".jpg,.jpeg,.png,.gif,.webp"
-                   required>
-
-            <p class="hint">
-                Use a large, clear photo of a barber cutting a
-                customer's hair. JPG, PNG, GIF or WEBP, up to 5 MB.
-            </p>
-
-            <div class="actions ui-actions">
-                <button class="primary ui-control" type="submit">
-                    Upload homepage background
-                </button>
-
-                <a class="button" href="/">
-                    View landing page
-                </a>
+        <!-- Barbers -->
+        <div class="admin-ops-card">
+            <div>
+                <div class="admin-card-header">
+                    <span class="admin-card-tag">Barber Fleet</span>
+                    <span class="badge Active">{{.ActiveBarbers}} / {{.Barbers}} Active</span>
+                </div>
+                <div class="admin-ops-stat">{{.Barbers}}</div>
+                <p class="admin-ops-meta">Total registered shop accounts</p>
             </div>
+            <div class="ui-actions">
+                <a class="button small" href="/admin/barbers">Manage barbers</a>
+                <a class="button small primary" href="/admin/barbers/new">+ Add barber</a>
+            </div>
+        </div>
 
-        </form>
+        <!-- Customers -->
+        <div class="admin-ops-card">
+            <div>
+                <div class="admin-card-header">
+                    <span class="admin-card-tag">Customer Base</span>
+                    <span class="badge Active">Verified</span>
+                </div>
+                <div class="admin-ops-stat">{{.Customers}}</div>
+                <p class="admin-ops-meta">Direct registered customer accounts</p>
+            </div>
+            <div class="ui-actions">
+                <a class="button small" href="/admin/customers">View directory</a>
+            </div>
+        </div>
+
+        <!-- Bookings -->
+        <div class="admin-ops-card">
+            <div>
+                <div class="admin-card-header">
+                    <span class="admin-card-tag">Ledger Volume</span>
+                    <span class="badge">All time</span>
+                </div>
+                <div class="admin-ops-stat">{{.Bookings}}</div>
+                <p class="admin-ops-meta">Total appointments booked across Nigeria</p>
+            </div>
+            <div class="ui-actions">
+                <a class="button small" href="/admin/bookings">View all bookings</a>
+            </div>
+        </div>
+
+        <!-- Pending Bookings -->
+        <div class="admin-ops-card">
+            <div>
+                <div class="admin-card-header">
+                    <span class="admin-card-tag">Attention Required</span>
+                    {{if gt .PendingBookings 0}}
+                        <span class="badge Suspended">{{.PendingBookings}} Pending</span>
+                    {{else}}
+                        <span class="badge Active">Queue Clear</span>
+                    {{end}}
+                </div>
+                <div class="admin-ops-stat">{{.PendingBookings}}</div>
+                <p class="admin-ops-meta">Bookings awaiting barber confirmation</p>
+            </div>
+            <div class="ui-actions">
+                <a class="button small {{if gt .PendingBookings 0}}primary{{end}}" href="/admin/bookings?group=pending">Review requests</a>
+            </div>
+        </div>
+
+        <!-- Platform Links -->
+        <div class="admin-ops-card">
+            <div>
+                <div class="admin-card-header">
+                    <span class="admin-card-tag">Storefront Previews</span>
+                    <span class="badge Active">Live</span>
+                </div>
+                <div class="admin-ops-stat" style="font-size: 1.8rem; padding-top: 6px;">Live Views</div>
+                <p class="admin-ops-meta">Inspect storefront &amp; customer portals</p>
+            </div>
+            <div class="ui-actions">
+                <a class="button small" href="/" target="_blank" rel="noopener">Landing ↗</a>
+                <a class="button small" href="/customer/dashboard" target="_blank" rel="noopener">Customer ↗</a>
+            </div>
+        </div>
 
     </section>
 
-    <section class="panel ui-panel">
+    <!-- HOMEPAGE BACKGROUND SECTION (SIDE-BY-SIDE PREVIEW & GUIDELINES) -->
+    <section class="panel ui-panel admin-media-section" aria-labelledby="heading-homepage-asset">
 
-        <h2>Customer dashboard background</h2>
-
+        <h2 id="heading-homepage-asset" style="margin-top: 0;">Homepage Hero Artwork</h2>
         <p class="lede">
-            Upload the full-screen photo customers see behind
-            their dashboard.
+            High-resolution background imagery displayed behind the public discovery landing page.
         </p>
 
-        {{if .CustomerLandingImage}}
+        <div class="admin-media-grid">
 
-            <img class="photo"
-                 src="{{.CustomerLandingImage}}"
-                 alt="Current customer dashboard background" data-fullscreen-image srcset="{{imageSrcset .CustomerLandingImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
-
-            <p class="muted">
-                This is the image currently displayed behind
-                the customer dashboard.
-            </p>
-
-        {{else}}
-
-            <p class="muted">
-                No customer dashboard background has been uploaded yet.
-            </p>
-
-        {{end}}
-
-        <form class="stack ui-form"
-              method="post"
-              action="/admin/customer-landing-image"
-              enctype="multipart/form-data" {{if .Error}}aria-describedby="form-error"{{end}}>
-
-            <input type="hidden"
-                   name="csrf_token"
-                   value="{{.CSRF}}">
-
-            <label for="customer_landing_image">
-                Choose customer dashboard photo
-            </label>
-
-            <input id="customer_landing_image"
-                   type="file"
-                   name="customer_landing_image"
-                   accept=".jpg,.jpeg,.png,.gif,.webp"
-                   required>
-
-            <p class="hint">
-                Use a large, clear photo suitable for a
-                full-screen customer dashboard background.
-                JPG, PNG, GIF or WEBP, up to 5 MB.
-            </p>
-
-            <div class="actions ui-actions">
-                <button class="primary ui-control" type="submit">
-                    Upload customer background
-                </button>
-
-                <a class="button"
-                   href="/customer/dashboard">
-                    View customer dashboard
-                </a>
+            <!-- Current Asset Preview -->
+            <div>
+                <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--ink);">Current Active Artwork</h3>
+                <div class="admin-preview-box">
+                    <span class="admin-preview-badge">Live Storefront</span>
+                    {{if .LandingImage}}
+                        <img class="photo"
+                             src="{{.LandingImage}}"
+                             alt="Current homepage hero background"
+                             data-fullscreen-image
+                             srcset="{{imageSrcset .LandingImage}}"
+                             sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 480px"
+                             width="640" height="360" loading="lazy" decoding="async">
+                    {{else}}
+                        <p class="muted" style="padding: 24px; text-align: center;">
+                            No custom image uploaded.<br>Default Dawn Canopy Forest theme active.
+                        </p>
+                    {{end}}
+                </div>
+                {{if .LandingImage}}
+                    <p class="hint" style="margin-top: 8px;">Click image to inspect in full-resolution lightbox.</p>
+                {{end}}
             </div>
 
-        </form>
+            <!-- Upload Controls & Guidelines -->
+            <div>
+                <div class="admin-guidelines-box">
+                    <h4>Asset Specifications &amp; Guidelines</h4>
+                    <ul class="admin-guidelines-list">
+                        <li><strong>Aspect Ratio:</strong> 16:9 widescreen recommended (e.g. 1920 &times; 1080 px).</li>
+                        <li><strong>Accepted Formats:</strong> JPG, PNG, GIF, or WEBP up to 5 MB.</li>
+                        <li><strong>Composition:</strong> Professional salon environment, warm ambient lighting, high contrast for foreground typography readability.</li>
+                    </ul>
+                </div>
+
+                <form class="stack ui-form"
+                      method="post"
+                      action="/admin/landing-image"
+                      enctype="multipart/form-data"
+                      {{if .Error}}aria-describedby="form-error"{{end}}>
+
+                    <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+
+                    <div class="ui-field">
+                        <label for="landing_image">Select replacement photo</label>
+                        <input id="landing_image"
+                               type="file"
+                               name="landing_image"
+                               accept=".jpg,.jpeg,.png,.gif,.webp"
+                               required>
+                    </div>
+
+                    <div class="actions ui-actions">
+                        <button class="primary ui-control" type="submit">
+                            Upload Homepage Asset
+                        </button>
+                        <a class="button" href="/" target="_blank" rel="noopener">
+                            Inspect Live Landing ↗
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </section>
+
+    <!-- CUSTOMER DASHBOARD BACKGROUND SECTION (SIDE-BY-SIDE PREVIEW & GUIDELINES) -->
+    <section class="panel ui-panel admin-media-section" aria-labelledby="heading-customer-asset">
+
+        <h2 id="heading-customer-asset" style="margin-top: 0;">Customer Dashboard Atmosphere Artwork</h2>
+        <p class="lede">
+            Atmospheric backdrop rendered behind the customer authenticated dashboard workspace.
+        </p>
+
+        <div class="admin-media-grid">
+
+            <!-- Current Asset Preview -->
+            <div>
+                <h3 style="font-size: 1rem; margin-bottom: 10px; color: var(--ink);">Current Active Artwork</h3>
+                <div class="admin-preview-box">
+                    <span class="admin-preview-badge">Customer Portal</span>
+                    {{if .CustomerLandingImage}}
+                        <img class="photo"
+                             src="{{.CustomerLandingImage}}"
+                             alt="Current customer dashboard background"
+                             data-fullscreen-image
+                             srcset="{{imageSrcset .CustomerLandingImage}}"
+                             sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 480px"
+                             width="640" height="360" loading="lazy" decoding="async">
+                    {{else}}
+                        <p class="muted" style="padding: 24px; text-align: center;">
+                            No custom image uploaded.<br>Default customer backdrop active.
+                        </p>
+                    {{end}}
+                </div>
+                {{if .CustomerLandingImage}}
+                    <p class="hint" style="margin-top: 8px;">Click image to inspect in full-resolution lightbox.</p>
+                {{end}}
+            </div>
+
+            <!-- Upload Controls & Guidelines -->
+            <div>
+                <div class="admin-guidelines-box">
+                    <h4>Asset Specifications &amp; Guidelines</h4>
+                    <ul class="admin-guidelines-list">
+                        <li><strong>Aspect Ratio:</strong> 16:9 widescreen recommended (e.g. 1920 &times; 1080 px).</li>
+                        <li><strong>Accepted Formats:</strong> JPG, PNG, GIF, or WEBP up to 5 MB.</li>
+                        <li><strong>Tone:</strong> Subtle, elegant haircut texture or salon atmosphere that pairs cleanly with glassmorphic cards.</li>
+                    </ul>
+                </div>
+
+                <form class="stack ui-form"
+                      method="post"
+                      action="/admin/customer-landing-image"
+                      enctype="multipart/form-data"
+                      {{if .Error}}aria-describedby="form-error"{{end}}>
+
+                    <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+
+                    <div class="ui-field">
+                        <label for="customer_landing_image">Select replacement photo</label>
+                        <input id="customer_landing_image"
+                               type="file"
+                               name="customer_landing_image"
+                               accept=".jpg,.jpeg,.png,.gif,.webp"
+                               required>
+                    </div>
+
+                    <div class="actions ui-actions">
+                        <button class="primary ui-control" type="submit">
+                            Upload Customer Backdrop
+                        </button>
+                        <a class="button" href="/customer/dashboard" target="_blank" rel="noopener">
+                            Inspect Customer Portal ↗
+                        </a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
 
     </section>
 

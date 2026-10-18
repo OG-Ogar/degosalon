@@ -1,8 +1,8 @@
 # De Go Salon — Frontend Modernization & Social Optimization Specification
 **Standards Target: Meta (Facebook) & X.com (formerly Twitter) Consumer Grade**  
-**Design System: Dawn Canopy Forest & Warm Gold System Tokens**  
+**Design System: Dawn Canopy Forest & Warm Gold System Tokens — Multi-Theme & Sharp Operational Modes**  
 **Architectural Foundation: Go Server-Side Rendered (html/template) + Progressive TypeScript Enhancement**  
-*Last Updated: 9 October 2026*
+*Last Updated: 18 October 2026 — added §2.2 Multi-Theme Token Architecture, §2.3 Display Preferences & Sharp Operational Mode, §5.7 and §6.5.*
 
 ---
 
@@ -22,7 +22,8 @@ Meeting this benchmark requires two tightly coupled engineering dimensions:
    - Mobile commerce & booking ergonomics with sticky bottom action bars (Facebook Marketplace / Instagram Shop style) and interactive time-slot chip selectors.
 
 ### 1.2 Core Architectural Principles
-- **Design System Fidelity:** Maintain the exact Forest & Warm Gold **Dawn Canopy** palette. No arbitrary generic gray-scale or off-brand colors may be introduced.
+- **Design System Fidelity:** Maintain the exact Forest & Warm Gold **Dawn Canopy** palette. No arbitrary generic gray-scale or off-brand colors may be introduced. Dawn Canopy is the **default theme**, not the only theme — see §2.2: every theme re-colours the same semantic token set, and danger red stays reserved in all of them.
+- **Theme-Able by Construction:** No component hardcodes a raw colour, font-size in pixels, or corner radius. Every surface, ink, border, accent and atmospheric layer resolves through the semantic tokens in §2.1–§2.3, so a theme or text-size change repaints the whole platform without touching a single template.
 - **Server-Rendered Authority:** The Go server (`net/http` + `html/template`) remains the single source of truth for business invariants, CSRF tokens, session state, permissions, and data validation. No client-side SPA framework (React, Vue, Angular) migration.
 - **Progressive TypeScript Enhancement:** `frontend/app.ts` (compiled to `static/app.js`) enhances accessibility, speed, and usability. Every page must remain fully operational and navigable with JavaScript disabled or blocked.
 - **Deterministic Build Pipeline:** Build rules remain strictly enforced (`npm run typecheck`, `npm run build`, `git diff --exit-code -- static/app.js`, `go test ./...`).
@@ -86,6 +87,143 @@ All layout primitives, social previews, shell containers, and interactive elemen
   --page-max-width: 1200px; /* Full desktop container constraint */
 }
 ```
+
+### 2.2 Multi-Theme Token Architecture (Forest · Midnight · Daylight · Ocean · Stone)
+
+Dawn Canopy is **theme one of five**, not the sole palette. Every theme redefines the *same* set of semantic tokens, so no template, partial, or TypeScript module ever hardcodes a raw colour — only the `:root` block (§2.1) and the `html[data-theme="…"]` override blocks ship hex values. This is the pattern proven in the reference system at `multi-agent-orchestrator/sample/nativity-guard/frontend/src/theme.css` (its `preferences.ts` switches `data-theme` on `document.documentElement`).
+
+| Theme | Intent | `--void` / `--base` / `--surface` | `--ink` / `--ink-muted` | `--signal` / `--signal-ink` |
+| :--- | :--- | :--- | :--- | :--- |
+| **Forest** *(default)* | Dawn Canopy brand. Deep evergreen shelter, warm gold action. | `#091613` / `#10221d` / `#193129` | `#f8f5e9` / `#c2d4c7` | `#f4cb78` / `#19251c` |
+| **Midnight** | True-black OLED dark for night browsing and low-light use. | `#000000` / `#0a0a0a` / `#141414` | `#f5f5f5` / `#b5b5b5` | `#f4cb78` / `#121212` |
+| **Daylight** | Light theme for bright outdoor daylight; the only light surface set. | `#d8d8d2` / `#f7f7f5` / `#ffffff` | `#1a1a1a` / `#4a4a4a` | `#b8851a` / `#ffffff` |
+| **Ocean** | Cool blue alternative for customers who dislike warm/green casts. | `#051025` / `#0a1a30` / `#10263f` | `#eaf2fb` / `#b6cbe4` | `#8bd3f7` / `#082238` |
+| **Stone** | Warm neutral earthy alternative; softer than Forest. | `#1a1714` / `#232019` / `#2f2a22` | `#f4ede0` / `#c9bda9` | `#e8b478` / `#231a0c` |
+
+**Hard rules for every theme:**
+
+1. **Same token contract, different values.** A theme override block may only reassign existing tokens — never introduce a new token name, and never delete one. If a new token is needed, it is added to `:root` first and then to all five themes.
+2. **Semantic roles are preserved.** `--danger` stays reserved for destructive/urgent states in every theme; `--signal` is always the *one* primary action colour. Daylight darkens the gold to `#b8851a` precisely so it keeps ≥ 4.5:1 against white; it must not reuse the Forest gold.
+3. **Atmosphere recolours too.** The aesthetic layers that sit *outside* the base palette — glass panel tints (`--panel-tint-1/2`, `--panel-border`), the sticky bar (`--bar-bg`, `--bar-border`), the hero gradient stops (`--hero-end-1`, `--hero-mid`, `--hero-end-2`, `--hero-arc-*`, `--hero-warm`, `--hero-star`, `--hero-dot`), the body depth-layer opacity/glow (`--depth-tilt-opacity`, `--depth-glow-*`) and the skeleton shimmer (`--skeleton-a/b`) — are theme-scoped variables, not literals in the component CSS. The reference `theme.css` defines all of them for all five themes.
+4. **Native controls follow the theme.** Set `color-scheme: dark` on the dark themes and `color-scheme: light` on Daylight so browser-rendered `<input>`, `<select>`, scrollbars and date pickers match instead of flashing a wrong-scheme control.
+5. **Contrast is a gate, not a hope.** Each theme must independently pass WCAG 2.1 AA: ≥ 4.5:1 for body text and ≥ 3:1 for large text and UI boundaries (§5.6). Verify text, focus rings, status chips and the landing hero in all five themes on a phone in daylight.
+6. **`theme-color` tracks the active theme.** The two `<meta name="theme-color">` values in §3.1 (`prefers-color-scheme: dark|light`) are the browser-chrome fallback; once a theme is applied the boot script (§2.3) rewrites the matching `theme-color` to that theme's `--void`/`--base` so the mobile status bar matches the page.
+
+```css
+/* static/theme.css — loaded after static/app.css (base = Forest) */
+:root { /* §2.1 Dawn Canopy tokens ARE the Forest theme */ }
+
+html[data-theme="midnight"]{
+  --void:#000000; --base:#0a0a0a; --surface:#141414; --surface-hi:#1e1e1e;
+  --border:#2a2a2a; --border-hi:#3a3a3a;
+  --ink:#f5f5f5; --ink-muted:#b5b5b5; --ink-faint:#888888;
+  --signal:#f4cb78; --signal-ink:#121212;
+  color-scheme:dark;
+}
+html[data-theme="daylight"]{
+  --void:#d8d8d2; --base:#f7f7f5; --surface:#ffffff; --surface-hi:#ebebe8;
+  --border:#d0d0cc; --border-hi:#a8a8a4;
+  --ink:#1a1a1a; --ink-muted:#4a4a4a; --ink-faint:#707070;
+  --signal:#b8851a; --signal-ink:#ffffff;
+  color-scheme:light;
+}
+html[data-theme="ocean"]{ /* surface #10263f · ink #eaf2fb · signal #8bd3f7 */ color-scheme:dark; }
+html[data-theme="stone"]{ /* surface #2f2a22 · ink #f4ede0 · signal #e8b478 */ color-scheme:dark; }
+```
+
+### 2.3 Display Preferences, Text Size & the Sharp Operational Mode
+
+#### A. Display Preferences (theme + text size), persisted two ways
+
+Theme and text size are **user preferences**, not per-page choices. They persist in two places, exactly as the reference system does:
+
+1. **`localStorage`, applied before first paint** so a returning visitor never sees a flash of the default theme (no FOUC). This is progressive enhancement and stays client-side.
+2. **The server record is the source of truth once signed in**, so the choice follows the user to any device. The Go handler is authoritative; `localStorage` is only a fast local cache.
+
+Values are never trusted raw — a value read from `localStorage` or the wire is run through an **allowlist normaliser** (`theme ∈ {forest,midnight,daylight,ocean,stone}`, `textSize ∈ {standard,large,xlarge,xxlarge}`) and anything unrecognised falls back to the default (`forest` / `standard`). This prevents a crafted value from injecting an arbitrary token set or breaking the layout.
+
+```ts
+// frontend/app.ts — normalise + apply (progressive enhancement)
+const THEMES = ["forest","midnight","daylight","ocean","stone"] as const;
+const TEXT_SIZES = ["standard","large","xlarge","xxlarge"] as const;
+type Theme = typeof THEMES[number];
+type TextSize = typeof TEXT_SIZES[number];
+
+function normalise(raw: unknown): { theme: Theme; textSize: TextSize } {
+  const p = (raw ?? {}) as { theme?: unknown; textSize?: unknown };
+  return {
+    theme: THEMES.includes(p.theme as Theme) ? (p.theme as Theme) : "forest",
+    textSize: TEXT_SIZES.includes(p.textSize as TextSize) ? (p.textSize as TextSize) : "standard",
+  };
+}
+function apply(prefs: { theme: Theme; textSize: TextSize }) {
+  const root = document.documentElement;
+  root.dataset.theme = prefs.theme;
+  root.dataset.textSize = prefs.textSize;
+  // keep the browser-chrome colour in step with the active theme
+  const void_ = getComputedStyle(root).getPropertyValue("--void").trim();
+  document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')
+    .forEach((m) => (m.content = void_));
+}
+```
+
+#### B. Server-Side Rendering boot (no-FOUC, works without JavaScript)
+
+Because the platform is Go SSR, the server cannot know `localStorage`. The order of operations is:
+
+1. The Go handler renders `<html data-theme="…" data-text-size="…">` from the **signed-in user's stored preference** when a session exists. This is the no-JavaScript path: a visitor without JS still gets their saved theme, and an anonymous visitor gets `forest`/`standard`.
+2. A tiny **inline boot script** placed in `<head>` *after* the attributes and *before* any stylesheet-dependent paint reads `localStorage` and overrides the attributes only if it differs (e.g. the user changed the theme on a public page while signed out). It is inlined — not a deferred file — so it runs before first paint.
+3. `frontend/app.ts` then wires the picker and, on change, writes `localStorage` immediately and `PUT`s the preference to the server when authenticated. The server write is best-effort from the client's point of view: a failed sync keeps the local choice and retries on the next change.
+
+```html
+<!-- The base layout's own <html> element carries the server-rendered attributes
+     (templates/base.html):  <html data-theme="{{.Theme}}" data-text-size="{{.TextSize}}">
+     The partial below is inlined in <head>, before the page stylesheets. -->
+<script>
+  (function () {
+    try {
+      var p = JSON.parse(localStorage.getItem('dgs-display-v1') || '{}');
+      var t = ['forest','midnight','daylight','ocean','stone'];
+      var s = ['standard','large','xlarge','xxlarge'];
+      var el = document.documentElement;
+      if (t.indexOf(p.theme) > -1) el.dataset.theme = p.theme;
+      if (s.indexOf(p.textSize) > -1) el.dataset.textSize = p.textSize;
+    } catch (e) { /* storage unavailable — server-rendered defaults stand */ }
+  })();
+</script>
+```
+
+Suggested server surface (mirrors the reference `/settings/preferences`): a `user_preferences` table keyed by user, and `GET`/`PUT /{role}/settings/preferences` returning `{ theme, textSize, notifyAlerts, … }`. The same normaliser/allowlist is enforced in Go so an unknown value can never be stored or rendered.
+
+#### C. Text Size — an accessibility scale, not a redesign
+
+Text size is a genuine accessibility feature (the reference system calls it "make everything bigger if small text is hard to read"), implemented as a root font-size scale so it propagates through every `rem`-based dimension:
+
+```css
+html[data-text-size="standard"] { font-size: 100%; }
+html[data-text-size="large"]    { font-size: 112.5%; }
+html[data-text-size="xlarge"]   { font-size: 125%; }
+html[data-text-size="xxlarge"]  { font-size: 140%; }
+```
+
+Because all spacing and type in §2.1 is expressed in `rem`, the whole layout scales with the user, including min tap targets. Gate: verify every page family at **320px width under `xxlarge`** with no horizontal scroll, clipped controls or overlapping sticky bars.
+
+#### D. The "Sharp Operational Mode" (density, not colour)
+
+The reference design DNA is *"calm in emergencies, warm in community spaces, **sharp in operations**."* Sharpness is a **density/typography posture for the barber and admin workspaces**, layered on top of whichever colour theme is active — it is not a sixth theme and not a per-page restyle:
+
+- **Dense, information-rich grids** for barber dashboards, schedules, inventory and every admin table/queue, versus the generous, spacious spacing of customer discovery and booking surfaces.
+- **Crisp hairline structure** — 1px borders and the semantic `--border`/`--border-hi` tokens carry the hierarchy; heavy shadows and rounded-radius blobs are avoided in operational surfaces so rows stay scannable.
+- **Tabular precision** — IDs, appointment times, prices (`₦`) and counters render in the monospace tabular-numeral treatment so columns align and never jitter as values change.
+- **Restrained motion** — operational screens keep the 150–250ms purposeful transitions from §3.2, never decorative animation.
+
+Implemented as a scoped attribute (e.g. `<body data-density="sharp">` on barber/admin layouts, default `comfortable` on customer/public layouts) that only tightens spacing/radius and applies tabular numerals — it must **not** fork the colour system, and it must compose with all five themes. The natural home for these overrides is `static/ui.css` (the shared primitives layer), scoped to the sharp mode.
+
+#### E. Graceful degradation (both preferences and atmosphere)
+
+- **`prefers-reduced-motion: reduce`** — disable the shimmer, logo draw-in, hero drift and card lift; the base skeleton keeps a flat surface. The reference system also force-quiets every animation to `0.001ms`.
+- **`prefers-reduced-transparency: reduce`** — drop the frosted `backdrop-filter` glass and the body depth layers, falling back to solid `--surface` panels so text never sits over busy artwork.
+- **No JavaScript** — the server-rendered theme stands; the picker simply does not appear (it is rendered only when the enhancement script is present), and all content stays readable.
 
 ---
 
@@ -357,8 +495,9 @@ graph LR
 | `templates/partials/public-metadata.html` | 4 lines: basic title, description, generic website type, `summary` card. | **CRITICAL GAP:** Must be upgraded to support dynamic `summary_large_image`, 1200x630 dimensions, custom image URLs, OpenGraph types (`website`, `profile`, `product`), `fb:app_id`, and JSON-LD schema injection. |
 | `templates/partials/navigation.html` | Meta & X standard glassmorphic sticky shell with centered layout, cart badge pill, and tactile navigation pills. | Implemented & verified (Batch 1). |
 | `templates/partials/public-footer.html` | Expanded rich footer with brand mark, platform description, social pills, country switcher, and accessible policy navigation. | Implemented & verified (Batch 1). |
-| `frontend/app.ts` | 435 lines of progressive helpers (password reveal, double submit, basic filter). | Expand to include: Web Share API coordinator, Photo Lightbox with keyboard navigation, auto-resizing chat composer, chat scroll-to-bottom button, time-slot pill selector, and shimmer skeleton coordinator. |
-| `static/app.css` & `static/ui.css` | Design tokens, basic panel, card, and button styles. | Add layout classes for 3-column app shell, mobile bottom nav, shimmer skeleton animations, media lightbox, sticky bottom action bar, and split-view chat. |
+| `frontend/app.ts` | 435 lines of progressive helpers (password reveal, double submit, basic filter). | Expand to include: Web Share API coordinator, Photo Lightbox with keyboard navigation, auto-resizing chat composer, chat scroll-to-bottom button, time-slot pill selector, shimmer skeleton coordinator, and the display-preference controller (theme + text-size picker, allowlist normaliser, `localStorage` apply, server sync) from §2.3. |
+| `static/app.css` & `static/ui.css` | Design tokens, basic panel, card, and button styles. | Add layout classes for 3-column app shell, mobile bottom nav, shimmer skeleton animations, media lightbox, sticky bottom action bar, and split-view chat. Add the sharp operational density overrides (§2.3D) to `static/ui.css`. |
+| `static/theme.css` *(new)* | Does not exist — the platform ships Forest only. | Add the five-theme override blocks (§2.2) plus the theme-scoped atmosphere variables (glass tints, hero gradient stops, depth-layer opacity, skeleton shimmer), and scope all component CSS to the tokens. |
 
 ---
 
@@ -745,6 +884,50 @@ function wireStickyMobileBookingBar() {
 
 ---
 
+### 5.7 Phase 6 — Multi-Theme Display System & Sharp Operational Mode
+
+Adapted from the reference implementation in
+`multi-agent-orchestrator/sample/nativity-guard/frontend` (see §2.2–§2.3). Ships as new work after the
+existing page modernization batches.
+
+#### 1. Theme stylesheet (`static/theme.css`, new)
+
+- Add the five `html[data-theme="…"]` override blocks from §2.2. `:root` in `static/app.css` stays the Forest base, so **zero templates change** to gain the mechanism.
+- Move every atmosphere literal out of the component CSS files into theme-scoped variables (`--panel-tint-*`, `--bar-*`, `--hero-*`, `--depth-*`, `--skeleton-*`).
+- Add the `html[data-text-size="…"]` scale from §2.3C.
+- Load order: `app.css` → page CSS → `ui.css` → `theme.css` (theme last, so overrides win).
+
+#### 2. Boot partial (`templates/partials/theme-boot.html`, new)
+
+- Included in `<head>` before page stylesheets. The base layout's own `<html>` element carries the server-rendered `data-theme`/`data-text-size` (from the session); this partial adds the pre-paint inline `localStorage` override and the active theme's `theme-color` for the browser chrome (§2.3B).
+
+#### 3. Go server surface
+
+- Extend the `user_preferences` model/table with `theme` and `text_size` columns (both `text` with a DB check or an allowlist in the handler).
+- Add `GET`/`PUT /{role}/settings/preferences` on the customer, barber and admin route groups, enforcing the same allowlist as the client.
+- Thread `Theme`/`TextSize` into the page view-model so `theme-boot.html` can render them. Anonymous requests render `forest`/`standard`.
+
+#### 4. Progressive enhancement (`frontend/app.ts`)
+
+- Add the allowlist normaliser, `apply()` (sets `data-*`, rewrites `theme-color`) and the `localStorage`-first / server-sync controller from §2.3A.
+- Wire the theme swatch grid and text-size controls (segmented `aria-pressed` buttons, live preview, optimistic apply).
+
+#### 5. Sharp operational density
+
+- Add a `data-density="sharp"` scope on barber and admin layouts and the corresponding `static/ui.css` overrides (tighter spacing/radius, tabular numerals, hairline structure). It composes with all five colour themes and never forks them.
+
+```mermaid
+flowchart LR
+    SSR["Go handler: session prefs"] --> HTML["html data-theme · data-text-size"]
+    HTML --> Boot["inline theme-boot script (pre-paint)"]
+    Boot --> LS["localStorage override (no FOUC)"]
+    LS --> App["app.ts: picker + allowlist + apply()"]
+    App --> PUT["PUT /{role}/settings/preferences"]
+    PUT --> SSR
+```
+
+---
+
 ## 6. Implementation Checklist & Verification Gates
 
 ### 6.1 Phase 1 — Metadata & Social Graph
@@ -776,7 +959,16 @@ function wireStickyMobileBookingBar() {
 - [x] Modernize Barber Operational Workspace: `dashboard.html`, `profile.html`, `schedule.html`, `hairstyle-list.html`, `products.html`, `bookings.html`, `chats.html`, `chat.html`.
 - [ ] Modernize Admin Operations: `dashboard.html`, `barber-list.html`, `customers.html`, `bookings.html`.
 
-### 6.5 Mandatory Pre-Merge Test Gates
+### 6.5 Phase 6 — Multi-Theme Display System & Sharp Operational Mode
+- [ ] Add `static/theme.css` with the five `html[data-theme="…"]` override blocks and theme-scoped atmosphere variables (§2.2).
+- [ ] Add the `html[data-text-size="…"]` accessibility scale (Standard/Large/XL/Huge) and verify every page family at 320px under `xxlarge` (§2.3C).
+- [ ] Add `templates/partials/theme-boot.html`, included in `<head>` before page stylesheets, setting `data-theme`/`data-text-size` from the session plus the pre-paint `localStorage` script and `theme-color` (§2.3B).
+- [ ] Extend `user_preferences` with `theme`/`text_size` and add `GET`/`PUT /{role}/settings/preferences` with a server-side allowlist (§5.7).
+- [ ] Wire the theme swatch grid and text-size controls in `frontend/app.ts` with the allowlist normaliser, `localStorage`-first apply, and best-effort server sync (§2.3A).
+- [ ] Add `data-density="sharp"` overrides to `static/ui.css` for barber/admin workspaces; confirm it composes with all five themes (§2.3D).
+- [ ] Verify WCAG 2.1 AA contrast for every theme (§2.2 rule 5) and the `prefers-reduced-motion` / `prefers-reduced-transparency` / no-JavaScript fallbacks (§2.3E).
+
+### 6.6 Mandatory Pre-Merge Test Gates
 Every visual implementation batch must pass the complete verification suite before merging:
 ```bash
 # 1. Typecheck and compile TypeScript

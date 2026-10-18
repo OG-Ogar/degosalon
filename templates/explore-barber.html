@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="/static/customer-barber-profile.css">
 <link rel="stylesheet" href="/static/image-viewer.css">
 <link rel="stylesheet" href="/static/ui.css"><script src="/static/image-viewer.js" defer></script>
+<link rel="stylesheet" href="/static/theme.css">
 <script src="/static/app.js" defer></script>
 {{template "public-metadata" (publicMetadata (printf "/explore/%d" .Barber.ID) (printf "%s - De Go Salon" .Barber.ShopName) (printf "Explore %s in %s, %s. Compare services, prices and completed-booking reviews." .Barber.ShopName .Barber.LocalArea .Barber.State) (or .Barber.ProfileImage .Barber.PersonalImage) .Barber.ShopName "profile" "summary_large_image" (salonSchema .Barber .Rating .ReviewCount))}}
 </head>

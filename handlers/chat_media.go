@@ -50,7 +50,7 @@ func sniffVoice(head []byte) (contentType, extension string, ok bool) {
 func (store voiceStore) save(r *http.Request, field string) (string, error) {
 	file, header, err := r.FormFile(field)
 	if err != nil {
-		if errors.Is(err, http.ErrMissingFile) {
+		if isNoUpload(err) {
 			return "", errNoUpload
 		}
 

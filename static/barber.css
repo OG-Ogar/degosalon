@@ -144,8 +144,8 @@
 }
 
 .barber-dashboard-photo {
-    width: 90px;
-    height: 90px;
+    width: 50px;
+    height: 50px;
 
     flex-shrink: 0;
 
@@ -349,7 +349,7 @@
 
 .barber-hairstyle-image {
     width: 100%;
-    height: 210px;
+    height: 80px;
 
     display: block;
 
@@ -360,7 +360,7 @@
 
 .barber-hairstyle-no-image {
     width: 100%;
-    height: 210px;
+    height: 80px;
 
     display: flex;
     align-items: center;
@@ -654,15 +654,21 @@
     box-shadow: 0 4px 15px rgba(55, 37, 24, 0.06);
 }
 
+/* Shop photo on the profile page: a fixed 16:10 frame, cropped neatly.
+   To make it taller or shorter, change the aspect-ratio (e.g. 4 / 3 is taller,
+   2 / 1 is shorter) and the max-height. */
 .barber-shop-photo {
-    width: 100%;
-    max-height: 360px;
+    width: 100% !important;
+    height: auto !important;
+    aspect-ratio: 16 / 10;
+    max-height: 340px !important;
 
     display: block;
 
     object-fit: cover;
+    object-position: center;
 
-    border-radius: 8px;
+    border-radius: 12px;
 
     margin-bottom: 25px;
 }
@@ -863,7 +869,7 @@
 }
 
 @media (max-width: 700px) {
-    .barber-dashboard-hero {
+    .modern-role-page .barber-dashboard-hero {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
@@ -899,5 +905,124 @@
         display: flex;
         flex-wrap: wrap;
         gap: 0.5rem;
+    }
+}
+
+@media (max-width: 760px) {
+    .barber-table-wrapper {
+        overflow-x: visible;
+        border: 0;
+        background: transparent;
+        padding: 0;
+    }
+
+    .barber-table,
+    .barber-table tbody,
+    .barber-table tr,
+    .barber-table td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+    }
+
+    /* Hide the header row visually but keep it for screen readers */
+    .barber-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap;
+    }
+
+    .barber-table tr {
+        margin-bottom: 1rem;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border, #355348);
+        border-radius: 14px;
+        background: var(--surface, #193129);
+    }
+
+    .barber-table td {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 0.35rem 1rem;
+        padding: 0.55rem 0;
+        border: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+        text-align: left;
+        word-break: normal;
+        overflow-wrap: anywhere;
+        writing-mode: horizontal-tb;
+    }
+
+    .barber-table td:last-child {
+        border-bottom: 0;
+    }
+
+    .barber-table td::before {
+        content: attr(data-label);
+        flex: 0 0 100%;
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-muted, #c2d4c7);
+    }
+
+    .barber-table td .barber-actions {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .barber-table td .booking-hairstyle {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+}
+
+
+/* =========================================
+   PRODUCT ORDER PHOTOS (barber dashboard)
+   ========================================= */
+
+.order-product {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.order-product-image {
+    width: 80px;
+    height: 80px;
+    flex: 0 0 80px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 12px;
+    background: var(--surface-hi, #254137);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    color: var(--signal, #f4cb78);
+}
+
+.order-product-image img {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+}
+
+@media (max-width: 600px) {
+    .order-product-image {
+        width: 72px;
+        height: 72px;
+        flex-basis: 72px;
     }
 }

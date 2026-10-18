@@ -8,9 +8,11 @@
 
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
+    <link rel="stylesheet" href="/static/image-viewer.css">
     <link rel="stylesheet" href="/static/ui.css">
 
     <script src="/static/app.js" defer></script>
+    <script src="/static/image-viewer.js" defer></script>
 </head>
 
 <body class="barber-page modern-role-page modern-barber-page">
@@ -19,19 +21,20 @@
 
 <main class="barber-main ui-page">
 
+    <!-- HERO -->
     <section class="barber-dashboard-intro barber-dashboard-hero">
 
         <div class="barber-dashboard-photo">
             {{if .PersonalImage}}
-                <a href="/barber/profile"
-                   aria-label="View your profile">
+                <a href="/barber/profile" aria-label="View your profile">
                     <img src="{{.PersonalImage}}"
-                         alt="Profile photo of {{.FullName}}" srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+                         alt="Profile photo of {{.FullName}}"
+                         srcset="{{imageSrcset .PersonalImage}}"
+                         sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px"
+                         width="640" height="480" loading="lazy" decoding="async">
                 </a>
             {{else}}
-                <a class="barber-dashboard-placeholder"
-                   href="/barber/profile"
-                   aria-label="View your profile">
+                <a class="barber-dashboard-placeholder" href="/barber/profile" aria-label="View your profile">
                     {{.FullName}}
                 </a>
             {{end}}
@@ -43,9 +46,7 @@
                 {{template "domain-status" (domainStatus "account" .Status)}}
             </div>
 
-            <h1 class="barber-title">
-                Welcome, {{.FullName}}
-            </h1>
+            <h1 class="barber-title">Welcome, {{.FullName}}</h1>
 
             <p class="barber-lede">
                 {{.ShopName}} &middot; {{.ShopAddress}}
@@ -63,181 +64,89 @@
 
     </section>
 
+
+    <!-- STAT CARDS -->
     <section class="barber-stat-grid">
 
         <article class="barber-stat-card">
             <div class="stat-card-header">
-                <span class="barber-stat-number">
-                    {{.PendingBookings}}
-                </span>
+                <span class="barber-stat-number">{{.PendingBookings}}</span>
                 {{if gt .PendingBookings 0}}
                     <span class="barber-badge Suspended">Pending</span>
                 {{end}}
             </div>
-
-            <span class="barber-stat-label">
-                Booking requests
-            </span>
-
+            <span class="barber-stat-label">Booking requests</span>
             <div class="barber-actions ui-actions">
-                <a class="barber-button primary"
-                   href="/barber/bookings">
-                    Review
-                </a>
+                <a class="barber-button primary" href="/barber/bookings">Review</a>
             </div>
         </article>
 
         <article class="barber-stat-card">
             <div class="stat-card-header">
-                <span class="barber-stat-number">
-                    {{.UpcomingBookings}}
-                </span>
+                <span class="barber-stat-number">{{.UpcomingBookings}}</span>
                 {{if gt .UpcomingBookings 0}}
                     <span class="barber-badge Active">Confirmed</span>
                 {{end}}
             </div>
-
-            <span class="barber-stat-label">
-                Confirmed appointments
-            </span>
-
+            <span class="barber-stat-label">Confirmed appointments</span>
             <div class="barber-actions ui-actions">
-                <a class="barber-button"
-                   href="/barber/bookings">
-                    Schedule
-                </a>
+                <a class="barber-button" href="/barber/bookings">Schedule</a>
             </div>
         </article>
 
         <article class="barber-stat-card">
             <div class="stat-card-header">
-                <span class="barber-stat-number">
-                    {{.Hairstyles}}
-                </span>
+                <span class="barber-stat-number">{{.Hairstyles}}</span>
             </div>
-
-            <span class="barber-stat-label">
-                Hairstyles listed
-            </span>
-
+            <span class="barber-stat-label">Hairstyles listed</span>
             <div class="barber-actions ui-actions">
-                <a class="barber-button"
-                   href="/barber/hairstyles">
-                    Manage
-                </a>
+                <a class="barber-button" href="/barber/hairstyles">Manage</a>
             </div>
         </article>
 
         <article class="barber-stat-card">
             <div class="stat-card-header">
-                <span class="barber-stat-number">
-                    {{.Conversations}}
-                </span>
+                <span class="barber-stat-number">{{.Conversations}}</span>
             </div>
-
-            <span class="barber-stat-label">
-                Customer conversations
-            </span>
-
+            <span class="barber-stat-label">Customer conversations</span>
             <div class="barber-actions ui-actions">
-                <a class="barber-button"
-                   href="/barber/chats">
-                    Messages
-                </a>
+                <a class="barber-button" href="/barber/chats">Messages</a>
             </div>
         </article>
 
     </section>
 
+
+    <!-- PRODUCT ORDERS -->
     <section class="barber-section barber-dashboard-section">
 
-        <h2 class="barber-section-title">
-            Your shop
-        </h2>
+        <h2 class="barber-section-title">Product Orders</h2>
 
-        <div class="barber-card ui-panel">
-
-            <table class="barber-profile-table">
-
-                <tbody>
-
-                    <tr>
-                        <th scope="row">Name</th>
-                        <td>{{.FullName}}</td>
-                    </tr>
-
-                    <tr>
-                        <th scope="row">Phone</th>
-                        <td>{{.PhoneNumber}}</td>
-                    </tr>
-
-                    <tr>
-                        <th scope="row">Email</th>
-                        <td>{{.Email}}</td>
-                    </tr>
-
-                    <tr>
-                        <th scope="row">Shop</th>
-                        <td>{{.ShopName}}</td>
-                    </tr>
-
-                    <tr>
-                        <th scope="row">Address</th>
-                        <td>{{.ShopAddress}}</td>
-                    </tr>
-
-                    <tr>
-                        <th scope="row">Status</th>
-
-                        <td>
-                            {{template "domain-status" (domainStatus "account" .Status)}}
-                        </td>
-
-                    </tr>
-
-                </tbody>
-
-            </table>
-
-            <div class="barber-actions ui-actions">
-
-                <a class="barber-button primary"
-                   href="/barber/profile">
-                    View Profile
-                </a>
-
-                <a class="barber-button"
-                   href="/barber/profile/edit">
-                    Edit Details
-                </a>
-
-                <a class="barber-button"
-                   href="/explore/{{.ID}}" target="_blank" rel="noopener">
-                    Preview as Customer ↗
-                </a>
-
+        <form method="get" class="toolbar ui-form" id="orders">
+            <div class="field ui-field">
+                <label for="fulfillment">Fulfillment state</label>
+                <select name="fulfillment" id="fulfillment">
+                    <option value="all" {{if or (eq .OrderStatus "") (eq .OrderStatus "all")}}selected{{end}}>All items</option>
+                    <option value="Pending" {{if eq .OrderStatus "Pending"}}selected{{end}}>Pending</option>
+                    <option value="Ready" {{if eq .OrderStatus "Ready"}}selected{{end}}>Ready</option>
+                    <option value="Collected" {{if eq .OrderStatus "Collected"}}selected{{end}}>Collected</option>
+                    <option value="Cancelled" {{if eq .OrderStatus "Cancelled"}}selected{{end}}>Cancelled</option>
+                </select>
             </div>
+            <button type="submit" class="ui-control">Show order items</button>
+        </form>
 
-        </div>
+        <p>Up to 24 items per page, newest first. Filter by state to find outstanding work.</p>
 
-    </section>
+        {{template "list-pagination" .OrderPagination}}
 
-    <section class="barber-section barber-dashboard-section">
-
-        <h2 class="barber-section-title">
-            Product Orders
-        </h2>
-
-        <form method="get" class="toolbar ui-form" id="orders"><div class="field ui-field"><label for="fulfillment">Fulfillment state</label><select name="fulfillment" id="fulfillment"><option value="all" {{if or (eq .OrderStatus "") (eq .OrderStatus "all")}}selected{{end}}>All items</option><option value="Pending" {{if eq .OrderStatus "Pending"}}selected{{end}}>Pending</option><option value="Ready" {{if eq .OrderStatus "Ready"}}selected{{end}}>Ready</option><option value="Collected" {{if eq .OrderStatus "Collected"}}selected{{end}}>Collected</option><option value="Cancelled" {{if eq .OrderStatus "Cancelled"}}selected{{end}}>Cancelled</option></select></div><button type="submit" class="ui-control">Show order items</button></form><p>Up to 24 items per page, newest first. Filter by state to find outstanding work.</p>
-{{template "list-pagination" .OrderPagination}}
-{{if .ProductOrders}}
+        {{if .ProductOrders}}
 
             <div class="barber-card ui-panel">
 
                 <table class="barber-profile-table">
 
                     <thead>
-
                         <tr>
                             <th>Order</th>
                             <th>Customer</th>
@@ -246,7 +155,6 @@
                             <th>Subtotal</th>
                             <th>Status</th>
                         </tr>
-
                     </thead>
 
                     <tbody>
@@ -255,9 +163,7 @@
 
                             <tr>
 
-                                <td>
-                                    #{{.OrderID}}
-                                </td>
+                                <td>#{{.OrderID}}</td>
 
                                 <td>
                                     <strong>{{.CustomerName}}</strong><br>
@@ -265,23 +171,52 @@
                                     <span class="muted">{{.CustomerEmail}}</span>
                                 </td>
 
+                                <!-- Product photo + name -->
                                 <td>
-                                    {{.ProductName}}
+                                    <div class="order-product">
+                                        <div class="order-product-image">
+                                            {{if .ProductImage}}
+                                                <img src="{{.ProductImage}}"
+                                                     alt="Photo of {{.ProductName}}"
+                                                     data-fullscreen-image
+                                                     srcset="{{imageSrcset .ProductImage}}"
+                                                     sizes="(max-width: 600px) 200px, 240px"
+                                                     width="640" height="480" loading="lazy" decoding="async">
+                                            {{else}}
+                                                <span>DG</span>
+                                            {{end}}
+                                        </div>
+                                        <span>{{.ProductName}}</span>
+                                    </div>
                                 </td>
 
-                                <td>
-                                    {{.Quantity}}
-                                </td>
+                                <td>{{.Quantity}}</td>
 
-                                <td>
-                                    {{naira .Subtotal}}
-                                </td>
+                                <td>{{naira .Subtotal}}</td>
 
                                 <td>
                                     {{template "domain-status" (domainStatus "fulfillment" .FulfillmentStatus)}}
-{{if eq .FulfillmentStatus "Pending"}}<form method="post" action="/barber/order-items/{{.ID}}/ready" class="ui-form"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit" class="ui-control">Mark ready</button></form>{{end}}
-{{if eq .FulfillmentStatus "Ready"}}<form method="post" action="/barber/order-items/{{.ID}}/collect" class="ui-form"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit" class="ui-control">Mark collected</button></form>{{end}}
-{{if or (eq .FulfillmentStatus "Pending") (eq .FulfillmentStatus "Ready")}}<form method="post" action="/barber/order-items/{{.ID}}/cancel" class="ui-form"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button type="submit" class="ui-control">Cancel item and restore stock</button></form>{{end}}
+
+                                    {{if eq .FulfillmentStatus "Pending"}}
+                                        <form method="post" action="/barber/order-items/{{.ID}}/ready" class="ui-form">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+                                            <button type="submit" class="ui-control">Mark ready</button>
+                                        </form>
+                                    {{end}}
+
+                                    {{if eq .FulfillmentStatus "Ready"}}
+                                        <form method="post" action="/barber/order-items/{{.ID}}/collect" class="ui-form">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+                                            <button type="submit" class="ui-control">Mark collected</button>
+                                        </form>
+                                    {{end}}
+
+                                    {{if or (eq .FulfillmentStatus "Pending") (eq .FulfillmentStatus "Ready")}}
+                                        <form method="post" action="/barber/order-items/{{.ID}}/cancel" class="ui-form">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+                                            <button type="submit" class="ui-control">Cancel item and restore stock</button>
+                                        </form>
+                                    {{end}}
                                 </td>
 
                             </tr>
@@ -297,11 +232,7 @@
         {{else}}
 
             <div class="barber-card ui-panel">
-
-                <p>
-                    No customers have ordered your products yet.
-                </p>
-
+                <p>No customers have ordered your products yet.</p>
             </div>
 
         {{end}}

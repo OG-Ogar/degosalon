@@ -38,11 +38,13 @@
 
         {{if .ProfileImage}}
             <img
-                class="fullscreen-image"
+                class="fullscreen-image barber-shop-photo"
                 src="{{.Barber.ProfileImage}}"
                 alt="{{.Barber.ShopName}}"
                 data-fullscreen-image
-                srcset="{{imageSrcset .Barber.ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+                srcset="{{imageSrcset .Barber.ProfileImage}}"
+                sizes="(max-width: 600px) 100vw, 700px"
+                width="640" height="480" loading="lazy" decoding="async">
         {{else}}
             <p class="barber-hint">
                 You have not added a shop photo yet.

@@ -54,30 +54,47 @@ document.addEventListener("DOMContentLoaded", () => {
         updateView();
     }
 
-    // Keep links and selection labels intact; enlargement is a separate action.
+    function openViewer(index) {
+        currentIndex = index;
+        updateView();
+        dialog.showModal();
+        document.body.classList.add("image-viewer-open");
+        closeButton.focus();
+    }
+
+    // Every photo with data-fullscreen-image becomes a tap-to-zoom control.
+    // There is no visible button or wording: tapping the photo opens it.
+    // Profile-link photos keep their navigation, and photos inside a service
+    // selection label zoom instead of choosing the service, so the rest of
+    // that card stays the way to select it.
     document.querySelectorAll("img[data-fullscreen-image]").forEach((image) => {
         if (image.closest("a")) return;
         image.removeAttribute("data-fullscreen-image");
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "image-viewer-trigger";
-        button.textContent = "Enlarge image";
-        button.setAttribute("aria-label", "Enlarge " + (image.alt || "image"));
-        button.setAttribute("aria-haspopup", "dialog");
+
         const label = image.closest("label");
-        if (label) label.after(button);
-        else image.after(button);
-
         const index = gallery.length;
-        gallery.push({ image, button });
+        gallery.push({ image, button: image });
 
-        button.addEventListener("click", () => {
-            currentIndex = index;
-            opener = button;
-            updateView();
-            dialog.showModal();
-            document.body.classList.add("image-viewer-open");
-            closeButton.focus();
+        image.classList.add("image-zoomable");
+        image.setAttribute("role", "button");
+        image.setAttribute("tabindex", "0");
+        if (!image.alt) image.setAttribute("aria-label", "Photo");
+
+        function activate(event) {
+            if (label) {
+                // Tapping the photo must not also choose the service.
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            openViewer(index);
+        }
+
+        image.addEventListener("click", activate);
+        image.addEventListener("keydown", (event) => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                activate(event);
+            }
         });
     });
 

@@ -26,13 +26,14 @@ type customerDashboardView struct {
 	CSRF            string
 	OrderPagination listPagination
 	UpcomingCount   int
-
-	Barbers       int
-	States        []string
-	Upcoming      []bookingRow
-	Pending       int
-	Conversations int
-	CartCount     int
+	SelectedState   string
+	SelectedArea    string
+	Barbers         int
+	States          []string
+	Upcoming        []bookingRow
+	Pending         int
+	Conversations   int
+	CartCount       int
 
 	ProductOrders []models.ProductOrder
 

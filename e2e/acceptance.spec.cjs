@@ -76,7 +76,7 @@ test('touch navigation and broken media retain usable populated views',async({br
  for(const route of routes){await page.goto(route);const images=page.locator('main img:not(.image-viewer-image)');expect(await images.count()).toBeGreaterThan(0);await expect.poll(()=>images.evaluateAll(images=>images.every(img=>img.complete&&img.naturalWidth===0))).toBe(true);
  const missingAlt=await images.evaluateAll(images=>images.filter(img=>!img.getAttribute('alt')&&img.getAttribute('aria-hidden')!=='true').map(img=>img.className));expect(missingAlt).toEqual([]);
  await assertAccessible(page,testInfo,family+'-broken-media-'+route.split('?')[0].replaceAll('/','-'));
- if(family==='public'){await page.locator('.image-viewer-trigger').first().tap();await expect(page.getByRole('dialog',{name:'Full-size image'})).toBeVisible();await page.getByRole('button',{name:'Close image',exact:true}).tap();await expect(page.getByRole('dialog')).not.toBeVisible();}
+ if(family==='public'){const photo=page.locator('main img.image-zoomable').first();await photo.tap();await expect(page.getByRole('dialog',{name:'Full-size image'})).toBeVisible();await page.getByRole('button',{name:'Close image',exact:true}).tap();await expect(page.getByRole('dialog')).not.toBeVisible();}
  }
  }finally{await context.close();}
  }

@@ -98,18 +98,12 @@
     border-color: var(--signal, #f4cb78);
     color: var(--signal, #f4cb78);
 }
-.image-viewer-trigger {
-    display: block;
-    min-height: 44px;
-    margin: 8px 0;
-    padding: 8px 16px;
-    border: 1px solid currentColor;
-    border-radius: 8px;
-    background: white;
-    color: #222;
-    cursor: pointer;
+/* Any photo that can be opened is tappable directly, with no visible
+   button or label. The zoom cursor and focus ring are the only affordances. */
+img.image-zoomable {
+    cursor: zoom-in;
 }
-.image-viewer-trigger:focus-visible, .image-viewer-close:focus-visible, .image-viewer-prev:focus-visible, .image-viewer-next:focus-visible {
+img.image-zoomable:focus-visible, .image-viewer-close:focus-visible, .image-viewer-prev:focus-visible, .image-viewer-next:focus-visible {
     outline: 3px solid var(--signal, #f4cb78);
     outline-offset: 3px;
 }

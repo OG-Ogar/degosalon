@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	_ "golang.org/x/image/webp"
 	"image"
 	"image/color"
 	_ "image/gif"
@@ -11,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	_ "golang.org/x/image/webp"
 )
 
 const (
@@ -53,20 +54,72 @@ func normalizeStoredImage(path string) error {
 		return fmt.Errorf("open image: %w", err)
 	}
 	defer file.Close()
+
 	config, format, err := image.DecodeConfig(file)
 	if err != nil {
 		return fmt.Errorf("read image dimensions: %w", err)
 	}
-	if config.Width < 1 || config.Height < 1 || config.Width > maxImageDimension || config.Height > maxImageDimension || config.Width > maxImagePixels/config.Height {
+
+	if config.Width < 1 ||
+		config.Height < 1 ||
+		config.Width > maxImageDimension ||
+		config.Height > maxImageDimension ||
+		config.Width > maxImagePixels/config.Height {
 		return fmt.Errorf("image exceeds the limit of 16 megapixels or 10000 pixels per side")
 	}
-	expected := map[string]string{".jpg": "jpeg", ".jpeg": "jpeg", ".png": "png", ".gif": "gif", ".webp": "webp"}[extension]
-	if expected == "" || format != expected {
-		return fmt.Errorf("image content does not match its filename type")
+
+	// Verify that the filename extension matches the actual image format.
+	// JPEG files may use either .jpg or .jpeg.
+	switch format {
+	case "jpeg":
+		if extension != ".jpg" && extension != ".jpeg" {
+			return fmt.Errorf(
+				"image extension %q does not match detected format %q",
+				extension,
+				format,
+			)
+		}
+		extension = ".jpg"
+
+	case "png":
+		if extension != ".png" {
+			return fmt.Errorf(
+				"image extension %q does not match detected format %q",
+				extension,
+				format,
+			)
+		}
+		extension = ".png"
+
+	case "gif":
+		if extension != ".gif" {
+			return fmt.Errorf(
+				"image extension %q does not match detected format %q",
+				extension,
+				format,
+			)
+		}
+		extension = ".gif"
+
+	case "webp":
+		if extension != ".webp" {
+			return fmt.Errorf(
+				"image extension %q does not match detected format %q",
+				extension,
+				format,
+			)
+		}
+		extension = ".webp"
+
+	default:
+		return fmt.Errorf("unsupported image format")
 	}
+
+	// Preserve GIF and WEBP encoded content, including animation.
 	if extension == ".gif" || extension == ".webp" {
 		return nil
 	}
+
 	if _, err := file.Seek(0, 0); err != nil {
 		return fmt.Errorf("rewind image: %w", err)
 	}

@@ -1,0 +1,295 @@
+/* Chat composer layout */
+.chat-composer {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+
+/* The real file input is never drawn. The + label still opens it. */
+.chat-composer input[type="file"] {
+    display: none !important;
+}
+
+/* Photo button, message box, mic and Send share one row.
+   The row wraps so extras (such as a character counter) drop to their own line. */
+.composer-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Anything else injected into the row (e.g. "1000 characters left")
+   goes on its own small line below the controls. */
+.composer-row > *:not(.composer-plus):not(textarea):not(.composer-mic):not(.composer-send):not(input) {
+    order: 10;
+    flex: 0 0 100%;
+    width: 100%;
+    margin: 0;
+    font-size: 0.75rem;
+    line-height: 1.2;
+    text-align: right;
+    opacity: 0.7;
+}
+
+/* Message input: takes all the space left in the row */
+.composer-row textarea {
+    flex: 1 1 0%;
+    width: 0;
+    min-width: 0;
+    max-width: none;
+    min-height: 48px;
+    max-height: 140px;
+    padding: 12px;
+    line-height: 1.4;
+    resize: none;
+    overflow-y: auto;
+    border-radius: 12px;
+    box-sizing: border-box;
+}
+
+/* Photo attachment and microphone controls */
+.composer-plus,
+.composer-mic {
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    min-height: 44px;
+    max-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: 0 !important;
+    border: 1px solid var(--border, #355348);
+    border-radius: 50%;
+    background: var(--surface, #193129);
+    color: var(--ink, #f8f5e9);
+    font-size: 1.6rem;
+    line-height: 1;
+    cursor: pointer;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
+}
+
+.composer-mic svg {
+    display: block;
+    flex: 0 0 22px;
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    overflow: visible;
+}
+
+.composer-mic[hidden] {
+    display: none !important;
+}
+
+.composer-mic.recording {
+    background: #c0392b;
+    border-color: #c0392b;
+    color: #fff;
+    animation: rec-pulse 1s infinite;
+}
+
+@keyframes rec-pulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 0 10px rgba(192, 57, 43, 0);
+    }
+}
+
+/* Mic when the box is empty, Send when there is text or a photo. */
+.chat-composer.has-content .composer-mic {
+    display: none !important;
+}
+
+.chat-composer .composer-send {
+    display: none;
+    flex: 0 0 auto;
+}
+
+.chat-composer.has-content .composer-send {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-composer:not(.has-content) .composer-send {
+    display: none;
+}
+
+/* Photo preview: small thumbnail drawn as a background image so the
+   tap-to-zoom viewer cannot enlarge it. The JS sets the background. */
+.chat-composer .composer-preview {
+    position: relative;
+    align-self: flex-start;
+    flex: 0 0 auto;
+    width: 96px !important;
+    height: 96px !important;
+    max-width: 96px;
+    max-height: 96px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border, #355348);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.chat-composer .composer-preview[hidden] {
+    display: none !important;
+}
+
+.chat-composer .composer-preview img {
+    display: none !important;
+}
+
+.composer-preview-remove {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    width: 28px;
+    height: 28px;
+    min-height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.75);
+    color: #fff;
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+/* Voice recording status */
+.composer-recording {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 10px;
+    background: rgba(192, 57, 43, 0.15);
+    color: var(--ink, #f8f5e9);
+    font-size: 0.9rem;
+}
+
+.composer-recording[hidden] {
+    display: none !important;
+}
+
+.rec-dot {
+    width: 10px;
+    height: 10px;
+    flex: 0 0 10px;
+    border-radius: 50%;
+    background: #e74c3c;
+    animation: rec-pulse 1s infinite;
+}
+
+.rec-hint {
+    margin-left: auto;
+    font-size: 0.75rem;
+    opacity: 0.8;
+}
+
+/* Attachments inside message bubbles */
+.chat-photo-link {
+    display: block;
+    margin: 0.35rem 0;
+}
+
+.chat-photo {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    max-height: 320px;
+    object-fit: cover;
+    border-radius: 12px;
+}
+
+.chat-audio {
+    display: block;
+    width: 100%;
+    max-width: 260px;
+    margin: 0.35rem 0;
+}
+
+/* Override the older chat form grid layout. */
+.messaging-page form.chat-composer.send,
+.customer-chat form.chat-composer.send,
+.barber-chat form.chat-composer.send {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    grid-template-columns: none;
+    width: 100%;
+    min-width: 0;
+}
+
+.messaging-page form.chat-composer.send .composer-row,
+.customer-chat form.chat-composer.send .composer-row,
+.barber-chat form.chat-composer.send .composer-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-width: 0;
+}
+
+.messaging-page form.chat-composer.send .composer-row textarea,
+.customer-chat form.chat-composer.send .composer-row textarea,
+.barber-chat form.chat-composer.send .composer-row textarea {
+    flex: 1 1 0%;
+    width: 0;
+    min-width: 0;
+    max-width: none;
+}
+
+.messaging-page form.chat-composer.send .composer-row .composer-plus,
+.messaging-page form.chat-composer.send .composer-row .composer-mic,
+.customer-chat form.chat-composer.send .composer-row .composer-plus,
+.customer-chat form.chat-composer.send .composer-row .composer-mic,
+.barber-chat form.chat-composer.send .composer-row .composer-plus,
+.barber-chat form.chat-composer.send .composer-row .composer-mic {
+    flex: 0 0 44px;
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
+    height: 44px;
+    min-height: 44px;
+    padding: 0 !important;
+}
+
+.messaging-page form.chat-composer.send .composer-mic svg,
+.customer-chat form.chat-composer.send .composer-mic svg,
+.barber-chat form.chat-composer.send .composer-mic svg {
+    display: block;
+    width: 22px;
+    height: 22px;
+    flex: 0 0 22px;
+    stroke: currentColor;
+}
+
+/* Small phones: slightly tighter controls so the text box stays wide */
+@media (max-width: 480px) {
+    .composer-row textarea {
+        min-height: 44px;
+        padding: 10px 12px;
+        font-size: 16px; /* stops iOS zooming in when the box is focused */
+    }
+}

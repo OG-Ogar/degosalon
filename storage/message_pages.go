@@ -23,10 +23,10 @@ func MessagePage(ctx context.Context, barberID, customerID int, cursor PageCurso
 	var items []models.Message
 	if databaseEnabled() {
 		args := []any{barberID, customerID}
-		query := `select id,barber_id,customer_id,sender_role,sender_name,text,sent_at from public.messages where barber_id=$1 and customer_id=$2` + pageSQL("id", cursor, false, &args)
+		query := `select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,sent_at from public.messages where barber_id=$1 and customer_id=$2` + pageSQL("id", cursor, false, &args)
 		items, err = queryRecords(ctx, query, func(rows *sql.Rows) (models.Message, error) {
 			var m models.Message
-			err := rows.Scan(&m.ID, &m.BarberID, &m.CustomerID, &m.SenderRole, &m.SenderName, &m.Text, &m.SentAt)
+			err := rows.Scan(&m.ID, &m.BarberID, &m.CustomerID, &m.SenderRole, &m.SenderName, &m.Text, &m.Image, &m.Audio, &m.SentAt)
 			return m, err
 		}, args...)
 		if err != nil {
@@ -98,7 +98,7 @@ func conversationPage(ctx context.Context, role string, id int, cursor PageCurso
    select * from latest where true` + pageSQL("last_id", cursor, false, &args) + `
   ), counts as (
    select m.barber_id,m.customer_id,count(*) as total from public.messages m join page p on p.barber_id=m.barber_id and p.customer_id=m.customer_id group by m.barber_id,m.customer_id
-  ) select p.barber_id,p.customer_id,m.text,m.sent_at,c.total,p.last_id,coalesce(b.full_name,'` + fallback + `'),coalesce(` + detail + `,''),coalesce(` + image + `,'')
+  ) select p.barber_id,p.customer_id,(case when m.text<>'' then m.text when m.image<>'' then 'Photo' when m.audio<>'' then 'Voice note' else '' end),m.sent_at,c.total,p.last_id,coalesce(b.full_name,'` + fallback + `'),coalesce(` + detail + `,''),coalesce(` + image + `,'')
   from page p join public.messages m on m.id=p.last_id join counts c on c.barber_id=p.barber_id and c.customer_id=p.customer_id
   left join ` + participant + ` b on b.id=` + join
 		direction := "desc"
@@ -131,7 +131,7 @@ func conversationPage(ctx context.Context, role string, id int, cursor PageCurso
 			card.Count++
 			if m.ID > card.LastID {
 				card.LastID = m.ID
-				card.LastText = m.Text
+				card.LastText = messagePreview(m)
 				card.LastAt = m.SentAt
 			}
 		}

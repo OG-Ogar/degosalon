@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"sort"
 	"time"
 
@@ -21,6 +22,20 @@ type Conversation struct {
 	Count    int
 }
 
+// messagePreview is the one-line text shown in a conversation list. A
+// message with only a photo or voice note has no text, so it gets a label.
+func messagePreview(m models.Message) string {
+	switch {
+	case m.Text != "":
+		return m.Text
+	case m.Image != "":
+		return "Photo"
+	case m.Audio != "":
+		return "Voice note"
+	}
+	return ""
+}
+
 // AddMessage assigns an ID and appends the message to its conversation.
 func AddMessage(ctx context.Context, message models.Message) (models.Message, error) {
 	ctx, cancel := databaseContext(ctx)
@@ -33,7 +48,7 @@ func AddMessage(ctx context.Context, message models.Message) (models.Message, er
 		if message.SentAt.IsZero() {
 			message.SentAt = time.Now()
 		}
-		err := db.QueryRowContext(ctx, "insert into public.messages(barber_id,customer_id,sender_role,sender_name,text,sent_at) values($1,$2,$3,$4,$5,$6) returning id", message.BarberID, message.CustomerID, message.SenderRole, message.SenderName, message.Text, message.SentAt).Scan(&message.ID)
+		err := db.QueryRowContext(ctx, "insert into public.messages(barber_id,customer_id,sender_role,sender_name,text,image,audio,sent_at) values($1,$2,$3,$4,$5,$6,$7,$8) returning id", message.BarberID, message.CustomerID, message.SenderRole, message.SenderName, message.Text, message.Image, message.Audio, message.SentAt).Scan(&message.ID)
 		return message, err
 	}
 	mu.Lock()
@@ -58,6 +73,33 @@ func AddMessage(ctx context.Context, message models.Message) (models.Message, er
 	return message, nil
 }
 
+// FindMessage returns one message by ID. The chat attachment route uses it
+// to check that the viewer belongs to the conversation before serving a file.
+func FindMessage(ctx context.Context, id int) (models.Message, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
+	if err := ctx.Err(); err != nil {
+		return models.Message{}, err
+	}
+	if databaseEnabled() {
+		var v models.Message
+		err := db.QueryRowContext(ctx, "select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,sent_at from public.messages where id=$1", id).Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.SenderRole, &v.SenderName, &v.Text, &v.Image, &v.Audio, &v.SentAt)
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Message{}, ErrNotFound
+		}
+		return v, err
+	}
+	mu.RLock()
+	defer mu.RUnlock()
+	for _, v := range messages {
+		if v.ID == id {
+			return v, nil
+		}
+	}
+	return models.Message{}, ErrNotFound
+}
+
 // ListConversation returns the messages between one barber and one
 // customer, oldest first.
 func ListConversation(ctx context.Context, barberID, customerID int) ([]models.Message, error) {
@@ -68,9 +110,9 @@ func ListConversation(ctx context.Context, barberID, customerID int) ([]models.M
 		return nil, err
 	}
 	if databaseEnabled() {
-		return queryRecords(ctx, "select id,barber_id,customer_id,sender_role,sender_name,text,sent_at from public.messages where barber_id=$1 and customer_id=$2 order by id", func(rows *sql.Rows) (models.Message, error) {
+		return queryRecords(ctx, "select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,sent_at from public.messages where barber_id=$1 and customer_id=$2 order by id", func(rows *sql.Rows) (models.Message, error) {
 			var v models.Message
-			err := rows.Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.SenderRole, &v.SenderName, &v.Text, &v.SentAt)
+			err := rows.Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.SenderRole, &v.SenderName, &v.Text, &v.Image, &v.Audio, &v.SentAt)
 			return v, err
 		}, barberID, customerID)
 	}
@@ -115,7 +157,9 @@ func scopedConversations(ctx context.Context, field string, id int) ([]Conversat
 	}
 	if databaseEnabled() {
 		query := `select barber_id,customer_id,text,sent_at,message_count from (
-   select distinct on (m.barber_id,m.customer_id) m.barber_id,m.customer_id,m.text,m.sent_at,
+   select distinct on (m.barber_id,m.customer_id) m.barber_id,m.customer_id,
+   (case when m.text<>'' then m.text when m.image<>'' then 'Photo' when m.audio<>'' then 'Voice note' else '' end) as text,
+   m.sent_at,
    count(*) over(partition by m.barber_id,m.customer_id) as message_count
    from public.messages m where m.` + field + `=$1 order by m.barber_id,m.customer_id,m.sent_at desc,m.id desc
   ) latest order by sent_at desc,barber_id,customer_id`
@@ -151,7 +195,7 @@ func summariseMessages(source []models.Message, match func(models.Message) bool)
 		conversation.Count++
 		if !message.SentAt.Before(conversation.LastAt) {
 			conversation.LastAt = message.SentAt
-			conversation.LastText = message.Text
+			conversation.LastText = messagePreview(message)
 		}
 	}
 	list := make([]Conversation, 0, len(index))

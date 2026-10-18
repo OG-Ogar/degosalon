@@ -115,3 +115,24 @@ func TestSellerSalesRemainScopedAndIncludeCustomerDetails(t *testing.T) {
 		t.Fatalf("sales: %+v, %v", items, err)
 	}
 }
+
+func TestSellerSalesIncludeTheProductPhoto(t *testing.T) {
+	Reset()
+	t.Cleanup(Reset)
+	order, err := CreateProductOrder(models.ProductOrder{CustomerID: 1, CustomerName: "Buyer", Status: models.OrderPending})
+	if err != nil {
+		t.Fatal(err)
+	}
+	seller := newBarber(t, "sales_photo@example.com")
+	product, err := CreateProduct(models.Product{BarberID: seller.ID, Name: "Item", Category: "Care", Price: 1250, Quantity: 1, IsAvailable: true, Image: "/uploads/products/example.png"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err := CreateProductOrderItem(models.ProductOrderItem{OrderID: order.ID, ProductID: product.ID, BarberID: seller.ID, ProductName: "Item", Quantity: 1}); err != nil {
+		t.Fatal(err)
+	}
+	items, err := ListProductOrderItemsByBarber(context.Background(), seller.ID)
+	if err != nil || len(items) != 1 || items[0].ProductImage != "/uploads/products/example.png" {
+		t.Fatalf("product photo: %+v, %v", items, err)
+	}
+}

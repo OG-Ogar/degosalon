@@ -1,11 +1,30 @@
 package main
 
 import (
+	"net/http"
+	"net/http/httptest"
 	"os"
 	"os/exec"
 	"strings"
 	"testing"
 )
+
+func TestRevalidateAsksBrowsersToCheckWithTheServer(t *testing.T) {
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Last-Modified", "Wed, 21 Oct 2015 07:28:00 GMT")
+		w.WriteHeader(http.StatusNotModified)
+	})
+
+	recorder := httptest.NewRecorder()
+	revalidate(next).ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/static/app.js", nil))
+
+	if got := recorder.Header().Get("Cache-Control"); got != "no-cache" {
+		t.Fatalf("Cache-Control = %q, want no-cache", got)
+	}
+	if recorder.Code != http.StatusNotModified {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusNotModified)
+	}
+}
 
 func TestProductionStartupRejectsMemoryBeforeServing(t *testing.T) {
 	if os.Getenv("DEGOSALON_STARTUP_TEST") == "1" {

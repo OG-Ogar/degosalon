@@ -31,6 +31,17 @@ func listenAddress() string {
 	return ":8080"
 }
 
+// revalidate asks browsers to check with the server before reusing a cached
+// copy. Static assets change with every deploy, and the file server answers
+// 304 Not Modified when nothing changed, so this keeps a stale stylesheet or
+// script from surviving a deploy without a hard refresh.
+func revalidate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache")
+		next.ServeHTTP(w, r)
+	})
+}
+
 func main() {
 	slog.SetDefault(slog.New(slog.NewJSONHandler(os.Stderr, nil)))
 	if err := run(); err != nil {
@@ -126,7 +137,7 @@ func run() error {
 
 	mux.Handle(
 		"/static/",
-		http.StripPrefix("/static/", http.FileServer(http.Dir("static"))),
+		revalidate(http.StripPrefix("/static/", http.FileServer(http.Dir("static")))),
 	)
 
 	server := &http.Server{

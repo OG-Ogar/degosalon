@@ -29,7 +29,6 @@
 .public-profile-page .barber-main{overflow-wrap:anywhere}
 .public-profile-page .public-style-card,.public-profile-page .public-product-card,.public-profile-page .public-review-card,.public-profile-page .empty-state,.public-profile-page .shop-final-cta{background:var(--surface)}
 .public-profile-page .public-style-image,.public-profile-page .barber-photo{position:relative}
-.public-profile-page :is(.public-style-image,.barber-photo)>.image-viewer-trigger{position:absolute;bottom:12px;right:12px;margin:0;max-width:calc(100% - 24px)}
 .public-profile-page .public-product-card{display:grid;grid-template-columns:minmax(0,1fr) auto}
 .public-profile-page .public-product-card .public-style-image,.public-profile-page .public-product-card .book-button{grid-column:1/-1}
 .public-profile-page .product-price{white-space:nowrap}

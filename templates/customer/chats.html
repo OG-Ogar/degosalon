@@ -15,6 +15,8 @@
 
 <link rel="stylesheet" href="/static/messages.css">
 <link rel="stylesheet" href="/static/ui.css">
+<link rel="stylesheet" href="/static/image-viewer.css">
+<script src="/static/image-viewer.js" defer></script>
 </head>
 
 
@@ -78,6 +80,7 @@
                                 class="barber-photo customer-chat-avatar"
                                 src="{{.BarberImage}}" loading="lazy" decoding="async"
                                 alt="{{.Name}}"
+                                data-fullscreen-image
                              srcset="{{imageSrcset .BarberImage}}" sizes="96px" width="640" height="480">
 
                         {{else}}

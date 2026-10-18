@@ -50,6 +50,8 @@
         <section class="location-panel customer-location-panel">
             <div class="location-copy"><span class="step-number">01</span><div><p class="eyebrow">Location first</p><h2>Where do you need a barber?</h2><p>Choose your state and optionally narrow the results to your LGA or area council.</p></div></div>
             <form class="location-form ui-form" method="get" action="/customer/barbers">
+                <div class="location-field ui-field"><label for="q">Barber or shop name <span>Optional</span></label>
+                <input id="q" name="q" type="search" value="{{.Query}}" placeholder="e.g. Dego Cuts" maxlength="80"></div>
                 <div class="location-field ui-field"><label for="state">State</label>
                 {{template "geography-state" .SelectedState}}</div>
                 <div class="location-field ui-field"><label for="area">LGA / area council <span>Optional</span></label>
@@ -58,7 +60,7 @@
             </form>
         </section>
 
-        {{if .SelectedState}}<p class="discovery-count">{{.Total}} active shops in this location. Up to 24 shops per page.</p>{{end}}
+        {{if or .SelectedState .Query}}<p class="discovery-count">.{{.Total}} active shops in this location. Up to 24 shops per page.</p>{{end}}
         {{if .Items}}
 
             <!-- Search & Quick Filters -->
@@ -118,7 +120,7 @@
 
                             <!-- Barber image -->
                             <a class="barber-image"
-                               href="{{discoveryCardPath "/customer/barbers" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">
+                               href="{{discoveryCardPath "/customer/barbers" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before $.Query}}">
 
                                 {{if .ProfileImage}}
 

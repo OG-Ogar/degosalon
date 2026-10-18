@@ -39,7 +39,7 @@ func ConfirmDeleteHairstyleHandler(
 
 	render(w, "barber/confirm-delete-hairstyle.html", confirmDeleteView{
 		Title:   "Archive hairstyle",
-		Message: "Archive " + hairstyle.Name + "? It will leave your catalogue. Existing bookings and media will be retained.",
+		Message: "delete " + hairstyle.Name + "? Are you sure you want to delete this photo?",
 		Action:  hairstylePath(hairstyle.ID, "delete"),
 		Cancel:  "/barber/hairstyles",
 		CSRF:    s.CSRFToken,

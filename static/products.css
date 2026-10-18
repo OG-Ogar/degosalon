@@ -186,7 +186,7 @@ PRODUCT PHOTO
     display: block;
 
     width: 100%;
-    height: 220px;
+    height: 150px;
 
     object-fit: cover;
 }
@@ -194,7 +194,6 @@ PRODUCT PHOTO
 .fullscreen-image {
     cursor: zoom-in;
 }
-
 .product-image-placeholder {
     display: flex;
 
@@ -684,3 +683,33 @@ RESPONSIVE
 .cart-quantity-form button{min-height:44px;padding:.6rem .85rem;border:1px solid var(--gold,#d6b777);border-radius:8px;background:var(--forest-900,#10382d);color:var(--cream,#f4f0df);cursor:pointer}
 .cart-quantity-form :focus-visible{outline:3px solid var(--gold,#d6b777);outline-offset:3px}
 .cart-problem{padding:1rem;border:1px solid var(--gold,#d6b777);border-radius:12px;color:var(--cream,#f4f0df);background:var(--forest-900,#10382d)}
+
+.cart-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    padding: 0 0.35rem;
+    margin-left: 0.4rem;
+    border-radius: 999px;
+    background: var(--signal, #f4cb78);
+    color: #10221d;
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+.cart-count-badge[hidden] { display: none; }
+
+.quick-add-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 5.5rem;
+    transform: translateX(-50%);
+    z-index: 50;
+    padding: 0.6rem 1rem;
+    border-radius: 10px;
+    background: var(--surface, #193129);
+    border: 1px solid var(--border, #355348);
+    color: var(--ink, #f8f5e9);
+    font-size: 0.9rem;
+}

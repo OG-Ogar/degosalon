@@ -9,6 +9,10 @@
 
     <link rel="stylesheet" href="/static/messages.css">
     <link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/image-viewer.css">
+    <link rel="stylesheet" href="/static/chat-attachments.css">
+    <script src="/static/image-viewer.js" defer></script>
+    <script src="/static/chat-attachments.js" defer></script>
 </head>
 
 <body class="barber-page modern-role-page modern-barber-page messaging-page">
@@ -33,6 +37,7 @@
                             class="customer-photo"
                             src="{{.CustomerImage}}"
                             alt="{{.Title}}"
+                            data-fullscreen-image
                             srcset="{{imageSrcset .CustomerImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
                     {{else}}
                         <div
@@ -91,9 +96,22 @@
                                     {{.SenderName}}
                                 </span>
 
-                                <p class="text">
-                                    {{.Text}}
-                                </p>
+                                {{if .Image}}
+                                    <a class="chat-photo-link" href="{{.Image}}" target="_blank" rel="noopener">
+                                        <img class="chat-photo" src="{{.Image}}"
+                                             alt="Photo sent by {{.SenderName}}" loading="lazy" decoding="async">
+                                    </a>
+                                {{end}}
+
+                                {{if .Audio}}
+                                    <audio class="chat-audio" controls preload="none" src="{{.Audio}}"></audio>
+                                {{end}}
+
+                                {{if .Text}}
+                                    <p class="text">
+                                        {{.Text}}
+                                    </p>
+                                {{end}}
 
                                 <div class="bubble-meta">
                                     <span class="when">
@@ -127,9 +145,11 @@
                 </div>
 
                 <form
-                    class="send"
+                    class="send chat-composer"
                     method="post"
                     action="{{.Action}}"
+                    enctype="multipart/form-data"
+                    data-chat-composer
                     {{if .Error}}aria-describedby="form-error"{{end}}>
 
                     <input
@@ -138,25 +158,52 @@
                         value="{{.CSRF}}"
                     >
 
-                    <label
-                        class="visually-hidden"
-                        for="text">
-                        Your message
-                    </label>
+                    <div class="composer-preview" data-photo-preview hidden>
+                        <img alt="Selected photo" data-photo-preview-img>
+                        <button type="button" class="composer-preview-remove" data-photo-remove aria-label="Remove photo">×</button>
+                    </div>
 
-                    <textarea
-                        id="text"
-                        name="text"
-                        maxlength="1000"
-                        placeholder="Reply to this customer (Press Enter to send)"
-                        required
-                    ></textarea>
+                    <div class="composer-recording" data-recording-bar hidden role="status">
+                        <span class="rec-dot" aria-hidden="true"></span>
+                        <span data-recording-time>0:00</span>
+                        <span class="rec-hint">Release to send · slide away to cancel</span>
+                    </div>
 
-                    <button
-                        class="primary ui-control"
-                        type="submit">
-                        Send
-                    </button>
+                    <div class="composer-row">
+
+                        <label class="composer-plus" for="chat-photo" title="Add a photo">
+                            <span aria-hidden="true">+</span>
+                            <span class="visually-hidden">Add a photo</span>
+                        </label>
+                        <input
+                            id="chat-photo"
+                            class="visually-hidden"
+                            type="file"
+                            name="photo"
+                            accept="image/jpeg,image/png,image/webp"
+                            data-photo-input>
+
+                        <label class="visually-hidden" for="text">Your message</label>
+                        <textarea
+                            id="text"
+                            name="text"
+                            maxlength="1000"
+                            rows="1"
+                            placeholder="Reply to this customer (Press Enter to send)"
+                        ></textarea>
+
+                        <button type="button" class="composer-mic" data-mic aria-label="Hold to record a voice message" title="Hold to record">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg>
+                        </button>
+
+                        <button
+                            class="primary ui-control composer-send"
+                            type="submit"
+                            data-send>
+                            Send
+                        </button>
+
+                    </div>
 
                 </form>
 

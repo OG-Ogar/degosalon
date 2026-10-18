@@ -95,6 +95,15 @@ var allowedVideoExtensions = map[string]bool{
 
 var errNoUpload = errors.New("no file uploaded")
 
+// isNoUpload reports whether a FormFile error means the request simply
+// carried no file, rather than a real upload failure. ErrMissingFile covers a
+// multipart request without that field; ErrNotMultipart covers an ordinary
+// application/x-www-form-urlencoded body, which can never contain a file. An
+// optional attachment on such a form must be treated as absent, not rejected.
+func isNoUpload(err error) bool {
+	return errors.Is(err, http.ErrMissingFile) || errors.Is(err, http.ErrNotMultipart)
+}
+
 const (
 	landingImageRecord         = "uploads/site/landing-image.txt"
 	customerLandingImageRecord = "uploads/site/customer-landing-image.txt"
@@ -123,7 +132,7 @@ func limitVideoRequestBody(w http.ResponseWriter, r *http.Request) {
 func (store imageStore) save(r *http.Request, field string) (string, error) {
 	file, header, err := r.FormFile(field)
 	if err != nil {
-		if errors.Is(err, http.ErrMissingFile) {
+		if isNoUpload(err) {
 			return "", errNoUpload
 		}
 
@@ -266,7 +275,7 @@ func persistMedia(r *http.Request, urlPath, name, path string) (string, error) {
 func (store videoStore) save(r *http.Request, field string) (string, error) {
 	file, header, err := r.FormFile(field)
 	if err != nil {
-		if errors.Is(err, http.ErrMissingFile) {
+		if isNoUpload(err) {
 			return "", errNoUpload
 		}
 

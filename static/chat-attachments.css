@@ -26,8 +26,10 @@
 }
 
 /* Anything else injected into the row (e.g. "1000 characters left")
-   goes on its own small line below the controls. */
-.composer-row > *:not(.composer-plus):not(textarea):not(.composer-mic):not(.composer-send):not(input) {
+   goes on its own small line below the controls. The screen-reader-only
+   label is excluded: forcing it to width:100% would out-specify
+   .visually-hidden and let the hidden label overflow the page. */
+.composer-row > *:not(.composer-plus):not(textarea):not(.composer-mic):not(.composer-send):not(input):not(.visually-hidden) {
     order: 10;
     flex: 0 0 100%;
     width: 100%;

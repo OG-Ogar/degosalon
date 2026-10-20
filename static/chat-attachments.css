@@ -297,6 +297,50 @@
     margin: 0.35rem 0;
 }
 
+/* A voice note keeps its player, its download link and the message shown
+   when the device cannot decode the recording. */
+.chat-audio-wrap {
+    margin: 0.35rem 0;
+}
+
+.chat-audio-wrap .chat-audio {
+    margin: 0;
+}
+
+.chat-audio-download {
+    display: inline-flex;
+    align-items: center;
+
+    min-height: 32px;
+
+    margin-top: 6px;
+    padding: 0 10px;
+
+    border: 1px solid var(--border-hi, #527466);
+    border-radius: 999px;
+
+    background: rgba(25, 49, 41, 0.6);
+    color: var(--ink, #f8f5e9);
+
+    font-size: 0.7rem;
+    font-weight: 800;
+
+    text-decoration: none;
+}
+
+.chat-audio-download:hover {
+    border-color: var(--signal, #f4cb78);
+    color: var(--signal, #f4cb78);
+}
+
+.chat-audio-warning {
+    margin: 6px 0 0;
+
+    color: var(--ink-faint, #9db9a8);
+    font-size: 0.72rem;
+    line-height: 1.45;
+}
+
 .chat-video {
     display: block;
     width: 100%;

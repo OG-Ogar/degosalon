@@ -45,6 +45,7 @@ Current capabilities:
 - Manage a weekly schedule with opening hours, breaks, and time off
 - View bookings and perform booking actions
 - View conversations and chat with customers
+- Record and send voice notes
 - Create, view, edit, and archive products
 - Fulfil collected product orders (Pending → Ready → Collected)
 
@@ -62,6 +63,7 @@ Current capabilities:
 - Add an appointment to a calendar (.ics or Google Calendar)
 - Cancel bookings
 - Chat with barbers
+- Record and send voice notes
 - Browse products in a grid of medium cards, with the photo and the clip of each product
 - Add products to a cart with quick add and quantity steppers
 - Place product orders and view order confirmation
@@ -131,6 +133,7 @@ The following were added after the original MVP documentation and are present in
 - **Cart and checkout ergonomics.** Quick add from the product catalogue, cart quantity steppers, and exact kobo arithmetic across checkout.
 - **Calendar export.** The booking confirmation can generate an `.ics` file or a Google Calendar link.
 - **Messaging upgrades.** Split-view conversations, quick-reply chips, an auto-expanding composer, a scroll-to-bottom control, and partner photos with fallbacks for both roles.
+- **Voice notes that play everywhere.** A held-to-record voice note is captured, converted to mono 16-bit WAV and stored, because AAC in an MP4 file — the format Chrome and Safari record — is not decodable on many phones and desktops, which show a silent player. A recording that captured no sound is reported instead of being sent, and a note the device still cannot play is shown with a download link beside the player.
 - **Social share.** Native Web Share API with an accessible fallback modal for X, Facebook, WhatsApp, and copy-link.
 - **App shell and public footer.** Shared navigation, pill navigation, and a footer across public and authenticated page families.
 - **Catalogue archival.** Removing a hairstyle or product archives it, retaining media and historical booking/order references, and blocks new use.

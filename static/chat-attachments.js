@@ -1,4 +1,20 @@
 (function () {
+  // ---------- Voice note playback ----------
+  // A note the browser cannot decode shows a player that stays silent. Say
+  // so, and keep the file one click away, so a note is never a dead end.
+  document.querySelectorAll('audio.chat-audio').forEach(function (audio) {
+    audio.addEventListener('error', function () {
+      var wrap = audio.parentNode;
+      var warning = wrap && wrap.querySelector('.chat-audio-warning');
+
+      if (warning) {
+        warning.hidden = false;
+      }
+    });
+  });
+})();
+
+(function () {
   var form = document.querySelector('[data-chat-composer]');
   if (!form) return;
 
@@ -11,6 +27,11 @@
   var SLIDE_CANCEL = 140;
   var VIDEO_EXTENSIONS = /\.(mp4|webm|mov|m4v|3gp)$/i;
   var WAV_RATE = 16000;
+
+  // SILENT_PEAK is the level below which a recording holds no audible
+  // sound. A muted microphone or a blocked one produces a note that plays
+  // as silence, so the recording is reported instead of being sent.
+  var SILENT_PEAK = 0.002;
 
   var photoInput = form.querySelector('[data-photo-input]');
   var preview = form.querySelector('[data-photo-preview]');
@@ -139,19 +160,20 @@
   var releasedWhileStarting = false;
   var cancelWhenReady = false;
 
-  // Prefer MP4/AAC everywhere it exists: iPhone Safari and modern Chrome can
-  // both record it, and both platforms can play it back. Older Android Chrome
-  // versions can only record WebM/Opus, which Safari refuses to play, so
-  // onStopped() converts those recordings to WAV (also playable on both).
+  // The container only decides what has to be decoded afterwards, so the
+  // one that decodes most reliably everywhere is preferred. WebM/Opus is
+  // what Chrome, Firefox and Android record, and every browser decodes it
+  // without trouble. Safari cannot record WebM and falls through to the
+  // MP4/AAC it can.
   function pickType() {
     var types = [
-      'audio/mp4;codecs=mp4a.40.2',
-      'audio/mp4',
-      'audio/aac',
       'audio/webm;codecs=opus',
       'audio/webm',
       'audio/ogg;codecs=opus',
-      'audio/ogg'
+      'audio/ogg',
+      'audio/mp4;codecs=mp4a.40.2',
+      'audio/mp4',
+      'audio/aac'
     ];
     for (var i = 0; i < types.length; i++) {
       if (MediaRecorder.isTypeSupported(types[i])) return types[i];
@@ -159,13 +181,18 @@
     return '';
   }
 
-  function isMp4(type) {
-    return type.indexOf('mp4') !== -1 || type.indexOf('m4a') !== -1;
-  }
-
-  // Convert a WebM/Ogg recording to mono 16-bit WAV. WAV is the only audio
-  // container every iPhone and Android browser plays without a plugin, so a
-  // note recorded on an older Android is still audible on an iPhone.
+  // Convert a recording to mono 16-bit WAV.
+  //
+  // Every recording is converted, whatever container the browser used. A
+  // note recorded as AAC in an MP4 file is the format Chrome and Safari
+  // prefer, but plenty of phones and desktops cannot decode it: Firefox
+  // without the AAC codecs, older Android browsers and several desktop
+  // players all show a silent player instead of the recording. WAV is the
+  // one container every browser plays without a plugin, so the note is
+  // stored in it and the recording is heard everywhere.
+  //
+  // The loudest sample is reported back as well, so a note that captured
+  // nothing but silence can be reported instead of sent as a silent file.
   function toWav(blob) {
     return new Promise(function (resolve, reject) {
       var AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -217,6 +244,7 @@
           // Mix to mono and resample with linear interpolation. 16 kHz keeps a
           // two-minute note near 3.8 MB while staying clear for speech.
           var sourceRate = buffer.sampleRate;
+          var peak = 0;
           for (var i = 0; i < frames; i++) {
             var position = i * sourceRate / WAV_RATE;
             var left = Math.floor(position);
@@ -230,11 +258,17 @@
 
             sample /= channels.length;
             sample = Math.max(-1, Math.min(1, sample));
+            if (Math.abs(sample) > peak) {
+              peak = Math.abs(sample);
+            }
             view.setInt16(44 + i * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
           }
 
           context.close();
-          resolve(new Blob([pcm], { type: 'audio/wav' }));
+          resolve({
+            blob: new Blob([pcm], { type: 'audio/wav' }),
+            peak: peak
+          });
         }).catch(function () {
           context.close();
           reject(new Error('could not decode the recording'));
@@ -371,29 +405,42 @@
       return;
     }
 
-    if (isMp4(type)) {
-      sendVoice(blob, type);
-      return;
-    }
-
-    // Older Android browsers record WebM/Opus. Convert it so an iPhone can
-    // play the note too, instead of silently sending a format Safari rejects.
+    // The recording is converted to WAV so every phone and desktop can
+    // play it. If the conversion is not possible on this device, the
+    // recording is sent as it was captured rather than lost.
     phase = 'sending';
     mic.disabled = true;
     status('Preparing voice note…', false);
 
-    toWav(blob).then(function (wav) {
-      if (wav.size > MAX_VOICE) {
+    toWav(blob).then(function (recording) {
+      if (recording.peak < SILENT_PEAK) {
+        phase = 'idle';
+        mic.disabled = false;
+        status('The microphone did not pick up any sound. Check that it is not muted, then try again.', true);
+        return;
+      }
+
+      if (recording.blob.size > MAX_VOICE) {
+        // The WAV is larger than the cap; the original recording may not be.
+        if (blob.size <= MAX_VOICE) {
+          sendVoice(blob, type);
+          return;
+        }
         phase = 'idle';
         mic.disabled = false;
         status('That voice note is too long. Keep it under 2 minutes.', true);
         return;
       }
-      sendVoice(wav, 'audio/wav');
+
+      sendVoice(recording.blob, 'audio/wav');
     }).catch(function () {
+      if (blob.size <= MAX_VOICE) {
+        sendVoice(blob, type);
+        return;
+      }
       phase = 'idle';
       mic.disabled = false;
-      status('This browser recorded a format other phones cannot play. Update your browser and try again.', true);
+      status('That voice note is too long. Keep it under 2 minutes.', true);
     });
   }
 

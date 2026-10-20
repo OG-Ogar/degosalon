@@ -111,7 +111,19 @@
                                 {{end}}
 
                                 {{if .Audio}}
-                                    <audio class="chat-audio" controls preload="none" src="{{.Audio}}"></audio>
+                                    <div class="chat-audio-wrap">
+                                        <audio class="chat-audio" controls preload="metadata" src="{{.Audio}}"></audio>
+
+                                        <a class="chat-audio-download"
+                                           href="{{.Audio}}"
+                                           download
+                                           target="_blank"
+                                           rel="noopener">Download</a>
+
+                                        <p class="chat-audio-warning" hidden>
+                                            This device cannot play the voice note. Download it to listen.
+                                        </p>
+                                    </div>
                                 {{end}}
 
                                 {{if .Text}}

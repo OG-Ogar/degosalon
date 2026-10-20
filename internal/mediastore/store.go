@@ -19,8 +19,24 @@ import (
 const Bucket = "degosalon-media"
 const Timeout = 45 * time.Second
 
+// MaxUploadDuration bounds how long a single object may take to reach storage.
+// A large clip on a slow mobile connection needs far longer than the 45-second
+// control-plane timeout.
+const MaxUploadDuration = 30 * time.Minute
+
 var ErrConfiguration = errors.New("media storage is not configured correctly")
 var ErrUpload = errors.New("media storage upload failed; please retry")
+var ErrFileTooLarge = errors.New("media file exceeds the storage limit")
+
+// uploadTimeout allows a modest 256 KiB/s while never returning less than half
+// a minute for a small note.
+func uploadTimeout(size int64) time.Duration {
+	window := 30*time.Second + time.Duration(size/(256<<10))*time.Second
+	if window > MaxUploadDuration {
+		return MaxUploadDuration
+	}
+	return window
+}
 
 // Store never follows redirects: an apikey header must not reach another host.
 type Store struct {
@@ -44,7 +60,9 @@ func New(base, key string) (*Store, error) {
 		MaxIdleConns:          1,
 		IdleConnTimeout:       30 * time.Second,
 	}
-	return &Store{base: strings.TrimRight(base, "/"), key: key, client: &http.Client{Transport: transport, Timeout: Timeout, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}, nil
+	// No client-wide Timeout: each operation supplies its own context deadline.
+	// A fixed timeout would kill a large upload while it is still streaming.
+	return &Store{base: strings.TrimRight(base, "/"), key: key, client: &http.Client{Transport: transport, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}}, nil
 }
 
 // Close releases pooled connections when this upload client is no longer used.
@@ -85,7 +103,7 @@ func (s *Store) Upload(ctx context.Context, path, kind string, size int64, body 
 	if !validPath(path) || size <= 0 || size > MaxFileBytes || !(strings.HasPrefix(kind, "image/") || strings.HasPrefix(kind, "video/") || strings.HasPrefix(kind, "audio/")) {
 		return ErrConfiguration
 	}
-	ctx, cancel := context.WithTimeout(ctx, Timeout)
+	ctx, cancel := context.WithTimeout(ctx, uploadTimeout(size))
 	defer cancel()
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, s.base+"/storage/v1/object/"+Bucket+"/"+path, io.LimitReader(body, size))
 	if err != nil {
@@ -105,6 +123,14 @@ func (s *Store) Upload(ctx context.Context, path, kind string, size int64, body 
 	defer resp.Body.Close()
 	// Do not return provider bodies, credentials, URLs, or low-level errors.
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		// Recognize only a size rejection and discard the provider text.
+		detail, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		message := strings.ToLower(string(detail))
+		if resp.StatusCode == http.StatusRequestEntityTooLarge ||
+			strings.Contains(message, "maximum allowed size") ||
+			strings.Contains(message, "payload too large") {
+			return ErrFileTooLarge
+		}
 		return ErrUpload
 	}
 	if _, err := io.Copy(io.Discard, io.LimitReader(resp.Body, 4096)); err != nil || ctx.Err() != nil {
@@ -114,13 +140,13 @@ func (s *Store) Upload(ctx context.Context, path, kind string, size int64, body 
 }
 
 var ErrDelete = errors.New("media storage cleanup failed")
-var ownedName = regexp.MustCompile(`^([a-f0-9]{32}|[0-9]{10,20})\.(jpg|jpeg|png|gif|webp|mp4|webm|mov|m4v|3gp|m4a|ogg|oga)$`)
+var ownedName = regexp.MustCompile(`^([a-f0-9]{32}|[0-9]{10,20})\.(jpg|jpeg|png|gif|webp|mp4|webm|mov|m4v|3gp|m4a|ogg|oga|wav)$`)
 
 func mediaKind(extension string) string {
 	switch extension {
 	case "mp4", "webm", "mov", "m4v", "3gp":
 		return "video"
-	case "m4a", "ogg", "oga":
+	case "m4a", "ogg", "oga", "wav":
 		return "audio"
 	default:
 		return "image"

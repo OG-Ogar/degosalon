@@ -198,6 +198,32 @@ func TestChatVoiceHandlerServesPlayableType(t *testing.T) {
 	}
 }
 
+// Older Android browsers record WebM, which the composer converts to WAV so
+// an iPhone can play it. The .wav file needs the matching content type too.
+func TestChatVoiceHandlerServesWavFallback(t *testing.T) {
+	chatDirs(t)
+
+	if err := os.MkdirAll(chatVoice.dir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	name := "0123456789abcdef0123456789abcdef.wav"
+	body := []byte("RIFF\x24\x00\x00\x00WAVEfmt ")
+	if err := os.WriteFile(filepath.Join(chatVoice.dir, name), body, 0o644); err != nil {
+		t.Fatal(err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, chatVoice.urlPath+name, nil)
+	response := httptest.NewRecorder()
+	ChatVoiceHandler(response, req)
+
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d", response.Code)
+	}
+	if got := response.Header().Get("Content-Type"); got != "audio/wav" {
+		t.Fatalf("Content-Type = %q, want audio/wav", got)
+	}
+}
+
 func TestChatVideoHandlerRejectsUnknownExtension(t *testing.T) {
 	chatDirs(t)
 
@@ -285,12 +311,23 @@ func TestChatThreadRendersVideoAndVoicePlayers(t *testing.T) {
 			t.Fatalf("chat page missing %q", want)
 		}
 	}
+	if got := strings.Count(body, "data-photo-preview hidden"); got != 1 {
+		t.Fatalf("composer has %d attachment previews, want 1", got)
+	}
 }
 
 func TestSniffVoiceAcceptsM4AWithLeadingBox(t *testing.T) {
 	head := []byte{0x00, 0x00, 0x00, 0x08, 'f', 'r', 'e', 'e', 0x00, 0x00, 0x00, 0x18, 'f', 't', 'y', 'p', 'M', '4', 'A', ' '}
 	kind, extension, ok := sniffVoice(head)
 	if !ok || kind != "audio/mp4" || extension != ".m4a" {
+		t.Fatalf("sniffVoice = %q, %q, %v", kind, extension, ok)
+	}
+}
+
+func TestSniffVoiceAcceptsWavFallback(t *testing.T) {
+	head := []byte("RIFF\x24\x00\x00\x00WAVEfmt ")
+	kind, extension, ok := sniffVoice(head)
+	if !ok || kind != "audio/wav" || extension != ".wav" {
 		t.Fatalf("sniffVoice = %q, %q, %v", kind, extension, ok)
 	}
 }

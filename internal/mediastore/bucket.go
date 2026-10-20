@@ -11,13 +11,22 @@ import (
 	"strings"
 )
 
-const MaxFileBytes int64 = 50 << 20
+const (
+	// MaxFileBytes is the largest attachment the application accepts and the
+	// bucket size requested when a new bucket is created.
+	MaxFileBytes int64 = 500 << 20
+	// minBucketBytes is the smallest existing bucket limit that may start the
+	// application. The requested limit is MaxFileBytes, but a lower
+	// project-wide cap (50 MB on Supabase's free plan, for example) must not
+	// stop a deployment; an upload above the real bucket limit fails clearly.
+	minBucketBytes int64 = 1 << 20
+)
 
 var ErrBucket = errors.New("media bucket is unavailable or incompatible")
 var supportedMIME = []string{
 	"image/jpeg", "image/png", "image/gif", "image/webp",
 	"video/mp4", "video/webm", "video/quicktime",
-	"audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg",
+	"audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg", "audio/wav",
 }
 
 type bucketConfig struct {
@@ -44,9 +53,8 @@ func compatibleBucket(bucket bucketConfig) bool {
 	if bucket.ID != Bucket || bucket.Name != Bucket || !bucket.Public || (bucket.Type != "" && bucket.Type != "STANDARD") {
 		return false
 	}
-	if bucket.Limit != nil && *bucket.Limit < MaxFileBytes {
-		return false
-	}
+	// The size limit is checked by bucketShapeMatches. It is deliberately not
+	// tied to MaxFileBytes so a project-wide cap cannot block startup.
 	// Null/empty means unrestricted at the provider. Otherwise every application
 	// type must be allowed, including a supported image/* or video/* wildcard.
 	if len(bucket.MIME) > 0 {
@@ -123,13 +131,15 @@ func (s *Store) checkBucket(ctx context.Context) (bucketConfig, bool, error) {
 }
 
 // bucketShapeMatches reports whether an existing bucket belongs to this
-// application and is large and public enough. MIME is checked separately
-// because an older bucket may simply predate a newly supported media type.
+// application and is public enough to use. MIME is checked separately because
+// an older bucket may simply predate a newly supported media type. A null
+// limit is unrestricted; otherwise even a provider-capped limit is accepted as
+// long as it can hold a small attachment.
 func bucketShapeMatches(bucket bucketConfig) bool {
 	if bucket.ID != Bucket || bucket.Name != Bucket || !bucket.Public || (bucket.Type != "" && bucket.Type != "STANDARD") {
 		return false
 	}
-	return bucket.Limit == nil || *bucket.Limit >= MaxFileBytes
+	return bucket.Limit == nil || *bucket.Limit >= minBucketBytes
 }
 
 // widenedMIME returns the bucket's allowlist with every application media type
@@ -165,10 +175,10 @@ func (s *Store) EnsureBucket(ctx context.Context, create bool) error {
 		return err
 	}
 	if !missing {
-		if compatibleBucket(bucket) {
+		if compatibleBucket(bucket) && bucketShapeMatches(bucket) {
 			return nil
 		}
-		if !bucketShapeMatches(bucket) || len(bucket.MIME) == 0 {
+		if !bucketShapeMatches(bucket) {
 			return ErrBucket
 		}
 		return s.widenBucketMIME(ctx, bucket)
@@ -176,27 +186,67 @@ func (s *Store) EnsureBucket(ctx context.Context, create bool) error {
 	if !create {
 		return ErrBucket
 	}
+
+	// Do not trust POST success alone, nor an error body that may contain
+	// secrets. A project-wide file size cap lower than MaxFileBytes can make
+	// the first request fail, so retry without a per-bucket limit; the bucket
+	// then inherits the project maximum.
 	limit := MaxFileBytes
-	body, _ := json.Marshal(bucketConfig{ID: Bucket, Name: Bucket, Public: true, Type: "STANDARD", Limit: &limit, MIME: supportedMIME})
-	response, createErr := s.bucketRequest(ctx, http.MethodPost, "", body)
-	if response != nil {
-		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
-		response.Body.Close()
-	}
-	// Do not trust POST success alone, nor an error body that may contain secrets.
+	response, createErr := s.bucketRequest(ctx, http.MethodPost, "", bucketCreatePayload(&limit))
+	createFailed := createErr != nil || response == nil || response.StatusCode < 200 || response.StatusCode >= 300
+	closeBucketResponse(response)
+
 	bucket, missing, err = s.checkBucket(ctx)
-	if err != nil || missing || createErr != nil && ctx.Err() != nil {
+	if err != nil {
 		return ErrBucket
 	}
-	if !compatibleBucket(bucket) {
+	if missing && createFailed {
+		response, _ = s.bucketRequest(ctx, http.MethodPost, "", bucketCreatePayload(nil))
+		closeBucketResponse(response)
+
+		bucket, missing, err = s.checkBucket(ctx)
+		if err != nil || missing {
+			return ErrBucket
+		}
+	}
+	if missing {
+		return ErrBucket
+	}
+	if !compatibleBucket(bucket) || !bucketShapeMatches(bucket) {
 		return ErrBucket
 	}
 	return nil
 }
 
+func bucketCreatePayload(limit *int64) []byte {
+	payload := map[string]any{
+		"id":                 Bucket,
+		"name":               Bucket,
+		"public":             true,
+		"type":               "STANDARD",
+		"allowed_mime_types": supportedMIME,
+	}
+	if limit != nil {
+		payload["file_size_limit"] = *limit
+	}
+	body, _ := json.Marshal(payload)
+	return body
+}
+
+func closeBucketResponse(response *http.Response) {
+	if response == nil {
+		return
+	}
+	_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
+	response.Body.Close()
+}
+
 // widenBucketMIME adds the media types an older bucket is missing, then reads
-// the bucket back. The verified visibility and size limit are sent alongside so
-// the update cannot reset them; nothing is narrowed.
+// the bucket back. The verified visibility is sent alongside so the update
+// cannot reset it, and a lower size limit is raised to MaxFileBytes when the
+// project allows it. Nothing is ever narrowed; if the provider rejects the
+// larger limit, the repair is retried at the existing limit so an older
+// deployment still gets the MIME fix it needs.
 func (s *Store) widenBucketMIME(ctx context.Context, bucket bucketConfig) error {
 	update := map[string]any{
 		"public":             bucket.Public,
@@ -205,17 +255,33 @@ func (s *Store) widenBucketMIME(ctx context.Context, bucket bucketConfig) error 
 	if bucket.Limit != nil {
 		update["file_size_limit"] = *bucket.Limit
 	}
-	body, _ := json.Marshal(update)
-	response, err := s.bucketRequest(ctx, http.MethodPut, "/"+Bucket, body)
-	if response != nil {
-		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
-		response.Body.Close()
+	raised := false
+	if bucket.Limit != nil && *bucket.Limit < MaxFileBytes {
+		update["file_size_limit"] = MaxFileBytes
+		raised = true
 	}
-	if err != nil || response == nil || response.StatusCode < 200 || response.StatusCode >= 300 {
+	if s.updateBucket(ctx, update) != nil {
+		if !raised {
+			return ErrBucket
+		}
+		update["file_size_limit"] = *bucket.Limit
+		if s.updateBucket(ctx, update) != nil {
+			return ErrBucket
+		}
+	}
+
+	updated, missing, err := s.checkBucket(ctx)
+	if err != nil || missing || !compatibleBucket(updated) || !bucketShapeMatches(updated) {
 		return ErrBucket
 	}
-	updated, missing, err := s.checkBucket(ctx)
-	if err != nil || missing || !compatibleBucket(updated) {
+	return nil
+}
+
+func (s *Store) updateBucket(ctx context.Context, update map[string]any) error {
+	body, _ := json.Marshal(update)
+	response, err := s.bucketRequest(ctx, http.MethodPut, "/"+Bucket, body)
+	closeBucketResponse(response)
+	if err != nil || response == nil || response.StatusCode < 200 || response.StatusCode >= 300 {
 		return ErrBucket
 	}
 	return nil

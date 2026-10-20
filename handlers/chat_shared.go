@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"barber-booking/internal/mediastore"
 )
 
 // readMessage validates a text-only chat submission. An empty message is
@@ -44,7 +46,11 @@ func readChatMessage(r *http.Request) (text, image, audio, video, problem string
 			// The real reason goes to the server log, never to the page.
 			log.Printf("chat attachment upload failed: %v", err)
 
-			return text, "", "", "", "That photo or video could not be sent. Use a JPEG, PNG, GIF or WebP image under 20 MB, or an MP4, WebM or MOV video under 50 MB."
+			if errors.Is(err, mediastore.ErrFileTooLarge) {
+				return text, "", "", "", "That photo or video is larger than the storage bucket allows. Use a smaller file, or ask the site owner to raise the Supabase file size limit."
+			}
+
+			return text, "", "", "", "That photo or video could not be sent. Use a JPEG, PNG, GIF or WebP image under 50 MB, or an MP4, WebM or MOV video under 500 MB."
 		}
 
 		image, video = "", ""

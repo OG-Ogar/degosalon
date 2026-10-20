@@ -4,12 +4,13 @@
 
   // The composer accepts one photo or clip, and voice notes on their own.
   // The server accepts the same caps; these only catch a mistake early.
-  var MAX_IMAGE = 20 * 1024 * 1024;
-  var MAX_VIDEO = 50 * 1024 * 1024;
-  var MAX_VOICE = 5 * 1024 * 1024;
+  var MAX_IMAGE = 50 * 1024 * 1024;
+  var MAX_VIDEO = 500 * 1024 * 1024;
+  var MAX_VOICE = 8 * 1024 * 1024;
   var MAX_SECONDS = 120;
   var SLIDE_CANCEL = 140;
   var VIDEO_EXTENSIONS = /\.(mp4|webm|mov|m4v|3gp)$/i;
+  var WAV_RATE = 16000;
 
   var photoInput = form.querySelector('[data-photo-input]');
   var preview = form.querySelector('[data-photo-preview]');
@@ -88,8 +89,8 @@
       clearAttachment();
       status(
         video
-          ? 'That video is larger than 50 MB. Choose a shorter clip.'
-          : 'That photo is larger than 20 MB. Choose a smaller one.',
+          ? 'That video is larger than 500 MB. Choose a shorter clip.'
+          : 'That photo is larger than 50 MB. Choose a smaller one.',
         true
       );
       return;
@@ -138,12 +139,110 @@
   var releasedWhileStarting = false;
   var cancelWhenReady = false;
 
+  // Prefer MP4/AAC everywhere it exists: iPhone Safari and modern Chrome can
+  // both record it, and both platforms can play it back. Older Android Chrome
+  // versions can only record WebM/Opus, which Safari refuses to play, so
+  // onStopped() converts those recordings to WAV (also playable on both).
   function pickType() {
-    var types = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus', 'audio/ogg'];
+    var types = [
+      'audio/mp4;codecs=mp4a.40.2',
+      'audio/mp4',
+      'audio/aac',
+      'audio/webm;codecs=opus',
+      'audio/webm',
+      'audio/ogg;codecs=opus',
+      'audio/ogg'
+    ];
     for (var i = 0; i < types.length; i++) {
       if (MediaRecorder.isTypeSupported(types[i])) return types[i];
     }
     return '';
+  }
+
+  function isMp4(type) {
+    return type.indexOf('mp4') !== -1 || type.indexOf('m4a') !== -1;
+  }
+
+  // Convert a WebM/Ogg recording to mono 16-bit WAV. WAV is the only audio
+  // container every iPhone and Android browser plays without a plugin, so a
+  // note recorded on an older Android is still audible on an iPhone.
+  function toWav(blob) {
+    return new Promise(function (resolve, reject) {
+      var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass || !window.FileReader) {
+        reject(new Error('audio conversion is not available'));
+        return;
+      }
+
+      var context = new AudioContextClass();
+      var reader = new FileReader();
+
+      reader.onerror = function () {
+        context.close();
+        reject(new Error('could not read the recording'));
+      };
+
+      reader.onload = function () {
+        context.decodeAudioData(reader.result).then(function (buffer) {
+          var frames = Math.max(1, Math.round(buffer.duration * WAV_RATE));
+          var channels = [];
+          var channel;
+          for (channel = 0; channel < buffer.numberOfChannels; channel++) {
+            channels.push(buffer.getChannelData(channel));
+          }
+
+          var pcm = new ArrayBuffer(44 + frames * 2);
+          var view = new DataView(pcm);
+
+          function text(offset, value) {
+            for (var i = 0; i < value.length; i++) {
+              view.setUint8(offset + i, value.charCodeAt(i));
+            }
+          }
+
+          text(0, 'RIFF');
+          view.setUint32(4, 36 + frames * 2, true);
+          text(8, 'WAVE');
+          text(12, 'fmt ');
+          view.setUint32(16, 16, true);
+          view.setUint16(20, 1, true);
+          view.setUint16(22, 1, true);
+          view.setUint32(24, WAV_RATE, true);
+          view.setUint32(28, WAV_RATE * 2, true);
+          view.setUint16(32, 2, true);
+          view.setUint16(34, 16, true);
+          text(36, 'data');
+          view.setUint32(40, frames * 2, true);
+
+          // Mix to mono and resample with linear interpolation. 16 kHz keeps a
+          // two-minute note near 3.8 MB while staying clear for speech.
+          var sourceRate = buffer.sampleRate;
+          for (var i = 0; i < frames; i++) {
+            var position = i * sourceRate / WAV_RATE;
+            var left = Math.floor(position);
+            var right = Math.min(left + 1, buffer.length - 1);
+            var mix = position - left;
+            var sample = 0;
+
+            for (var c = 0; c < channels.length; c++) {
+              sample += channels[c][left] * (1 - mix) + channels[c][right] * mix;
+            }
+
+            sample /= channels.length;
+            sample = Math.max(-1, Math.min(1, sample));
+            view.setInt16(44 + i * 2, sample < 0 ? sample * 0x8000 : sample * 0x7fff, true);
+          }
+
+          context.close();
+          resolve(new Blob([pcm], { type: 'audio/wav' }));
+        }).catch(function () {
+          context.close();
+          reject(new Error('could not decode the recording'));
+        });
+      };
+
+      reader.readAsArrayBuffer(blob);
+    });
   }
 
   function stopTracks() {
@@ -272,11 +371,36 @@
       return;
     }
 
-    sendVoice(blob, type);
+    if (isMp4(type)) {
+      sendVoice(blob, type);
+      return;
+    }
+
+    // Older Android browsers record WebM/Opus. Convert it so an iPhone can
+    // play the note too, instead of silently sending a format Safari rejects.
+    phase = 'sending';
+    mic.disabled = true;
+    status('Preparing voice note…', false);
+
+    toWav(blob).then(function (wav) {
+      if (wav.size > MAX_VOICE) {
+        phase = 'idle';
+        mic.disabled = false;
+        status('That voice note is too long. Keep it under 2 minutes.', true);
+        return;
+      }
+      sendVoice(wav, 'audio/wav');
+    }).catch(function () {
+      phase = 'idle';
+      mic.disabled = false;
+      status('This browser recorded a format other phones cannot play. Update your browser and try again.', true);
+    });
   }
 
   function sendVoice(blob, type) {
-    var ext = type.indexOf('mp4') !== -1 ? 'm4a' : (type.indexOf('ogg') !== -1 ? 'ogg' : 'webm');
+    var ext = type.indexOf('mp4') !== -1
+      ? 'm4a'
+      : (type.indexOf('wav') !== -1 ? 'wav' : (type.indexOf('ogg') !== -1 ? 'ogg' : 'webm'));
     var data = new FormData(form);
     data.delete('photo');
     data.append('voice', blob, 'voice-note.' + ext);
@@ -370,6 +494,14 @@
     if (event.key === ' ' || event.key === 'Enter') {
       event.preventDefault();
       stop(false);
+    }
+  });
+
+  // A large clip can take several minutes. The browser's native form post has
+  // no progress bar, so at least show that something is happening.
+  form.addEventListener('submit', function () {
+    if (photoInput.files && photoInput.files.length) {
+      status('Uploading… this can take a few minutes for a large video.', false);
     }
   });
 

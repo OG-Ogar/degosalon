@@ -82,6 +82,25 @@ func TestUploadRefusesRedirectAndHidesProviderErrors(t *testing.T) {
 	}
 }
 
+func TestUploadReportsStorageSizeLimit(t *testing.T) {
+	for _, response := range []struct {
+		status int
+		body   string
+	}{
+		{http.StatusRequestEntityTooLarge, "too large"},
+		{http.StatusBadRequest, `{"message":"The object exceeded the maximum allowed size"}`},
+	} {
+		s := testStore(t, func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(response.status)
+			_, _ = io.WriteString(w, response.body)
+		}, "sb_secret_test-only")
+		err := s.Upload(context.Background(), "chat/abcd.mp4", "video/mp4", 1, strings.NewReader("x"))
+		if !errors.Is(err, ErrFileTooLarge) {
+			t.Fatalf("status %d: error = %v, want ErrFileTooLarge", response.status, err)
+		}
+	}
+}
+
 func TestUploadHonorsCancellationAndDeadline(t *testing.T) {
 	for _, preCancelled := range []bool{true, false} {
 		release := make(chan struct{})
@@ -126,8 +145,8 @@ func TestConfigurationAndObjectPathValidation(t *testing.T) {
 			t.Fatalf("accepted path %q", path)
 		}
 	}
-	if s.client.Timeout != Timeout || s.client.CheckRedirect == nil {
-		t.Fatal("unbounded HTTP client")
+	if s.client.Timeout != 0 || s.client.CheckRedirect == nil {
+		t.Fatal("upload client must be bounded by per-request contexts")
 	}
 }
 

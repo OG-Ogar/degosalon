@@ -28,7 +28,10 @@ func TestExistingBucketCompatibility(t *testing.T) {
 		{"wrong identity", func(b *bucketConfig) { b.ID = "other" }, false, false},
 		{"wrong name", func(b *bucketConfig) { b.Name = "other" }, false, false},
 		{"nonstandard", func(b *bucketConfig) { b.Type = "ANALYTICS" }, false, false},
-		{"small", func(b *bucketConfig) { limit := MaxFileBytes - 1; b.Limit = &limit }, false, false},
+		{"small", func(b *bucketConfig) { limit := minBucketBytes - 1; b.Limit = &limit }, false, false},
+		// A provider-wide cap (50 MB on Supabase's free plan) must not stop
+		// startup. Uploads above the real bucket limit fail at upload time.
+		{"provider-capped", func(b *bucketConfig) { limit := int64(50 << 20); b.Limit = &limit }, true, false},
 		// An older bucket allowlist predates voice notes and chat video; the
 		// missing types are appended, and nothing is removed.
 		{"images only", func(b *bucketConfig) { b.MIME = []string{"image/*"} }, true, true},
@@ -79,6 +82,63 @@ func TestExistingBucketCompatibility(t *testing.T) {
 				t.Fatalf("patched = %v, want %v", patched, test.repaired)
 			}
 		})
+	}
+}
+
+func TestBucketLimitRaiseFallsBackToProviderCap(t *testing.T) {
+	providerLimit := int64(50 << 20)
+	bucket := goodBucket()
+	bucket.Limit = &providerLimit
+	bucket.MIME = []string{"image/*"} // force the additive repair
+
+	updates := 0
+	s := testStore(t, func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case "GET":
+			_ = json.NewEncoder(w).Encode(bucket)
+		case "PUT":
+			updates++
+			var update struct {
+				MIME  []string `json:"allowed_mime_types"`
+				Limit *int64   `json:"file_size_limit"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
+				t.Error("invalid update")
+				return
+			}
+			if update.Limit != nil && *update.Limit > providerLimit {
+				w.WriteHeader(http.StatusBadRequest)
+				return
+			}
+			bucket.MIME = update.MIME
+			if update.Limit != nil {
+				bucket.Limit = update.Limit
+			}
+			w.WriteHeader(http.StatusOK)
+		default:
+			t.Error("unexpected request")
+		}
+	}, "sb_secret_test-only")
+
+	if err := s.EnsureBucket(context.Background(), false); err != nil {
+		t.Fatal(err)
+	}
+	if updates != 2 {
+		t.Fatalf("bucket updates = %d, want 2 (raise then fallback)", updates)
+	}
+	if bucket.Limit == nil || *bucket.Limit != providerLimit {
+		t.Fatalf("bucket limit = %v, want %d", bucket.Limit, providerLimit)
+	}
+	for _, kind := range supportedMIME {
+		found := false
+		for _, allowed := range bucket.MIME {
+			if allowed == kind {
+				found = true
+			}
+		}
+		if !found {
+			t.Fatalf("MIME type %q was not added", kind)
+		}
 	}
 }
 

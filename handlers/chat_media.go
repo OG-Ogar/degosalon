@@ -16,10 +16,10 @@ import (
 // 5 MiB catalogue limit, and a short clip is far larger still. The body limit
 // covers the biggest single attachment the composer can produce.
 const (
-	maxChatPhotoBytes      = 20 << 20
-	maxChatVideoBytes      = 50 << 20
+	maxChatPhotoBytes      = 50 << 20
+	maxChatVideoBytes      = 500 << 20
 	maxChatAttachmentBytes = maxChatVideoBytes
-	maxVoiceBytes          = 5 << 20
+	maxVoiceBytes          = 8 << 20
 )
 
 type voiceStore struct {
@@ -90,13 +90,16 @@ func ftypBrand(head []byte) (brand string, ok bool) {
 }
 
 // sniffVoice identifies a recording from its first bytes, never from its
-// file name. Phones record WebM (Android) or MP4/M4A (iPhone).
+// file name. Phones record MP4/M4A (iPhone and modern Android), WebM/Opus
+// (older Android) or WAV (the browser-side cross-platform fallback).
 func sniffVoice(head []byte) (contentType, extension string, ok bool) {
 	switch {
 	case len(head) >= 4 && head[0] == 0x1A && head[1] == 0x45 && head[2] == 0xDF && head[3] == 0xA3:
 		return "audio/webm", ".webm", true
 	case len(head) >= 4 && string(head[:4]) == "OggS":
 		return "audio/ogg", ".ogg", true
+	case len(head) >= 12 && string(head[:4]) == "RIFF" && string(head[8:12]) == "WAVE":
+		return "audio/wav", ".wav", true
 	}
 
 	if _, iso := ftypBrand(head); iso {
@@ -221,6 +224,7 @@ func ChatVoiceHandler(w http.ResponseWriter, r *http.Request) {
 		".oga":  "audio/ogg",
 		".m4a":  "audio/mp4",
 		".mp4":  "audio/mp4",
+		".wav":  "audio/wav",
 	})
 }
 

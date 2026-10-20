@@ -135,6 +135,13 @@ func run() error {
 		http.StripPrefix("/uploads/", http.FileServer(http.Dir("uploads"))),
 	)
 
+	// Chat audio and video need an explicit content type: without it some
+	// systems answer ".m4a" with application/octet-stream and the browser
+	// refuses to play the note. These routes sit inside /uploads/ and win
+	// because ServeMux prefers the longer pattern.
+	mux.HandleFunc("/uploads/chat-voice/", handlers.ChatVoiceHandler)
+	mux.HandleFunc("/uploads/chat-video/", handlers.ChatVideoHandler)
+
 	mux.Handle(
 		"/static/",
 		revalidate(http.StripPrefix("/static/", http.FileServer(http.Dir("static")))),

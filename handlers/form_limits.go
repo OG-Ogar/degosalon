@@ -5,13 +5,26 @@ import (
 	"io"
 	"net/http"
 	"strings"
+	"time"
 )
 
 const maxMutationFormBytes = 64 << 10
 
+// uploadWindow is how long a client may take to send one large attachment.
+// The server-wide ReadTimeout is short on purpose (slow clients must not hold a
+// connection), so upload routes extend it just for themselves.
+const uploadWindow = 5 * time.Minute
+
 type limitedFormBody struct {
 	io.ReadCloser
 	limit int64
+}
+
+// extendUploadDeadline lets an upload route wait for a large body without
+// loosening the timeout for every other request. Recorders on a slow mobile
+// connection can need minutes to send a clip.
+func extendUploadDeadline(w http.ResponseWriter) {
+	_ = http.NewResponseController(w).SetReadDeadline(time.Now().Add(uploadWindow))
 }
 
 func limitFormBody(w http.ResponseWriter, r *http.Request, limit int64) {

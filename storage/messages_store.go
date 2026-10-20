@@ -30,6 +30,8 @@ func messagePreview(m models.Message) string {
 		return m.Text
 	case m.Image != "":
 		return "Photo"
+	case m.Video != "":
+		return "Video"
 	case m.Audio != "":
 		return "Voice note"
 	}
@@ -48,7 +50,7 @@ func AddMessage(ctx context.Context, message models.Message) (models.Message, er
 		if message.SentAt.IsZero() {
 			message.SentAt = time.Now()
 		}
-		err := db.QueryRowContext(ctx, "insert into public.messages(barber_id,customer_id,sender_role,sender_name,text,image,audio,sent_at) values($1,$2,$3,$4,$5,$6,$7,$8) returning id", message.BarberID, message.CustomerID, message.SenderRole, message.SenderName, message.Text, message.Image, message.Audio, message.SentAt).Scan(&message.ID)
+		err := db.QueryRowContext(ctx, "insert into public.messages(barber_id,customer_id,sender_role,sender_name,text,image,audio,video,sent_at) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id", message.BarberID, message.CustomerID, message.SenderRole, message.SenderName, message.Text, message.Image, message.Audio, message.Video, message.SentAt).Scan(&message.ID)
 		return message, err
 	}
 	mu.Lock()
@@ -84,7 +86,7 @@ func FindMessage(ctx context.Context, id int) (models.Message, error) {
 	}
 	if databaseEnabled() {
 		var v models.Message
-		err := db.QueryRowContext(ctx, "select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,sent_at from public.messages where id=$1", id).Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.SenderRole, &v.SenderName, &v.Text, &v.Image, &v.Audio, &v.SentAt)
+		err := db.QueryRowContext(ctx, "select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,video,sent_at from public.messages where id=$1", id).Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.SenderRole, &v.SenderName, &v.Text, &v.Image, &v.Audio, &v.Video, &v.SentAt)
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Message{}, ErrNotFound
 		}
@@ -110,9 +112,9 @@ func ListConversation(ctx context.Context, barberID, customerID int) ([]models.M
 		return nil, err
 	}
 	if databaseEnabled() {
-		return queryRecords(ctx, "select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,sent_at from public.messages where barber_id=$1 and customer_id=$2 order by id", func(rows *sql.Rows) (models.Message, error) {
+		return queryRecords(ctx, "select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,video,sent_at from public.messages where barber_id=$1 and customer_id=$2 order by id", func(rows *sql.Rows) (models.Message, error) {
 			var v models.Message
-			err := rows.Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.SenderRole, &v.SenderName, &v.Text, &v.Image, &v.Audio, &v.SentAt)
+			err := rows.Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.SenderRole, &v.SenderName, &v.Text, &v.Image, &v.Audio, &v.Video, &v.SentAt)
 			return v, err
 		}, barberID, customerID)
 	}
@@ -158,7 +160,7 @@ func scopedConversations(ctx context.Context, field string, id int) ([]Conversat
 	if databaseEnabled() {
 		query := `select barber_id,customer_id,text,sent_at,message_count from (
    select distinct on (m.barber_id,m.customer_id) m.barber_id,m.customer_id,
-   (case when m.text<>'' then m.text when m.image<>'' then 'Photo' when m.audio<>'' then 'Voice note' else '' end) as text,
+   (case when m.text<>'' then m.text when m.image<>'' then 'Photo' when m.video<>'' then 'Video' when m.audio<>'' then 'Voice note' else '' end) as text,
    m.sent_at,
    count(*) over(partition by m.barber_id,m.customer_id) as message_count
    from public.messages m where m.` + field + `=$1 order by m.barber_id,m.customer_id,m.sent_at desc,m.id desc

@@ -22,7 +22,7 @@ func TestReadChatMessageAcceptsUrlencodedTextOnly(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/customer/chats/1", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	text, image, audio, problem := readChatMessage(req)
+	text, image, audio, video, problem := readChatMessage(req)
 
 	if problem != "" {
 		t.Fatalf("urlencoded text-only post rejected: %q", problem)
@@ -30,8 +30,8 @@ func TestReadChatMessageAcceptsUrlencodedTextOnly(t *testing.T) {
 	if text != "hello from a plain form" {
 		t.Fatalf("text = %q, want %q", text, "hello from a plain form")
 	}
-	if image != "" || audio != "" {
-		t.Fatalf("attachments = %q/%q, want empty", image, audio)
+	if image != "" || audio != "" || video != "" {
+		t.Fatalf("attachments = %q/%q/%q, want empty", image, audio, video)
 	}
 }
 
@@ -41,7 +41,7 @@ func TestReadChatMessageRejectsEmptyUrlencoded(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/customer/chats/1", strings.NewReader(""))
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
-	if _, _, _, problem := readChatMessage(req); problem == "" {
+	if _, _, _, _, problem := readChatMessage(req); problem == "" {
 		t.Fatal("empty post accepted, want a validation problem")
 	}
 }

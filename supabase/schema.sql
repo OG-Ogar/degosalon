@@ -91,6 +91,7 @@ create table if not exists public.messages (
   text text not null,
   image text not null default '',
   audio text not null default '',
+  video text not null default '',
   sent_at timestamptz not null default now()
 );
 
@@ -102,6 +103,9 @@ alter table public.messages
 
 alter table public.messages
   add column if not exists audio text not null default '';
+
+alter table public.messages
+  add column if not exists video text not null default '';
 
 create table if not exists public.carts (
   customer_id bigint not null references public.customers(id) on delete cascade,

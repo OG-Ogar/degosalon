@@ -25,10 +25,11 @@ func readMessage(r *http.Request) (string, string) {
 	return text, ""
 }
 
-// readChatMessage validates a submission that may carry text, a photo
-// (field "photo") or a voice note (field "voice"). Text is optional when
-// an attachment is present. A message with none of the three is rejected.
-func readChatMessage(r *http.Request) (text, image, audio, problem string) {
+// readChatMessage validates a submission that may carry text, a photo, a
+// video (both under the "photo" field) or a voice note (field "voice"). Text is
+// optional when an attachment is present. A message with none of them is
+// rejected.
+func readChatMessage(r *http.Request) (text, image, audio, video, problem string) {
 	text = trimmedField(r.PostFormValue("text"))
 
 	if len(text) > maxMessageLength {
@@ -37,16 +38,16 @@ func readChatMessage(r *http.Request) (text, image, audio, problem string) {
 
 	var err error
 
-	image, err = chatImages.save(r, "photo")
+	image, video, err = saveChatAttachment(r, "photo")
 	if err != nil {
 		if !errors.Is(err, errNoUpload) {
 			// The real reason goes to the server log, never to the page.
-			log.Printf("chat photo upload failed: %v", err)
+			log.Printf("chat attachment upload failed: %v", err)
 
-			return text, "", "", "The photo could not be sent. Use a JPEG, PNG or WebP image under 5 MB."
+			return text, "", "", "", "That photo or video could not be sent. Use a JPEG, PNG, GIF or WebP image under 20 MB, or an MP4, WebM or MOV video under 50 MB."
 		}
 
-		image = ""
+		image, video = "", ""
 	}
 
 	audio, err = chatVoice.save(r, "voice")
@@ -54,18 +55,19 @@ func readChatMessage(r *http.Request) (text, image, audio, problem string) {
 		if !errors.Is(err, errNoUpload) {
 			log.Printf("chat voice upload failed: %v", err)
 			removeChatMedia(image)
+			removeChatMedia(video)
 
-			return text, "", "", "The voice note could not be sent. Keep it under 2 minutes and try again."
+			return text, "", "", "", "The voice note could not be sent. Keep it under 2 minutes and try again."
 		}
 
 		audio = ""
 	}
 
-	if text == "" && image == "" && audio == "" {
-		return "", "", "", "Type a message, add a photo or record a voice note."
+	if text == "" && image == "" && audio == "" && video == "" {
+		return "", "", "", "", "Type a message, add a photo or video, or record a voice note."
 	}
 
-	return text, image, audio, ""
+	return text, image, audio, video, ""
 }
 
 // chatPath builds the URL of one conversation thread.

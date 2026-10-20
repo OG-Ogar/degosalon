@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -91,6 +92,8 @@ var allowedVideoExtensions = map[string]bool{
 	".mp4":  true,
 	".webm": true,
 	".mov":  true,
+	".m4v":  true,
+	".3gp":  true,
 }
 
 var errNoUpload = errors.New("no file uploaded")
@@ -121,6 +124,16 @@ func limitRequestBodyFor(w http.ResponseWriter, r *http.Request, photos int) {
 	)
 }
 
+// limitChatRequestBody allows one chat attachment: a photo, video or voice
+// note, plus the form fields.
+func limitChatRequestBody(w http.ResponseWriter, r *http.Request) {
+	limitFormBody(
+		w,
+		r,
+		maxChatAttachmentBytes+maxFormMemory,
+	)
+}
+
 func limitVideoRequestBody(w http.ResponseWriter, r *http.Request) {
 	limitFormBody(
 		w,
@@ -130,6 +143,11 @@ func limitVideoRequestBody(w http.ResponseWriter, r *http.Request) {
 }
 
 func (store imageStore) save(r *http.Request, field string) (string, error) {
+	return store.saveWithLimit(r, field, maxUploadBytes)
+}
+
+// saveWithLimit stores one image, letting a route choose its own byte cap.
+func (store imageStore) saveWithLimit(r *http.Request, field string, limit int64) (string, error) {
 	file, header, err := r.FormFile(field)
 	if err != nil {
 		if isNoUpload(err) {
@@ -139,13 +157,18 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("read upload: %w", err)
 	}
 
+	return store.store(r, file, header, limit)
+}
+
+// store writes an upload the caller has already opened.
+func (store imageStore) store(r *http.Request, file multipart.File, header *multipart.FileHeader, limit int64) (string, error) {
 	defer file.Close()
 
-	if header.Size > maxUploadBytes {
+	if header.Size > limit {
 		return "", fmt.Errorf(
 			"image is %d MiB; the limit is %d MiB",
 			header.Size>>20,
-			maxUploadBytes>>20,
+			limit>>20,
 		)
 	}
 
@@ -184,7 +207,7 @@ func (store imageStore) save(r *http.Request, field string) (string, error) {
 
 	if _, err := io.Copy(
 		destination,
-		io.LimitReader(file, maxUploadBytes),
+		io.LimitReader(file, limit),
 	); err != nil {
 		destination.Close()
 		os.Remove(path)
@@ -273,6 +296,11 @@ func persistMedia(r *http.Request, urlPath, name, path string) (string, error) {
 }
 
 func (store videoStore) save(r *http.Request, field string) (string, error) {
+	return store.saveWithLimit(r, field, maxVideoBytes)
+}
+
+// saveWithLimit stores one video, letting a route choose its own byte cap.
+func (store videoStore) saveWithLimit(r *http.Request, field string, limit int64) (string, error) {
 	file, header, err := r.FormFile(field)
 	if err != nil {
 		if isNoUpload(err) {
@@ -282,13 +310,18 @@ func (store videoStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("read video upload: %w", err)
 	}
 
+	return store.store(r, file, header, limit)
+}
+
+// store writes a video the caller has already opened.
+func (store videoStore) store(r *http.Request, file multipart.File, header *multipart.FileHeader, limit int64) (string, error) {
 	defer file.Close()
 
-	if header.Size > maxVideoBytes {
+	if header.Size > limit {
 		return "", fmt.Errorf(
 			"video is %d MiB; the limit is %d MiB",
 			header.Size>>20,
-			maxVideoBytes>>20,
+			limit>>20,
 		)
 	}
 
@@ -302,10 +335,13 @@ func (store videoStore) save(r *http.Request, field string) (string, error) {
 
 	read, _ := io.ReadFull(file, head)
 
-	kind := http.DetectContentType(head[:read])
-
-	if !strings.HasPrefix(kind, "video/") {
-		return "", fmt.Errorf("that file is %s, not a video", kind)
+	// http.DetectContentType only recognizes MP4 files whose brand contains
+	// "mp4", so a QuickTime .mov from an iPhone is rejected there. The
+	// container signature below accepts every ISO media file (MP4, M4V, MOV,
+	// 3GP) and reports the type the media store must store it as.
+	kind, ok := sniffVideo(head[:read])
+	if !ok {
+		return "", fmt.Errorf("that file is not a supported video")
 	}
 
 	if _, err := file.Seek(0, io.SeekStart); err != nil {
@@ -329,7 +365,7 @@ func (store videoStore) save(r *http.Request, field string) (string, error) {
 
 	if _, err := io.Copy(
 		destination,
-		io.LimitReader(file, maxVideoBytes),
+		io.LimitReader(file, limit),
 	); err != nil {
 		destination.Close()
 		os.Remove(path)
@@ -343,7 +379,29 @@ func (store videoStore) save(r *http.Request, field string) (string, error) {
 		return "", fmt.Errorf("close video file: %w", err)
 	}
 
-	return persistMedia(r, store.urlPath, name, path)
+	return persistMediaAs(r, store.urlPath, name, path, kind)
+}
+
+// sniffVideo identifies a video container from its first bytes. ISO base media
+// files (MP4, M4V, MOV, 3GP) carry an ftyp box near the start, and the major
+// brand separates QuickTime from the rest.
+func sniffVideo(head []byte) (contentType string, ok bool) {
+	switch {
+	case len(head) >= 4 && head[0] == 0x1A && head[1] == 0x45 && head[2] == 0xDF && head[3] == 0xA3:
+		return "video/webm", true
+	case len(head) >= 4 && string(head[:4]) == "OggS":
+		return "video/ogg", true
+	}
+
+	if brand, iso := ftypBrand(head); iso {
+		if brand == "qt  " {
+			return "video/quicktime", true
+		}
+
+		return "video/mp4", true
+	}
+
+	return "", false
 }
 
 func removeStoredImage(imageURL string) error {

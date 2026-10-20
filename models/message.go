@@ -25,10 +25,11 @@ type Message struct {
 
 	Text string
 
-	// Image and Audio hold the stored file names of an attached photo or
-	// voice note. Both are empty for a plain text message.
+	// Image, Audio and Video hold the stored file names of an attached
+	// photo, voice note or clip. They are empty for a plain text message.
 	Image string
 	Audio string
+	Video string
 
 	SentAt time.Time
 }
@@ -46,4 +47,9 @@ func (m Message) HasImage() bool {
 // HasAudio reports whether the message carries a voice note.
 func (m Message) HasAudio() bool {
 	return m.Audio != ""
+}
+
+// HasVideo reports whether the message carries a video clip.
+func (m Message) HasVideo() bool {
+	return m.Video != ""
 }

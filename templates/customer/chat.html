@@ -99,6 +99,12 @@
                                     </a>
                                 {{end}}
 
+                                {{if .Video}}
+                                    <video class="chat-video" controls preload="metadata" playsinline
+                                           src="{{.Video}}"
+                                           aria-label="Video sent by {{.SenderName}}"></video>
+                                {{end}}
+
                                 {{if .Audio}}
                                     <audio class="chat-audio" controls preload="none" src="{{.Audio}}"></audio>
                                 {{end}}
@@ -166,26 +172,36 @@
 
                     <div class="composer-row">
 
-                        <label class="composer-plus" for="chat-photo" title="Add a photo">
+                        <label class="composer-plus" for="chat-photo" title="Add a photo or video">
                             <span aria-hidden="true">+</span>
-                            <span class="visually-hidden">Add a photo</span>
+                            <span class="visually-hidden">Add a photo or video</span>
                         </label>
                         <input
                             id="chat-photo"
                             class="visually-hidden"
                             type="file"
                             name="photo"
-                            accept="image/jpeg,image/png,image/webp"
+                            accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime,video/x-m4v"
+                            data-chat-attachment
                             data-photo-input>
 
-                        <label class="visually-hidden" for="text">Your message</label>
-                        <textarea
-                            id="text"
-                            name="text"
-                            maxlength="1000"
-                            rows="1"
-                            placeholder="Type your message... (Press Enter to send)"
-                        ></textarea>
+                        <div class="composer-input">
+                            <div class="composer-preview" data-photo-preview hidden>
+                                <img alt="Selected attachment" data-photo-preview-img hidden>
+                                <video data-photo-preview-video muted playsinline preload="metadata" hidden></video>
+                                <span class="composer-preview-badge" data-photo-preview-badge hidden>Video</span>
+                                <button type="button" class="composer-preview-remove" data-photo-remove aria-label="Remove attachment">×</button>
+                            </div>
+
+                            <label class="visually-hidden" for="text">Your message</label>
+                            <textarea
+                                id="text"
+                                name="text"
+                                maxlength="1000"
+                                rows="1"
+                                placeholder="Type your message... (Press Enter to send)"
+                            ></textarea>
+                        </div>
 
                         <button type="button" class="composer-mic" data-mic aria-label="Hold to record a voice message" title="Hold to record">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0"></path><line x1="12" y1="18" x2="12" y2="22"></line></svg>
@@ -199,6 +215,8 @@
                         </button>
 
                     </div>
+
+                    <p class="composer-status" data-composer-status role="status" hidden></p>
 
                 </form>
 

@@ -69,15 +69,16 @@ func CustomerChatHandler(
 		renderCustomerChat(w, r, s, customer, barber, "")
 
 	case http.MethodPost:
-		// A message may carry one photo or voice note, so the body limit
-		// is the single-file limit rather than the text-form limit.
-		limitRequestBodyFor(w, r, 1)
+		// A message may carry one photo, clip or voice note, so the body
+		// limit covers the largest attachment rather than the text form.
+		extendUploadDeadline(w)
+		limitChatRequestBody(w, r)
 		if !requireCSRF(w, r, s) {
 			return
 		}
 		defer cleanupMultipart(r)
 
-		text, image, audio, problem := readChatMessage(r)
+		text, image, audio, video, problem := readChatMessage(r)
 		if problem != "" {
 			renderCustomerChat(w, r, s, customer, barber, problem)
 
@@ -92,11 +93,13 @@ func CustomerChatHandler(
 			Text:       text,
 			Image:      image,
 			Audio:      audio,
+			Video:      video,
 		})
 
 		if err != nil {
 			removeChatMedia(image)
 			removeChatMedia(audio)
+			removeChatMedia(video)
 			serverError(w, "send message", err)
 
 			return

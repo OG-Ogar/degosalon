@@ -23,10 +23,10 @@ func MessagePage(ctx context.Context, barberID, customerID int, cursor PageCurso
 	var items []models.Message
 	if databaseEnabled() {
 		args := []any{barberID, customerID}
-		query := `select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,sent_at from public.messages where barber_id=$1 and customer_id=$2` + pageSQL("id", cursor, false, &args)
+		query := `select id,barber_id,customer_id,sender_role,sender_name,text,image,audio,video,sent_at from public.messages where barber_id=$1 and customer_id=$2` + pageSQL("id", cursor, false, &args)
 		items, err = queryRecords(ctx, query, func(rows *sql.Rows) (models.Message, error) {
 			var m models.Message
-			err := rows.Scan(&m.ID, &m.BarberID, &m.CustomerID, &m.SenderRole, &m.SenderName, &m.Text, &m.Image, &m.Audio, &m.SentAt)
+			err := rows.Scan(&m.ID, &m.BarberID, &m.CustomerID, &m.SenderRole, &m.SenderName, &m.Text, &m.Image, &m.Audio, &m.Video, &m.SentAt)
 			return m, err
 		}, args...)
 		if err != nil {

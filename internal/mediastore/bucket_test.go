@@ -18,32 +18,65 @@ func goodBucket() bucketConfig {
 }
 func TestExistingBucketCompatibility(t *testing.T) {
 	for _, test := range []struct {
-		name   string
-		change func(*bucketConfig)
-		valid  bool
+		name     string
+		change   func(*bucketConfig)
+		valid    bool
+		repaired bool
 	}{
-		{"valid", func(*bucketConfig) {}, true},
-		{"private", func(b *bucketConfig) { b.Public = false }, false},
-		{"wrong identity", func(b *bucketConfig) { b.ID = "other" }, false},
-		{"wrong name", func(b *bucketConfig) { b.Name = "other" }, false},
-		{"nonstandard", func(b *bucketConfig) { b.Type = "ANALYTICS" }, false},
-		{"small", func(b *bucketConfig) { limit := MaxFileBytes - 1; b.Limit = &limit }, false},
-		{"images only", func(b *bucketConfig) { b.MIME = []string{"image/*"} }, false},
-		{"wildcards", func(b *bucketConfig) { b.MIME = []string{"image/*", "video/*"} }, true},
-		{"unrestricted", func(b *bucketConfig) { b.MIME = nil; b.Limit = nil }, true},
+		{"valid", func(*bucketConfig) {}, true, false},
+		{"private", func(b *bucketConfig) { b.Public = false }, false, false},
+		{"wrong identity", func(b *bucketConfig) { b.ID = "other" }, false, false},
+		{"wrong name", func(b *bucketConfig) { b.Name = "other" }, false, false},
+		{"nonstandard", func(b *bucketConfig) { b.Type = "ANALYTICS" }, false, false},
+		{"small", func(b *bucketConfig) { limit := MaxFileBytes - 1; b.Limit = &limit }, false, false},
+		// An older bucket allowlist predates voice notes and chat video; the
+		// missing types are appended, and nothing is removed.
+		{"images only", func(b *bucketConfig) { b.MIME = []string{"image/*"} }, true, true},
+		{"legacy wildcards", func(b *bucketConfig) { b.MIME = []string{"image/*", "video/*"} }, true, true},
+		{"unrestricted", func(b *bucketConfig) { b.MIME = nil; b.Limit = nil }, true, false},
 	} {
 		t.Run(test.name, func(t *testing.T) {
 			bucket := goodBucket()
 			test.change(&bucket)
+			patched := false
 			s := testStore(t, func(w http.ResponseWriter, r *http.Request) {
-				if r.Method != "GET" || r.URL.Path != "/storage/v1/bucket/degosalon-media" {
-					t.Error("existing bucket was modified")
+				if r.URL.Path != "/storage/v1/bucket/degosalon-media" {
+					t.Error("incorrect bucket path")
 				}
-				_ = json.NewEncoder(w).Encode(bucket)
+				switch r.Method {
+				case "GET":
+					_ = json.NewEncoder(w).Encode(bucket)
+				case "PUT":
+					patched = true
+					var update struct {
+						MIME []string `json:"allowed_mime_types"`
+					}
+					if json.NewDecoder(r.Body).Decode(&update) != nil {
+						t.Error("incorrect patch body")
+					}
+					for _, kind := range bucket.MIME {
+						found := false
+						for _, kept := range update.MIME {
+							if kept == kind {
+								found = true
+							}
+						}
+						if !found {
+							t.Error("patch removed an allowed type")
+						}
+					}
+					bucket.MIME = update.MIME
+					w.WriteHeader(http.StatusOK)
+				default:
+					t.Error("unexpected request")
+				}
 			}, "sb_secret_test-only")
 			err := s.EnsureBucket(context.Background(), true)
 			if test.valid && err != nil || !test.valid && !errors.Is(err, ErrBucket) {
 				t.Fatalf("compatibility result: %v", err)
+			}
+			if patched != test.repaired {
+				t.Fatalf("patched = %v, want %v", patched, test.repaired)
 			}
 		})
 	}

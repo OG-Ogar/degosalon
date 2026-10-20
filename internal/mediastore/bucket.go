@@ -14,7 +14,11 @@ import (
 const MaxFileBytes int64 = 50 << 20
 
 var ErrBucket = errors.New("media bucket is unavailable or incompatible")
-var supportedMIME = []string{"image/jpeg", "image/png", "image/gif", "image/webp", "video/mp4", "video/webm", "video/quicktime"}
+var supportedMIME = []string{
+	"image/jpeg", "image/png", "image/gif", "image/webp",
+	"video/mp4", "video/webm", "video/quicktime",
+	"audio/webm", "audio/ogg", "audio/mp4", "audio/mpeg",
+}
 
 type bucketConfig struct {
 	ID     string   `json:"id"`
@@ -81,19 +85,19 @@ func (s *Store) bucketRequest(ctx context.Context, method, path string, body []b
 	return response, nil
 }
 
-func (s *Store) checkBucket(ctx context.Context) (missing bool, err error) {
+func (s *Store) checkBucket(ctx context.Context) (bucketConfig, bool, error) {
 	response, err := s.bucketRequest(ctx, http.MethodGet, "/"+Bucket, nil)
 	if err != nil {
-		return false, err
+		return bucketConfig{}, false, err
 	}
 	defer response.Body.Close()
 	if response.StatusCode == http.StatusNotFound {
-		return true, nil
+		return bucketConfig{}, true, nil
 	}
 
 	data, err := io.ReadAll(io.LimitReader(response.Body, (16<<10)+1))
 	if err != nil || len(data) > 16<<10 {
-		return false, ErrBucket
+		return bucketConfig{}, false, ErrBucket
 	}
 	if response.StatusCode == http.StatusBadRequest {
 		// Some Storage API versions wrap NoSuchBucket in HTTP 400. Recognize
@@ -105,32 +109,69 @@ func (s *Store) checkBucket(ctx context.Context) (missing bool, err error) {
 			Error  string          `json:"error"`
 		}
 		if json.Unmarshal(data, &failure) == nil && (string(failure.Status) == `"404"` || string(failure.Status) == "404") && (failure.Code == "NoSuchBucket" || failure.Code == "" && failure.Error == "Bucket not found") {
-			return true, nil
+			return bucketConfig{}, true, nil
 		}
 	}
 	if response.StatusCode != http.StatusOK {
-		return false, ErrBucket
+		return bucketConfig{}, false, ErrBucket
 	}
 	var bucket bucketConfig
-	if json.Unmarshal(data, &bucket) != nil || !compatibleBucket(bucket) {
-		return false, ErrBucket
+	if json.Unmarshal(data, &bucket) != nil {
+		return bucketConfig{}, false, ErrBucket
 	}
-	return false, nil
+	return bucket, false, nil
 }
 
-// EnsureBucket verifies an existing bucket without changing it. When create is
-// true, it creates only a missing bucket and then reads back its configuration.
-// A concurrent creator or a lost create acknowledgment is resolved by readback;
-// private/incompatible existing buckets are never made public or overwritten.
+// bucketShapeMatches reports whether an existing bucket belongs to this
+// application and is large and public enough. MIME is checked separately
+// because an older bucket may simply predate a newly supported media type.
+func bucketShapeMatches(bucket bucketConfig) bool {
+	if bucket.ID != Bucket || bucket.Name != Bucket || !bucket.Public || (bucket.Type != "" && bucket.Type != "STANDARD") {
+		return false
+	}
+	return bucket.Limit == nil || *bucket.Limit >= MaxFileBytes
+}
+
+// widenedMIME returns the bucket's allowlist with every application media type
+// added. Existing entries are kept, so this only ever widens what may be
+// uploaded; it never removes an operator's own additions.
+func widenedMIME(current []string) []string {
+	allowed := map[string]bool{}
+	for _, kind := range current {
+		allowed[kind] = true
+	}
+	widened := append([]string{}, current...)
+	for _, kind := range supportedMIME {
+		if allowed[kind] {
+			continue
+		}
+		allowed[kind] = true
+		widened = append(widened, kind)
+	}
+	return widened
+}
+
+// EnsureBucket verifies an existing bucket without changing it, except for one
+// additive repair: a bucket that predates voice notes has no audio types in its
+// allowlist, so those types are appended. Nothing is ever narrowed, made
+// public, or overwritten. When create is true, only a missing bucket is created
+// and then read back; a concurrent creator or lost acknowledgment is resolved
+// by readback.
 func (s *Store) EnsureBucket(ctx context.Context, create bool) error {
 	ctx, cancel := context.WithTimeout(ctx, Timeout)
 	defer cancel()
-	missing, err := s.checkBucket(ctx)
+	bucket, missing, err := s.checkBucket(ctx)
 	if err != nil {
 		return err
 	}
 	if !missing {
-		return nil
+		if compatibleBucket(bucket) {
+			return nil
+		}
+		if !bucketShapeMatches(bucket) || len(bucket.MIME) == 0 {
+			return ErrBucket
+		}
+		return s.widenBucketMIME(ctx, bucket)
 	}
 	if !create {
 		return ErrBucket
@@ -143,8 +184,38 @@ func (s *Store) EnsureBucket(ctx context.Context, create bool) error {
 		response.Body.Close()
 	}
 	// Do not trust POST success alone, nor an error body that may contain secrets.
-	missing, err = s.checkBucket(ctx)
+	bucket, missing, err = s.checkBucket(ctx)
 	if err != nil || missing || createErr != nil && ctx.Err() != nil {
+		return ErrBucket
+	}
+	if !compatibleBucket(bucket) {
+		return ErrBucket
+	}
+	return nil
+}
+
+// widenBucketMIME adds the media types an older bucket is missing, then reads
+// the bucket back. The verified visibility and size limit are sent alongside so
+// the update cannot reset them; nothing is narrowed.
+func (s *Store) widenBucketMIME(ctx context.Context, bucket bucketConfig) error {
+	update := map[string]any{
+		"public":             bucket.Public,
+		"allowed_mime_types": widenedMIME(bucket.MIME),
+	}
+	if bucket.Limit != nil {
+		update["file_size_limit"] = *bucket.Limit
+	}
+	body, _ := json.Marshal(update)
+	response, err := s.bucketRequest(ctx, http.MethodPut, "/"+Bucket, body)
+	if response != nil {
+		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body, 4096))
+		response.Body.Close()
+	}
+	if err != nil || response == nil || response.StatusCode < 200 || response.StatusCode >= 300 {
+		return ErrBucket
+	}
+	updated, missing, err := s.checkBucket(ctx)
+	if err != nil || missing || !compatibleBucket(updated) {
 		return ErrBucket
 	}
 	return nil

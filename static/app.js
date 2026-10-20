@@ -464,6 +464,12 @@
        show it under, so a round picture is previewed round. The upload
        works the same without any of this. */
     function previewChosenPhoto(input) {
+        /* Chat attachments have their own small thumbnail inside the message
+           box. The generic preview would add a second, large photo below the
+           composer, so it must not touch that input. */
+        if (input.hasAttribute("data-chat-attachment") || input.closest("[data-chat-composer]")) {
+            return;
+        }
         var preview = document.createElement("img");
         preview.className = input.getAttribute("data-preview") || "photo";
         preview.alt = "The photo you just chose";

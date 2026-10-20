@@ -56,7 +56,8 @@ func validPath(path string) bool {
 		return false
 	}
 	switch parts[0] {
-	case "hairstyles", "hairstyle-videos", "products", "barbers", "customers", "site":
+	case "hairstyles", "hairstyle-videos", "products", "barbers", "customers", "site",
+		"chat", "chat-voice", "chat-video":
 	default:
 		return false
 	}
@@ -81,7 +82,7 @@ func (s *Store) PublicURL(path string) (string, error) {
 // Upload streams an already validated file without loading a video into memory.
 // Random caller-generated object names and disabled upsert prevent overwrite.
 func (s *Store) Upload(ctx context.Context, path, kind string, size int64, body io.Reader) error {
-	if !validPath(path) || size <= 0 || size > 50<<20 || !(strings.HasPrefix(kind, "image/") || strings.HasPrefix(kind, "video/")) {
+	if !validPath(path) || size <= 0 || size > MaxFileBytes || !(strings.HasPrefix(kind, "image/") || strings.HasPrefix(kind, "video/") || strings.HasPrefix(kind, "audio/")) {
 		return ErrConfiguration
 	}
 	ctx, cancel := context.WithTimeout(ctx, Timeout)
@@ -113,10 +114,22 @@ func (s *Store) Upload(ctx context.Context, path, kind string, size int64, body 
 }
 
 var ErrDelete = errors.New("media storage cleanup failed")
-var ownedName = regexp.MustCompile(`^([a-f0-9]{32}|[0-9]{10,20})\.(jpg|jpeg|png|gif|webp|mp4|webm|mov)$`)
+var ownedName = regexp.MustCompile(`^([a-f0-9]{32}|[0-9]{10,20})\.(jpg|jpeg|png|gif|webp|mp4|webm|mov|m4v|3gp|m4a|ogg|oga)$`)
+
+func mediaKind(extension string) string {
+	switch extension {
+	case "mp4", "webm", "mov", "m4v", "3gp":
+		return "video"
+	case "m4a", "ogg", "oga":
+		return "audio"
+	default:
+		return "image"
+	}
+}
 
 // Owns accepts only canonical URLs in this project's application bucket and
 // known directories, with an application-generated or legacy timestamp name.
+// The directory decides the media kind, so a photo cannot pose as a voice note.
 func (s *Store) Owns(uri string) bool {
 	prefix := s.base + "/storage/v1/object/public/" + Bucket + "/"
 	if !strings.HasPrefix(uri, prefix) {
@@ -131,8 +144,14 @@ func (s *Store) Owns(uri string) bool {
 		return false
 	}
 	extension := parts[1][strings.LastIndex(parts[1], ".")+1:]
-	video := extension == "mp4" || extension == "webm" || extension == "mov"
-	return video == (parts[0] == "hairstyle-videos")
+	switch parts[0] {
+	case "hairstyle-videos", "chat-video":
+		return mediaKind(extension) == "video"
+	case "chat-voice":
+		return mediaKind(extension) == "audio"
+	default:
+		return mediaKind(extension) == "image"
+	}
 }
 
 // Delete removes exactly one owned object through the Storage API. A successful
@@ -190,8 +209,13 @@ func LegacyObjectPath(uri string) (string, bool) {
 	extension := parts[1][at+1:]
 	video := extension == "mp4" || extension == "webm" || extension == "mov"
 	image := extension == "jpg" || extension == "jpeg" || extension == "png" || extension == "gif" || extension == "webp"
-	if parts[0] == "hairstyle-videos" {
+	switch parts[0] {
+	case "hairstyle-videos":
 		return path, video
+	case "chat-voice", "chat-video":
+		// Chat attachments are not part of the legacy catalogue migration;
+		// they are written straight to the media store by the new upload path.
+		return "", false
 	}
 	return path, image
 }

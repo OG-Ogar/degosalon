@@ -277,7 +277,7 @@ func TestChatThreadRendersVideoAndVoicePlayers(t *testing.T) {
 		"controls",
 		`src="/uploads/chat-video/a.mp4"`,
 		`src="/uploads/chat-voice/a.webm"`,
-		`accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime,video/x-m4v"`,
+		`accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime,video/x-m4v,video/3gpp"`,
 		`data-photo-preview-video`,
 		`data-composer-status`,
 	} {

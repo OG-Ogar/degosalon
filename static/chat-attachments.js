@@ -85,13 +85,13 @@
     var video = isVideoFile(file);
     var limit = video ? MAX_VIDEO : MAX_IMAGE;
     if (file.size > limit) {
+      clearAttachment();
       status(
         video
           ? 'That video is larger than 50 MB. Choose a shorter clip.'
           : 'That photo is larger than 20 MB. Choose a smaller one.',
         true
       );
-      clearAttachment();
       return;
     }
 

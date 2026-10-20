@@ -104,10 +104,10 @@ func TestMultipartFilesRemainReadableUntilCleanup(t *testing.T) {
 }
 
 func TestHighlyCompressedOversizedImageRejected(t *testing.T) {
-	// A real compressed 16.7 MP grayscale image is small on disk but would
+	// A real compressed 67 MP grayscale image is small on disk but would
 	// allocate its full pixel buffer if header checks followed full decoding.
 	var buffer bytes.Buffer
-	if err := png.Encode(&buffer, image.NewGray(image.Rect(0, 0, 4096, 4096))); err != nil {
+	if err := png.Encode(&buffer, image.NewGray(image.Rect(0, 0, 8192, 8192))); err != nil {
 		t.Fatal(err)
 	}
 	if buffer.Len() > 100<<10 {
@@ -117,7 +117,7 @@ func TestHighlyCompressedOversizedImageRejected(t *testing.T) {
 	if err := os.WriteFile(path, buffer.Bytes(), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := normalizeStoredImage(path); err == nil || !strings.Contains(err.Error(), "16 megapixels") {
+	if err := normalizeStoredImage(path); err == nil || !strings.Contains(err.Error(), "64 megapixels") {
 		t.Fatalf("pixel budget ignored: %v", err)
 	}
 }
@@ -127,7 +127,7 @@ func TestHeaderDimensionsAndContentTypeAreValidated(t *testing.T) {
 	if err := png.Encode(&original, image.NewGray(image.Rect(0, 0, 1, 1))); err != nil {
 		t.Fatal(err)
 	}
-	for _, dimensions := range [][2]uint32{{10001, 1}, {1, 10001}, {2147483647, 2147483647}} {
+	for _, dimensions := range [][2]uint32{{20001, 1}, {1, 20001}, {2147483647, 2147483647}} {
 		data := append([]byte(nil), original.Bytes()...)
 		binary.BigEndian.PutUint32(data[16:20], dimensions[0])
 		binary.BigEndian.PutUint32(data[20:24], dimensions[1])
@@ -160,8 +160,8 @@ func TestHeaderDimensionsAndContentTypeAreValidated(t *testing.T) {
 	binary.LittleEndian.PutUint32(webp[4:8], 22)
 	copy(webp[8:], "WEBPVP8X")
 	binary.LittleEndian.PutUint32(webp[16:20], 10)
-	webp[24] = 0x10
-	webp[25] = 0x27 // width minus one = 10000
+	webp[24] = 0x20
+	webp[25] = 0x4e // width minus one = 20000
 	path = filepath.Join(t.TempDir(), "huge.webp")
 	if err := os.WriteFile(path, webp, 0600); err != nil {
 		t.Fatal(err)

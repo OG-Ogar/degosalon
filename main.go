@@ -142,6 +142,12 @@ func run() error {
 	mux.HandleFunc("/uploads/chat-voice/", handlers.ChatVoiceHandler)
 	mux.HandleFunc("/uploads/chat-video/", handlers.ChatVideoHandler)
 
+	// Catalogue clips (hairstyle and product videos) need the same explicit
+	// content type, so a barber's uploaded video plays on the catalogue and
+	// shop pages.
+	mux.HandleFunc("/uploads/hairstyle-videos/", handlers.CatalogueVideoHandler)
+	mux.HandleFunc("/uploads/product-videos/", handlers.CatalogueVideoHandler)
+
 	mux.Handle(
 		"/static/",
 		revalidate(http.StripPrefix("/static/", http.FileServer(http.Dir("static")))),

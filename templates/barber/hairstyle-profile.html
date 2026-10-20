@@ -53,6 +53,18 @@
             </div>
         {{end}}
 
+        {{if .Video}}
+            <div class="barber-showcase-media">
+                <video class="portfolio-video"
+                       src="{{.Video}}"
+                       controls
+                       preload="none"
+                       poster="{{.Image}}"
+                       aria-label="Video of {{.Name}}">
+                </video>
+            </div>
+        {{end}}
+
         <table class="barber-profile-table">
 
             <tbody>

@@ -27,7 +27,7 @@ func CataloguePage(ctx context.Context, sellerID, productID int, cursor PageCurs
 	}
 	var items []CatalogueProduct
 	if databaseEnabled() {
-		query := `select p.id,p.barber_id,p.name,p.category,p.description,p.price,p.quantity,p.image,p.is_available,p.is_archived,b.id,b.full_name,b.shop_name
+		query := `select p.id,p.barber_id,p.name,p.category,p.description,p.price,p.quantity,p.image,p.video,p.is_available,p.is_archived,b.id,b.full_name,b.shop_name
    from public.products p join public.barbers b on b.id=p.barber_id where p.is_available and not p.is_archived and b.status='Active'`
 		args := []any{}
 		if sellerID > 0 {
@@ -45,7 +45,7 @@ func CataloguePage(ctx context.Context, sellerID, productID int, cursor PageCurs
 		query += pageSQL("p.id", cursor, true, &args)
 		items, err = queryRecords(ctx, query, func(rows *sql.Rows) (CatalogueProduct, error) {
 			var row CatalogueProduct
-			err := rows.Scan(&row.Product.ID, &row.Product.BarberID, &row.Product.Name, &row.Product.Category, &row.Product.Description, &row.Product.Price, &row.Product.Quantity, &row.Product.Image, &row.Product.IsAvailable, &row.Product.Archived, &row.Barber.ID, &row.Barber.FullName, &row.Barber.ShopName)
+			err := rows.Scan(&row.Product.ID, &row.Product.BarberID, &row.Product.Name, &row.Product.Category, &row.Product.Description, &row.Product.Price, &row.Product.Quantity, &row.Product.Image, &row.Product.Video, &row.Product.IsAvailable, &row.Product.Archived, &row.Barber.ID, &row.Barber.FullName, &row.Barber.ShopName)
 			return row, err
 		}, args...)
 		if err != nil {

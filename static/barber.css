@@ -331,7 +331,9 @@
 .barber-hairstyle-grid {
     display: grid;
 
-    grid-template-columns: repeat(3, 1fr);
+    /* Medium cards: a row of equally sized tiles that reflow with the
+       page instead of stretching to the width of the screen. */
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
 
     gap: 20px;
 }
@@ -762,7 +764,7 @@
     }
 
     .barber-hairstyle-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
 
     .barber-header-inner {

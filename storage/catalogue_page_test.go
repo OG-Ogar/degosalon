@@ -123,7 +123,7 @@ func (c *catalogueConn) QueryContext(_ context.Context, query string, args []dri
 			return nil, errors.New("private fields selected")
 		}
 	}
-	values := []driver.Value{int64(10), int64(1), "Product", "Care", "Details", float64(1250), int64(2), "", true, false, int64(1), "Seller", "Shop"}
+	values := []driver.Value{int64(10), int64(1), "Product", "Care", "Details", float64(1250), int64(2), "", "", true, false, int64(1), "Seller", "Shop"}
 	if c.state.badScan {
 		values[0] = "invalid id"
 	}

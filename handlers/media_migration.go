@@ -124,7 +124,7 @@ func migrateLegacyFile(ctx context.Context, root, uri string, store legacyMediaB
 	if err != nil || !os.SameFile(info, opened) {
 		return 0, ErrLegacyMediaMigration
 	}
-	video := strings.HasPrefix(objectPath, "hairstyle-videos/")
+	video := strings.HasPrefix(objectPath, "hairstyle-videos/") || strings.HasPrefix(objectPath, "product-videos/")
 	limit := int64(maxUploadBytes)
 	if video {
 		limit = maxVideoBytes

@@ -55,6 +55,7 @@ func EditHairstyleHandler(
 		formFromHairstyle(hairstyle),
 		hairstyle.ID,
 		hairstyle.Image,
+		hairstyle.Video,
 		"",
 	)
 }
@@ -81,7 +82,11 @@ func UpdateHairstyleHandler(
 		return
 	}
 
-	limitRequestBody(w, r)
+	limitFormBody(
+		w,
+		r,
+		maxUploadBytes+maxVideoBytes+maxFormMemory,
+	)
 
 	hairstyle, ok := ownedHairstyle(w, r, barber, idSegment)
 	if !ok {
@@ -94,30 +99,56 @@ func UpdateHairstyleHandler(
 
 	form, problem := readHairstyleForm(r)
 	if problem != "" {
-		renderHairstyleForm(w, s, form, hairstyle.ID, hairstyle.Image, problem)
+		renderHairstyleForm(w, s, form, hairstyle.ID, hairstyle.Image, hairstyle.Video, problem)
 
 		return
 	}
+
+	previous := hairstyle.Image
+	previousVideo := hairstyle.Video
 
 	image, err := hairstyleImages.save(r, "image")
 
 	switch {
 	case errors.Is(err, errNoUpload):
-		image = hairstyle.Image
+		image = previous
 
 	case err != nil:
-		renderHairstyleForm(w, s, form, hairstyle.ID, hairstyle.Image, err.Error())
+		renderHairstyleForm(w, s, form, hairstyle.ID, hairstyle.Image, hairstyle.Video, err.Error())
+
+		return
+	}
+
+	video, err := hairstyleVideos.save(r, "video")
+
+	switch {
+	case errors.Is(err, errNoUpload):
+		video = previousVideo
+
+	case err != nil:
+		// Only a newly uploaded photo is unreferenced at this point; the
+		// stored one must survive the rejected request.
+		if image != previous {
+			removeImageIgnoringError(image)
+		}
+
+		renderHairstyleForm(w, s, form, hairstyle.ID, hairstyle.Image, hairstyle.Video, err.Error())
 
 		return
 	}
 
 	// Whichever way the write goes, exactly one of these two files ends
 	// up unreferenced and has to be unlinked.
-	previous := hairstyle.Image
 	uploaded := ""
 
 	if image != previous {
 		uploaded = image
+	}
+
+	uploadedVideo := ""
+
+	if video != previousVideo {
+		uploadedVideo = video
 	}
 
 	hairstyle.Name = form.Name
@@ -127,9 +158,11 @@ func UpdateHairstyleHandler(
 	hairstyle.Duration = form.Duration
 	hairstyle.IsAvailable = form.Available
 	hairstyle.Image = image
+	hairstyle.Video = video
 
 	if err := storage.UpdateHairstyleContext(r.Context(), hairstyle); err != nil {
 		removeImageIgnoringError(uploaded)
+		removeVideoIgnoringError(uploadedVideo)
 		serverError(w, "update hairstyle", err)
 
 		return
@@ -137,6 +170,10 @@ func UpdateHairstyleHandler(
 
 	if uploaded != "" {
 		removeImageIgnoringError(previous)
+	}
+
+	if uploadedVideo != "" {
+		removeVideoIgnoringError(previousVideo)
 	}
 
 	http.Redirect(w, r, "/barber/hairstyles", http.StatusSeeOther)

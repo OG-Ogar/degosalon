@@ -50,6 +50,7 @@ create table if not exists public.products (
   price numeric(12,2) not null check (price >= 0),
   quantity integer not null default 0 check (quantity >= 0),
   image text not null default '',
+  video text not null default '',
   is_available boolean not null default true
 );
 
@@ -105,6 +106,12 @@ alter table public.messages
   add column if not exists audio text not null default '';
 
 alter table public.messages
+  add column if not exists video text not null default '';
+
+-- Products carry a clip as well as a photo. Existing products keep their
+-- photo and start without a clip.
+
+alter table public.products
   add column if not exists video text not null default '';
 
 create table if not exists public.carts (

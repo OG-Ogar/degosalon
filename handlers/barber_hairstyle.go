@@ -76,6 +76,7 @@ type hairstyleFormView struct {
 	Editing   bool
 	ID        int
 	Image     string
+	Video     string
 	Available bool
 
 	Values map[string]string
@@ -90,6 +91,7 @@ func renderHairstyleForm(
 	form hairstyleForm,
 	id int,
 	image string,
+	video string,
 	problem string,
 ) {
 	name := "barber/hairstyle-form.html"
@@ -111,6 +113,7 @@ func renderHairstyleForm(
 		Editing:   id > 0,
 		ID:        id,
 		Image:     image,
+		Video:     video,
 		Available: form.Available,
 		Values:    values,
 		CSRF:      s.CSRFToken,
@@ -128,10 +131,10 @@ func NewHairstyleHandler(
 	switch r.Method {
 
 	case http.MethodGet:
-		renderHairstyleForm(w, s, hairstyleForm{Available: true}, 0, "", "")
+		renderHairstyleForm(w, s, hairstyleForm{Available: true}, 0, "", "", "")
 
 	case http.MethodPost:
-		// A hairstyle can contain one image up to 5 MiB and
+		// A hairstyle can contain one image up to 32 MiB and
 		// one video up to 50 MiB, plus form data.
 		limitFormBody(
 			w,
@@ -145,7 +148,7 @@ func NewHairstyleHandler(
 
 		form, problem := readHairstyleForm(r)
 		if problem != "" {
-			renderHairstyleForm(w, s, form, 0, "", problem)
+			renderHairstyleForm(w, s, form, 0, "", "", problem)
 
 			return
 		}
@@ -153,7 +156,7 @@ func NewHairstyleHandler(
 		image, err := hairstyleImages.save(r, "image")
 
 		if err != nil && !errors.Is(err, errNoUpload) {
-			renderHairstyleForm(w, s, form, 0, "", err.Error())
+			renderHairstyleForm(w, s, form, 0, "", "", err.Error())
 
 			return
 		}
@@ -163,7 +166,7 @@ func NewHairstyleHandler(
 		if err != nil && !errors.Is(err, errNoUpload) {
 			removeImageIgnoringError(image)
 
-			renderHairstyleForm(w, s, form, 0, "", err.Error())
+			renderHairstyleForm(w, s, form, 0, "", "", err.Error())
 
 			return
 		}

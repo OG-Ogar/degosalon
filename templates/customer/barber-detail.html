@@ -240,11 +240,13 @@
                         Choose a hairstyle
                     </legend>
 
-                    {{$view := .}}
+                    <div class="hairstyle-grid">
 
-                    {{range .Hairstyles}}{{if eq $.Selected .ID}}
+                        {{$view := .}}
 
-                        <div class="hairstyle-option">
+                        {{range .Hairstyles}}
+
+                        <div class="hairstyle-option hairstyle-card">
 
                             <input
                                 type="radio"
@@ -278,6 +280,23 @@
                                     {{end}}
 
                                 </div>
+
+                                {{if .Video}}
+
+                                    <div class="style-video">
+
+                                        <video
+                                            class="catalogue-video"
+                                            src="{{.Video}}"
+                                            controls
+                                            preload="none"
+                                            poster="{{.Image}}"
+                                            aria-label="Video of {{.Name}}">
+                                        </video>
+
+                                    </div>
+
+                                {{end}}
 
 
                                 <div class="style-info">
@@ -319,7 +338,9 @@
 
                         </div>
 
-                    {{end}}{{end}}
+                        {{end}}
+
+                    </div>
 
                 </fieldset>
 

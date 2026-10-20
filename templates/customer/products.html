@@ -107,6 +107,19 @@
 
                     </div>
 
+                    {{if .Product.Video}}
+
+                        <video
+                            class="catalogue-video"
+                            src="{{.Product.Video}}"
+                            controls
+                            preload="none"
+                            poster="{{.Product.Image}}"
+                            aria-label="Video of {{.Product.Name}}">
+                        </video>
+
+                    {{end}}
+
 
                     <div class="product-card-body">
 

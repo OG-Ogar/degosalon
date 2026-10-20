@@ -12,6 +12,7 @@ type Product struct {
 	Quantity int
 
 	Image       string
+	Video       string
 	IsAvailable bool
 	Archived    bool
 }

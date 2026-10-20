@@ -54,7 +54,7 @@ func FindProductByID(id int) (models.Product, bool) {
 
 	if databaseEnabled() {
 		var v models.Product
-		err := db.QueryRowContext(ctx, "select id,barber_id,name,category,description,price,quantity,image,is_available,is_archived from public.products where id=$1", id).Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Quantity, &v.Image, &v.IsAvailable, &v.Archived)
+		err := db.QueryRowContext(ctx, "select "+productColumns+" from public.products where id=$1", id).Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Quantity, &v.Image, &v.Video, &v.IsAvailable, &v.Archived)
 		return v, err == nil
 	}
 	mu.RLock()
@@ -107,7 +107,7 @@ func CreateProductContext(ctx context.Context, product models.Product) (models.P
 	}
 
 	if databaseEnabled() {
-		err := db.QueryRowContext(ctx, "insert into public.products(barber_id,name,category,description,price,quantity,image,is_available) values($1,$2,$3,$4,$5,$6,$7,$8) returning id", product.BarberID, product.Name, product.Category, product.Description, product.Price, product.Quantity, product.Image, product.IsAvailable).Scan(&product.ID)
+		err := db.QueryRowContext(ctx, "insert into public.products(barber_id,name,category,description,price,quantity,image,video,is_available) values($1,$2,$3,$4,$5,$6,$7,$8,$9) returning id", product.BarberID, product.Name, product.Category, product.Description, product.Price, product.Quantity, product.Image, product.Video, product.IsAvailable).Scan(&product.ID)
 		return product, err
 	}
 	mu.Lock()
@@ -115,7 +115,7 @@ func CreateProductContext(ctx context.Context, product models.Product) (models.P
 	if err := ctx.Err(); err != nil {
 		return models.Product{}, err
 	}
-	if err := guardMediaLocked(product.Image); err != nil {
+	if err := guardMediaLocked(product.Image, product.Video); err != nil {
 		return models.Product{}, err
 	}
 
@@ -143,7 +143,7 @@ func UpdateProductContext(ctx context.Context, product models.Product) error {
 	}
 
 	if databaseEnabled() {
-		result, err := db.ExecContext(ctx, "update public.products set name=$1,category=$2,description=$3,price=$4,quantity=$5,image=$6,is_available=$7 where id=$8 and barber_id=$9 and not is_archived", product.Name, product.Category, product.Description, product.Price, product.Quantity, product.Image, product.IsAvailable, product.ID, product.BarberID)
+		result, err := db.ExecContext(ctx, "update public.products set name=$1,category=$2,description=$3,price=$4,quantity=$5,image=$6,video=$7,is_available=$8 where id=$9 and barber_id=$10 and not is_archived", product.Name, product.Category, product.Description, product.Price, product.Quantity, product.Image, product.Video, product.IsAvailable, product.ID, product.BarberID)
 		if err != nil {
 			return err
 		}
@@ -174,7 +174,7 @@ func UpdateProductContext(ctx context.Context, product models.Product) error {
 			return ErrForbidden
 		}
 
-		if err := guardMediaLocked(product.Image); err != nil {
+		if err := guardMediaLocked(product.Image, product.Video); err != nil {
 			return err
 		}
 		products[i] = product

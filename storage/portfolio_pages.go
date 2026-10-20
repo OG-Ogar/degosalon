@@ -67,10 +67,10 @@ func ProductPage(ctx context.Context, barberID int, public bool, cursor PageCurs
 		if public {
 			predicate += " and is_available and quantity>0"
 		}
-		query := "select id,barber_id,name,category,description,price,quantity,image,is_available,is_archived from public.products where barber_id=$1 and " + predicate + pageSQL("id", cursor, true, &args)
+		query := "select id,barber_id,name,category,description,price,quantity,image,video,is_available,is_archived from public.products where barber_id=$1 and " + predicate + pageSQL("id", cursor, true, &args)
 		items, err = queryRecords(ctx, query, func(rows *sql.Rows) (models.Product, error) {
 			var v models.Product
-			err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Quantity, &v.Image, &v.IsAvailable, &v.Archived)
+			err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Quantity, &v.Image, &v.Video, &v.IsAvailable, &v.Archived)
 			return v, err
 		}, args...)
 		if err != nil {

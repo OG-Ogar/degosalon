@@ -17,7 +17,8 @@ var ErrMediaMigrationCommitUnknown = errors.New("media migration commit status i
 const allMediaReferencesSQL = `select profile_image as uri from public.barbers union all
  select personal_image from public.barbers union all select profile_image from public.customers union all
  select image from public.hairstyles union all select video from public.hairstyles union all
- select image from public.products union all select image_url from degosalon_internal.site_media`
+ select image from public.products union all select video from public.products union all
+ select image_url from degosalon_internal.site_media`
 
 // LegacyMediaReferencesContext pages distinct local references with a stable
 // bytewise cursor. Malformed local references are included so migration reports
@@ -74,6 +75,7 @@ func LegacyMediaReferencesContext(ctx context.Context, after string, limit int) 
 	}
 	for _, p := range products {
 		add(p.Image)
+		add(p.Video)
 	}
 	for _, image := range siteImages {
 		add(image)
@@ -117,7 +119,7 @@ func ReplaceMediaReferencesContext(ctx context.Context, old, next string) (int, 
 			`update public.barbers set profile_image=case when profile_image=$1 then $2 else profile_image end,personal_image=case when personal_image=$1 then $2 else personal_image end where profile_image=$1 or personal_image=$1`,
 			`update public.customers set profile_image=$2 where profile_image=$1`,
 			`update public.hairstyles set image=case when image=$1 then $2 else image end,video=case when video=$1 then $2 else video end where image=$1 or video=$1`,
-			`update public.products set image=$2 where image=$1`,
+			`update public.products set image=case when image=$1 then $2 else image end,video=case when video=$1 then $2 else video end where image=$1 or video=$1`,
 			`update degosalon_internal.site_media set image_url=$2 where image_url=$1`,
 		} {
 			result, err := tx.ExecContext(ctx, query, old, next)
@@ -184,8 +186,16 @@ func ReplaceMediaReferencesContext(ctx context.Context, old, next string) (int, 
 		}
 	}
 	for i, p := range products {
+		changed := false
 		if p.Image == old {
 			products[i].Image = next
+			changed = true
+		}
+		if p.Video == old {
+			products[i].Video = next
+			changed = true
+		}
+		if changed {
 			total++
 		}
 	}

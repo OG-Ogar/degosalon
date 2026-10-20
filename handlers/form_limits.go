@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"io"
+	"mime/multipart"
 	"net/http"
 	"strings"
 	"time"
@@ -40,10 +41,10 @@ func limitFormBody(w http.ResponseWriter, r *http.Request, limit int64) {
 // errors and uses a much larger default multipart memory allowance.
 func parseBoundedForm(w http.ResponseWriter, r *http.Request) bool {
 	body, explicit := r.Body.(*limitedFormBody)
-	multipart := strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "multipart/")
+	isMultipart := strings.HasPrefix(strings.ToLower(r.Header.Get("Content-Type")), "multipart/")
 	limit := int64(maxMutationFormBytes)
 	if explicit {
-		if multipart {
+		if isMultipart {
 			limit = body.limit
 		} else {
 			limit = min(limit, body.limit)
@@ -59,14 +60,17 @@ func parseBoundedForm(w http.ResponseWriter, r *http.Request) bool {
 		return false
 	}
 	var err error
-	if multipart {
+	if isMultipart {
 		err = r.ParseMultipartForm(maxFormMemory)
 	} else {
 		err = r.ParseForm()
 	}
 	if err != nil {
 		var large *http.MaxBytesError
-		if errors.As(err, &large) {
+		// The multipart package keeps ordinary fields in memory and refuses
+		// a body larger than its own allowance. That is a body the client
+		// sent too big, not a malformed request.
+		if errors.As(err, &large) || errors.Is(err, multipart.ErrMessageTooLarge) {
 			journeyError(w, "This form is too large.", http.StatusRequestEntityTooLarge)
 		} else {
 			journeyError(w, "This form could not be read. Reload and try again.", http.StatusBadRequest)

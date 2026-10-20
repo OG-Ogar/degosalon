@@ -72,6 +72,16 @@
                             </span>
                         </div>
 
+                        {{if .Video}}
+                            <video class="catalogue-video"
+                                   src="{{.Video}}"
+                                   controls
+                                   preload="none"
+                                   poster="{{.Image}}"
+                                   aria-label="Video of {{.Name}}">
+                            </video>
+                        {{end}}
+
                         <div class="barber-hairstyle-content">
 
                             <h2 class="barber-hairstyle-name">

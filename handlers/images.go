@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"image"
-	"image/color"
 	_ "image/gif"
 	"image/jpeg"
 	"image/png"
@@ -11,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
 )
 
@@ -19,9 +19,15 @@ const (
 	// any page draws one is a little under 900 pixels, so a picture
 	// straight off a phone carries several megabytes of detail that the
 	// browser downloads and then throws away.
-	maxImageEdge      = 1600
-	maxImageDimension = 10000
-	maxImagePixels    = 16_000_000
+	maxImageEdge = 1600
+
+	// maxImageDimension and maxImagePixels bound what may be decoded.
+	// A modern phone camera produces 12 to 50 megapixel pictures, so the
+	// budget is generous: the picture is resized and re-encoded here
+	// instead of being refused. The limits still stop a malformed header
+	// from asking for an impossible allocation.
+	maxImageDimension = 20000
+	maxImagePixels    = 64_000_000
 
 	// jpegQuality is the re-encode setting: the usual point where the
 	// file gets much smaller without the loss being visible.
@@ -65,7 +71,11 @@ func normalizeStoredImage(path string) error {
 		config.Width > maxImageDimension ||
 		config.Height > maxImageDimension ||
 		config.Width > maxImagePixels/config.Height {
-		return fmt.Errorf("image exceeds the limit of 16 megapixels or 10000 pixels per side")
+		return fmt.Errorf(
+			"image exceeds the limit of %d megapixels or %d pixels per side",
+			maxImagePixels/1_000_000,
+			maxImageDimension,
+		)
 	}
 
 	// Verify that the filename extension matches the actual image format.
@@ -166,64 +176,19 @@ func fitWithin(width, height, limit int) (int, int) {
 	return max(width*limit/height, 1), limit
 }
 
-// downscale averages every source pixel that falls inside a destination
-// pixel. Picking one pixel per destination instead is shorter, but at
-// these ratios it turns hair into noise.
+// downscale resizes a picture to the given size.
+//
+// The resampling filter looks at every source pixel that falls inside a
+// destination pixel, so hair keeps its texture instead of turning into
+// noise. A phone photo can carry tens of megapixels, so the work is done by
+// the draw package rather than by walking the source pixel by pixel here.
 func downscale(source image.Image, width, height int) image.Image {
 	bounds := source.Bounds()
 	target := image.NewRGBA(image.Rect(0, 0, width, height))
 
-	for y := 0; y < height; y++ {
-		top := bounds.Min.Y + y*bounds.Dy()/height
-		bottom := bounds.Min.Y + (y+1)*bounds.Dy()/height
-
-		if bottom <= top {
-			bottom = top + 1
-		}
-
-		for x := 0; x < width; x++ {
-			left := bounds.Min.X + x*bounds.Dx()/width
-			right := bounds.Min.X + (x+1)*bounds.Dx()/width
-
-			if right <= left {
-				right = left + 1
-			}
-
-			target.SetRGBA(x, y, averageColor(source, left, top, right, bottom))
-		}
-	}
+	draw.CatmullRom.Scale(target, target.Bounds(), source, bounds, draw.Src, nil)
 
 	return target
-}
-
-// averageColor is the mean of one box of source pixels. RGBA reports
-// alpha-premultiplied values, which is what makes averaging them safe: a
-// transparent pixel contributes nothing rather than contributing whatever
-// colour happens to sit behind its transparency.
-func averageColor(source image.Image, left, top, right, bottom int) color.RGBA {
-	var red, green, blue, alpha uint64
-
-	count := uint64((right - left) * (bottom - top))
-
-	for y := top; y < bottom; y++ {
-		for x := left; x < right; x++ {
-			r, g, b, a := source.At(x, y).RGBA()
-
-			red += uint64(r)
-			green += uint64(g)
-			blue += uint64(b)
-			alpha += uint64(a)
-		}
-	}
-
-	// RGBA values run to 65535, so each average is shifted back down into
-	// the single byte per channel that color.RGBA holds.
-	return color.RGBA{
-		R: uint8((red / count) >> 8),
-		G: uint8((green / count) >> 8),
-		B: uint8((blue / count) >> 8),
-		A: uint8((alpha / count) >> 8),
-	}
 }
 
 // replaceImageFile encodes the picture beside the original and renames it

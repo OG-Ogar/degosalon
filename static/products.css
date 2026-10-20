@@ -145,8 +145,10 @@ PRODUCT GRID
 .product-grid {
     display: grid;
 
+    /* Medium cards: equal tiles that reflow with the page instead of
+       stretching to the full width of the screen. */
     grid-template-columns:
-        repeat(auto-fit, minmax(260px, 300px));
+        repeat(auto-fill, minmax(240px, 1fr));
 
     justify-content: center;
 
@@ -186,7 +188,12 @@ PRODUCT PHOTO
     display: block;
 
     width: 100%;
-    height: 150px;
+
+    /* A medium 4:3 tile keeps every card the same size whether or not
+       the barber uploaded a photo. */
+    aspect-ratio: 4 / 3;
+
+    height: auto;
 
     object-fit: cover;
 }
@@ -632,10 +639,6 @@ RESPONSIVE
         grid-template-columns: 1fr;
 
         justify-content: stretch;
-    }
-
-    .product-image {
-        height: 200px;
     }
 
     .cart-item {

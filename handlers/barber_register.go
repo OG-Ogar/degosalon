@@ -17,12 +17,14 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		render(w, "barber/register.html", newFormView(""))
 
 	case http.MethodPost:
+		// The registration form accepts one profile photo, so the upload
+		// allowance is set before the shared form parse runs. Otherwise the
+		// ordinary form limit would reject a photo taken on a phone.
+		limitRequestBodyFor(w, r, 1)
+
 		if !beginAuthAttempt(w, r, "register") {
 			return
 		}
-		// The registration form accepts one profile photo, so limit the
-		// request before the multipart form is parsed.
-		limitRequestBodyFor(w, r, 1)
 
 		form, problem := readBarberForm(r)
 		if !authAccountAttempt(w, r, "barber", "register", form.Email) {

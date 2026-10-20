@@ -46,7 +46,7 @@ func readProductForm(r *http.Request) (productForm, string) {
 		priceText == "" ||
 		quantityText == "" {
 
-		return form, "Every field except the image is required."
+		return form, "Every field except the photo and video is required."
 	}
 
 	price, err := money.Parse(priceText)
@@ -70,6 +70,7 @@ type productFormView struct {
 	Editing   bool
 	ID        int
 	Image     string
+	Video     string
 	Available bool
 
 	Values map[string]string
@@ -83,6 +84,7 @@ func renderProductForm(
 	form productForm,
 	id int,
 	image string,
+	video string,
 	problem string,
 ) {
 	status := http.StatusOK
@@ -99,6 +101,7 @@ func renderProductForm(
 			Editing:   id > 0,
 			ID:        id,
 			Image:     image,
+			Video:     video,
 			Available: form.Available,
 			Values:    form.values,
 			CSRF:      s.CSRFToken,
@@ -125,10 +128,17 @@ func NewProductHandler(
 			0,
 			"",
 			"",
+			"",
 		)
 
 	case http.MethodPost:
-		limitRequestBody(w, r)
+		// A product can carry one photo and one short clip, plus the form
+		// fields themselves.
+		limitFormBody(
+			w,
+			r,
+			maxUploadBytes+maxVideoBytes+maxFormMemory,
+		)
 
 		if !requireCSRF(w, r, s) {
 			return
@@ -137,14 +147,23 @@ func NewProductHandler(
 		form, problem := readProductForm(r)
 
 		if problem != "" {
-			renderProductForm(w, s, form, 0, "", problem)
+			renderProductForm(w, s, form, 0, "", "", problem)
 			return
 		}
 
 		image, err := productImages.save(r, "image")
 
 		if err != nil && !errors.Is(err, errNoUpload) {
-			renderProductForm(w, s, form, 0, "", err.Error())
+			renderProductForm(w, s, form, 0, "", "", err.Error())
+			return
+		}
+
+		video, err := productVideos.save(r, "video")
+
+		if err != nil && !errors.Is(err, errNoUpload) {
+			removeImageIgnoringError(image)
+
+			renderProductForm(w, s, form, 0, "", "", err.Error())
 			return
 		}
 
@@ -156,11 +175,13 @@ func NewProductHandler(
 			Price:       form.Price,
 			Quantity:    form.Quantity,
 			Image:       image,
+			Video:       video,
 			IsAvailable: form.Available,
 		})
 
 		if err != nil {
 			removeImageIgnoringError(image)
+			removeVideoIgnoringError(video)
 			serverError(w, "create product", err)
 			return
 		}
@@ -291,7 +312,7 @@ func ViewProductHandler(w http.ResponseWriter, r *http.Request, barber models.Ba
 	if !ok {
 		return
 	}
-	renderProductForm(w, s, productFormFromModel(product), product.ID, product.Image, "")
+	renderProductForm(w, s, productFormFromModel(product), product.ID, product.Image, product.Video, "")
 }
 
 func EditProductHandler(w http.ResponseWriter, r *http.Request, barber models.Barber, s sessionData, idSegment string) {
@@ -303,7 +324,11 @@ func UpdateProductHandler(w http.ResponseWriter, r *http.Request, barber models.
 		methodNotAllowed(w, http.MethodPost)
 		return
 	}
-	limitRequestBody(w, r)
+	limitFormBody(
+		w,
+		r,
+		maxUploadBytes+maxVideoBytes+maxFormMemory,
+	)
 	product, ok := ownedProduct(w, r, barber, idSegment)
 	if !ok {
 		return
@@ -313,21 +338,43 @@ func UpdateProductHandler(w http.ResponseWriter, r *http.Request, barber models.
 	}
 	form, problem := readProductForm(r)
 	if problem != "" {
-		renderProductForm(w, s, form, product.ID, product.Image, problem)
-		return
-	}
-	image, err := productImages.save(r, "image")
-	switch {
-	case errors.Is(err, errNoUpload):
-		image = product.Image
-	case err != nil:
-		renderProductForm(w, s, form, product.ID, product.Image, err.Error())
+		renderProductForm(w, s, form, product.ID, product.Image, product.Video, problem)
 		return
 	}
 	previous := product.Image
+	previousVideo := product.Video
+
+	image, err := productImages.save(r, "image")
+	switch {
+	case errors.Is(err, errNoUpload):
+		image = previous
+	case err != nil:
+		renderProductForm(w, s, form, product.ID, product.Image, product.Video, err.Error())
+		return
+	}
+
+	video, err := productVideos.save(r, "video")
+	switch {
+	case errors.Is(err, errNoUpload):
+		video = previousVideo
+	case err != nil:
+		// Only a newly uploaded photo is unreferenced at this point; the
+		// stored one must survive the rejected request.
+		if image != previous {
+			removeImageIgnoringError(image)
+		}
+
+		renderProductForm(w, s, form, product.ID, product.Image, product.Video, err.Error())
+		return
+	}
+
 	uploaded := ""
 	if image != previous {
 		uploaded = image
+	}
+	uploadedVideo := ""
+	if video != previousVideo {
+		uploadedVideo = video
 	}
 	product.Name = form.Name
 	product.Category = form.Category
@@ -336,13 +383,18 @@ func UpdateProductHandler(w http.ResponseWriter, r *http.Request, barber models.
 	product.Quantity = form.Quantity
 	product.IsAvailable = form.Available
 	product.Image = image
+	product.Video = video
 	if err := storage.UpdateProductContext(r.Context(), product); err != nil {
 		removeImageIgnoringError(uploaded)
+		removeVideoIgnoringError(uploadedVideo)
 		serverError(w, "update product", err)
 		return
 	}
 	if uploaded != "" {
 		removeImageIgnoringError(previous)
+	}
+	if uploadedVideo != "" {
+		removeVideoIgnoringError(previousVideo)
 	}
 	http.Redirect(w, r, "/barber/products", http.StatusSeeOther)
 }

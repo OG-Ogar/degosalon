@@ -40,7 +40,7 @@ Current capabilities:
 - View a barber dashboard
 - View and edit their profile
 - Create, view, edit, and archive hairstyles
-- Upload images
+- Upload images and videos for hairstyles and products
 - Set hairstyle information and pricing
 - Manage a weekly schedule with opening hours, breaks, and time off
 - View bookings and perform booking actions
@@ -56,12 +56,13 @@ Current capabilities:
 - View a customer dashboard
 - View and edit their profile
 - Browse barbers and barber profiles
+- See the hairstyles a barber uploaded as a grid of medium cards, with the photo and the clip of each style
 - Select a hairstyle and see available start times for a chosen date
 - Create a booking and view booking confirmation and booking history
 - Add an appointment to a calendar (.ics or Google Calendar)
 - Cancel bookings
 - Chat with barbers
-- Browse products
+- Browse products in a grid of medium cards, with the photo and the clip of each product
 - Add products to a cart with quick add and quantity steppers
 - Place product orders and view order confirmation
 
@@ -112,6 +113,7 @@ Admin signs in → manages barbers → reviews customers/bookings → suspends o
 - Barber/customer chat with partner photos, quick replies, and an expanding composer
 - Product catalogue, quick add, cart editing, and retry-safe transactional checkout
 - Image and video uploads with durable cloud storage and reconciliation
+- Hairstyle and product clips: a barber uploads a short clip beside the photo, and customers play it on the shop, catalogue and booking pages
 - Responsive image variants (srcset/sizes) and an accessible tap-to-zoom image viewer
 - Configurable booking hours
 - Health endpoints, graceful shutdown, and HTTP server timeouts
@@ -134,6 +136,9 @@ The following were added after the original MVP documentation and are present in
 - **Catalogue archival.** Removing a hairstyle or product archives it, retaining media and historical booking/order references, and blocks new use.
 - **Empty-service booking guard.** A barber with no available services shows a clear "Booking Unavailable" action rather than a dead link.
 - **Tap-to-zoom photos.** Product, order, hairstyle, profile, and partner photos open a full-resolution viewer when the photo itself is tapped or activated with Enter/Space; there is no separate "Enlarge" button. Photos that are part of a profile link keep their navigation.
+- **Catalogue clips.** A barber uploads a short clip for a product or a hairstyle, keeps the current clip when the form is saved without a new one, and customers play the clip on the catalogue, shop and booking pages. Clips are stored beside the photos and served with a media type a browser accepts.
+- **Medium catalogue grid.** The products and hairstyles a barber uploaded are shown as a grid of equally sized cards, so a photo taken on a phone no longer decides how large the card is.
+- **Photos of any size.** A photo may be up to 32 MiB and up to 64 megapixels; the stored copy is resized to 1600 pixels on its longest side, so the upload is accepted and the page still loads a small image.
 
 ## MVP Architecture
 
@@ -351,7 +356,7 @@ For SMTP deployments without `BREVO_API_KEY`, it accepts SMTP_HOST, SMTP_PORT (d
 A background worker leases jobs across instances, retries relay failures with exponential backoff (at most eight claims), and removes jobs after relay acceptance. A crash after acceptance may send the same single-use link again; neither transport guarantees exactly-once delivery. Token replacement, consumption, and expiry remove the associated queued ciphertext. Accepted requests show the same queued-delivery response for registered and unknown addresses; unknown addresses create no message. Missing or invalid provider/site/key configuration returns a generic 503 with a retry delay and preserves previous links. Relay acceptance is not an inbox-delivery guarantee: verify the provider's sender/domain and deliverability. The app never derives recovery origins from request headers. The Blueprint supplies Brevo and SMTP secret placeholders and uses Render's HTTPS external URL by default; set SITE_URL for a custom canonical domain. Actual provider credentials, live delivery, and provider bounce handling are deployment acceptance requirements.
 
 
-Mutation forms are limited to 64 KiB before CSRF parsing. Multipart upload routes retain their file/total byte allowances, use a 1 MiB multipart file-memory allowance, and clean temporary files after dispatch. JPEG/PNG/GIF/WebP headers must match their filename type and fit within 16 million pixels and 10,000 pixels per side. JPEG/PNG decoding happens only after those checks; corrupt JPEG/PNG inputs are rejected. GIF/WebP encoded content is preserved after bounded header validation. Large phone photos may need resizing before upload even when their compressed file is below the byte limit.
+Mutation forms are limited to 64 KiB before CSRF parsing. Multipart upload routes retain their file/total byte allowances, use a 1 MiB multipart file-memory allowance, and clean temporary files after dispatch. A photo may be up to 32 MiB and a clip up to 50 MiB, so a picture taken on a phone is accepted as it is; the stored copy is then resized and re-encoded. JPEG/PNG/GIF/WebP headers must match their filename type and fit within 64 million pixels and 20,000 pixels per side. JPEG/PNG decoding happens only after those checks; corrupt JPEG/PNG inputs are rejected. GIF/WebP encoded content is preserved after bounded header validation. A stored photo is rewritten to at most 1600 pixels on its longest side, so the bytes a page downloads stay small no matter how large the upload was.
 
 
 Landing and customer-dashboard image references persist in the private PostgreSQL site-media settings table when DATABASE_URL is configured. Reads and replacements use bounded request contexts; database failures remain errors. Concurrent administrator replacements return the exact old reference after commit. Definite write failures preserve the old reference and discard the unused new local image. Uncertain commit acknowledgments retain the new object for reconciliation rather than risk deleting a referenced image. Startup imports available legacy uploads/site/landing-image.txt and customer-landing-image.txt pointers only when the corresponding setting is absent, and never overwrites administrator edits. New requests do not depend on those text files. Development memory resets with the process. Startup imports references only. The opt-in legacy migration command below copies object bytes while retaining originals.

@@ -139,7 +139,8 @@
                  aria-describedby="image-help">
 
                 <p class="barber-hint" id="image-help">
-                    JPG, JPEG, PNG, GIF or WEBP, up to 5 MB.
+                    JPG, JPEG, PNG, GIF or WEBP, up to 32 MB.
+                    Large pictures are resized automatically.
                 </p>
             </div>
 
@@ -153,6 +154,38 @@
                         alt="Current product photo"
                         data-fullscreen-image
                      srcset="{{imageSrcset .Image}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" loading="lazy" decoding="async">
+                </div>
+            {{end}}
+
+            <div class="barber-field ui-field">
+                <label for="video">Product video (optional)</label>
+
+                <input
+                    class="professional-file-input"
+                    id="video"
+                    type="file"
+                    name="video"
+                    accept=".mp4,.m4v,.mov,.webm,.3gp"
+                 aria-describedby="video-help">
+
+                <p class="barber-hint" id="video-help">
+                    MP4, M4V, MOV, WEBM or 3GP, up to 50 MB.
+                    Customers can watch the clip on your product page.
+                </p>
+            </div>
+
+            {{if .Video}}
+                <div class="barber-field ui-field">
+                    <p class="barber-hint">Current video</p>
+
+                    <video
+                        class="portfolio-video"
+                        src="{{.Video}}"
+                        controls
+                        preload="none"
+                        poster="{{.Image}}"
+                        aria-label="Current product video">
+                    </video>
                 </div>
             {{end}}
 

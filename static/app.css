@@ -194,6 +194,10 @@ body:not(.landing-page):not(.auth-page) a{transition:opacity .16s ease,transform
 .modern-role-page .barber-badge,.modern-role-page .status{border:1px solid rgba(244,203,120,.25)!important;background:rgba(244,203,120,.09)!important;color:var(--role-accent)!important}
 .modern-role-page .barber-hint,.modern-role-page .barber-lede,.modern-role-page .muted,.modern-role-page .hint,.modern-role-page .customer-phone,.modern-role-page .last-message-label,.modern-role-page .conversation-details,.modern-role-page .empty-message{color:var(--role-faint)!important}
 .modern-role-page .barber-price,.modern-role-page .product-price{color:var(--role-accent)!important}
+.modern-role-page .barber-hairstyle-name a{color:var(--role-ink,#f8f5e9)!important}
+.modern-role-page .barber-hairstyle-name a:hover{color:var(--role-accent)!important}
+.modern-role-page .barber-category{color:var(--role-faint)!important}
+.modern-role-page .barber-description{color:var(--role-ink,#f8f5e9)!important}
 .modern-role-page .barber-profile-table{border-collapse:collapse;width:100%}.modern-role-page .barber-profile-table th,.modern-role-page .barber-profile-table td{border-color:rgba(194,212,199,.12)!important}
 .modern-role-page .bubble{border:1px solid rgba(82,116,102,.4)!important;background:var(--surface,#193129)!important;color:var(--role-ink)!important}.modern-role-page .bubble.mine{background:var(--surface-hi,#254137)!important}.modern-role-page .bubble .who,.modern-role-page .bubble .text,.modern-role-page .bubble .when{color:inherit!important}
 .modern-role-page .barber-error,.modern-role-page .chat-error,.modern-role-page .error{border:1px solid rgba(239,68,68,.5)!important;background:rgba(239,68,68,.1)!important;color:#fecaca!important}
@@ -331,6 +335,53 @@ var(--void)!important;color:var(--ink)!important;font-family:var(--font)}
 @media(prefers-reduced-transparency:reduce){
   .site-header{backdrop-filter:none;-webkit-backdrop-filter:none;background:var(--base)}
 }
+
+/* =========================================================
+   ROLE NAVIGATION DRAWER
+   The customer and barber header keeps the brand, the cart and the
+   logout button. The page links wait behind the "=" button at the top
+   left and slide in from the left edge, lined up from top to bottom.
+   The class below is added by static/nav-drawer.js, so a page without
+   that script keeps the links in a bar under the header.
+   ========================================================= */
+.site-navigation-drawer{display:flex;flex-wrap:wrap;align-items:center;gap:.4rem;padding:.6rem 1.25rem;background:var(--base);border-bottom:1px solid var(--border)}
+.site-nav-toggle{display:none}
+.js-drawer .site-nav-toggle{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;width:44px;height:44px;padding:0;border:1px solid var(--border-hi);border-radius:var(--control-radius,.5rem);background:rgba(25,49,41,.85);color:var(--ink);cursor:pointer;transition:border-color .15s ease,color .15s ease}
+.js-drawer .site-nav-toggle:hover{border-color:var(--signal);color:var(--signal)}
+.site-nav-toggle-glyph{position:relative;display:block;width:18px;height:12px}
+.site-nav-toggle-glyph::before,.site-nav-toggle-glyph::after{content:"";position:absolute;left:0;width:18px;height:2px;border-radius:2px;background:currentColor}
+.site-nav-toggle-glyph::before{top:1px}
+.site-nav-toggle-glyph::after{top:9px}
+.js-drawer .site-navigation-drawer{position:fixed;top:var(--nav-drawer-top,4rem);bottom:0;left:0;z-index:60;display:flex;flex-direction:column;align-items:stretch;gap:.35rem;width:min(78vw,17rem);margin:0;padding:.9rem .75rem calc(.9rem + env(safe-area-inset-bottom));overflow-y:auto;overscroll-behavior:contain;background:var(--surface);border-right:1px solid var(--border-hi);box-shadow:0 0 48px rgba(0,0,0,.45);transform:translateX(-100%);transition:transform .2s ease}
+.js-drawer .site-navigation-drawer.is-open{transform:translateX(0)}
+.js-drawer .site-navigation-drawer .site-nav-link{flex:0 0 auto;justify-content:flex-start;width:100%;min-height:44px;padding:.6rem .9rem;border-radius:var(--control-radius,.5rem);font-size:.95rem;text-align:left}
+.site-nav-scrim{position:fixed;inset:0;z-index:55;background:rgba(9,22,19,.62)}
+/* The header stays above the shade so the button that opened the drawer
+   can close it again. */
+body.site-nav-open .site-header{z-index:56}
+@media(prefers-reduced-motion:reduce){.js-drawer .site-navigation-drawer{transition:none}}
+
+/* =========================================================
+   PHOTO ACTION MENU
+   The view, edit and delete actions of a product or a hairstyle wait
+   behind the three dots at the top right of the photo. The menu is a
+   native disclosure, so it opens and closes without a script.
+   ========================================================= */
+.card-menu{position:absolute;top:.5rem;right:.5rem;z-index:4}
+.card-menu-toggle{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--border-hi);border-radius:999px;background:var(--surface-hi);color:var(--ink);font-size:1.1rem;line-height:1;cursor:pointer;list-style:none}
+.card-menu-toggle::-webkit-details-marker{display:none}
+.card-menu-toggle:hover{border-color:var(--signal);color:var(--signal)}
+.card-menu-toggle:focus-visible{outline:3px solid var(--signal);outline-offset:2px}
+.card-menu[open] .card-menu-toggle{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
+.card-menu-panel{position:absolute;top:calc(100% + .4rem);right:0;z-index:5;min-width:11rem;padding:.35rem;border:1px solid var(--border-hi);border-radius:var(--control-radius,.5rem);background:var(--surface);box-shadow:0 18px 40px rgba(0,0,0,.4)}
+.card-menu-item{display:flex;align-items:center;width:100%;min-height:40px;padding:.45rem .7rem;border:0;border-radius:var(--control-radius,.5rem);background:transparent;color:var(--ink);font:inherit;font-size:.85rem;font-weight:650;text-align:left;text-decoration:none;cursor:pointer}
+.card-menu-item:hover{background:var(--surface-hi)}
+.card-menu-item-danger{color:#ffd0d5}
+.card-menu-item-danger:hover{background:#4a2227}
+.card-menu-form{margin:0}
+/* An open menu belongs to the card it belongs to, so it is drawn over the
+   cards next to it. */
+.product-card:has(.card-menu[open]),.barber-hairstyle-card:has(.card-menu[open]){z-index:6}
 
 .journey-error-card{width:min(100% - 32px,680px);margin:4rem auto;padding:2rem;border:1px solid var(--border-hi);border-radius:16px;background:var(--surface);color:var(--ink)}
 .journey-error-card a{color:var(--signal);display:inline-flex;min-height:44px;align-items:center;padding:.5rem}

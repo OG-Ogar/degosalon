@@ -331,20 +331,26 @@
 .barber-hairstyle-grid {
     display: grid;
 
-    /* Medium cards: a row of equally sized tiles that reflow with the
-       page instead of stretching to the width of the screen. */
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    /* Small tiles: the photo of a hairstyle is a thumbnail in a grid, the
+       same size as the product photos next to it. */
+    grid-template-columns: repeat(auto-fill, 180px);
 
-    gap: 20px;
+    justify-content: center;
+
+    gap: 16px;
 }
 
 .barber-hairstyle-card {
-    overflow: hidden;
+    position: relative;
+
+    /* The action menu opens over the card, so the card must not clip it.
+       The media wrapper rounds the photo instead. */
+    overflow: visible;
 
     background: #ffffff;
 
     border: 1px solid #e4dbd4;
-    border-radius: 10px;
+    border-radius: 16px;
 
     box-shadow: 0 4px 15px rgba(55, 37, 24, 0.06);
 }
@@ -376,13 +382,32 @@
 }
 
 .barber-hairstyle-content {
-    padding: 20px;
+    padding: 14px;
 }
 
 .barber-hairstyle-name {
     margin: 0 0 6px;
 
-    font-size: 1.15rem;
+    font-size: 1.05rem;
+}
+
+/* Small tiles keep their shape whatever the length of the name or the
+   description. */
+.barber-hairstyle-name,
+.barber-description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.barber-hairstyle-name {
+    -webkit-line-clamp: 2;
+}
+
+.barber-description {
+    -webkit-line-clamp: 3;
+
+    font-size: .8rem;
 }
 
 .barber-hairstyle-name a {
@@ -764,7 +789,7 @@
     }
 
     .barber-hairstyle-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        grid-template-columns: repeat(auto-fill, 170px);
     }
 
     .barber-header-inner {
@@ -796,9 +821,12 @@
         flex-direction: column;
     }
 
-    .barber-stat-grid,
-    .barber-hairstyle-grid {
+    .barber-stat-grid {
         grid-template-columns: 1fr;
+    }
+
+    .barber-hairstyle-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .barber-form,
@@ -837,7 +865,7 @@
 .stat-card-header{display:flex;align-items:center;justify-content:space-between;width:100%}
 
 /* Hairstyle card media & badges */
-.barber-hairstyle-media-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:12px;background:var(--surface-hi,#254137)}
+.barber-hairstyle-media-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:16px 16px 0 0;background:var(--surface-hi,#254137)}
 .barber-hairstyle-media-wrap img{width:100%;height:100%;object-fit:cover;display:block}
 .barber-duration-badge{position:absolute;bottom:8px;right:8px;padding:3px 8px;border-radius:6px;background:rgba(9,22,19,.88);color:var(--signal,#f4cb78);font-size:.72rem;font-weight:750;backdrop-filter:blur(8px);border:1px solid rgba(244,203,120,.25)}
 .barber-card-pricing{margin:6px 0}
@@ -859,7 +887,7 @@
 .time-off-section textarea{width:100%;padding:12px;border:1px solid var(--border,#355348);border-radius:10px;background:var(--base,#10221d);color:var(--ink,#f8f5e9);font:inherit;margin-top:8px}
 
 /* Product stock warning badges */
-.product-meta-row{display:flex;align-items:center;justify-content:space-between;margin:8px 0;gap:8px}
+.product-meta-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0;gap:8px}
 .stock-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:750;letter-spacing:.02em}
 .stock-badge.in-stock{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.35)}
 .stock-badge.low-stock{background:rgba(244,203,120,.15);color:var(--signal,#f4cb78);border:1px solid rgba(244,203,120,.4)}

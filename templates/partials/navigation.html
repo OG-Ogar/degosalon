@@ -1,14 +1,25 @@
 {{define "role-header"}}
+{{if ne .Role "admin"}}<script src="/static/nav-drawer.js"></script>{{end}}
 <header class="site-header">
 <div class="site-header-inner">
+{{if ne .Role "admin"}}<button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation-panel" data-nav-role="{{.Role}}" aria-label="Open the {{.Role}} menu"><span class="site-nav-toggle-glyph" aria-hidden="true"></span></button>{{end}}
 <a class="site-brand" href="/{{.Role}}/dashboard" aria-label="De Go Salon {{.Role}} workspace"><span class="site-brand-mark" aria-hidden="true">DG</span><span class="site-brand-copy"><span class="site-brand-name">De Go Salon</span><span class="site-brand-role">{{.Role}}</span></span></a>
-<nav class="site-navigation" aria-label="{{.Role}} navigation">
+{{if eq .Role "admin"}}<nav class="site-navigation" aria-label="{{.Role}} navigation">
 {{range .Links}}<a class="site-nav-link{{if .Active}} active{{end}}" href="{{.Path}}"{{if .Active}} aria-current="page"{{end}}><span class="site-nav-label">{{.Label}}</span></a>{{end}}
-</nav>
+</nav>{{end}}
 <div class="site-header-actions">
 {{if eq .Role "customer"}}<a class="cart-pill-link" href="/customer/cart" aria-label="Shopping cart"><span class="cart-pill-icon" aria-hidden="true">🛒</span><span class="cart-pill-label">Cart</span></a>{{end}}
 {{if .CSRF}}<form class="site-logout" method="post" action="/{{.Role}}/logout"><input type="hidden" name="csrf_token" value="{{.CSRF}}"><button type="submit" class="site-logout-btn">Log out</button></form>{{end}}
 </div>
 </div>
 </header>
+{{if ne .Role "admin"}}
+<!-- The role links wait behind the "=" button and slide in from the left
+     edge. They stay plain links, so a page without the drawer script
+     keeps the navigation it has always had. -->
+<nav class="site-navigation site-navigation-drawer" id="site-navigation-panel" aria-label="{{.Role}} navigation">
+{{range .Links}}<a class="site-nav-link{{if .Active}} active{{end}}" href="{{.Path}}"{{if .Active}} aria-current="page"{{end}}><span class="site-nav-label">{{.Label}}</span></a>{{end}}
+</nav>
+<div class="site-nav-scrim" hidden></div>
+{{end}}
 {{end}}

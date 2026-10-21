@@ -141,6 +141,9 @@ The following were added after the original MVP documentation and are present in
 - **Tap-to-zoom photos.** Product, order, hairstyle, profile, and partner photos open a full-resolution viewer when the photo itself is tapped or activated with Enter/Space; there is no separate "Enlarge" button. Photos that are part of a profile link keep their navigation.
 - **Catalogue clips.** A barber uploads a short clip for a product or a hairstyle, keeps the current clip when the form is saved without a new one, and customers play the clip on the catalogue, shop and booking pages. Clips are stored beside the photos and served with a media type a browser accepts.
 - **Medium catalogue grid.** The products and hairstyles a barber uploaded are shown as a grid of equally sized cards, so a photo taken on a phone no longer decides how large the card is.
+- **Small photo tiles.** A product photo and a hairstyle photo are shown as the same small 4:3 tile in one grid, so the two catalogues read alike and a long description cannot stretch a row.
+- **Header drawer.** The customer and barber header keeps the brand, the cart and the logout button; the page links wait behind the "=" button at the top left and slide in from the left edge, lined up from top to bottom. Escape or a tap on the shade closes it, and a page without the script keeps the links in the header.
+- **Photo action menu.** The view, edit and delete actions of a product or a hairstyle wait behind the three dots at the top right of the photo. The menu is a native disclosure, so it opens without a script.
 - **Photos of any size.** A photo may be up to 32 MiB and up to 64 megapixels; the stored copy is resized to 1600 pixels on its longest side, so the upload is accepted and the page still loads a small image.
 
 ## MVP Architecture

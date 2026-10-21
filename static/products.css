@@ -145,14 +145,14 @@ PRODUCT GRID
 .product-grid {
     display: grid;
 
-    /* Medium cards: equal tiles that reflow with the page instead of
-       stretching to the full width of the screen. */
+    /* Small tiles: the photo of a product is a thumbnail in a grid, not a
+       picture that decides how wide the page is. */
     grid-template-columns:
-        repeat(auto-fill, minmax(240px, 1fr));
+        repeat(auto-fill, 180px);
 
     justify-content: center;
 
-    gap: 20px;
+    gap: 16px;
 
     margin-top: 32px;
 }
@@ -163,7 +163,11 @@ PRODUCT CARD
 ========================================================= */
 
 .product-card {
-    overflow: hidden;
+    position: relative;
+
+    /* The action menu opens over the card, so the card must not clip it.
+       The media wrapper rounds the photo instead. */
+    overflow: visible;
 
     border-radius: 18px;
 
@@ -182,6 +186,10 @@ PRODUCT PHOTO
     position: relative;
 
     width: 100%;
+
+    overflow: hidden;
+
+    border-radius: 16px 16px 0 0;
 }
 
 .product-image {
@@ -279,17 +287,45 @@ BUY NOW
     color: #ffffff;
 }
 
+/* A small tile has room for a compact button beside the stock badge. */
+.product-image-wrapper .product-buy-button {
+    min-height: 34px;
+
+    padding: 0.4rem 0.6rem;
+
+    font-size: 0.75rem;
+
+    white-space: nowrap;
+}
+
 
 /* =========================================================
 PRODUCT DETAILS
 ========================================================= */
 
 .product-card-body {
-    padding: 18px;
+    padding: 14px;
 }
 
 .product-card-body h2 {
     margin: 0 0 8px;
+}
+
+/* Small tiles keep their shape whatever the length of the name or the
+   description. */
+.product-card-body h2,
+.product-description {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-card-body h2 {
+    -webkit-line-clamp: 2;
+}
+
+.product-description {
+    -webkit-line-clamp: 3;
 }
 
 .product-category {
@@ -321,6 +357,11 @@ PRODUCT DETAILS
     margin: 16px 0 0;
 
     font-size: 1.3rem;
+}
+
+/* The price of a small tile reads at the size of the card it sits in. */
+.product-card-body .product-price {
+    font-size: 1.05rem;
 }
 
 
@@ -636,9 +677,39 @@ RESPONSIVE
     }
 
     .product-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
 
         justify-content: stretch;
+    }
+
+    /* Two tiles share a phone screen, so the buy button sits across the
+       foot of the photo and the stock count moves to its top corner. */
+    .product-image-wrapper .product-buy-form {
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+
+    .product-image-wrapper .product-buy-button {
+        width: 100%;
+
+        min-height: 36px;
+
+        padding: 0.35rem 0.5rem;
+
+        border-radius: 0;
+
+        border-top: 1px solid var(--border-hi);
+    }
+
+    .product-stock-badge {
+        left: 8px;
+        top: 8px;
+        bottom: auto;
+
+        padding: 4px 8px;
+
+        font-size: 0.7rem;
     }
 
     .cart-item {

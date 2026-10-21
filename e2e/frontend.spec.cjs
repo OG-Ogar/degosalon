@@ -58,6 +58,19 @@ test('customer journeys, public sessions and narrow navigation',async({page},tes
   for(const route of ['/customer/dashboard','/customer/bookings','/customer/profile','/customer/chats','/customer/barbers']){
    await page.goto(route);
    await expect(page.getByRole('navigation',{name:'customer navigation'})).toBeVisible();
+   // The header links wait behind the "=" button and open in a column.
+   const menu=page.getByRole('button',{name:'Open the customer menu'});
+   await expect(menu).toBeVisible();
+   await expect(menu).toHaveAttribute('aria-expanded','false');
+   const panel=page.locator('#site-navigation-panel');
+   await expect.poll(()=>panel.evaluate(el=>el.getBoundingClientRect().right)).toBeLessThanOrEqual(0);
+   await menu.click();
+   await expect(page.getByRole('button',{name:'Close the customer menu'})).toBeVisible();
+   await expect.poll(()=>panel.evaluate(el=>el.getBoundingClientRect().left)).toBeGreaterThanOrEqual(0);
+   await expect(page.getByRole('navigation',{name:'customer navigation'}).getByRole('link',{name:'Dashboard',exact:true})).toBeVisible();
+   await page.keyboard.press('Escape');
+   await expect(page.getByRole('button',{name:'Open the customer menu'})).toBeVisible();
+   await expect.poll(()=>panel.evaluate(el=>el.getBoundingClientRect().right)).toBeLessThanOrEqual(0);
    await checkPage(page,testInfo,width+'-'+route.split('/').pop());
   }
  }
@@ -78,7 +91,12 @@ test('barber and admin navigation and mobile field labels',async({page},testInfo
  await page.setViewportSize({width:320,height:900});
  for(const route of ['/barber/dashboard','/barber/profile','/barber/bookings','/barber/chats']){
   await page.goto(route);await checkPage(page,testInfo,route.split('/').join('-'));
+  const menu=page.getByRole('button',{name:'Open the barber menu'});
+  await expect(menu).toBeVisible();
+  await menu.click();
   await expect(page.getByRole('navigation',{name:'barber navigation'}).getByRole('link',{name:'Schedule',exact:true})).toBeVisible();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button',{name:'Open the barber menu'})).toBeVisible();
  }
  const admin=await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}});
  expect(admin.ok(),await admin.text()).toBeTruthy();
@@ -86,6 +104,50 @@ test('barber and admin navigation and mobile field labels',async({page},testInfo
  const label=page.locator('td[data-label="Barber"]').first();
  await expect(label).toBeVisible();
  expect(await label.evaluate(el=>getComputedStyle(el,'::before').content)).toBe('"Barber"');
+});
+test('photo actions wait behind the three dots of every product and hairstyle',async({page},testInfo)=>{
+ const email='browser-menu-'+Date.now()+'@example.test';
+ const response=await page.request.post('/barber/register',{multipart:{fullname:'Menu Barber',phone:'08012345678',email,shopname:'Menu Shop',shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}});
+ expect(response.ok(),await response.text()).toBeTruthy();
+ expect((await page.request.post('/barber/login',{form:{email,password:'browser-pass-123'}})).ok()).toBeTruthy();
+ await page.goto('/barber/hairstyles/new');
+ await page.locator('[name=name]').fill('Menu Style');
+ await page.locator('[name=category]').fill('Style');
+ await page.locator('[name=description]').fill('A style that shows the photo menu.');
+ await page.locator('[name=price]').fill('1250.25');
+ await page.locator('[name=duration]').fill('30');
+ await page.locator('[name=image]').setInputFiles({name:'style.png',mimeType:'image/png',buffer:PNG});
+ await page.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
+ await page.goto('/barber/products/new');
+ await page.locator('[name=name]').fill('Menu Product');
+ await page.locator('[name=category]').fill('Care');
+ await page.locator('[name=description]').fill('A product that shows the photo menu.');
+ await page.locator('[name=price]').fill('2500');
+ await page.locator('[name=quantity]').fill('4');
+ await page.locator('[name=image]').setInputFiles({name:'product.png',mimeType:'image/png',buffer:PNG});
+ await page.getByRole('button',{name:'Add Product',exact:true}).click();
+ // The actions are hidden until the three dots are opened.
+ await page.goto('/barber/hairstyles');
+ const style=page.locator('.barber-hairstyle-card').first();
+ await expect(style.locator('.card-menu-toggle')).toBeVisible();
+ await expect(style.getByRole('link',{name:'View',exact:true})).toHaveCount(0);
+ await expect(style.getByRole('link',{name:'Edit',exact:true})).toHaveCount(0);
+ await expect(style.getByRole('link',{name:'Delete',exact:true})).toHaveCount(0);
+ await style.locator('.card-menu-toggle').click();
+ await expect(style.getByRole('link',{name:'View',exact:true})).toBeVisible();
+ await expect(style.getByRole('link',{name:'Edit',exact:true})).toBeVisible();
+ await expect(style.getByRole('link',{name:'Delete',exact:true})).toBeVisible();
+ await page.goto('/barber/products');
+ const product=page.locator('.product-card').first();
+ await expect(product.locator('.card-menu-toggle')).toBeVisible();
+ await expect(product.getByRole('link',{name:'View',exact:true})).toHaveCount(0);
+ await expect(product.getByRole('link',{name:'Edit',exact:true})).toHaveCount(0);
+ await expect(product.getByRole('button',{name:'Delete Product',exact:true})).toHaveCount(0);
+ await product.locator('.card-menu-toggle').click();
+ await expect(product.getByRole('link',{name:'View',exact:true})).toBeVisible();
+ await expect(product.getByRole('link',{name:'Edit',exact:true})).toBeVisible();
+ await expect(product.getByRole('button',{name:'Delete Product',exact:true})).toBeVisible();
+ await checkPage(page,testInfo,'photo-action-menu');
 });
 test('tap-to-zoom photos keep profile links intact and stay keyboard accessible',async({page})=>{
  await page.goto('/');

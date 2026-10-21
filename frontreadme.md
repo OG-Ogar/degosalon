@@ -88,13 +88,14 @@ All layout primitives, social previews, shell containers, and interactive elemen
 }
 ```
 
-### 2.2 Multi-Theme Token Architecture (Forest · Midnight · Daylight · Ocean · Stone)
+### 2.2 Multi-Theme Token Architecture (Forest · Navy · Midnight · Daylight · Ocean · Stone)
 
-Dawn Canopy is **theme one of five**, not the sole palette. Every theme redefines the *same* set of semantic tokens, so no template, partial, or TypeScript module ever hardcodes a raw colour — only the `:root` block (§2.1) and the `html[data-theme="…"]` override blocks ship hex values. This is the pattern proven in the reference system at `multi-agent-orchestrator/sample/nativity-guard/frontend/src/theme.css` (its `preferences.ts` switches `data-theme` on `document.documentElement`).
+Dawn Canopy is **theme one of six**, not the sole palette. Every theme redefines the *same* set of semantic tokens, so no template, partial, or TypeScript module ever hardcodes a raw colour — only the `:root` block (§2.1) and the `html[data-theme="…"]` override blocks ship hex values. This is the pattern proven in the reference system at `multi-agent-orchestrator/sample/nativity-guard/frontend/src/theme.css` (its `preferences.ts` switches `data-theme` on `document.documentElement`).
 
 | Theme | Intent | `--void` / `--base` / `--surface` | `--ink` / `--ink-muted` | `--signal` / `--signal-ink` |
 | :--- | :--- | :--- | :--- | :--- |
 | **Forest** *(default)* | Dawn Canopy brand. Deep evergreen shelter, warm gold action. | `#091613` / `#10221d` / `#193129` | `#f8f5e9` / `#c2d4c7` | `#f4cb78` / `#19251c` |
+| **Navy** | The Forest palette in navy blue — same tokens, same gold action, green swapped for blue. | `#070d1a` / `#0c1524` / `#142034` | `#f3f6fb` / `#bccbdf` | `#f4cb78` / `#0c1524` |
 | **Midnight** | True-black OLED dark for night browsing and low-light use. | `#000000` / `#0a0a0a` / `#141414` | `#f5f5f5` / `#b5b5b5` | `#f4cb78` / `#121212` |
 | **Daylight** | Light theme for bright outdoor daylight; the only light surface set. | `#d8d8d2` / `#f7f7f5` / `#ffffff` | `#1a1a1a` / `#4a4a4a` | `#b8851a` / `#ffffff` |
 | **Ocean** | Cool blue alternative for customers who dislike warm/green casts. | `#051025` / `#0a1a30` / `#10263f` | `#eaf2fb` / `#b6cbe4` | `#8bd3f7` / `#082238` |
@@ -102,11 +103,11 @@ Dawn Canopy is **theme one of five**, not the sole palette. Every theme redefine
 
 **Hard rules for every theme:**
 
-1. **Same token contract, different values.** A theme override block may only reassign existing tokens — never introduce a new token name, and never delete one. If a new token is needed, it is added to `:root` first and then to all five themes.
+1. **Same token contract, different values.** A theme override block may only reassign existing tokens — never introduce a new token name, and never delete one. If a new token is needed, it is added to `:root` first and then to all six themes.
 2. **Semantic roles are preserved.** `--danger` stays reserved for destructive/urgent states in every theme; `--signal` is always the *one* primary action colour. Daylight darkens the gold to `#b8851a` precisely so it keeps ≥ 4.5:1 against white; it must not reuse the Forest gold.
-3. **Atmosphere recolours too.** The aesthetic layers that sit *outside* the base palette — glass panel tints (`--panel-tint-1/2`, `--panel-border`), the sticky bar (`--bar-bg`, `--bar-border`), the hero gradient stops (`--hero-end-1`, `--hero-mid`, `--hero-end-2`, `--hero-arc-*`, `--hero-warm`, `--hero-star`, `--hero-dot`), the body depth-layer opacity/glow (`--depth-tilt-opacity`, `--depth-glow-*`) and the skeleton shimmer (`--skeleton-a/b`) — are theme-scoped variables, not literals in the component CSS. The reference `theme.css` defines all of them for all five themes.
+3. **Atmosphere recolours too.** The aesthetic layers that sit *outside* the base palette — glass panel tints (`--panel-tint-1/2`, `--panel-border`), the sticky bar (`--bar-bg`, `--bar-border`), the hero gradient stops (`--hero-end-1`, `--hero-mid`, `--hero-end-2`, `--hero-arc-*`, `--hero-warm`, `--hero-star`, `--hero-dot`), the body depth-layer opacity/glow (`--depth-tilt-opacity`, `--depth-glow-*`) and the skeleton shimmer (`--skeleton-a/b`) — are theme-scoped variables, not literals in the component CSS. The reference `theme.css` defines all of them for all six themes.
 4. **Native controls follow the theme.** Set `color-scheme: dark` on the dark themes and `color-scheme: light` on Daylight so browser-rendered `<input>`, `<select>`, scrollbars and date pickers match instead of flashing a wrong-scheme control.
-5. **Contrast is a gate, not a hope.** Each theme must independently pass WCAG 2.1 AA: ≥ 4.5:1 for body text and ≥ 3:1 for large text and UI boundaries (§5.6). Verify text, focus rings, status chips and the landing hero in all five themes on a phone in daylight.
+5. **Contrast is a gate, not a hope.** Each theme must independently pass WCAG 2.1 AA: ≥ 4.5:1 for body text and ≥ 3:1 for large text and UI boundaries (§5.6). Verify text, focus rings, status chips and the landing hero in all six themes on a phone in daylight.
 6. **`theme-color` tracks the active theme.** The two `<meta name="theme-color">` values in §3.1 (`prefers-color-scheme: dark|light`) are the browser-chrome fallback; once a theme is applied the boot script (§2.3) rewrites the matching `theme-color` to that theme's `--void`/`--base` so the mobile status bar matches the page.
 
 ```css
@@ -127,6 +128,7 @@ html[data-theme="daylight"]{
   --signal:#b8851a; --signal-ink:#ffffff;
   color-scheme:light;
 }
+html[data-theme="navy"]{ /* forest in navy blue · surface #142034 · ink #f3f6fb · signal #f4cb78 */ color-scheme:dark; }
 html[data-theme="ocean"]{ /* surface #10263f · ink #eaf2fb · signal #8bd3f7 */ color-scheme:dark; }
 html[data-theme="stone"]{ /* surface #2f2a22 · ink #f4ede0 · signal #e8b478 */ color-scheme:dark; }
 ```
@@ -140,11 +142,11 @@ Theme and text size are **user preferences**, not per-page choices. They persist
 1. **`localStorage`, applied before first paint** so a returning visitor never sees a flash of the default theme (no FOUC). This is progressive enhancement and stays client-side.
 2. **The server record is the source of truth once signed in**, so the choice follows the user to any device. The Go handler is authoritative; `localStorage` is only a fast local cache.
 
-Values are never trusted raw — a value read from `localStorage` or the wire is run through an **allowlist normaliser** (`theme ∈ {forest,midnight,daylight,ocean,stone}`, `textSize ∈ {standard,large,xlarge,xxlarge}`) and anything unrecognised falls back to the default (`forest` / `standard`). This prevents a crafted value from injecting an arbitrary token set or breaking the layout.
+Values are never trusted raw — a value read from `localStorage` or the wire is run through an **allowlist normaliser** (`theme ∈ {forest,navy,midnight,daylight,ocean,stone}`, `textSize ∈ {standard,large,xlarge,xxlarge}`) and anything unrecognised falls back to the default (`forest` / `standard`). This prevents a crafted value from injecting an arbitrary token set or breaking the layout.
 
 ```ts
 // frontend/app.ts — normalise + apply (progressive enhancement)
-const THEMES = ["forest","midnight","daylight","ocean","stone"] as const;
+const THEMES = ["forest","navy","midnight","daylight","ocean","stone"] as const;
 const TEXT_SIZES = ["standard","large","xlarge","xxlarge"] as const;
 type Theme = typeof THEMES[number];
 type TextSize = typeof TEXT_SIZES[number];
@@ -167,6 +169,8 @@ function apply(prefs: { theme: Theme; textSize: TextSize }) {
 }
 ```
 
+**The colour switch.** The two brand palettes — the navy green of Forest and its navy blue twin — are reached from one control: the switch that sits **below the links of the "=" drawer** on every customer and barber page, and after the links of the administrator's header bar. The control is plain markup in `templates/partials/navigation.html`, so it is on the page whether or not a script is present, and the drawer script treats it like any other control in the panel (it leaves the tab order while the drawer is closed). The script that reads the switch, applies `data-theme` and writes the choice back is a later pass; until then the switch changes nothing.
+
 #### B. Server-Side Rendering boot (no-FOUC, works without JavaScript)
 
 Because the platform is Go SSR, the server cannot know `localStorage`. The order of operations is:
@@ -183,7 +187,7 @@ Because the platform is Go SSR, the server cannot know `localStorage`. The order
   (function () {
     try {
       var p = JSON.parse(localStorage.getItem('dgs-display-v1') || '{}');
-      var t = ['forest','midnight','daylight','ocean','stone'];
+      var t = ['forest','navy','midnight','daylight','ocean','stone'];
       var s = ['standard','large','xlarge','xxlarge'];
       var el = document.documentElement;
       if (t.indexOf(p.theme) > -1) el.dataset.theme = p.theme;
@@ -217,7 +221,7 @@ The reference design DNA is *"calm in emergencies, warm in community spaces, **s
 - **Tabular precision** — IDs, appointment times, prices (`₦`) and counters render in the monospace tabular-numeral treatment so columns align and never jitter as values change.
 - **Restrained motion** — operational screens keep the 150–250ms purposeful transitions from §3.2, never decorative animation.
 
-Implemented as a scoped attribute (e.g. `<body data-density="sharp">` on barber/admin layouts, default `comfortable` on customer/public layouts) that only tightens spacing/radius and applies tabular numerals — it must **not** fork the colour system, and it must compose with all five themes. The natural home for these overrides is `static/ui.css` (the shared primitives layer), scoped to the sharp mode.
+Implemented as a scoped attribute (e.g. `<body data-density="sharp">` on barber/admin layouts, default `comfortable` on customer/public layouts) that only tightens spacing/radius and applies tabular numerals — it must **not** fork the colour system, and it must compose with all six themes. The natural home for these overrides is `static/ui.css` (the shared primitives layer), scoped to the sharp mode.
 
 #### E. Graceful degradation (both preferences and atmosphere)
 
@@ -497,7 +501,7 @@ graph LR
 | `templates/partials/public-footer.html` | Expanded rich footer with brand mark, platform description, social pills, country switcher, and accessible policy navigation. | Implemented & verified (Batch 1). |
 | `frontend/app.ts` | 435 lines of progressive helpers (password reveal, double submit, basic filter). | Expand to include: Web Share API coordinator, Photo Lightbox with keyboard navigation, auto-resizing chat composer, chat scroll-to-bottom button, time-slot pill selector, shimmer skeleton coordinator, and the display-preference controller (theme + text-size picker, allowlist normaliser, `localStorage` apply, server sync) from §2.3. |
 | `static/app.css` & `static/ui.css` | Design tokens, basic panel, card, and button styles. | Add layout classes for 3-column app shell, mobile bottom nav, shimmer skeleton animations, media lightbox, sticky bottom action bar, and split-view chat. Add the sharp operational density overrides (§2.3D) to `static/ui.css`. |
-| `static/theme.css` *(new)* | Does not exist — the platform ships Forest only. | Add the five-theme override blocks (§2.2) plus the theme-scoped atmosphere variables (glass tints, hero gradient stops, depth-layer opacity, skeleton shimmer), and scope all component CSS to the tokens. |
+| `static/theme.css` *(new)* | Does not exist — the platform ships Forest only. | Add the six-theme override blocks (§2.2) plus the theme-scoped atmosphere variables (glass tints, hero gradient stops, depth-layer opacity, skeleton shimmer), and scope all component CSS to the tokens. |
 
 ---
 
@@ -892,7 +896,7 @@ existing page modernization batches.
 
 #### 1. Theme stylesheet (`static/theme.css`, new)
 
-- Add the five `html[data-theme="…"]` override blocks from §2.2. `:root` in `static/app.css` stays the Forest base, so **zero templates change** to gain the mechanism.
+- Add the six `html[data-theme="…"]` override blocks from §2.2. `:root` in `static/app.css` stays the Forest base, so **zero templates change** to gain the mechanism.
 - Move every atmosphere literal out of the component CSS files into theme-scoped variables (`--panel-tint-*`, `--bar-*`, `--hero-*`, `--depth-*`, `--skeleton-*`).
 - Add the `html[data-text-size="…"]` scale from §2.3C.
 - Load order: `app.css` → page CSS → `ui.css` → `theme.css` (theme last, so overrides win).
@@ -914,7 +918,7 @@ existing page modernization batches.
 
 #### 5. Sharp operational density
 
-- Add a `data-density="sharp"` scope on barber and admin layouts and the corresponding `static/ui.css` overrides (tighter spacing/radius, tabular numerals, hairline structure). It composes with all five colour themes and never forks them.
+- Add a `data-density="sharp"` scope on barber and admin layouts and the corresponding `static/ui.css` overrides (tighter spacing/radius, tabular numerals, hairline structure). It composes with all six colour themes and never forks them.
 
 ```mermaid
 flowchart LR
@@ -960,12 +964,12 @@ flowchart LR
 - [x] Modernize Admin Operations: `dashboard.html`, `barber-list.html`, `customers.html`, `bookings.html`.
 
 ### 6.5 Phase 6 — Multi-Theme Display System & Sharp Operational Mode
-- [ ] Add `static/theme.css` with the five `html[data-theme="…"]` override blocks and theme-scoped atmosphere variables (§2.2).
+- [ ] Add `static/theme.css` with the six `html[data-theme="…"]` override blocks and theme-scoped atmosphere variables (§2.2).
 - [ ] Add the `html[data-text-size="…"]` accessibility scale (Standard/Large/XL/Huge) and verify every page family at 320px under `xxlarge` (§2.3C).
 - [ ] Add `templates/partials/theme-boot.html`, included in `<head>` before page stylesheets, setting `data-theme`/`data-text-size` from the session plus the pre-paint `localStorage` script and `theme-color` (§2.3B).
 - [ ] Extend `user_preferences` with `theme`/`text_size` and add `GET`/`PUT /{role}/settings/preferences` with a server-side allowlist (§5.7).
 - [ ] Wire the theme swatch grid and text-size controls in `frontend/app.ts` with the allowlist normaliser, `localStorage`-first apply, and best-effort server sync (§2.3A).
-- [ ] Add `data-density="sharp"` overrides to `static/ui.css` for barber/admin workspaces; confirm it composes with all five themes (§2.3D).
+- [ ] Add `data-density="sharp"` overrides to `static/ui.css` for barber/admin workspaces; confirm it composes with all six themes (§2.3D).
 - [ ] Verify WCAG 2.1 AA contrast for every theme (§2.2 rule 5) and the `prefers-reduced-motion` / `prefers-reduced-transparency` / no-JavaScript fallbacks (§2.3E).
 
 ### 6.6 Mandatory Pre-Merge Test Gates

@@ -26,6 +26,10 @@
         var header = document.querySelector(".site-header");
         var role = toggle.getAttribute("data-nav-role") || "menu";
         var links = Array.prototype.slice.call(panel.querySelectorAll("a"));
+        /* Every control inside the panel shares the drawer's keyboard
+           handling, so a control added below the links (the colour
+           switch) is reached and released in the same way. */
+        var items = Array.prototype.slice.call(panel.querySelectorAll("a, button"));
         var open = false;
 
         /* The panel sits under the sticky header, so it starts where the
@@ -49,14 +53,15 @@
             toggle.setAttribute("aria-expanded", open ? "true" : "false");
             toggle.setAttribute("aria-label", (open ? "Close the " : "Open the ") + role + " menu");
             document.body.classList.toggle("site-nav-open", open);
-            /* A closed panel sits off the left edge, so its links leave the
-               tab order until the panel is opened again. */
-            links.forEach(function (link) {
+            /* A closed panel sits off the left edge, so its links and
+               controls leave the tab order until the panel is opened
+               again. */
+            items.forEach(function (item) {
                 if (open) {
-                    link.removeAttribute("tabindex");
+                    item.removeAttribute("tabindex");
                 }
                 else {
-                    link.setAttribute("tabindex", "-1");
+                    item.setAttribute("tabindex", "-1");
                 }
             });
             if (open) {
@@ -105,7 +110,7 @@
             }
             /* The panel and the button that opened it are the whole of the
                drawer, so the focus stays between them. */
-            var ring = [toggle].concat(links);
+            var ring = [toggle].concat(items);
             var first = ring[0];
             var last = ring[ring.length - 1];
             if (event.shiftKey && document.activeElement === first) {

@@ -14,6 +14,7 @@ type DisplayPreferences struct {
 // selectors in frontreadme.md §2.2.
 const (
 	ThemeForest   = "forest"
+	ThemeNavy     = "navy"
 	ThemeMidnight = "midnight"
 	ThemeDaylight = "daylight"
 	ThemeOcean    = "ocean"
@@ -31,7 +32,7 @@ const (
 
 // Themes and TextSizes are the server's allowlists. The order is also the order
 // the picker presents them in.
-var Themes = []string{ThemeForest, ThemeMidnight, ThemeDaylight, ThemeOcean, ThemeStone}
+var Themes = []string{ThemeForest, ThemeNavy, ThemeMidnight, ThemeDaylight, ThemeOcean, ThemeStone}
 var TextSizes = []string{TextSizeStandard, TextSizeLarge, TextSizeXLarge, TextSizeXXLarge}
 
 // DefaultDisplayPreferences is the fallback for a visitor with no stored

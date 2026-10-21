@@ -3,9 +3,9 @@
    =========================================================
    `static/app.css` defines the Dawn Canopy **Forest** palette in
    `:root`, and every page already loads it. This file re-colours the
-   same semantic tokens to add four more themes:
+   same semantic tokens to add five more themes:
 
-       forest (default, from :root) · midnight · daylight · ocean · stone
+       forest (default, from :root) · navy · midnight · daylight · ocean · stone
 
    Contract (frontreadme.md §2.2):
    - A theme re-assigns *existing* tokens only. It never invents a new
@@ -24,6 +24,30 @@
 
 html[data-theme="forest"] {
   color-scheme: dark;
+}
+
+/* ---- Navy: the Forest palette in navy blue ----
+   The brand green of the Forest theme becomes a navy blue, and nothing
+   else moves: the same token names, the same warm gold action colour,
+   the same spacing, the same type. Only the hue of the surfaces, the
+   borders and the ink changes, so a page reads as the same design in a
+   different colour rather than as a new design.
+
+   Like every other theme it re-assigns *existing* tokens only, and it is
+   inert until a page asks for it with `data-theme="navy"`. */
+html[data-theme="navy"] {
+  color-scheme: dark;
+  --void: #070d1a;
+  --base: #0c1524;
+  --surface: #142034;
+  --surface-hi: #1d2c46;
+  --border: #31486b;
+  --border-hi: #45628c;
+  --ink: #f3f6fb;
+  --ink-muted: #bccbdf;
+  --ink-faint: #91a4c0;
+  --signal: #f4cb78;
+  --signal-ink: #0c1524;
 }
 
 html[data-theme="midnight"] {

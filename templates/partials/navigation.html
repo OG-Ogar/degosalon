@@ -1,9 +1,9 @@
 {{define "theme-switch"}}
 <!-- The colour switch: one click between the navy green of the brand
-     palette and its navy blue twin. The button is plain markup, so it
-     shows up in every theme; the script that applies the palette is a
-     later pass and changes nothing yet. -->
-<button class="site-nav-theme-switch" type="button" data-theme-switch="navy" title="Switch colour to navy blue">
+     palette and its navy blue twin. It carries the address of the
+     preference record and the token that authorises the write, so the
+     script can keep the server copy of the choice in step. -->
+<button class="site-nav-theme-switch" type="button" data-theme-switch="navy" data-theme-endpoint="/{{.Role}}/settings/preferences" data-csrf-token="{{.CSRF}}" title="Switch colour to navy blue">
   <span class="site-nav-theme-swatch" aria-hidden="true"><span class="site-nav-theme-swatch-forest"></span><span class="site-nav-theme-swatch-navy"></span></span>
   <span class="site-nav-theme-label">Switch colour</span>
 </button>

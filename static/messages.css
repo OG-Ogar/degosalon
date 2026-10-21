@@ -41,14 +41,14 @@
 .partner-meta{display:grid;gap:4px}
 .partner-online-badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:9999px;background:rgba(34,197,94,.12);border:1px solid rgba(34,197,94,.35);color:#86efac;font-size:.7rem;font-weight:750;margin:0 auto 4px}
 .online-dot{width:7px;height:7px;border-radius:50%;background:#22c55e;box-shadow:0 0 6px #22c55e}
-.chat-tips-card{padding:16px;border-radius:14px;background:rgba(16,34,29,.6);border:1px solid var(--border);font-size:.78rem;line-height:1.5}
+.chat-tips-card{padding:16px;border-radius:14px;background:rgba(var(--base-rgb),.6);border:1px solid var(--border);font-size:.78rem;line-height:1.5}
 .chat-tips-card strong{display:block;color:var(--signal);margin-bottom:4px;font-size:.82rem}
 .chat-tips-card p{margin:0;color:var(--ink-muted)}
 
 /* Right Main Chat Stream */
 .chat-stream-pane{display:grid;gap:12px;min-width:0}
 .chat-stream-header{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.messaging-page .thread{min-height:360px;max-height:60dvh;background:linear-gradient(180deg,rgba(16,34,29,.4),rgba(9,22,19,.5))}
+.messaging-page .thread{min-height:360px;max-height:60dvh;background:linear-gradient(180deg,rgba(var(--base-rgb),.4),rgba(var(--void-rgb),.5))}
 
 /* Modern Message Bubbles with Tails */
 .messaging-page .bubble{position:relative;max-width:78%;padding:10px 14px;border-radius:16px;word-break:break-word}

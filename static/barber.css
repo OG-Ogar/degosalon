@@ -867,7 +867,7 @@
 /* Hairstyle card media & badges */
 .barber-hairstyle-media-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:16px 16px 0 0;background:var(--surface-hi,#254137)}
 .barber-hairstyle-media-wrap img{width:100%;height:100%;object-fit:cover;display:block}
-.barber-duration-badge{position:absolute;bottom:8px;right:8px;padding:3px 8px;border-radius:6px;background:rgba(9,22,19,.88);color:var(--signal,#f4cb78);font-size:.72rem;font-weight:750;backdrop-filter:blur(8px);border:1px solid rgba(244,203,120,.25)}
+.barber-duration-badge{position:absolute;bottom:8px;right:8px;padding:3px 8px;border-radius:6px;background:rgba(var(--void-rgb),.88);color:var(--signal,#f4cb78);font-size:.72rem;font-weight:750;backdrop-filter:blur(8px);border:1px solid rgba(244,203,120,.25)}
 .barber-card-pricing{margin:6px 0}
 .barber-showcase-media{width:100%;max-width:540px;aspect-ratio:16/9;overflow:hidden;border-radius:14px;margin-bottom:20px}
 .barber-showcase-media img{width:100%;height:100%;object-fit:cover}
@@ -876,10 +876,10 @@
 .schedule-editor-form{display:grid;gap:24px}
 .schedule-rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:14px}
 .calendar-days-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px}
-.calendar-day-card{margin:0;padding:18px;border:1px solid rgba(82,116,102,.42);border-radius:14px;background:linear-gradient(145deg,rgba(37,65,55,.5),rgba(25,49,41,.38))}
+.calendar-day-card{margin:0;padding:18px;border:1px solid rgba(var(--border-hi-rgb),.42);border-radius:14px;background:linear-gradient(145deg,rgba(var(--surface-hi-rgb),.5),rgba(var(--surface-rgb),.38))}
 .calendar-day-legend{padding:0 8px;font-size:1.05rem;font-weight:800;color:var(--signal,#f4cb78);letter-spacing:-.02em}
 .calendar-day-card.day-closed{opacity:.72;border-style:dashed}
-.day-toggle-row{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(194,212,199,.1)}
+.day-toggle-row{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(var(--ink-muted-rgb),.1)}
 .day-closed-label{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;color:var(--ink,#f8f5e9);cursor:pointer}
 .day-times-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .day-times-grid label{font-size:.76rem;color:var(--ink-muted,#c2d4c7);font-weight:700}

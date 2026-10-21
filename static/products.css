@@ -768,7 +768,7 @@ RESPONSIVE
     margin-left: 0.4rem;
     border-radius: 999px;
     background: var(--signal, #f4cb78);
-    color: #10221d;
+    color: var(--base);
     font-size: 0.75rem;
     font-weight: 800;
 }

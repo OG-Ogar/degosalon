@@ -7,7 +7,7 @@
     color: var(--ink, #f8f5e9);
 }
 .image-viewer-overlay::backdrop {
-    background: rgba(9, 22, 19, 0.95);
+    background: rgba(var(--void-rgb), 0.95);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
 }
@@ -41,7 +41,7 @@
     align-items: center;
     gap: 8px;
     padding: 6px 16px;
-    background: rgba(16, 34, 29, 0.85);
+    background: rgba(var(--base-rgb), 0.85);
     border: 1px solid var(--border, #355348);
     border-radius: 9999px;
     font-size: 0.85rem;
@@ -59,7 +59,7 @@
     height: 48px;
     border: 1px solid var(--border, #355348);
     border-radius: 50%;
-    background: rgba(25, 49, 41, 0.9);
+    background: rgba(var(--surface-rgb), 0.9);
     color: var(--ink, #f8f5e9);
     font-size: 32px;
     display: grid;
@@ -81,7 +81,7 @@
     height: 48px;
     border: 1px solid var(--border, #355348);
     border-radius: 50%;
-    background: rgba(25, 49, 41, 0.85);
+    background: rgba(var(--surface-rgb), 0.85);
     color: var(--ink, #f8f5e9);
     font-size: 32px;
     line-height: 1;

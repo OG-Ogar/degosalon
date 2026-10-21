@@ -32,7 +32,7 @@
 
 /* Shimmer skeleton loading state (Facebook & X Standard: Zero CLS) */
 @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-.skeleton{background:linear-gradient(90deg,rgba(25,49,41,.6) 25%,rgba(37,65,55,.85) 50%,rgba(25,49,41,.6) 75%);background-size:200% 100%;animation:shimmer 1.6s infinite ease-in-out;border-radius:var(--control-radius);min-height:1rem}
+.skeleton{background:linear-gradient(90deg,rgba(var(--surface-rgb),.6) 25%,rgba(var(--surface-hi-rgb),.85) 50%,rgba(var(--surface-rgb),.6) 75%);background-size:200% 100%;animation:shimmer 1.6s infinite ease-in-out;border-radius:var(--control-radius);min-height:1rem}
 
 /* Multi-column app shell primitives */
 .shell-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(280px,340px);gap:clamp(1rem,2.5vw,1.75rem);align-items:start}
@@ -42,13 +42,13 @@
 @media(max-width:960px){.shell-rail{position:static}}
 
 /* Mobile sticky bottom action bar (Facebook Marketplace standard) */
-.mobile-sticky-action-bar{position:fixed;bottom:0;left:0;right:0;z-index:45;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.75rem 1rem;padding-bottom:max(0.75rem, env(safe-area-inset-bottom));background:rgba(9,22,19,.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.25);transform:translateY(110%);visibility:hidden;pointer-events:none;transition:transform .24s cubic-bezier(0.16,1,0.3,1),visibility .24s ease}
+.mobile-sticky-action-bar{position:fixed;bottom:0;left:0;right:0;z-index:45;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:0.75rem 1rem;padding-bottom:max(0.75rem, env(safe-area-inset-bottom));background:rgba(var(--void-rgb),.95);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid var(--border);box-shadow:0 -4px 20px rgba(0,0,0,.25);transform:translateY(110%);visibility:hidden;pointer-events:none;transition:transform .24s cubic-bezier(0.16,1,0.3,1),visibility .24s ease}
 .mobile-sticky-action-bar.visible{transform:translateY(0);visibility:visible;pointer-events:auto}
 @media(min-width:761px){.mobile-sticky-action-bar{display:none!important}}
 
 /* Accessible Web Share modal & fallback sheet (X & Facebook standard) */
 .share-dialog{border:1px solid var(--border-hi);border-radius:20px;padding:0;background:var(--surface);color:var(--ink);max-width:440px;width:min(92vw,440px);box-shadow:0 24px 64px rgba(0,0,0,.7);overflow:hidden}
-.share-dialog::backdrop{background:rgba(9,22,19,.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+.share-dialog::backdrop{background:rgba(var(--void-rgb),.85);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
 .share-dialog-content{display:flex;flex-direction:column}
 .share-dialog-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border)}
 .share-dialog-title{font-size:1.15rem;font-weight:700;color:var(--ink);margin:0}

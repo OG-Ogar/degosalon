@@ -319,7 +319,7 @@
     border: 1px solid var(--border-hi, #527466);
     border-radius: 999px;
 
-    background: rgba(25, 49, 41, 0.6);
+    background: rgba(var(--surface-rgb), 0.6);
     color: var(--ink, #f8f5e9);
 
     font-size: 0.7rem;

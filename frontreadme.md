@@ -169,7 +169,15 @@ function apply(prefs: { theme: Theme; textSize: TextSize }) {
 }
 ```
 
-**The colour switch.** The two brand palettes — the navy green of Forest and its navy blue twin — are reached from one control: the switch that sits **below the links of the "=" drawer** on every customer and barber page, and after the links of the administrator's header bar. The control is plain markup in `templates/partials/navigation.html`, so it is on the page whether or not a script is present, and the drawer script treats it like any other control in the panel (it leaves the tab order while the drawer is closed). The script that reads the switch, applies `data-theme` and writes the choice back is a later pass; until then the switch changes nothing.
+**The colour switch.** The two brand palettes — the navy green of Forest and its navy blue twin — are reached from one control: the switch that sits **below the links of the "=" drawer** on every customer and barber page, and after the links of the administrator's header bar. The control carries the address of the preference record and the CSRF token, so the script needs no secrets of its own.
+
+`static/theme-switch.js` is loaded in the head of every page, before the first paint:
+
+1. It reads `localStorage` (`dgs-display-v1`), runs the value through the allowlist, and puts it on the document element. The default palette leaves the attribute off, so an untouched page is byte-for-byte the page it always was.
+2. A click on the switch moves between the two palettes: `forest ⇄ navy`. The choice is written to `localStorage` at once, and `PUT` to `/{role}/settings/preferences` with the `X-CSRF-Token` header, so the server record follows the user to another device.
+3. On arrival the script reads the server record back. The server is the source of truth once a visitor is signed in; a failed read or write never loses the local choice.
+
+The surfaces follow the palette through the token layer: the shared chrome, the panels, the cards and the type all read `--void`, `--base`, `--surface`, `--border` and `--ink`, so the whole page changes hue and nothing else moves. The translucent surfaces (a card laid over a photograph, the sticky header, the drawer shade) use the matching `--…-rgb` triplets, so their alpha survives the change too.
 
 #### B. Server-Side Rendering boot (no-FOUC, works without JavaScript)
 

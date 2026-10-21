@@ -16,7 +16,11 @@
      order does not matter — templates still load this after app.css and
      ui.css so the cascade reads top-to-bottom.
    - Setting the theme value, persisting it, and tracking `theme-color`
-     are FE-28 (display preferences); this file is the token layer only.
+     are FE-28 (display preferences); the switch that applies them is
+     `static/theme-switch.js`.
+   - Each theme also carries the `--…-rgb` triplets of its own colours,
+     so a translucent surface laid over a photograph follows the palette
+     as well.
 
    No attribute is required for Forest: with `data-theme` absent the
    `:root` values apply, so existing pages are pixel-identical.
@@ -48,6 +52,12 @@ html[data-theme="navy"] {
   --ink-faint: #91a4c0;
   --signal: #f4cb78;
   --signal-ink: #0c1524;
+  --void-rgb: 7, 13, 26;
+  --base-rgb: 12, 21, 36;
+  --surface-rgb: 20, 32, 52;
+  --surface-hi-rgb: 29, 44, 70;
+  --border-hi-rgb: 69, 98, 140;
+  --ink-muted-rgb: 188, 203, 223;
 }
 
 html[data-theme="midnight"] {
@@ -63,6 +73,12 @@ html[data-theme="midnight"] {
   --ink-faint: #888888;
   --signal: #f4cb78;
   --signal-ink: #121212;
+  --void-rgb: 0, 0, 0;
+  --base-rgb: 10, 10, 10;
+  --surface-rgb: 20, 20, 20;
+  --surface-hi-rgb: 30, 30, 30;
+  --border-hi-rgb: 58, 58, 58;
+  --ink-muted-rgb: 181, 181, 181;
 }
 
 html[data-theme="daylight"] {
@@ -78,6 +94,12 @@ html[data-theme="daylight"] {
   --ink-faint: #707070;
   --signal: #b8851a;
   --signal-ink: #ffffff;
+  --void-rgb: 216, 216, 210;
+  --base-rgb: 247, 247, 245;
+  --surface-rgb: 255, 255, 255;
+  --surface-hi-rgb: 235, 235, 232;
+  --border-hi-rgb: 168, 168, 164;
+  --ink-muted-rgb: 74, 74, 74;
 }
 
 html[data-theme="ocean"] {
@@ -93,6 +115,12 @@ html[data-theme="ocean"] {
   --ink-faint: #7f9dbf;
   --signal: #8bd3f7;
   --signal-ink: #082238;
+  --void-rgb: 5, 16, 37;
+  --base-rgb: 10, 26, 48;
+  --surface-rgb: 16, 38, 63;
+  --surface-hi-rgb: 23, 51, 84;
+  --border-hi-rgb: 53, 96, 144;
+  --ink-muted-rgb: 182, 203, 228;
 }
 
 html[data-theme="stone"] {
@@ -108,6 +136,12 @@ html[data-theme="stone"] {
   --ink-faint: #9a8e7a;
   --signal: #e8b478;
   --signal-ink: #231a0c;
+  --void-rgb: 26, 23, 20;
+  --base-rgb: 35, 32, 25;
+  --surface-rgb: 47, 42, 34;
+  --surface-hi-rgb: 61, 55, 45;
+  --border-hi-rgb: 106, 96, 82;
+  --ink-muted-rgb: 201, 189, 169;
 }
 
 /* ---- Text size — an accessibility scale (frontreadme.md §2.3C) ----

@@ -103,3 +103,49 @@ func TestProductionForcesSecureCookies(t *testing.T) {
 		}
 	}
 }
+
+func TestSessionPruneExpired(t *testing.T) {
+	ConfigureDatabase(nil)
+	t.Cleanup(func() { sessions = map[string]Session{} })
+	s1, err := New(RoleCustomer, 10)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s2, err := New(RoleCustomer, 11)
+	if err != nil {
+		t.Fatal(err)
+	}
+	// Expire s1
+	mu.Lock()
+	s1.ExpiresAt = time.Now().Add(-1 * time.Hour)
+	sessions[digest(s1.ID)] = s1
+	mu.Unlock()
+
+	pruned, err := PruneExpired(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if pruned != 1 {
+		t.Fatalf("expected 1 pruned session, got %d", pruned)
+	}
+	if _, ok := Get(s1.ID); ok {
+		t.Fatal("expired session was not pruned")
+	}
+	if _, ok := Get(s2.ID); !ok {
+		t.Fatal("valid session was pruned")
+	}
+
+	// Verify worker terminates promptly on context cancel
+	ctx, cancel := context.WithCancel(context.Background())
+	done := make(chan struct{})
+	go func() {
+		RunCleanupWorker(ctx, 10*time.Millisecond)
+		close(done)
+	}()
+	cancel()
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("RunCleanupWorker did not exit after context cancel")
+	}
+}

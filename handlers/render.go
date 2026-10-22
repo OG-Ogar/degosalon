@@ -139,35 +139,277 @@ type navigationView struct {
     CSRF string
     Links []navigationLink
 }
+var structFieldCache sync.Map // map[structFieldKey]int
+
+type structFieldKey struct {
+	t    reflect.Type
+	name string
+}
+
 // Optional presentation fields let every page share navigation without
 // requiring its domain view model to implement a navigation interface.
 func viewString(data any, name string) string {
-    if data == nil {
-        return ""
-    }
-    if m, ok := data.(map[string]string); ok {
-        return m[name]
-    }
-    if m, ok := data.(map[string]any); ok {
-        if s, ok := m[name].(string); ok {
-            return s
-        }
-        return ""
-    }
-    value := reflect.ValueOf(data)
-    for value.IsValid() && value.Kind() == reflect.Pointer {
-        if value.IsNil() { return "" }
-        value = value.Elem()
-    }
-    if !value.IsValid() { return "" }
-    var field reflect.Value
-    if value.Kind() == reflect.Struct { field = value.FieldByName(name) }
-    if value.Kind() == reflect.Map && value.Type().Key().Kind() == reflect.String {
-        field = value.MapIndex(reflect.ValueOf(name).Convert(value.Type().Key()))
-        if field.IsValid() && field.Kind() == reflect.Interface { field = field.Elem() }
-    }
-    if field.IsValid() && field.Kind() == reflect.String { return field.String() }
-    return ""
+	if data == nil {
+		return ""
+	}
+	if m, ok := data.(map[string]string); ok {
+		return m[name]
+	}
+	if m, ok := data.(map[string]any); ok {
+		if s, ok := m[name].(string); ok {
+			return s
+		}
+		return ""
+	}
+	// Fast-path type switch for common view model types to avoid reflection overhead
+	switch v := data.(type) {
+	case browseBarbersView:
+		switch name {
+		case "CSRF":
+			return v.CSRF
+		case "ResultsLink":
+			return v.ResultsLink
+		case "SelectedState":
+			return v.SelectedState
+		case "SelectedArea":
+			return v.SelectedArea
+		}
+	case *browseBarbersView:
+		if v != nil {
+			switch name {
+			case "CSRF":
+				return v.CSRF
+			case "ResultsLink":
+				return v.ResultsLink
+			case "SelectedState":
+				return v.SelectedState
+			case "SelectedArea":
+				return v.SelectedArea
+			}
+		}
+	case barberDetailView:
+		switch name {
+		case "CSRF":
+			return v.CSRF
+		case "ResultsLink":
+			return v.ResultsLink
+		case "SelectedState":
+			return v.SelectedState
+		case "SelectedArea":
+			return v.SelectedArea
+		}
+	case *barberDetailView:
+		if v != nil {
+			switch name {
+			case "CSRF":
+				return v.CSRF
+			case "ResultsLink":
+				return v.ResultsLink
+			case "SelectedState":
+				return v.SelectedState
+			case "SelectedArea":
+				return v.SelectedArea
+			}
+		}
+	case customerView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *customerView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case barberView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *barberView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case customerDashboardView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *customerDashboardView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case barberDashboardView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *barberDashboardView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case customerBookingsView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *customerBookingsView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case barberBookingsView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *barberBookingsView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case customerCartView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *customerCartView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case customerProductsView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *customerProductsView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case adminDashboardView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *adminDashboardView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case adminBarberProfileView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *adminBarberProfileView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case barberFormView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *barberFormView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case hairstyleFormView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *hairstyleFormView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case productFormView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *productFormView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case confirmDeleteView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *confirmDeleteView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case confirmationView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *confirmationView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case formView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *formView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case hairstyleView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *hairstyleView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case chatView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *chatView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case barberChatView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *barberChatView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	case calendarView:
+		if name == "CSRF" {
+			return v.CSRF
+		}
+	case *calendarView:
+		if v != nil && name == "CSRF" {
+			return v.CSRF
+		}
+	}
+
+	value := reflect.ValueOf(data)
+	for value.IsValid() && value.Kind() == reflect.Pointer {
+		if value.IsNil() {
+			return ""
+		}
+		value = value.Elem()
+	}
+	if !value.IsValid() {
+		return ""
+	}
+	var field reflect.Value
+	if value.Kind() == reflect.Struct {
+		key := structFieldKey{t: value.Type(), name: name}
+		if cachedIndex, ok := structFieldCache.Load(key); ok {
+			idx := cachedIndex.(int)
+			if idx >= 0 {
+				field = value.Field(idx)
+			}
+		} else {
+			if sf, ok := value.Type().FieldByName(name); ok && len(sf.Index) == 1 && sf.Type.Kind() == reflect.String {
+				structFieldCache.Store(key, sf.Index[0])
+				field = value.Field(sf.Index[0])
+			} else {
+				structFieldCache.Store(key, -1)
+			}
+		}
+	}
+	if value.Kind() == reflect.Map && value.Type().Key().Kind() == reflect.String {
+		field = value.MapIndex(reflect.ValueOf(name).Convert(value.Type().Key()))
+		if field.IsValid() && field.Kind() == reflect.Interface {
+			field = field.Elem()
+		}
+	}
+	if field.IsValid() && field.Kind() == reflect.String {
+		return field.String()
+	}
+	return ""
 }
 func navigation(role, active string, data any) navigationView {
     view := navigationView{Role: role, CSRF: viewString(data, "CSRF")}

@@ -26,6 +26,34 @@ func TestRevalidateAsksBrowsersToCheckWithTheServer(t *testing.T) {
 	}
 }
 
+func TestRevalidateReturnsNotModifiedOnMatchingETag(t *testing.T) {
+	called := false
+	next := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		called = true
+		w.WriteHeader(http.StatusOK)
+	})
+
+	rec1 := httptest.NewRecorder()
+	revalidate(next).ServeHTTP(rec1, httptest.NewRequest(http.MethodGet, "/static/app.css", nil))
+	etag := rec1.Header().Get("ETag")
+	if etag == "" {
+		t.Fatal("expected ETag header on static response")
+	}
+
+	called = false
+	rec2 := httptest.NewRecorder()
+	req2 := httptest.NewRequest(http.MethodGet, "/static/app.css", nil)
+	req2.Header.Set("If-None-Match", etag)
+	revalidate(next).ServeHTTP(rec2, req2)
+
+	if rec2.Code != http.StatusNotModified {
+		t.Fatalf("status = %d, want %d", rec2.Code, http.StatusNotModified)
+	}
+	if called {
+		t.Fatal("next handler should not be invoked when ETag matches")
+	}
+}
+
 func TestProductionStartupRejectsMemoryBeforeServing(t *testing.T) {
 	if os.Getenv("DEGOSALON_STARTUP_TEST") == "1" {
 		main()

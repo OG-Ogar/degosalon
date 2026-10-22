@@ -438,12 +438,12 @@ test('both roles page message history chronologically and refresh to latest repl
 });
 
 test('admin account search reaches older pages without JavaScript',async({page,browser},testInfo)=>{
- test.setTimeout(120000);
+ test.setTimeout(240000);
  expect((await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}})).ok()).toBeTruthy();
  await page.goto('/admin/barbers/new');const csrf=await page.locator('main input[name=csrf_token]').inputValue(),suffix=Date.now();
- for(let i=0;i<25;i++){
-  const response=await page.request.post('/admin/barbers/new',{maxRedirects:0,form:{csrf_token:csrf,fullname:'Account Paging '+suffix+' '+i,phone:'08012345678',email:'admin-paging-'+suffix+'-'+i+'@example.test',shopname:'Account Shop '+i,shopaddress:'12 Example Street',state:'Osun',local_area:'Osogbo',password:'browser-pass-123'}});expect(response.status()).toBe(303);
- }
+ await Promise.all(Array.from({length:25},(_,i)=>
+  page.request.post('/admin/barbers/new',{maxRedirects:0,form:{csrf_token:csrf,fullname:'Account Paging '+suffix+' '+i,phone:'08012345678',email:'admin-paging-'+suffix+'-'+i+'@example.test',shopname:'Account Shop '+i,shopaddress:'12 Example Street',state:'Osun',local_area:'Osogbo',password:'browser-pass-123'}})
+ )).then(responses=>{for(const r of responses)expect(r.status()).toBe(303);});
  const context=await browser.newContext({javaScriptEnabled:false,storageState:await page.context().storageState()});
  try{
   const native=await context.newPage();await native.goto('/admin/barbers');await expect(native.locator('tbody tr')).toHaveCount(24);

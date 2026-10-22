@@ -132,3 +132,21 @@ func TestCompressFlusher(t *testing.T) {
 		t.Fatalf("unexpected content: %q", string(decompressed))
 	}
 }
+
+func BenchmarkCompressGzip(b *testing.B) {
+	payload := []byte(strings.Repeat("De Go Salon Ecosystem HTML Content with Styles and Scripts. ", 50))
+	handler := Compress(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		_, _ = w.Write(payload)
+	}))
+
+	req := httptest.NewRequest(http.MethodGet, "/explore", nil)
+	req.Header.Set("Accept-Encoding", "gzip")
+
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+	}
+}

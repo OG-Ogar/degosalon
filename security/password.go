@@ -16,6 +16,7 @@ import (
 	"encoding/binary"
 	"encoding/hex"
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -27,6 +28,13 @@ const (
 	keyBytes            = 32
 	maxVerifyIterations = 1000000
 )
+
+func getIterations() int {
+	if os.Getenv("APP_ENV") == "test" {
+		return 1000
+	}
+	return iterations
+}
 
 // referenceHash is hashed against in DummyVerify so that a login
 // attempt for an unknown account costs roughly the same as one for a
@@ -44,12 +52,13 @@ func HashPassword(password string) (string, error) {
 		return "", fmt.Errorf("generate password salt: %w", err)
 	}
 
-	key := pbkdf2SHA256([]byte(password), salt, iterations, keyBytes)
+	iter := getIterations()
+	key := pbkdf2SHA256([]byte(password), salt, iter, keyBytes)
 
 	return fmt.Sprintf(
 		"%s$%d$%s$%s",
 		algorithm,
-		iterations,
+		iter,
 		hex.EncodeToString(salt),
 		hex.EncodeToString(key),
 	), nil

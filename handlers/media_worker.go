@@ -19,7 +19,6 @@ func RunMediaCleanup(ctx context.Context) {
 	if store == nil {
 		return
 	}
-	defer store.Close()
 	for {
 		found, err := storage.ProcessMediaCleanup(ctx, store.Delete)
 		if ctx.Err() != nil {

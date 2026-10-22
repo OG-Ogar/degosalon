@@ -73,6 +73,7 @@ func run() error {
 			}
 		}
 		_ = storage.CloseDatabase()
+		handlers.CloseMediaStore()
 	}()
 	if err := handlers.ImportLegacySiteImages(context.Background()); err != nil {
 		return fmt.Errorf("import legacy site media settings: %w", err)
@@ -156,7 +157,7 @@ func run() error {
 
 	server := &http.Server{
 		Addr:    listenAddress(),
-		Handler: observability.Requests(slog.Default(), mux),
+		Handler: observability.Requests(slog.Default(), observability.Compress(mux)),
 
 		// Without these a slow or idle client can hold a connection open
 		// indefinitely. WriteTimeout is the longest because it also

@@ -13,7 +13,14 @@ import (
 	"net/http"
 	"path/filepath"
 	"strings"
+	"sync"
 )
+
+var renderBufferPool = sync.Pool{
+	New: func() any {
+		return new(bytes.Buffer)
+	},
+}
 
 // templates holds every page parsed once at startup, keyed by its path
 // relative to the templates directory, for example "barber/login.html".
@@ -90,9 +97,11 @@ func renderStatus(w http.ResponseWriter, status int, name string, data any) {
 		return
 	}
 
-	var buf bytes.Buffer
+	buf := renderBufferPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	defer renderBufferPool.Put(buf)
 
-	if err := tmpl.Execute(&buf, data); err != nil {
+	if err := tmpl.Execute(buf, data); err != nil {
 		slog.Error("template_failed", "request_id", w.Header().Get("X-Request-ID"), "template", name, "error", err)
 		journeyError(w, "Template Execution Error", http.StatusInternalServerError)
 
@@ -133,6 +142,18 @@ type navigationView struct {
 // Optional presentation fields let every page share navigation without
 // requiring its domain view model to implement a navigation interface.
 func viewString(data any, name string) string {
+    if data == nil {
+        return ""
+    }
+    if m, ok := data.(map[string]string); ok {
+        return m[name]
+    }
+    if m, ok := data.(map[string]any); ok {
+        if s, ok := m[name].(string); ok {
+            return s
+        }
+        return ""
+    }
     value := reflect.ValueOf(data)
     for value.IsValid() && value.Kind() == reflect.Pointer {
         if value.IsNil() { return "" }
@@ -195,9 +216,12 @@ var journeyErrorTemplate = template.Must(template.New("journey-error").Parse(`<!
 </main></body></html>`))
 
 func journeyError(w http.ResponseWriter, message string, status int) {
-    var body bytes.Buffer
+    buf := renderBufferPool.Get().(*bytes.Buffer)
+    buf.Reset()
+    defer renderBufferPool.Put(buf)
+
     data := struct { Status int; Title, Message string }{status, http.StatusText(status), message}
-    if err := journeyErrorTemplate.Execute(&body, data); err != nil {
+    if err := journeyErrorTemplate.Execute(buf, data); err != nil {
         http.Error(w, "Something went wrong. Please try again.", http.StatusInternalServerError)
         return
     }
@@ -205,7 +229,7 @@ func journeyError(w http.ResponseWriter, message string, status int) {
     w.Header().Set("X-Content-Type-Options", "nosniff")
     w.Header().Set("Cache-Control", "no-store")
     w.WriteHeader(status)
-    _, _ = body.WriteTo(w)
+    _, _ = buf.WriteTo(w)
 }
 
 // confirmation supplies presentation text while callers retain their owned routes.

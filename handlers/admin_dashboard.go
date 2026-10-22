@@ -52,6 +52,7 @@ func AdminLandingImageHandler(
 		return
 	}
 
+	extendUploadDeadline(w)
 	limitRequestBody(w, r)
 
 	if !requireCSRF(w, r, s) {
@@ -92,6 +93,7 @@ func AdminCustomerLandingImageHandler(
 		return
 	}
 
+	extendUploadDeadline(w)
 	limitRequestBody(w, r)
 
 	if !requireCSRF(w, r, s) {

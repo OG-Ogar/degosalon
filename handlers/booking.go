@@ -193,17 +193,42 @@ var bookingMailSender = func(ctx context.Context, n resetmail.BookingNotificatio
 }
 
 var (
-	bookingNotificationWG          sync.WaitGroup
+	bookingNotificationWG           sync.WaitGroup
+	bookingNotificationHooksMu      sync.RWMutex
 	onBookingNotificationDispatched func(booking models.Booking, barber models.Barber, err error)
 )
+
+func bookingNotificationHooks() (func(context.Context, resetmail.BookingNotification) error, func(models.Booking, models.Barber, error)) {
+	bookingNotificationHooksMu.RLock()
+	defer bookingNotificationHooksMu.RUnlock()
+	return bookingMailSender, onBookingNotificationDispatched
+}
+
+// WaitForBookingNotifications waits for detached booking-email goroutines.
+// The HTTP server drains handlers first, so no new Add can race with Wait.
+func WaitForBookingNotifications(ctx context.Context) error {
+	done := make(chan struct{})
+	go func() {
+		bookingNotificationWG.Wait()
+		close(done)
+	}()
+	select {
+	case <-done:
+		return nil
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+}
 
 // sendBookingNotificationAsync dispatches an email alert to the barber in a background goroutine.
 // It is non-blocking: mail delays or delivery failures never delay or block the customer's redirect.
 func sendBookingNotificationAsync(booking models.Booking, barber models.Barber) {
+	sender, dispatched := bookingNotificationHooks()
+
 	if strings.TrimSpace(barber.Email) == "" {
 		slog.Info("booking_notification_email_skipped_no_barber_email", "booking_id", booking.ID, "barber_id", barber.ID)
-		if onBookingNotificationDispatched != nil {
-			onBookingNotificationDispatched(booking, barber, resetmail.ErrConfiguration)
+		if dispatched != nil {
+			dispatched(booking, barber, resetmail.ErrConfiguration)
 		}
 		return
 	}
@@ -241,7 +266,10 @@ func sendBookingNotificationAsync(booking models.Booking, barber models.Barber) 
 		ctx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
 		defer cancel()
 
-		err := bookingMailSender(ctx, notification)
+		err := resetmail.ErrConfiguration
+		if sender != nil {
+			err = sender(ctx, notification)
+		}
 		if err != nil {
 			if errors.Is(err, resetmail.ErrConfiguration) {
 				slog.InfoContext(ctx, "booking_notification_email_skipped_unconfigured",
@@ -263,8 +291,8 @@ func sendBookingNotificationAsync(booking models.Booking, barber models.Barber) 
 			)
 		}
 
-		if onBookingNotificationDispatched != nil {
-			onBookingNotificationDispatched(booking, barber, err)
+		if dispatched != nil {
+			dispatched(booking, barber, err)
 		}
 	}()
 }

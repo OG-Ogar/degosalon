@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	"barber-booking/internal/geography"
@@ -9,23 +10,35 @@ import (
 )
 
 // ListBarbers returns every barber, newest last.
+//
+// This compatibility helper cannot return an error. Production request paths
+// use ListBarbersResult; when the database is enabled a failed query returns no
+// rows rather than silently falling back to process memory.
 func ListBarbers() []models.Barber {
 	ctx, cancel := databaseContext(context.Background())
 	defer cancel()
 
 	if databaseEnabled() {
-		rows, err := db.QueryContext(ctx, "select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers order by id")
-		if err == nil {
-			defer rows.Close()
-			var out []models.Barber
-			for rows.Next() {
-				var b models.Barber
-				if rows.Scan(&b.ID, &b.FullName, &b.PhoneNumber, &b.Email, &b.PasswordHash, &b.ShopName, &b.ShopAddress, &b.State, &b.LocalArea, &b.ProfileImage, &b.PersonalImage, &b.Status) == nil {
-					out = append(out, b)
-				}
-			}
-			return out
+		rows, err := db.QueryContext(ctx, "select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers order by id limit 1000")
+		if err != nil {
+			log.Printf("list barbers: %v", err)
+			return nil
 		}
+		defer rows.Close()
+		var out []models.Barber
+		for rows.Next() {
+			var b models.Barber
+			if err := rows.Scan(&b.ID, &b.FullName, &b.PhoneNumber, &b.Email, &b.PasswordHash, &b.ShopName, &b.ShopAddress, &b.State, &b.LocalArea, &b.ProfileImage, &b.PersonalImage, &b.Status); err != nil {
+				log.Printf("scan barber: %v", err)
+				return nil
+			}
+			out = append(out, b)
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("list barbers: %v", err)
+			return nil
+		}
+		return out
 	}
 	mu.RLock()
 	defer mu.RUnlock()
@@ -40,18 +53,26 @@ func ListActiveBarbers() []models.Barber {
 	defer cancel()
 
 	if databaseEnabled() {
-		rows, err := db.QueryContext(ctx, "select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where status='Active' order by id")
-		if err == nil {
-			defer rows.Close()
-			var active []models.Barber
-			for rows.Next() {
-				var b models.Barber
-				if rows.Scan(&b.ID, &b.FullName, &b.PhoneNumber, &b.Email, &b.PasswordHash, &b.ShopName, &b.ShopAddress, &b.State, &b.LocalArea, &b.ProfileImage, &b.PersonalImage, &b.Status) == nil {
-					active = append(active, b)
-				}
-			}
-			return active
+		rows, err := db.QueryContext(ctx, "select id, full_name, phone_number, email, password_hash, shop_name, shop_address, state, local_area, profile_image, personal_image, status from public.barbers where status='Active' order by id limit 1000")
+		if err != nil {
+			log.Printf("list active barbers: %v", err)
+			return nil
 		}
+		defer rows.Close()
+		var active []models.Barber
+		for rows.Next() {
+			var b models.Barber
+			if err := rows.Scan(&b.ID, &b.FullName, &b.PhoneNumber, &b.Email, &b.PasswordHash, &b.ShopName, &b.ShopAddress, &b.State, &b.LocalArea, &b.ProfileImage, &b.PersonalImage, &b.Status); err != nil {
+				log.Printf("scan active barber: %v", err)
+				return nil
+			}
+			active = append(active, b)
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("list active barbers: %v", err)
+			return nil
+		}
+		return active
 	}
 	mu.RLock()
 	defer mu.RUnlock()

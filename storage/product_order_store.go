@@ -10,8 +10,6 @@ import (
 	"time"
 
 	"barber-booking/models"
-
-	"github.com/jackc/pgx/v5"
 )
 
 // Product order storage.
@@ -134,7 +132,7 @@ func checkoutCart(ctx context.Context, customer models.Customer, key string) (mo
 		err = tx.QueryRowContext(ctx, `select p.id,p.barber_id,p.name,p.category,p.description,p.price,p.quantity,p.image,(p.is_available and not p.is_archived),b.status,b.full_name,b.shop_name,b.shop_address,b.phone_number
 			from public.products p join public.barbers b on b.id=p.barber_id where p.id=$1 for update of p for share of b`, item.ProductID).
 			Scan(&p.ID, &p.BarberID, &p.Name, &p.Category, &p.Description, &p.Price, &p.Quantity, &p.Image, &p.IsAvailable, &seller.Status, &seller.FullName, &seller.ShopName, &seller.ShopAddress, &seller.PhoneNumber)
-		if errors.Is(err, pgx.ErrNoRows) {
+		if errors.Is(err, sql.ErrNoRows) {
 			return models.ProductOrder{}, CheckoutError{"A product in your cart is no longer available."}
 		}
 		if err != nil {
@@ -394,7 +392,7 @@ func ListProductOrdersByCustomer(ctx context.Context, customerID int) ([]models.
 	defer cancel()
 
 	if databaseEnabled() {
-		rows, err := db.QueryContext(ctx, "select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where customer_id=$1 order by id desc", customerID)
+		rows, err := db.QueryContext(ctx, "select id,customer_id,customer_name,customer_phone,customer_email,total_amount,status,created_at from public.product_orders where customer_id=$1 order by id desc limit 1000", customerID)
 		if err != nil {
 			return nil, err
 		}
@@ -434,7 +432,7 @@ func ListProductOrderItemsByBarber(ctx context.Context, barberID int) ([]models.
 		return nil, err
 	}
 	if databaseEnabled() {
-		return queryRecords(ctx, `select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status,i.fulfillment_status,i.seller_name,i.seller_shop_name,i.seller_shop_address,i.seller_phone,i.product_category,i.product_description from public.product_order_items i join public.product_orders o on o.id=i.order_id where i.barber_id=$1 order by i.id desc`, func(rows *sql.Rows) (models.ProductOrderItem, error) {
+		return queryRecords(ctx, `select i.id,i.order_id,i.product_id,i.barber_id,i.product_name,i.price,i.quantity,i.subtotal,o.customer_name,o.customer_phone,o.customer_email,o.status,i.fulfillment_status,i.seller_name,i.seller_shop_name,i.seller_shop_address,i.seller_phone,i.product_category,i.product_description from public.product_order_items i join public.product_orders o on o.id=i.order_id where i.barber_id=$1 order by i.id desc limit 1000`, func(rows *sql.Rows) (models.ProductOrderItem, error) {
 			var v models.ProductOrderItem
 			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.OrderStatus, &v.FulfillmentStatus, &v.SellerName, &v.SellerShopName, &v.SellerShopAddress, &v.SellerPhone, &v.ProductCategory, &v.ProductDescription)
 			return v, err

@@ -26,6 +26,8 @@ func EditProfileHandler(
 		renderProfileForm(w, s, formFromBarber(barber), barber, "")
 
 	case http.MethodPost:
+		extendUploadDeadline(w)
+
 		// The form carries two files now, so the body is capped before
 		// anything parses it.
 		limitRequestBodyFor(w, r, 2)

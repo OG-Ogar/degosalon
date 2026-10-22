@@ -4,26 +4,39 @@ import (
 	"barber-booking/internal/money"
 	"barber-booking/models"
 	"context"
+	"log"
 )
 
 // ListHairstylesByBarber returns everything one barber offers.
+//
+// This compatibility helper cannot return an error; production request paths
+// use ListHairstylesByBarberResult. A failed query must not fall back to
+// process memory.
 func ListHairstylesByBarber(barberID int) []models.Hairstyle {
 	ctx, cancel := databaseContext(context.Background())
 	defer cancel()
 
 	if databaseEnabled() {
-		rows, err := db.QueryContext(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and not is_archived order by id", barberID)
-		if err == nil {
-			defer rows.Close()
-			var out []models.Hairstyle
-			for rows.Next() {
-				var v models.Hairstyle
-				if rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable, &v.Archived) == nil {
-					out = append(out, v)
-				}
-			}
-			return out
+		rows, err := db.QueryContext(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and not is_archived order by id limit 1000", barberID)
+		if err != nil {
+			log.Printf("list hairstyles: %v", err)
+			return nil
 		}
+		defer rows.Close()
+		var out []models.Hairstyle
+		for rows.Next() {
+			var v models.Hairstyle
+			if err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable, &v.Archived); err != nil {
+				log.Printf("scan hairstyle: %v", err)
+				return nil
+			}
+			out = append(out, v)
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("list hairstyles: %v", err)
+			return nil
+		}
+		return out
 	}
 	mu.RLock()
 	defer mu.RUnlock()
@@ -46,18 +59,26 @@ func ListAvailableHairstylesByBarber(barberID int) []models.Hairstyle {
 	defer cancel()
 
 	if databaseEnabled() {
-		rows, err := db.QueryContext(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and is_available=true and not is_archived order by id", barberID)
-		if err == nil {
-			defer rows.Close()
-			var out []models.Hairstyle
-			for rows.Next() {
-				var v models.Hairstyle
-				if rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable, &v.Archived) == nil {
-					out = append(out, v)
-				}
-			}
-			return out
+		rows, err := db.QueryContext(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and is_available=true and not is_archived order by id limit 1000", barberID)
+		if err != nil {
+			log.Printf("list available hairstyles: %v", err)
+			return nil
 		}
+		defer rows.Close()
+		var out []models.Hairstyle
+		for rows.Next() {
+			var v models.Hairstyle
+			if err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable, &v.Archived); err != nil {
+				log.Printf("scan available hairstyle: %v", err)
+				return nil
+			}
+			out = append(out, v)
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("list available hairstyles: %v", err)
+			return nil
+		}
+		return out
 	}
 	mu.RLock()
 	defer mu.RUnlock()

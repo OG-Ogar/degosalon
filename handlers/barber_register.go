@@ -17,6 +17,8 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 		render(w, "barber/register.html", newFormView(""))
 
 	case http.MethodPost:
+		extendUploadDeadline(w)
+
 		// The registration form accepts one profile photo, so the upload
 		// allowance is set before the shared form parse runs. Otherwise the
 		// ordinary form limit would reject a photo taken on a phone.

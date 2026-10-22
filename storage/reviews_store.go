@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"log"
 	"strings"
 	"time"
 )
@@ -12,23 +13,34 @@ import (
 var reviews []models.Review
 var lastReviewID int
 
+// ListReviewsByBarber is a compatibility helper that cannot return an error;
+// request paths use ListReviewsByBarberResult. Database failures return no
+// rows instead of silently presenting process-memory reviews.
 func ListReviewsByBarber(barberID int) []models.Review {
 	ctx, cancel := databaseContext(context.Background())
 	defer cancel()
 
 	if databaseEnabled() {
-		rows, err := db.QueryContext(ctx, "select id,barber_id,customer_id,booking_id,customer_name,rating,comment,created_at from public.reviews where barber_id=$1 order by created_at desc", barberID)
-		if err == nil {
-			defer rows.Close()
-			var out []models.Review
-			for rows.Next() {
-				var v models.Review
-				if rows.Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.BookingID, &v.CustomerName, &v.Rating, &v.Comment, &v.CreatedAt) == nil {
-					out = append(out, v)
-				}
-			}
-			return out
+		rows, err := db.QueryContext(ctx, "select id,barber_id,customer_id,booking_id,customer_name,rating,comment,created_at from public.reviews where barber_id=$1 order by created_at desc,id desc limit 1000", barberID)
+		if err != nil {
+			log.Printf("list reviews: %v", err)
+			return nil
 		}
+		defer rows.Close()
+		var out []models.Review
+		for rows.Next() {
+			var v models.Review
+			if err := rows.Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.BookingID, &v.CustomerName, &v.Rating, &v.Comment, &v.CreatedAt); err != nil {
+				log.Printf("scan review: %v", err)
+				return nil
+			}
+			out = append(out, v)
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("list reviews: %v", err)
+			return nil
+		}
+		return out
 	}
 	mu.RLock()
 	defer mu.RUnlock()

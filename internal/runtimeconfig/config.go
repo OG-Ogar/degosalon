@@ -5,6 +5,7 @@ package runtimeconfig
 import (
 	"fmt"
 	"net/netip"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -60,6 +61,22 @@ func validate(getenv func(string) string) error {
 	}
 	if strings.TrimSpace(getenv("DATABASE_URL")) == "" {
 		return fmt.Errorf("DATABASE_URL is required in production; development memory storage is disabled")
+	}
+	// Production uploads must never fall back to the container's local disk:
+	// that storage disappears on deploy and is not shared between instances.
+	storageBase := strings.TrimSpace(getenv("SUPABASE_URL"))
+	storageKey := strings.TrimSpace(getenv("SUPABASE_SECRET_KEY"))
+	if storageKey == "" {
+		storageKey = strings.TrimSpace(getenv("SUPABASE_SERVICE_ROLE_KEY"))
+	}
+	if storageBase == "" {
+		return fmt.Errorf("SUPABASE_URL is required in production; local upload storage is disabled")
+	}
+	if storageKey == "" {
+		return fmt.Errorf("SUPABASE_SECRET_KEY or SUPABASE_SERVICE_ROLE_KEY is required in production")
+	}
+	if origin, err := url.Parse(storageBase); err != nil || origin.Scheme != "https" || origin.Host == "" || origin.User != nil || (origin.Path != "" && origin.Path != "/") || origin.RawQuery != "" || origin.ForceQuery || origin.Fragment != "" || origin.RawPath != "" {
+		return fmt.Errorf("SUPABASE_URL must be an HTTPS origin without a path, query, or credentials")
 	}
 	if err := validateAdmin(getenv); err != nil {
 		return err

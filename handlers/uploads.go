@@ -16,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 )
 
 const (
@@ -308,15 +309,55 @@ func mediaName(extension string) (string, error) {
 	return hex.EncodeToString(random[:]) + extension, nil
 }
 
+// One media client is shared by every upload, preview and cleanup call. It is
+// rebuilt only when the configured credentials change (tests set them per
+// case); building a fresh client per request leaked idle connections and
+// discarded the connection pool on every image preview.
+var (
+	mediaStoreMu   sync.Mutex
+	mediaStore     *mediastore.Store
+	mediaStoreBase string
+	mediaStoreKey  string
+)
+
+func mediaStoreCredentials() (base, key string) {
+	base = strings.TrimSpace(os.Getenv("SUPABASE_URL"))
+	key = strings.TrimSpace(os.Getenv("SUPABASE_SECRET_KEY"))
+	if key == "" {
+		key = strings.TrimSpace(os.Getenv("SUPABASE_SERVICE_ROLE_KEY"))
+	}
+	return base, key
+}
+
 func configuredMediaStore() (*mediastore.Store, error) {
-	base := strings.TrimSpace(os.Getenv("SUPABASE_URL"))
+	base, key := mediaStoreCredentials()
+
+	mediaStoreMu.Lock()
+	defer mediaStoreMu.Unlock()
+
 	if base == "" {
+		if mediaStore != nil {
+			mediaStore.Close()
+			mediaStore = nil
+			mediaStoreBase, mediaStoreKey = "", ""
+		}
 		if runtimeconfig.Production() {
 			return nil, mediastore.ErrConfiguration
 		}
 		return nil, nil
 	}
-	return mediastore.FromEnvironment()
+	if mediaStore != nil && mediaStoreBase == base && mediaStoreKey == key {
+		return mediaStore, nil
+	}
+	store, err := mediastore.New(base, key)
+	if err != nil {
+		return nil, err
+	}
+	if mediaStore != nil {
+		mediaStore.Close()
+	}
+	mediaStore, mediaStoreBase, mediaStoreKey = store, base, key
+	return store, nil
 }
 
 func persistMedia(r *http.Request, urlPath, name, path string) (string, error) {
@@ -328,7 +369,6 @@ func persistMedia(r *http.Request, urlPath, name, path string) (string, error) {
 	if store == nil {
 		return urlPath + name, nil
 	}
-	defer store.Close()
 	// The staging file must be removed on success, rejection and cancellation.
 	defer os.Remove(path)
 	file, err := os.Open(path)
@@ -580,7 +620,6 @@ func scheduleCloudMedia(uri string) error {
 	if store == nil {
 		return mediastore.ErrConfiguration
 	}
-	defer store.Close()
 	if !store.Owns(uri) {
 		return mediastore.ErrConfiguration
 	}

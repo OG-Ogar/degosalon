@@ -175,6 +175,7 @@ func EditCustomerProfileHandler(
 		)
 
 	case http.MethodPost:
+		extendUploadDeadline(w)
 		limitRequestBodyFor(w, r, 1)
 		if !requireCSRF(w, r, s) {
 			return

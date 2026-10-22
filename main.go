@@ -13,6 +13,7 @@ import (
 	"sync"
 	"syscall"
 	"time"
+	_ "time/tzdata"
 
 	"barber-booking/handlers"
 	"barber-booking/internal/resetmail"
@@ -194,7 +195,19 @@ func run() error {
 	opening, closing := handlers.BookingHours()
 	log.Printf("bookings are taken between %s and %s", opening, closing)
 
-	return serveUntilStopped(lifecycleContext, server, listener, health, stopWorkers, workersDone, shutdownTimeout)
+	serveErr := serveUntilStopped(lifecycleContext, server, listener, health, stopWorkers, workersDone, shutdownTimeout)
+
+	// Booking-alert goroutines are detached from the request that created
+	// them. Join them before run returns, because its deferred cleanup closes
+	// the database they may still need.
+	notifyContext, cancelNotifications := context.WithTimeout(context.Background(), 20*time.Second)
+	notificationErr := handlers.WaitForBookingNotifications(notifyContext)
+	cancelNotifications()
+	if notificationErr != nil {
+		log.Printf("booking notification workers did not stop: %v", notificationErr)
+	}
+
+	return serveErr
 }
 
 func runResetMailWorker(ctx context.Context, config resetmail.Config, key []byte) {

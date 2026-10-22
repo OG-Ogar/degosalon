@@ -39,6 +39,11 @@ const (
 	keepAsIsBytes = 300 << 10
 )
 
+// MaxImageDecodes bounds concurrent pixel-buffer allocations across uploads.
+// The form body is bounded, but a 64-megapixel image still needs a large
+// transient allocation; a few simultaneous uploads must not exhaust memory.
+var imageDecodeSlots = make(chan struct{}, 2)
+
 // normalizeStoredImage rewrites a saved upload at a sensible size.
 //
 // JPEGs are re-encoded whenever they are oversized or large, because a
@@ -48,6 +53,9 @@ const (
 // validation, preserving animation. Every supported format has bounded header
 // dimensions before a full JPEG/PNG decode can allocate its pixel buffer.
 func normalizeStoredImage(path string) error {
+	imageDecodeSlots <- struct{}{}
+	defer func() { <-imageDecodeSlots }()
+
 	extension := strings.ToLower(filepath.Ext(path))
 
 	info, err := os.Stat(path)

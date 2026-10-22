@@ -16,6 +16,12 @@ type authBucket struct {
 var authBuckets = map[string]authBucket{}
 var ErrThrottleCapacity = errors.New("authentication throttle capacity reached")
 
+// maxAuthBuckets keeps the process-memory fallback bounded. At capacity the
+// entry closest to expiry is evicted instead of denying every new client:
+// otherwise an attacker could fill the map with live keys and lock everybody
+// out with a process-wide 503.
+const maxAuthBuckets = 10000
+
 func throttleDigest(key string) string {
 	sum := sha256.Sum256([]byte(key))
 	return hex.EncodeToString(sum[:])
@@ -38,7 +44,7 @@ func AllowAuthAttempt(ctx context.Context, key string, limit int, window time.Du
 	if databaseEnabled() {
 		// Recheck expiry in the outer DELETE so a concurrent reset of an expired
 		// counter cannot be erased after its UPSERT commits.
-		if _, err := db.ExecContext(ctx, "delete from degosalon_internal.auth_throttles where expires_at<=now() and key_digest in (select key_digest from degosalon_internal.auth_throttles where expires_at<=now() order by expires_at limit 100)"); err != nil {
+		if _, err := db.ExecContext(ctx, "delete from degosalon_internal.auth_throttles where expires_at<=now() and key_digest in (select key_digest from degosalon_internal.auth_throttles where expires_at<=now() order by expires_at limit 500)"); err != nil {
 			return 0, err
 		}
 		var count int
@@ -65,15 +71,27 @@ func AllowAuthAttempt(ctx context.Context, key string, limit int, window time.Du
 		if !now.Before(v.expires) {
 			delete(authBuckets, k)
 			removed++
-			if removed == 100 {
+			if removed == 1000 {
 				break
 			}
 		}
 	}
 	bucket, found := authBuckets[digest]
 	if !found || !now.Before(bucket.expires) {
-		if !found && len(authBuckets) >= 10000 {
-			return 0, ErrThrottleCapacity
+		if !found && len(authBuckets) >= maxAuthBuckets {
+			// Evict the least valuable counter. Expired entries were swept
+			// above, so this is the bucket closest to expiry; dropping one
+			// live counter is preferable to locking out every caller.
+			oldestKey := ""
+			var oldest time.Time
+			for k, v := range authBuckets {
+				if oldestKey == "" || v.expires.Before(oldest) {
+					oldestKey, oldest = k, v.expires
+				}
+			}
+			if oldestKey != "" {
+				delete(authBuckets, oldestKey)
+			}
 		}
 		bucket = authBucket{expires: now.Add(window)}
 	}

@@ -14,6 +14,12 @@ var ErrRetiredMedia = errors.New("media object is retired")
 const mediaGrace = time.Hour
 const mediaLease = time.Minute
 
+// A successful delete keeps a daily reconciliation tombstone for a short
+// window, covering a provider that acknowledges an upload only after the
+// delete. After this many attempts the tombstone becomes terminal, so it
+// cannot cause an unbounded stream of provider deletes.
+const mediaReconcileAttempts = 3
+
 type mediaObject struct {
 	state, lease string
 	next         time.Time
@@ -122,7 +128,7 @@ func claimMedia(ctx context.Context) (uri, lease string, found bool, err error) 
 		}
 		defer tx.Rollback()
 		var referenced bool
-		err = tx.QueryRowContext(ctx, `select uri from degosalon_internal.media_objects where next_check_at<=now() order by next_check_at,uri for update skip locked limit 1`).Scan(&uri)
+		err = tx.QueryRowContext(ctx, `select uri from degosalon_internal.media_objects where next_check_at<=now() and (state<>'deleted' or attempts<$1) order by next_check_at,uri for update skip locked limit 1`, mediaReconcileAttempts).Scan(&uri)
 		if errors.Is(err, sql.ErrNoRows) {
 			err = nil
 			return
@@ -163,6 +169,9 @@ func claimMedia(ctx context.Context) (uri, lease string, found bool, err error) 
 	now := time.Now()
 	var candidate mediaObject
 	for key, object := range mediaObjects {
+		if object.state == "deleted" && object.attempts >= mediaReconcileAttempts {
+			continue
+		}
 		if !object.next.After(now) && (uri == "" || object.next.Before(candidate.next) || object.next.Equal(candidate.next) && key < uri) {
 			uri = key
 			candidate = object
@@ -196,7 +205,7 @@ func finishMedia(ctx context.Context, uri, lease string, success bool) error {
 		return err
 	}
 	if databaseEnabled() {
-		_, err := db.ExecContext(ctx, `update degosalon_internal.media_objects set state=case when $3 then 'deleted' else 'deleting' end,lease_key='',next_check_at=now()+case when $3 then interval '1 day' else make_interval(secs=>least(86400,power(2,least(attempts,10))*60)::int) end where uri=$1 and state='deleting' and lease_key=$2`, uri, lease, success)
+		_, err := db.ExecContext(ctx, `update degosalon_internal.media_objects set state=case when $3 then 'deleted' else 'deleting' end,lease_key='',next_check_at=now()+case when $3 and attempts>=$4 then interval '100 years' when $3 then interval '1 day' else make_interval(secs=>least(86400,power(2,least(attempts,10))*60)::int) end where uri=$1 and state='deleting' and lease_key=$2`, uri, lease, success, mediaReconcileAttempts)
 		return err
 	}
 	mu.Lock()
@@ -208,6 +217,11 @@ func finishMedia(ctx context.Context, uri, lease string, success bool) error {
 	delay := 24 * time.Hour
 	if success {
 		object.state = "deleted"
+		if object.attempts >= mediaReconcileAttempts {
+			// Reconcile late uploads for a bounded window, then park the
+			// tombstone so it is never claimed again.
+			delay = 100 * 365 * 24 * time.Hour
+		}
 	} else {
 		shift := object.attempts
 		if shift > 10 {
@@ -225,8 +239,9 @@ func finishMedia(ctx context.Context, uri, lease string, success bool) error {
 }
 
 // ProcessMediaCleanup claims one due intent. A claim freezes new references
-// before remote deletion; successful deletes keep a daily reconciliation
-// tombstone, covering late uploads after uncertain provider acknowledgments.
+// before remote deletion; successful deletes keep a bounded daily
+// reconciliation tombstone, covering late uploads after uncertain provider
+// acknowledgments without re-deleting forever.
 func ProcessMediaCleanup(ctx context.Context, remove func(context.Context, string) error) (bool, error) {
 	uri, lease, found, err := claimMedia(ctx)
 	if err != nil || !found || uri == "" {

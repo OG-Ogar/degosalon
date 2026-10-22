@@ -209,6 +209,16 @@ func renderBarberDetail(
 		day = time.Now().In(location).Format("2006-01-02")
 	}
 	values["date"] = day
+	// Show the hours that actually apply to the selected day. The global
+	// BOOKING_OPEN/BOOKING_CLOSE values are only deployment defaults; a barber
+	// may have a different calendar, so the form and storage must agree.
+	opening, closing := "Closed", "Closed"
+	if at, parseErr := time.ParseInLocation("2006-01-02", day, location); parseErr == nil {
+		hours := calendar.Week[at.Weekday()]
+		if !hours.Closed {
+			opening, closing = hours.Open, hours.Close
+		}
+	}
 	var slots []string
 	if selected > 0 {
 		slots, _, err = storage.AvailableSlots(r.Context(), barber.ID, selected, day)
@@ -245,8 +255,8 @@ func renderBarberDetail(
 		DateMax:        time.Now().In(location).AddDate(0, 0, calendar.HorizonDays).Format("2006-01-02"),
 		Timezone:       calendar.Timezone,
 		Slots:          slots,
-		Opening:        formatHour(openingHour),
-		Closing:        formatHour(closingHour),
+		Opening:        opening,
+		Closing:        closing,
 		ChatLink:       chatPath("/customer/chats/", barber.ID),
 		CSRF:           s.CSRFToken,
 		Error:          problem,

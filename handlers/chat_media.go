@@ -182,7 +182,6 @@ func persistMediaAs(r *http.Request, urlPath, name, path, contentType string) (s
 		return urlPath + name, nil
 	}
 
-	defer store.Close()
 	defer os.Remove(path)
 
 	file, err := os.Open(path)

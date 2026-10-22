@@ -82,6 +82,7 @@ func UpdateHairstyleHandler(
 		return
 	}
 
+	extendUploadDeadline(w)
 	limitFormBody(
 		w,
 		r,

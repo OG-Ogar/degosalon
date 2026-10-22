@@ -2,29 +2,42 @@ package storage
 
 import (
 	"context"
+	"log"
 	"strings"
 
 	"barber-booking/models"
 )
 
 // ListCustomers returns every registered customer.
+//
+// This compatibility helper cannot return an error; production request paths
+// use ListCustomersResult. A database failure must never look like a valid
+// empty/fallback memory list.
 func ListCustomers() []models.Customer {
 	ctx, cancel := databaseContext(context.Background())
 	defer cancel()
 
 	if databaseEnabled() {
-		rows, err := db.QueryContext(ctx, "select id,full_name,phone_number,email,password_hash,profile_image from public.customers order by id")
-		if err == nil {
-			defer rows.Close()
-			var out []models.Customer
-			for rows.Next() {
-				var v models.Customer
-				if rows.Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ProfileImage) == nil {
-					out = append(out, v)
-				}
-			}
-			return out
+		rows, err := db.QueryContext(ctx, "select id,full_name,phone_number,email,password_hash,profile_image from public.customers order by id limit 1000")
+		if err != nil {
+			log.Printf("list customers: %v", err)
+			return nil
 		}
+		defer rows.Close()
+		var out []models.Customer
+		for rows.Next() {
+			var v models.Customer
+			if err := rows.Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ProfileImage); err != nil {
+				log.Printf("scan customer: %v", err)
+				return nil
+			}
+			out = append(out, v)
+		}
+		if err := rows.Err(); err != nil {
+			log.Printf("list customers: %v", err)
+			return nil
+		}
+		return out
 	}
 	mu.RLock()
 	defer mu.RUnlock()

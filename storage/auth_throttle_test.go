@@ -2,7 +2,6 @@ package storage
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"sync"
 	"testing"
@@ -69,22 +68,20 @@ func checkAuthThrottle(t *testing.T) {
 	}
 }
 
-func TestMemoryAuthThrottleCapacity(t *testing.T) {
+func TestMemoryAuthThrottleStaysBoundedWithoutLockout(t *testing.T) {
 	Reset()
 	t.Cleanup(Reset)
 	now := time.Now()
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < maxAuthBuckets; i++ {
 		authBuckets[fmt.Sprint(i)] = authBucket{attempts: 1, expires: now.Add(time.Minute)}
 	}
-	if _, err := AllowAuthAttempt(context.Background(), "new", 1, time.Minute); !errors.Is(err, ErrThrottleCapacity) {
-		t.Fatalf("unbounded counters: %v", err)
-	}
-	for key, bucket := range authBuckets {
-		bucket.expires = now.Add(-time.Second)
-		authBuckets[key] = bucket
-		break
-	}
 	if retry, err := AllowAuthAttempt(context.Background(), "new", 1, time.Minute); err != nil || retry != 0 {
-		t.Fatalf("expired capacity recovery: %v %v", retry, err)
+		t.Fatalf("capacity locked out a new client: %v %v", retry, err)
+	}
+	if len(authBuckets) != maxAuthBuckets {
+		t.Fatalf("throttle grew past its bound: %d", len(authBuckets))
+	}
+	if _, ok := authBuckets[throttleDigest("new")]; !ok {
+		t.Fatal("evicted the attempt that was just recorded")
 	}
 }

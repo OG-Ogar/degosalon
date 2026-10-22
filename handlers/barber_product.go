@@ -132,6 +132,9 @@ func NewProductHandler(
 		)
 
 	case http.MethodPost:
+		// A large photo or clip can take minutes on a mobile connection.
+		extendUploadDeadline(w)
+
 		// A product can carry one photo and one short clip, plus the form
 		// fields themselves.
 		limitFormBody(
@@ -324,6 +327,7 @@ func UpdateProductHandler(w http.ResponseWriter, r *http.Request, barber models.
 		methodNotAllowed(w, http.MethodPost)
 		return
 	}
+	extendUploadDeadline(w)
 	limitFormBody(
 		w,
 		r,

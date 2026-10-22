@@ -16,7 +16,7 @@ func ListBarbersResult(ctx context.Context) ([]models.Barber, error) {
 	if !databaseEnabled() {
 		return ListBarbers(), nil
 	}
-	return queryRecords(ctx, "select id,full_name,phone_number,email,password_hash,shop_name,shop_address,state,local_area,profile_image,personal_image,status from public.barbers order by id", func(rows *sql.Rows) (models.Barber, error) {
+	return queryRecords(ctx, "select id,full_name,phone_number,email,password_hash,shop_name,shop_address,state,local_area,profile_image,personal_image,status from public.barbers order by id limit 1000", func(rows *sql.Rows) (models.Barber, error) {
 		var v models.Barber
 		err := rows.Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ShopName, &v.ShopAddress, &v.State, &v.LocalArea, &v.ProfileImage, &v.PersonalImage, &v.Status)
 		return v, err
@@ -33,7 +33,7 @@ func ListActiveBarbersResult(ctx context.Context) ([]models.Barber, error) {
 	if !databaseEnabled() {
 		return ListActiveBarbers(), nil
 	}
-	return queryRecords(ctx, "select id,full_name,phone_number,email,password_hash,shop_name,shop_address,state,local_area,profile_image,personal_image,status from public.barbers where status='Active' order by id", func(rows *sql.Rows) (models.Barber, error) {
+	return queryRecords(ctx, "select id,full_name,phone_number,email,password_hash,shop_name,shop_address,state,local_area,profile_image,personal_image,status from public.barbers where status='Active' order by id limit 1000", func(rows *sql.Rows) (models.Barber, error) {
 		var v models.Barber
 		err := rows.Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ShopName, &v.ShopAddress, &v.State, &v.LocalArea, &v.ProfileImage, &v.PersonalImage, &v.Status)
 		return v, err
@@ -50,7 +50,7 @@ func ListCustomersResult(ctx context.Context) ([]models.Customer, error) {
 	if !databaseEnabled() {
 		return ListCustomers(), nil
 	}
-	return queryRecords(ctx, "select id,full_name,phone_number,email,password_hash,profile_image from public.customers order by id", func(rows *sql.Rows) (models.Customer, error) {
+	return queryRecords(ctx, "select id,full_name,phone_number,email,password_hash,profile_image from public.customers order by id limit 1000", func(rows *sql.Rows) (models.Customer, error) {
 		var v models.Customer
 		err := rows.Scan(&v.ID, &v.FullName, &v.PhoneNumber, &v.Email, &v.PasswordHash, &v.ProfileImage)
 		return v, err
@@ -67,7 +67,7 @@ func ListHairstylesByBarberResult(ctx context.Context, id int) ([]models.Hairsty
 	if !databaseEnabled() {
 		return ListHairstylesByBarber(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and not is_archived order by id", func(rows *sql.Rows) (models.Hairstyle, error) {
+	return queryRecords(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and not is_archived order by id limit 1000", func(rows *sql.Rows) (models.Hairstyle, error) {
 		var v models.Hairstyle
 		err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable, &v.Archived)
 		return v, err
@@ -84,7 +84,7 @@ func ListAvailableHairstylesByBarberResult(ctx context.Context, id int) ([]model
 	if !databaseEnabled() {
 		return ListAvailableHairstylesByBarber(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and is_available=true and not is_archived order by id", func(rows *sql.Rows) (models.Hairstyle, error) {
+	return queryRecords(ctx, "select id,barber_id,name,category,description,price,duration,image,video,is_available,is_archived from public.hairstyles where barber_id=$1 and is_available=true and not is_archived order by id limit 1000", func(rows *sql.Rows) (models.Hairstyle, error) {
 		var v models.Hairstyle
 		err := rows.Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Duration, &v.Image, &v.Video, &v.IsAvailable, &v.Archived)
 		return v, err
@@ -101,7 +101,7 @@ func ListBookingsResult(ctx context.Context) ([]models.Booking, error) {
 	if !databaseEnabled() {
 		return ListBookings(), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
+	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings order by booking_date,booking_time,id limit 1000", func(rows *sql.Rows) (models.Booking, error) {
 		var v models.Booking
 		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 		return v, err
@@ -118,7 +118,7 @@ func ListBookingsByBarberResult(ctx context.Context, id int) ([]models.Booking, 
 	if !databaseEnabled() {
 		return ListBookingsByBarber(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where barber_id=$1 order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
+	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where barber_id=$1 order by booking_date,booking_time,id limit 1000", func(rows *sql.Rows) (models.Booking, error) {
 		var v models.Booking
 		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 		return v, err
@@ -135,7 +135,7 @@ func ListBookingsByCustomerResult(ctx context.Context, id int) ([]models.Booking
 	if !databaseEnabled() {
 		return ListBookingsByCustomer(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where customer_id=$1 order by booking_date,booking_time,id", func(rows *sql.Rows) (models.Booking, error) {
+	return queryRecords(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where customer_id=$1 order by booking_date,booking_time,id limit 1000", func(rows *sql.Rows) (models.Booking, error) {
 		var v models.Booking
 		err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
 		return v, err
@@ -152,7 +152,7 @@ func ListReviewsByBarberResult(ctx context.Context, id int) ([]models.Review, er
 	if !databaseEnabled() {
 		return ListReviewsByBarber(id), nil
 	}
-	return queryRecords(ctx, "select id,barber_id,customer_id,booking_id,customer_name,rating,comment,created_at from public.reviews where barber_id=$1 order by created_at desc,id desc", func(rows *sql.Rows) (models.Review, error) {
+	return queryRecords(ctx, "select id,barber_id,customer_id,booking_id,customer_name,rating,comment,created_at from public.reviews where barber_id=$1 order by created_at desc,id desc limit 1000", func(rows *sql.Rows) (models.Review, error) {
 		var v models.Review
 		err := rows.Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.BookingID, &v.CustomerName, &v.Rating, &v.Comment, &v.CreatedAt)
 		return v, err

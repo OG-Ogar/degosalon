@@ -134,6 +134,9 @@ func NewHairstyleHandler(
 		renderHairstyleForm(w, s, hairstyleForm{Available: true}, 0, "", "", "")
 
 	case http.MethodPost:
+		// A large photo or clip can take minutes on a mobile connection.
+		extendUploadDeadline(w)
+
 		// A hairstyle can contain one image up to 32 MiB and
 		// one video up to 50 MiB, plus form data.
 		limitFormBody(

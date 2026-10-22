@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"log"
 	"sort"
 	"strconv"
 	"strings"
@@ -447,21 +448,29 @@ func listBookingsDB(field string, id int) []models.Booking {
 	var rows *sql.Rows
 	var err error
 	if field != "" {
-		q += " where " + field + "=$1"
+		q += " where " + field + "=$1 order by booking_date,booking_time,id limit 1000"
 		rows, err = db.QueryContext(ctx, q, id)
 	} else {
+		q += " order by booking_date,booking_time,id limit 1000"
 		rows, err = db.QueryContext(ctx, q)
 	}
 	if err != nil {
+		log.Printf("list bookings: %v", err)
 		return nil
 	}
 	defer rows.Close()
 	var out []models.Booking
 	for rows.Next() {
 		var v models.Booking
-		if rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone) == nil {
-			out = append(out, v)
+		if err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone); err != nil {
+			log.Printf("scan booking: %v", err)
+			return nil
 		}
+		out = append(out, v)
+	}
+	if err := rows.Err(); err != nil {
+		log.Printf("list bookings: %v", err)
+		return nil
 	}
 	return sortBySlot(out)
 }

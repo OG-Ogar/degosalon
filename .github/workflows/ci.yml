@@ -36,7 +36,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: "1.23.x"
+          go-version: "1.23.0"
 
       - name: Resolve Go module checksums
         run: go mod download
@@ -90,7 +90,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.23.x"
+          go-version: "1.23.0"
       - name: Verify PostgreSQL integrity and request flows
         run: go test -race -v ./storage ./handlers ./session ./reset ./internal/dbmigrate -run TestPostgres -count=1 -timeout=5m
 
@@ -104,7 +104,7 @@ jobs:
           node-version: "22"
       - uses: actions/setup-go@v5
         with:
-          go-version: "1.23.x"
+          go-version: "1.23.0"
       - run: npm ci --no-audit --no-fund
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser

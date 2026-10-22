@@ -50,7 +50,6 @@ func previewable(uri string) bool {
 	if err != nil || store == nil {
 		return false
 	}
-	defer store.Close()
 	return store.Owns(uri)
 }
 func imageSrcset(uri string) string {
@@ -157,6 +156,5 @@ func readPreviewSource(ctx context.Context, uri string) ([]byte, error) {
 	if store == nil {
 		return nil, mediastore.ErrConfiguration
 	}
-	defer store.Close()
 	return store.ReadPublicImage(ctx, uri)
 }

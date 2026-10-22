@@ -243,7 +243,7 @@ func FindProductByIDResult(ctx context.Context, id int) (models.Product, error) 
 	}
 	if databaseEnabled() {
 		var v models.Product
-		err := db.QueryRowContext(ctx, "select "+productColumns+" from public.products where id=$1", id).Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Quantity, &v.Image, &v.IsAvailable, &v.Archived)
+		err := db.QueryRowContext(ctx, "select "+productColumns+" from public.products where id=$1", id).Scan(&v.ID, &v.BarberID, &v.Name, &v.Category, &v.Description, &v.Price, &v.Quantity, &v.Image, &v.Video, &v.IsAvailable, &v.Archived)
 		return v, recordError(err)
 	}
 	mu.RLock()

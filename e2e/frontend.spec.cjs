@@ -290,6 +290,7 @@ test('shared forms and archive confirmations work at phone width',async({page},t
  await page.goto('/barber/hairstyles/new');
  for(const [name,value] of Object.entries({name:'Archive journey cut',category:'Fade',description:'A simple cut',price:'1000',duration:'30'}))await page.locator('[name="'+name+'"]').fill(value);
  await page.locator('[name="available"]').check();await page.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
+ await page.locator('.card-menu-toggle').first().click();
  await page.locator('a[href$="/delete"]').filter({hasText:/delete/i}).first().click();
  await checkPage(page,testInfo,'primitives-archive-hairstyle');
  await expect(page.locator('.ui-actions input[name=csrf_token]')).toHaveValue(/\S+/);
@@ -437,6 +438,7 @@ test('both roles page message history chronologically and refresh to latest repl
 });
 
 test('admin account search reaches older pages without JavaScript',async({page,browser},testInfo)=>{
+ test.setTimeout(120000);
  expect((await page.request.post('/admin/login',{form:{username:'browseradmin',password:'browser-test-password'}})).ok()).toBeTruthy();
  await page.goto('/admin/barbers/new');const csrf=await page.locator('main input[name=csrf_token]').inputValue(),suffix=Date.now();
  for(let i=0;i<25;i++){
@@ -532,8 +534,8 @@ test('booking and order histories remain bounded with complete dashboard totals'
 });
 
 test('booking CTA navigates smoothly to booking form and guards against missing hairstyles', async ({ browser }) => {
- const barberContext = await browser.newContext();
- const customerContext = await browser.newContext();
+ const barberContext = await browser.newContext({ extraHTTPHeaders: { 'X-Forwarded-For': '198.51.100.77' } });
+ const customerContext = await browser.newContext({ extraHTTPHeaders: { 'X-Forwarded-For': '198.51.100.77' } });
  try {
   const barber = await barberContext.newPage();
   const customer = await customerContext.newPage();

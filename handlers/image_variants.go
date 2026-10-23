@@ -11,6 +11,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"strings"
 	"sync"
@@ -18,8 +19,9 @@ import (
 )
 
 type previewEntry struct {
-	data    []byte
-	expires time.Time
+	data       []byte
+	expires    time.Time
+	lastAccess time.Time
 }
 type previewHandler struct {
 	mu      sync.Mutex
@@ -30,7 +32,13 @@ type previewHandler struct {
 }
 
 func newPreviewHandler(read func(context.Context, string) ([]byte, error)) *previewHandler {
-	return &previewHandler{entries: map[string]previewEntry{}, slots: make(chan struct{}, 2), read: read}
+	slots := runtime.GOMAXPROCS(0)
+	if slots < 2 {
+		slots = 2
+	} else if slots > 8 {
+		slots = 8
+	}
+	return &previewHandler{entries: map[string]previewEntry{}, slots: make(chan struct{}, slots), read: read}
 }
 
 var previews = newPreviewHandler(readPreviewSource)
@@ -62,6 +70,36 @@ func imageSrcset(uri string) string {
 	}
 	return strings.Join(candidates, ", ")
 }
+func (h *previewHandler) evict(neededBytes int) {
+	now := time.Now()
+	// Step 1: Evict expired entries first.
+	for k, e := range h.entries {
+		if now.After(e.expires) {
+			h.bytes -= len(e.data)
+			delete(h.entries, k)
+		}
+	}
+	// Step 2: If still over capacity, evict least recently accessed entries.
+	for (h.bytes+neededBytes > 16<<20 || len(h.entries) >= 128) && len(h.entries) > 0 {
+		var oldestKey string
+		var oldestTime time.Time
+		first := true
+		for k, e := range h.entries {
+			if first || e.lastAccess.Before(oldestTime) {
+				oldestKey = k
+				oldestTime = e.lastAccess
+				first = false
+			}
+		}
+		if oldestKey != "" {
+			h.bytes -= len(h.entries[oldestKey].data)
+			delete(h.entries, oldestKey)
+		} else {
+			break
+		}
+	}
+}
+
 func (h *previewHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Context().Err() != nil {
 		return
@@ -80,6 +118,10 @@ func (h *previewHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	key := uri + "|" + strconv.Itoa(width)
 	h.mu.Lock()
 	entry, found := h.entries[key]
+	if found && time.Now().Before(entry.expires) {
+		entry.lastAccess = time.Now()
+		h.entries[key] = entry
+	}
 	h.mu.Unlock()
 	if !found || time.Now().After(entry.expires) {
 		queue, cancel := context.WithTimeout(r.Context(), 15*time.Second)
@@ -105,15 +147,14 @@ func (h *previewHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Image unavailable", 422)
 			return
 		}
-		entry = previewEntry{data: data, expires: time.Now().Add(5 * time.Minute)}
+		now := time.Now()
+		entry = previewEntry{data: data, expires: now.Add(5 * time.Minute), lastAccess: now}
 		h.mu.Lock()
 		if old, ok := h.entries[key]; ok {
 			h.bytes -= len(old.data)
+			delete(h.entries, key)
 		}
-		if h.bytes+len(data) > 16<<20 || len(h.entries) >= 128 {
-			h.entries = map[string]previewEntry{}
-			h.bytes = 0
-		}
+		h.evict(len(data))
 		h.entries[key] = entry
 		h.bytes += len(data)
 		h.mu.Unlock()

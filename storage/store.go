@@ -110,6 +110,7 @@ func Reset() {
 	authBuckets = make(map[string]authBucket)
 	siteImages = make(map[string]string)
 	displayPreferences = make(map[string]models.DisplayPreferences)
+	ClearPreferencesCache()
 	mediaObjects = make(map[string]mediaObject)
 	productOrders = nil
 	productOrderItems = nil

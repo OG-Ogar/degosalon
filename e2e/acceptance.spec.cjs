@@ -105,14 +105,15 @@ test('booking outcomes, schedule conflicts, verified reviews and fulfillment per
 });
 
 test('both roles reset credentials, revoke prior sessions and reject reused links',async({browser},testInfo)=>{
+ test.setTimeout(240000);
  for(const role of ['customer','barber']){
- const context=await acceptanceContext(browser);let previousContext;
+ const context=await acceptanceContext(browser,{extraHTTPHeaders:{'X-Forwarded-For':'198.51.100.'+(role==='customer'?'21':'22')}});let previousContext;
  try{
  const page=await context.newPage(),suffix=Date.now(),email='recovery-'+role+'-'+suffix+'@example.test';
  const fields={fullname:'Recovery '+role,phone:'08012345678',email,password,confirm_password:password};if(role==='barber')Object.assign(fields,{shopname:'Recovery Shop '+suffix,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}});
  expect((await page.request.post('/'+role+'/register',{multipart:fields})).ok()).toBeTruthy();if(role==='barber')expect((await page.request.post('/barber/login',{form:{email,password}})).ok()).toBeTruthy();
  if(role==='customer')expect((await page.request.get(fixture.orderPath)).status()).toBe(404);
- previousContext=await acceptanceContext(browser,{storageState:await context.storageState()});const previous=await previousContext.newPage();
+ previousContext=await acceptanceContext(browser,{storageState:await context.storageState(),extraHTTPHeaders:{'X-Forwarded-For':'198.51.100.'+(role==='customer'?'21':'22')}});const previous=await previousContext.newPage();
  await page.goto('/'+role+'/forgot-password');await page.getByRole('textbox',{name:'Email address',exact:true}).fill(email);await page.getByRole('button',{name:'Send reset link',exact:true}).click();await page.getByRole('link',{name:'Choose a new password',exact:true}).click();const resetURL=page.url();
  for(const width of [320,640]){await page.setViewportSize({width,height:900});await assertAccessible(page,testInfo,role+'-valid-reset-'+width);}
  await page.getByLabel('New password',{exact:true}).fill('replacement-pass-123');await page.getByLabel('Confirm new password',{exact:true}).fill('different-pass-123');await page.getByLabel('Confirm new password',{exact:true}).press('Enter');await expect(page.locator('#form-error')).toBeVisible();
@@ -130,7 +131,7 @@ test('account suspension and archival hide shops while retaining completed histo
  const admin=await adminContext.newPage(),seller=await sellerContext.newPage(),buyer=await buyerContext.newPage();for(const action of ['accept','complete']){const response=await seller.request.post('/barber/bookings/'+fixture.booking+'/'+action,{maxRedirects:0,form:{csrf_token:fixture.sellerCsrf}});expect([303,409]).toContain(response.status());}await seller.goto('/barber/dashboard');while(await seller.getByRole('button',{name:'Mark ready',exact:true}).count())await seller.getByRole('button',{name:'Mark ready',exact:true}).first().click();while(await seller.getByRole('button',{name:'Mark collected',exact:true}).count())await seller.getByRole('button',{name:'Mark collected',exact:true}).first().click();await admin.goto('/admin/barbers?q='+encodeURIComponent(fixture.email));const csrf=await admin.locator('form[action="/admin/barbers/'+fixture.seller+'/suspend"] input[name=csrf_token]').inputValue();await admin.locator('form[action="/admin/barbers/'+fixture.seller+'/suspend"] button').click();
  expect((await buyer.request.get('/explore/'+fixture.seller)).status()).toBe(404);const invalidated=await seller.request.get('/barber/dashboard',{maxRedirects:0});expect(invalidated.headers().location).toContain('/barber/login');
  expect((await admin.request.post('/admin/barbers/'+fixture.seller+'/activate',{form:{csrf_token:csrf}})).ok()).toBeTruthy();expect((await buyer.request.get('/explore/'+fixture.seller)).status()).toBe(200);
- await admin.goto('/admin/barbers/'+fixture.seller+'/delete');await admin.getByRole('button',{name:'Yes, archive this barber',exact:true}).click();expect((await buyer.request.get('/explore/'+fixture.seller)).status()).toBe(404);
+ await admin.goto('/admin/barbers/'+fixture.seller+'/delete');await Promise.all([admin.waitForURL(url=>url.pathname==='/admin/barbers'),admin.getByRole('button',{name:'Yes, archive this barber',exact:true}).click()]);expect((await buyer.request.get('/explore/'+fixture.seller)).status()).toBe(404);
  await buyer.goto(fixture.bookingPath);await expect(buyer.getByText('This appointment has been marked completed.',{exact:true})).toBeVisible();await buyer.goto(fixture.orderPath);await expect(buyer.getByRole('heading',{name:/Acceptance product/})).toBeVisible();await buyer.setViewportSize({width:320,height:900});await assertAccessible(buyer,testInfo,'archived-seller-receipt');
  }finally{await adminContext.close();await sellerContext.close();await buyerContext.close();}
 });

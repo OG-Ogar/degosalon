@@ -57,8 +57,9 @@ func New(base, key string) (*Store, error) {
 		TLSClientConfig:       &tls.Config{MinVersion: tls.VersionTLS12},
 		TLSHandshakeTimeout:   10 * time.Second,
 		ResponseHeaderTimeout: 15 * time.Second,
-		MaxIdleConns:          1,
-		IdleConnTimeout:       30 * time.Second,
+		MaxIdleConns:          16,
+		MaxIdleConnsPerHost:   16,
+		IdleConnTimeout:       90 * time.Second,
 	}
 	// No client-wide Timeout: each operation supplies its own context deadline.
 	// A fixed timeout would kill a large upload while it is still streaming.

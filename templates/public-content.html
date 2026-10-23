@@ -2,10 +2,10 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>{{.Title}} - De Go Salon</title>{{if .Placeholder}}<meta name="robots" content="noindex, follow">{{end}}
 {{template "public-metadata" (publicMetadata .Path (printf "%s - De Go Salon" .Title) .Description)}}
+<script src="/static/theme-switch.js"></script>
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/ui.css">
 <link rel="stylesheet" href="/static/theme.css">
-<script src="/static/theme-switch.js"></script>
 <script src="/static/app.js" defer></script></head>
 <body class="modern-role-page">
 <header class="site-header"><a class="site-brand" href="/" aria-label="De Go Salon home"><span class="site-brand-mark" aria-hidden="true">DG</span><span class="site-brand-copy"><span class="site-brand-name">De Go Salon</span><span class="site-brand-tag">Your complete barber ecosystem</span></span></a><nav class="site-navigation" aria-label="Public navigation"><a href="/explore">Find a Barber</a><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a></nav></header>

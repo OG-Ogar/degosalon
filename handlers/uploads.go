@@ -360,6 +360,17 @@ func configuredMediaStore() (*mediastore.Store, error) {
 	return store, nil
 }
 
+// CloseMediaStore releases cached store connections during graceful shutdown.
+func CloseMediaStore() {
+	mediaStoreMu.Lock()
+	defer mediaStoreMu.Unlock()
+	if mediaStore != nil {
+		mediaStore.Close()
+		mediaStore = nil
+		mediaStoreBase, mediaStoreKey = "", ""
+	}
+}
+
 func persistMedia(r *http.Request, urlPath, name, path string) (string, error) {
 	store, err := configuredMediaStore()
 	if err != nil {

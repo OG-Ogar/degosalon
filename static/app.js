@@ -579,11 +579,13 @@
     function wireFieldFeedback(form) {
         form.querySelectorAll("input:not([type=hidden]),select,textarea").forEach(function (control) {
             control.addEventListener("invalid", function () {
+                control.dataset.nativeInvalid = "true";
                 noteFor(control).textContent = control.validationMessage;
                 control.setAttribute("aria-invalid", "true");
             });
             function clearNativeError() {
-                if (control.getAttribute("aria-invalid") === "true" && control.validity.valid) {
+                if (control.dataset.nativeInvalid === "true" && control.validity.valid) {
+                    delete control.dataset.nativeInvalid;
                     control.removeAttribute("aria-invalid");
                     noteFor(control).textContent = "";
                 }

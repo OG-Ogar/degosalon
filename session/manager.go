@@ -284,3 +284,49 @@ func FromRequestContext(r *http.Request, role Role) (Session, error) {
 	}
 	return s, nil
 }
+
+// PruneExpired prunes expired sessions from the active store (database or in-memory map).
+// It returns the number of deleted records or any error encountered.
+func PruneExpired(ctx context.Context) (int64, error) {
+	ctx, cancel := bounded(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return 0, err
+	}
+	if database != nil {
+		res, err := database.ExecContext(ctx, "delete from degosalon_internal.auth_sessions where expires_at<=now()")
+		if err != nil {
+			return 0, err
+		}
+		return res.RowsAffected()
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	var count int64
+	now := time.Now()
+	for key, s := range sessions {
+		if !now.Before(s.ExpiresAt) {
+			delete(sessions, key)
+			count++
+		}
+	}
+	return count, nil
+}
+
+// RunCleanupWorker periodically prunes expired sessions in the background
+// until the supplied context is canceled.
+func RunCleanupWorker(ctx context.Context, interval time.Duration) {
+	if interval <= 0 {
+		interval = 15 * time.Minute
+	}
+	ticker := time.NewTicker(interval)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			_, _ = PruneExpired(ctx)
+		}
+	}
+}

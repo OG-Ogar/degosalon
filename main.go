@@ -10,6 +10,8 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
+	"strings"
 	"sync"
 	"syscall"
 	"time"
@@ -19,6 +21,7 @@ import (
 	"barber-booking/internal/resetmail"
 	"barber-booking/internal/runtimeconfig"
 	"barber-booking/reset"
+	"barber-booking/session"
 	"barber-booking/storage"
 )
 
@@ -32,6 +35,34 @@ func listenAddress() string {
 	return ":8080"
 }
 
+var (
+	staticETagMu sync.RWMutex
+	staticETags  = map[string]string{}
+)
+
+func getStaticETag(rel string) string {
+	staticETagMu.RLock()
+	etag, ok := staticETags[rel]
+	staticETagMu.RUnlock()
+	if ok {
+		return etag
+	}
+	clean := filepath.Clean(rel)
+	if strings.Contains(clean, "..") {
+		return ""
+	}
+	filePath := filepath.Join("static", clean)
+	info, err := os.Stat(filePath)
+	if err != nil || info.IsDir() {
+		return ""
+	}
+	etag = fmt.Sprintf(`W/"%x-%x"`, info.ModTime().UnixNano(), info.Size())
+	staticETagMu.Lock()
+	staticETags[rel] = etag
+	staticETagMu.Unlock()
+	return etag
+}
+
 // revalidate asks browsers to check with the server before reusing a cached
 // copy. Static assets change with every deploy, and the file server answers
 // 304 Not Modified when nothing changed, so this keeps a stale stylesheet or
@@ -39,6 +70,17 @@ func listenAddress() string {
 func revalidate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache")
+		cleanPath := filepath.Clean(r.URL.Path)
+		if strings.HasPrefix(cleanPath, "/static/") {
+			rel := strings.TrimPrefix(cleanPath, "/static/")
+			if etag := getStaticETag(rel); etag != "" {
+				w.Header().Set("ETag", etag)
+				if match := r.Header.Get("If-None-Match"); match == etag {
+					w.WriteHeader(http.StatusNotModified)
+					return
+				}
+			}
+		}
 		next.ServeHTTP(w, r)
 	})
 }
@@ -73,6 +115,7 @@ func run() error {
 			}
 		}
 		_ = storage.CloseDatabase()
+		handlers.CloseMediaStore()
 	}()
 	if err := handlers.ImportLegacySiteImages(context.Background()); err != nil {
 		return fmt.Errorf("import legacy site media settings: %w", err)
@@ -156,7 +199,7 @@ func run() error {
 
 	server := &http.Server{
 		Addr:    listenAddress(),
-		Handler: observability.Requests(slog.Default(), mux),
+		Handler: observability.Requests(slog.Default(), observability.Compress(mux)),
 
 		// Without these a slow or idle client can hold a connection open
 		// indefinitely. WriteTimeout is the longest because it also
@@ -178,6 +221,7 @@ func run() error {
 		go func() { defer workers.Done(); work(workerContext) }()
 	}
 	startWorker(handlers.RunMediaCleanup)
+	startWorker(func(ctx context.Context) { session.RunCleanupWorker(ctx, 15*time.Minute) })
 	mailConfig, mailErr := resetmail.FromEnvironment()
 	mailKey, keyErr := resetmail.DeliveryKeyFromEnvironment()
 	if mailErr == nil && keyErr == nil {

@@ -2,9 +2,13 @@ const {test,expect}=require('@playwright/test');
 const {default:AxeBuilder}=require('@axe-core/playwright');
 const fs=require('node:fs');
 const PNG=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAFklEQVR4nGOUs9FgYGBgYmBgYGBgAAAGOACGNuhQ0wAAAABJRU5ErkJggg==','base64');
+let browserClientAddress=1;
+function nextBrowserClientAddress(){const address=browserClientAddress;browserClientAddress=address===254?1:address+1;return '198.51.100.'+address;}
+function newTestContext(browser,options={}){return browser.newContext({...options,extraHTTPHeaders:{'X-Forwarded-For':nextBrowserClientAddress(),...options.extraHTTPHeaders}});}
+test.beforeEach(async({page})=>{await page.context().setExtraHTTPHeaders({'X-Forwarded-For':nextBrowserClientAddress()});});
 test('both conversation views deliver replies through explicit refresh',async({browser},testInfo)=>{
- const customerContext=await browser.newContext();
- const barberContext=await browser.newContext();
+ const customerContext=await newTestContext(browser);
+ const barberContext=await newTestContext(browser);
  try {
   const customer=await customerContext.newPage();
   const barber=await barberContext.newPage();
@@ -191,7 +195,7 @@ test('canonical geography depends on state and preserves native no-script discov
  await page.locator('#state').selectOption({label:'Lagos'});
  await page.locator('#local_area').selectOption({label:'Ikeja'});
  await expect(page.locator('#local_area')).toHaveAttribute('aria-describedby','geography-help');
- const context=await browser.newContext({javaScriptEnabled:false});
+ const context=await newTestContext(browser,{javaScriptEnabled:false});
  try {
   const native=await context.newPage();await native.goto('/explore');
   await expect(native.locator('#area option')).toHaveCount(775);
@@ -224,7 +228,7 @@ test('approved support contacts and policy placeholders are accessible on mobile
 });
 
 test('booking details reflect cancellation after the original request',async({browser},testInfo)=>{
- const barberContext=await browser.newContext();const customerContext=await browser.newContext();
+ const barberContext=await newTestContext(browser);const customerContext=await newTestContext(browser);
  try {
   const barber=await barberContext.newPage();const customer=await customerContext.newPage();const suffix=Date.now();
   const email='status-barber-'+suffix+'@example.test';
@@ -244,7 +248,7 @@ test('booking details reflect cancellation after the original request',async({br
   await expect(service).not.toBeChecked();
   await customer.keyboard.press('Escape');await expect(customer.getByRole('dialog')).toBeHidden();await expect(stylePhoto).toBeFocused();
   await customer.locator('label .style-info h3').first().click();await expect(service).toBeChecked();
-  const nativeContext=await browser.newContext({javaScriptEnabled:false});
+  const nativeContext=await newTestContext(browser,{javaScriptEnabled:false});
   try {
    const native=await nativeContext.newPage();
    expect((await native.request.post('/customer/login',{form:{email:'status-customer-'+suffix+'@example.test',password:'browser-pass-123'}})).ok()).toBeTruthy();
@@ -290,7 +294,9 @@ test('shared forms and archive confirmations work at phone width',async({page},t
  await page.goto('/barber/hairstyles/new');
  for(const [name,value] of Object.entries({name:'Archive journey cut',category:'Fade',description:'A simple cut',price:'1000',duration:'30'}))await page.locator('[name="'+name+'"]').fill(value);
  await page.locator('[name="available"]').check();await page.getByRole('button',{name:'Save Hairstyle',exact:true}).click();
- await page.locator('a[href$="/delete"]').filter({hasText:/delete/i}).first().click();
+ const hairstyle=page.locator('.barber-hairstyle-card').filter({hasText:'Archive journey cut'});
+ await hairstyle.locator('.card-menu-toggle').click();
+ await hairstyle.getByRole('link',{name:'Delete',exact:true}).click();
  await checkPage(page,testInfo,'primitives-archive-hairstyle');
  await expect(page.locator('.ui-actions input[name=csrf_token]')).toHaveValue(/\S+/);
  await page.getByRole('link',{name:'No, keep it',exact:true}).click();
@@ -305,7 +311,7 @@ test('shared forms and archive confirmations work at phone width',async({page},t
 
 test('server errors and field help remain associated with and without JavaScript',async({browser})=>{
  for(const javaScriptEnabled of [true,false]){
-  const context=await browser.newContext({javaScriptEnabled});
+  const context=await newTestContext(browser,{javaScriptEnabled});
   try {
    const page=await context.newPage();await page.goto('/customer/register');
    await page.locator('#fullname').fill('Feedback Customer');await page.locator('#phone').fill('abc');
@@ -385,7 +391,7 @@ test('catalogue uses bounded seller pages and exact-product continuation without
  for(let i=0;i<25;i++){
   const response=await page.request.post('/barber/products/new',{multipart:{csrf_token:csrf,name:'Catalogue Product '+i,category:'Care',description:'A product for the catalogue paging journey.',price:'1250.25',quantity:'2',available:'on'}});expect(response.ok(),await response.text()).toBeTruthy();
  }
- const context=await browser.newContext({javaScriptEnabled:false});
+ const context=await newTestContext(browser,{javaScriptEnabled:false});
  try {
   const customer=await context.newPage();
   expect((await customer.request.post('/customer/register',{multipart:{fullname:'Catalogue Customer',phone:'08012345678',email:'catalogue-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}})).ok()).toBeTruthy();
@@ -400,7 +406,7 @@ test('catalogue uses bounded seller pages and exact-product continuation without
   await customer.screenshot({path:testInfo.outputPath('catalogue-native-second-page.png'),fullPage:true});
   // axe uses asynchronous JavaScript; inspect the same authenticated page in
   // a separate enabled context while keeping native navigation disabled.
-  const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});
+  const inspection=await newTestContext(browser,{storageState:await context.storageState(),viewport:{width:320,height:900}});
   try {const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'catalogue-second-page-accessibility');}finally{await inspection.close();}
   await customer.getByRole('link',{name:'Previous page',exact:true}).click();await expect(customer.locator('.product-card')).toHaveCount(24);
   await customer.goto(catalogue+'&product='+product);await expect(customer.locator('.product-card')).toHaveCount(1);
@@ -411,7 +417,7 @@ test('catalogue uses bounded seller pages and exact-product continuation without
 
 test('both roles page message history chronologically and refresh to latest replies',async({browser},testInfo)=>{
  test.setTimeout(120000);
- const customerContext=await browser.newContext(),barberContext=await browser.newContext();
+ const customerContext=await newTestContext(browser),barberContext=await newTestContext(browser);
  try {
   const customer=await customerContext.newPage(),barber=await barberContext.newPage(),suffix=Date.now(),email='history-barber-'+suffix+'@example.test',shop='History Shop '+suffix;
   expect((await barber.request.post('/barber/register',{multipart:{fullname:'History Barber',phone:'08012345678',email,shopname:shop,shopaddress:'12 Example Street',state:'Lagos',local_area:'Ikeja',password:'browser-pass-123',confirm_password:'browser-pass-123',personal_image:{name:'profile.png',mimeType:'image/png',buffer:PNG}}})).ok()).toBeTruthy();
@@ -442,14 +448,14 @@ test('admin account search reaches older pages without JavaScript',async({page,b
  for(let i=0;i<25;i++){
   const response=await page.request.post('/admin/barbers/new',{maxRedirects:0,form:{csrf_token:csrf,fullname:'Account Paging '+suffix+' '+i,phone:'08012345678',email:'admin-paging-'+suffix+'-'+i+'@example.test',shopname:'Account Shop '+i,shopaddress:'12 Example Street',state:'Osun',local_area:'Osogbo',password:'browser-pass-123'}});expect(response.status()).toBe(303);
  }
- const context=await browser.newContext({javaScriptEnabled:false,storageState:await page.context().storageState()});
+ const context=await newTestContext(browser,{javaScriptEnabled:false,storageState:await page.context().storageState()});
  try{
   const native=await context.newPage();await native.goto('/admin/barbers');await expect(native.locator('tbody tr')).toHaveCount(24);
   await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toHaveCount(0);
   await native.getByRole('link',{name:'Next page',exact:true}).click();await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toBeVisible();
-  await native.getByRole('link',{name:'Previous page',exact:true}).click();await native.getByRole('searchbox',{name:'Search barbers',exact:true}).fill('admin-paging-'+suffix+'-0@');await native.getByRole('button',{name:'Search barbers',exact:true}).click();
+  await native.getByRole('link',{name:'Previous page',exact:true}).click();await native.getByRole('searchbox',{name:'Search fleet',exact:true}).fill('admin-paging-'+suffix+'-0@');await native.getByRole('button',{name:'Filter Barbers',exact:true}).click();
   await expect(native.locator('tbody tr')).toHaveCount(1);await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toBeVisible();
-  await native.getByRole('searchbox',{name:'Search barbers',exact:true}).fill('absent-account-'+suffix);await native.getByRole('button',{name:'Search barbers',exact:true}).click();await expect(native.getByText('No barber accounts match this page or search.')).toBeVisible();
+  const absent='absent-account-'+suffix;await native.getByRole('searchbox',{name:'Search fleet',exact:true}).fill(absent);await native.getByRole('button',{name:'Filter Barbers',exact:true}).click();await expect(native.getByText('No barber profiles match the search filter "'+absent+'".',{exact:true})).toBeVisible();
   await page.setViewportSize({width:320,height:900});await page.goto('/admin/barbers?q=admin-paging-'+suffix);await checkPage(page,testInfo,'admin-account-pages-320');
   await page.goto('/admin/customers');await expect(page.getByRole('searchbox',{name:'Search customers',exact:true})).toBeVisible();await checkPage(page,testInfo,'admin-customer-pages-320');
   expect((await page.request.get('/admin/barbers?q='+encodeURIComponent('x'.repeat(201)))).status()).toBe(400);
@@ -468,7 +474,7 @@ test('inventory and portfolio pages preserve independent cursors and selected se
  await page.goto('/barber/hairstyles');await expect(page.locator('.barber-hairstyle-card')).toHaveCount(24);await page.getByRole('link',{name:'Next page',exact:true}).click();await expect(page.locator('.barber-hairstyle-card')).toHaveCount(1);
  const style=(await page.getByRole('link',{name:'Portfolio Style 24',exact:true}).getAttribute('href')).match(/\d+$/)[0];
  await page.goto('/barber/products');await expect(page.locator('.product-card')).toHaveCount(24);await page.getByRole('link',{name:'Next page',exact:true}).click();await expect(page.locator('.product-card')).toHaveCount(1);
- const context=await browser.newContext({javaScriptEnabled:false});
+ const context=await newTestContext(browser,{javaScriptEnabled:false});
  try{
   const customer=await context.newPage();expect((await customer.request.post('/customer/register',{multipart:{fullname:'Portfolio Customer',phone:'08012345678',email:'portfolio-customer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}})).ok()).toBeTruthy();
   await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:shop,exact:true}).first().click();const seller=customer.url().match(/\/barbers\/(\d+)/)[1];
@@ -492,7 +498,7 @@ test('inventory and portfolio pages preserve independent cursors and selected se
   expect(new URL(page.url()).searchParams.get('section')).toBe('products');
   await page.getByRole('link',{name:'Handwork & prices',exact:true}).click();await expect(page.locator('.public-style-card')).toHaveCount(1);await expect(page.locator('.public-product-card')).toHaveCount(0);
   await page.setViewportSize({width:320,height:900});await checkPage(page,testInfo,'public-portfolio-pages-320');
-  const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-portfolio-pages-320');}finally{await inspection.close();}
+  const inspection=await newTestContext(browser,{storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-portfolio-pages-320');}finally{await inspection.close();}
  }finally{await context.close();}
 });
 
@@ -506,7 +512,7 @@ test('booking and order histories remain bounded with complete dashboard totals'
  await page.locator('[name="image"]').setInputFiles({name:'product.png',mimeType:'image/png',buffer:PNG});
  await page.locator('[name="available"]').check();
  await page.getByRole('button',{name:'Add Product',exact:true}).click();
- const context=await browser.newContext({javaScriptEnabled:false});try{
+ const context=await newTestContext(browser,{javaScriptEnabled:false});try{
  const customer=await context.newPage();expect((await customer.request.post('/customer/register',{multipart:{fullname:'History Buyer',phone:'08012345678',email:'history-buyer-'+suffix+'@example.test',password:'browser-pass-123',confirm_password:'browser-pass-123'}})).ok()).toBeTruthy();
  await customer.goto('/customer/barbers?state=Lagos&area=Ikeja');await customer.getByRole('link',{name:shop,exact:true}).first().click();const seller=customer.url().match(/\/barbers\/(\d+)/)[1],style=await customer.locator('#availability-service').inputValue(),csrf=await customer.locator('#booking input[name=csrf_token]').inputValue();
  await customer.goto('/customer/products?barber='+seller);const addAction=await customer.locator('.product-buy-form').getAttribute('action');
@@ -527,13 +533,13 @@ test('booking and order histories remain bounded with complete dashboard totals'
  await orderPhoto.click();await expect(page.getByRole('dialog',{name:'Full-size image'})).toBeVisible();
  await page.getByRole('button',{name:'Close image',exact:true}).click();await expect(page.getByRole('dialog')).not.toBeVisible();
  await page.setViewportSize({width:320,height:900});await checkPage(page,testInfo,'seller-orders-paged-320');
- const inspection=await browser.newContext({storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-orders-paged-320');}finally{await inspection.close();}
+ const inspection=await newTestContext(browser,{storageState:await context.storageState(),viewport:{width:320,height:900}});try{const inspected=await inspection.newPage();await inspected.goto(customer.url());await checkPage(inspected,testInfo,'customer-orders-paged-320');}finally{await inspection.close();}
  }finally{await context.close();}
 });
 
 test('booking CTA navigates smoothly to booking form and guards against missing hairstyles', async ({ browser }) => {
- const barberContext = await browser.newContext();
- const customerContext = await browser.newContext();
+ const barberContext = await newTestContext(browser);
+ const customerContext = await newTestContext(browser);
  try {
   const barber = await barberContext.newPage();
   const customer = await customerContext.newPage();
@@ -608,8 +614,8 @@ test('booking CTA navigates smoothly to booking form and guards against missing 
 
 test('unified booking flow dynamically updates slots on date change and submits appointment', async ({ browser }, testInfo) => {
  const suffix = Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6);
- const barberContext = await browser.newContext({ extraHTTPHeaders: { 'X-Forwarded-For': '198.51.100.88' } });
- const customerContext = await browser.newContext({ extraHTTPHeaders: { 'X-Forwarded-For': '198.51.100.88' } });
+ const barberContext = await newTestContext(browser,{extraHTTPHeaders:{'X-Forwarded-For':'198.51.100.88'}});
+ const customerContext = await newTestContext(browser,{extraHTTPHeaders:{'X-Forwarded-For':'198.51.100.88'}});
  try {
   const barber = await barberContext.newPage();
   const customer = await customerContext.newPage();
@@ -689,4 +695,3 @@ test('unified booking flow dynamically updates slots on date change and submits 
   await barberContext.close();
  }
 });
-

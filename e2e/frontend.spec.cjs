@@ -42,6 +42,7 @@ test('both conversation views deliver replies through explicit refresh',async({b
   await barberContext.close();
  }
 });
+
 async function checkPage(page,testInfo,name){
  await expect(page.locator('h1').first()).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth <= window.innerWidth+1)).toBeTruthy();
@@ -452,9 +453,9 @@ test('admin account search reaches older pages without JavaScript',async({page,b
   const native=await context.newPage();await native.goto('/admin/barbers');await expect(native.locator('tbody tr')).toHaveCount(24);
   await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toHaveCount(0);
   await native.getByRole('link',{name:'Next page',exact:true}).click();await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toBeVisible();
-  await native.getByRole('link',{name:'Previous page',exact:true}).click();await native.getByRole('searchbox',{name:'Search barbers',exact:true}).fill('admin-paging-'+suffix+'-0@');await native.getByRole('button',{name:'Search barbers',exact:true}).click();
+  await native.getByRole('link',{name:'Previous page',exact:true}).click();await native.getByRole('searchbox',{name:'Search fleet',exact:true}).fill('admin-paging-'+suffix+'-0@');await native.getByRole('button',{name:'Filter Barbers',exact:true}).click();
   await expect(native.locator('tbody tr')).toHaveCount(1);await expect(native.getByRole('link',{name:'Account Paging '+suffix+' 0',exact:true})).toBeVisible();
-  await native.getByRole('searchbox',{name:'Search barbers',exact:true}).fill('absent-account-'+suffix);await native.getByRole('button',{name:'Search barbers',exact:true}).click();await expect(native.getByText('No barber accounts match this page or search.')).toBeVisible();
+  const absent='absent-account-'+suffix;await native.getByRole('searchbox',{name:'Search fleet',exact:true}).fill(absent);await native.getByRole('button',{name:'Filter Barbers',exact:true}).click();await expect(native.getByText('No barber profiles match the search filter "'+absent+'".',{exact:true})).toBeVisible();
   await page.setViewportSize({width:320,height:900});await page.goto('/admin/barbers?q=admin-paging-'+suffix);await checkPage(page,testInfo,'admin-account-pages-320');
   await page.goto('/admin/customers');await expect(page.getByRole('searchbox',{name:'Search customers',exact:true})).toBeVisible();await checkPage(page,testInfo,'admin-customer-pages-320');
   expect((await page.request.get('/admin/barbers?q='+encodeURIComponent('x'.repeat(201)))).status()).toBe(400);
@@ -694,4 +695,3 @@ test('unified booking flow dynamically updates slots on date change and submits 
   await barberContext.close();
  }
 });
-

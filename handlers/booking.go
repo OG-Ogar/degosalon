@@ -308,8 +308,8 @@ func BookingConfirmationHandler(
 	s sessionData,
 	idSegment string,
 ) {
-	if r.Method != http.MethodGet {
-		methodNotAllowed(w, http.MethodGet)
+	if r.Method != http.MethodGet && r.Method != http.MethodPost {
+		methodNotAllowed(w, http.MethodGet, http.MethodPost)
 
 		return
 	}
@@ -340,11 +340,38 @@ func BookingConfirmationHandler(
 		return
 	}
 
-	if booking.ServiceDuration > 0 {
-		render(w, "customer/booking-confirmation.html", bookingConfirmationView{CSRF: s.CSRFToken, Booking: booking, Barber: models.Barber{ID: booking.BarberID, FullName: booking.BarberName, ShopName: booking.ShopName, ShopAddress: booking.ShopAddress}, Hairstyle: models.Hairstyle{ID: booking.HairstyleID, Name: booking.ServiceName, Price: booking.ServicePrice, Duration: booking.ServiceDuration}})
+	if r.Method == http.MethodPost {
+		if !requireCSRF(w, r, s) {
+			return
+		}
+		phone := strings.TrimSpace(r.PostFormValue("phone"))
+		if problem := validatePhone(phone); problem != "" {
+			renderBookingConfirmation(r.Context(), w, booking, customer, s, problem)
+			return
+		}
+		if err := storage.SaveBookingCustomerPhoneContext(r.Context(), booking.ID, customer.ID, phone); errors.Is(err, storage.ErrNotFound) {
+			journeyError(w, "Page not found.", http.StatusNotFound)
+			return
+		} else if err != nil {
+			serverError(w, "save booking phone number", err)
+			return
+		}
+		http.Redirect(w, r, r.URL.Path, http.StatusSeeOther)
 		return
 	}
-	barber, err := storage.FindBarberByIDContext(r.Context(), booking.BarberID)
+
+	renderBookingConfirmation(r.Context(), w, booking, customer, s, "")
+}
+
+func renderBookingConfirmation(ctx context.Context, w http.ResponseWriter, booking models.Booking, customer models.Customer, s sessionData, phoneError string) {
+	view := bookingConfirmationView{CSRF: s.CSRFToken, Booking: booking, CustomerPhone: customer.PhoneNumber, PhoneError: phoneError}
+	if booking.ServiceDuration > 0 {
+		view.Barber = models.Barber{ID: booking.BarberID, FullName: booking.BarberName, ShopName: booking.ShopName, ShopAddress: booking.ShopAddress}
+		view.Hairstyle = models.Hairstyle{ID: booking.HairstyleID, Name: booking.ServiceName, Price: booking.ServicePrice, Duration: booking.ServiceDuration, Image: booking.ServiceImage}
+		render(w, "customer/booking-confirmation.html", view)
+		return
+	}
+	barber, err := storage.FindBarberByIDContext(ctx, booking.BarberID)
 	if errors.Is(err, storage.ErrNotFound) {
 		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
@@ -354,7 +381,7 @@ func BookingConfirmationHandler(
 		return
 	}
 
-	hairstyle, err := storage.FindHairstyleByIDResult(r.Context(), booking.HairstyleID)
+	hairstyle, err := storage.FindHairstyleByIDResult(ctx, booking.HairstyleID)
 	if errors.Is(err, storage.ErrNotFound) {
 		journeyError(w, "Page not found.", http.StatusNotFound)
 		return
@@ -364,21 +391,18 @@ func BookingConfirmationHandler(
 		return
 	}
 
-	view := bookingConfirmationView{
-		CSRF:      s.CSRFToken,
-		Booking:   booking,
-		Barber:    barber,
-		Hairstyle: hairstyle,
-	}
-
+	view.Barber = barber
+	view.Hairstyle = hairstyle
 	render(w, "customer/booking-confirmation.html", view)
 }
 
 type bookingConfirmationView struct {
-	CSRF      string
-	Booking   models.Booking
-	Barber    models.Barber
-	Hairstyle models.Hairstyle
+	CSRF          string
+	Booking       models.Booking
+	Barber        models.Barber
+	Hairstyle     models.Hairstyle
+	CustomerPhone string
+	PhoneError    string
 }
 
 // bookingProblem turns the storage errors a customer can actually cause

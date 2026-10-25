@@ -74,7 +74,7 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 
 		var available bool
 		var owner, duration int
-		if err = tx.QueryRowContext(ctx, "select barber_id,(is_available and not is_archived),duration,name,price from public.hairstyles where id=$1 for share", booking.HairstyleID).Scan(&owner, &available, &duration, &booking.ServiceName, &booking.ServicePrice); err != nil {
+		if err = tx.QueryRowContext(ctx, "select barber_id,(is_available and not is_archived),duration,name,price,image from public.hairstyles where id=$1 for share", booking.HairstyleID).Scan(&owner, &available, &duration, &booking.ServiceName, &booking.ServicePrice, &booking.ServiceImage); err != nil {
 			if errors.Is(err, sql.ErrNoRows) {
 				return models.Booking{}, ErrNotFound
 			}
@@ -115,7 +115,7 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 			return models.Booking{}, ErrSlotConflict
 		}
 
-		err = tx.QueryRowContext(ctx, "insert into public.bookings(barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date,booking_time,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,booking_timezone) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18) returning id", booking.BarberID, booking.HairstyleID, booking.CustomerID, booking.CustomerName, booking.CustomerPhone, booking.CustomerEmail, booking.Date, booking.Time, booking.Notes, booking.Status, booking.CreatedAt, booking.BarberName, booking.ShopName, booking.ShopAddress, booking.ServiceName, booking.ServicePrice, booking.ServiceDuration, booking.BookingTimezone).Scan(&booking.ID)
+		err = tx.QueryRowContext(ctx, "insert into public.bookings(barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date,booking_time,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,booking_timezone,service_image) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19) returning id", booking.BarberID, booking.HairstyleID, booking.CustomerID, booking.CustomerName, booking.CustomerPhone, booking.CustomerEmail, booking.Date, booking.Time, booking.Notes, booking.Status, booking.CreatedAt, booking.BarberName, booking.ShopName, booking.ShopAddress, booking.ServiceName, booking.ServicePrice, booking.ServiceDuration, booking.BookingTimezone, booking.ServiceImage).Scan(&booking.ID)
 		if err != nil {
 			if strings.Contains(strings.ToLower(err.Error()), "bookings_open_slot_unique") {
 				return models.Booking{}, ErrSlotTaken
@@ -165,6 +165,7 @@ func CreateBookingContext(ctx context.Context, booking models.Booking) (models.B
 	booking.ServiceName = hairstyle.Name
 	booking.ServicePrice = hairstyle.Price
 	booking.ServiceDuration = hairstyle.Duration
+	booking.ServiceImage = hairstyle.Image
 	booking.BookingTimezone = calendar.Timezone
 	for _, existing := range bookings {
 		if existing.BarberID != booking.BarberID || existing.Date != booking.Date || !existing.IsOpen() {
@@ -198,7 +199,7 @@ func FindBookingByID(id int) (models.Booking, bool) {
 
 	if databaseEnabled() {
 		var v models.Booking
-		err := db.QueryRowContext(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings where id=$1", id).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone)
+		err := db.QueryRowContext(ctx, "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,''),coalesce(service_image,'') from public.bookings where id=$1", id).Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone, &v.ServiceImage)
 		return v, err == nil
 	}
 	mu.RLock()
@@ -211,6 +212,68 @@ func FindBookingByID(id int) (models.Booking, bool) {
 	}
 
 	return models.Booking{}, false
+}
+
+// SaveBookingCustomerPhoneContext updates the customer's profile and the
+// booking contact snapshot atomically after confirmation.
+func SaveBookingCustomerPhoneContext(ctx context.Context, bookingID, customerID int, phone string) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if databaseEnabled() {
+		tx, err := db.BeginTx(ctx, nil)
+		if err != nil {
+			return err
+		}
+		defer tx.Rollback()
+
+		result, err := tx.ExecContext(ctx, "update public.bookings set customer_phone=$1 where id=$2 and customer_id=$3", phone, bookingID, customerID)
+		if err != nil {
+			return err
+		}
+		count, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if count == 0 {
+			return ErrNotFound
+		}
+		result, err = tx.ExecContext(ctx, "update public.customers set phone_number=$1 where id=$2", phone, customerID)
+		if err != nil {
+			return err
+		}
+		count, err = result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if count == 0 {
+			return ErrNotFound
+		}
+		return tx.Commit()
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	customerIndex, bookingIndex := -1, -1
+	for i := range customers {
+		if customers[i].ID == customerID {
+			customerIndex = i
+			break
+		}
+	}
+	for i := range bookings {
+		if bookings[i].ID == bookingID && bookings[i].CustomerID == customerID {
+			bookingIndex = i
+			break
+		}
+	}
+	if customerIndex < 0 || bookingIndex < 0 {
+		return ErrNotFound
+	}
+	customers[customerIndex].PhoneNumber = phone
+	bookings[bookingIndex].CustomerPhone = phone
+	return nil
 }
 
 // ListBookings returns every booking, for the admin overview.
@@ -444,7 +507,7 @@ func listBookingsDB(field string, id int) []models.Booking {
 	ctx, cancel := databaseContext(context.Background())
 	defer cancel()
 
-	q := "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,'') from public.bookings"
+	q := "select id,barber_id,hairstyle_id,customer_id,customer_name,customer_phone,customer_email,booking_date::text,booking_time::text,notes,status,created_at,barber_name,shop_name,shop_address,service_name,service_price,service_duration,coalesce(booking_timezone,''),coalesce(service_image,'') from public.bookings"
 	var rows *sql.Rows
 	var err error
 	if field != "" {
@@ -462,7 +525,7 @@ func listBookingsDB(field string, id int) []models.Booking {
 	var out []models.Booking
 	for rows.Next() {
 		var v models.Booking
-		if err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone); err != nil {
+		if err := rows.Scan(&v.ID, &v.BarberID, &v.HairstyleID, &v.CustomerID, &v.CustomerName, &v.CustomerPhone, &v.CustomerEmail, &v.Date, &v.Time, &v.Notes, &v.Status, &v.CreatedAt, &v.BarberName, &v.ShopName, &v.ShopAddress, &v.ServiceName, &v.ServicePrice, &v.ServiceDuration, &v.BookingTimezone, &v.ServiceImage); err != nil {
 			log.Printf("scan booking: %v", err)
 			return nil
 		}

@@ -30,6 +30,7 @@ type Booking struct {
 	ServiceName     string
 	ServicePrice    float64
 	ServiceDuration int
+	ServiceImage    string
 	BookingTimezone string
 
 	// Contact details are copied from the customer when the booking is

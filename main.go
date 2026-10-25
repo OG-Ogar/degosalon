@@ -152,6 +152,17 @@ func run() error {
 		return fmt.Errorf("booking hours: %w", err)
 	}
 
+	// Google sign-in is optional. Missing credentials leave it disabled;
+	// a half-set configuration is reported once at startup so an operator
+	// can fix it without the rest of the application refusing to serve.
+	if enabled, err := handlers.ConfigureGoogleAuthFromEnvironment(); err != nil {
+		log.Printf("Google sign-in unavailable: %v", err)
+	} else if enabled {
+		log.Print("Google sign-in enabled")
+	} else {
+		log.Print("Google sign-in unavailable: set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET")
+	}
+
 	openingDefault, closingDefault := handlers.BookingHours()
 	storage.ConfigureCalendarDefaults(handlers.BookingTimezone(), openingDefault, closingDefault)
 
@@ -166,6 +177,13 @@ func run() error {
 	for _, path := range []string{"/help", "/support", "/privacy", "/terms"} {
 		mux.HandleFunc(path, handlers.PublicContentHandler)
 	}
+
+	// Google sign-in lives outside the role routers because the same two
+	// endpoints serve both customers and barbers; the signed state carries
+	// the role through the round trip.
+	mux.HandleFunc("/auth/google/login", handlers.GoogleAuthStartHandler)
+	mux.HandleFunc("/auth/google/callback", handlers.GoogleAuthCallbackHandler)
+
 	mux.HandleFunc("/", handlers.HomeHandler)
 	mux.HandleFunc("/admin/", handlers.AdminRouter)
 	mux.HandleFunc("/barber/", handlers.BarberRouter)

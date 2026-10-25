@@ -75,6 +75,7 @@ create table if not exists public.bookings (
         'Completed'
       )
     ),
+  service_image text not null default '',
   created_at timestamptz not null default now()
 );
 

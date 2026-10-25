@@ -38,6 +38,10 @@ func validateIdentity(name, email, phone string) string {
 		!strings.Contains(domain, ".") || strings.ContainsAny(email, " \t\r\n") {
 		return "Enter a valid email address."
 	}
+	return validatePhone(phone)
+}
+
+func validatePhone(phone string) string {
 	if problem := validIdentityText("Phone number", phone, 32); problem != "" {
 		return problem
 	}

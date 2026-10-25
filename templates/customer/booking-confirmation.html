@@ -32,6 +32,22 @@
 
             <p class="confirmation-message">Your appointment request and its current status are shown below.</p>
 
+            {{if .Hairstyle.Image}}
+            <img class="confirmation-hairstyle-image" src="{{.Hairstyle.Image}}" alt="Photo of {{.Hairstyle.Name}}" data-fullscreen-image srcset="{{imageSrcset .Hairstyle.Image}}" sizes="(max-width: 520px) calc(100vw - 48px), 640px" width="640" height="480">
+            {{end}}
+
+            {{if not .CustomerPhone}}
+            <form class="booking-phone-form ui-form" method="post" action="/customer/booking-confirmation/{{.Booking.ID}}">
+                <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+                <h2>Add a phone number for your barber</h2>
+                <p>Your booking is saved. Add a number so the barber can contact you about this appointment.</p>
+                {{if .PhoneError}}<p class="booking-phone-error" role="alert">{{.PhoneError}}</p>{{end}}
+                <label for="booking-phone">Phone number</label>
+                <input class="ui-control" id="booking-phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" maxlength="32" required>
+                <button class="primary-button" type="submit">Save phone number</button>
+            </form>
+            {{end}}
+
             <div class="status-box">
 
                 <div>

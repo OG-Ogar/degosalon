@@ -76,7 +76,7 @@ func describeBooking(ctx context.Context, booking models.Booking) (bookingRow, e
 		return bookingRow{}, err
 	}
 	if booking.ServiceDuration > 0 {
-		return bookingRow{Booking: booking, BarberName: booking.BarberName, ShopName: booking.ShopName, HairstyleName: booking.ServiceName, Price: booking.ServicePrice, Duration: booking.ServiceDuration}, nil
+		return bookingRow{Booking: booking, BarberName: booking.BarberName, ShopName: booking.ShopName, HairstyleName: booking.ServiceName, HairstyleImage: booking.ServiceImage, Price: booking.ServicePrice, Duration: booking.ServiceDuration}, nil
 	}
 	row := bookingRow{
 		Booking: booking,

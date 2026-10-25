@@ -197,6 +197,53 @@ h1 {
     line-height: 1.6;
 }
 
+.confirmation-hairstyle-image {
+    display: block;
+    width: min(100%, 640px);
+    max-height: 360px;
+    margin: 0 auto 24px;
+    border-radius: 14px;
+    object-fit: cover;
+}
+
+.booking-phone-form {
+    display: grid;
+    gap: 10px;
+    margin: 0 0 24px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.booking-phone-form h2,
+.booking-phone-form p {
+    margin: 0;
+}
+
+.booking-phone-form h2 {
+    font-size: 1.15rem;
+}
+
+.booking-phone-form label {
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+.booking-phone-form input {
+    min-height: 44px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--base);
+    color: var(--ink);
+}
+
+.booking-phone-error {
+    color: #b42318;
+}
+
 
 /* STATUS */
 

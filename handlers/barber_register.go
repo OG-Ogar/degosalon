@@ -6,6 +6,7 @@ import (
 
 	"barber-booking/models"
 	"barber-booking/security"
+	"barber-booking/session"
 	"barber-booking/storage"
 )
 
@@ -78,7 +79,7 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		_, err = storage.CreateBarberContext(r.Context(), models.Barber{
+		barber, err := storage.CreateBarberContext(r.Context(), models.Barber{
 			FullName:      form.FullName,
 			PhoneNumber:   form.Phone,
 			Email:         form.Email,
@@ -113,6 +114,8 @@ func BarberRegisterHandler(w http.ResponseWriter, r *http.Request) {
 
 			return
 		}
+
+		rememberDeviceBestEffort(w, r, session.RoleBarber, barber.ID)
 
 		http.Redirect(w, r, "/barber/login", http.StatusSeeOther)
 

@@ -190,6 +190,8 @@ func GoogleAuthCallbackHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	rememberDeviceBestEffort(w, r, role, accountID)
+
 	destination := "/customer/dashboard"
 	switch role {
 	case session.RoleBarber:

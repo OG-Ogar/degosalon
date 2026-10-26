@@ -75,11 +75,17 @@ func TestDiscoveryContextSurvivesAuthentication(t *testing.T) {
 		t.Fatalf("signup destination: %d %s %s", created.Code, created.Header().Get("Location"), created.Body.String())
 	}
 	cookies := created.Result().Cookies()
-	if len(cookies) != 1 {
+	var sessionCookie *http.Cookie
+	for _, cookie := range cookies {
+		if cookie.Name == "customer_session" {
+			sessionCookie = cookie
+		}
+	}
+	if sessionCookie == nil {
 		t.Fatal("signup lacks session cookie")
 	}
 	authenticated := request.Clone(request.Context())
-	authenticated.AddCookie(cookies[0])
+	authenticated.AddCookie(sessionCookie)
 	signedIn := httptest.NewRecorder()
 	ExploreBarberHandler(signedIn, authenticated, id)
 	if signedIn.Code != 200 || strings.Contains(signedIn.Body.String(), ">Customer Login") || !strings.Contains(signedIn.Body.String(), "/customer/dashboard") {
@@ -101,7 +107,9 @@ func TestDiscoveryContextSurvivesAuthentication(t *testing.T) {
 		t.Fatalf("successful login lost destination: %d %s", login.Code, login.Header().Get("Location"))
 	}
 	for _, cookie := range login.Result().Cookies() {
-		session.Delete(cookie.Value)
+		if cookie.Name == "customer_session" {
+			session.Delete(cookie.Value)
+		}
 	}
 	sellerProduct, err := storage.CreateProduct(models.Product{BarberID: barber.ID, Name: "Selected seller product", Quantity: 2, Price: 100, IsAvailable: true})
 	if err != nil {

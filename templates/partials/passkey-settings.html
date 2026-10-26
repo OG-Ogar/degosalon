@@ -1,0 +1,24 @@
+{{define "passkey-settings"}}{{if .PasskeyRole}}
+<section class="passkey-settings"
+         data-passkey-settings
+         data-role="{{.PasskeyRole}}"
+         data-csrf="{{.CSRF}}"
+         hidden>
+    <div class="passkey-settings-copy">
+        <p class="eyebrow">Fingerprint sign-in</p>
+        <h2>Sign in without typing your password</h2>
+        <p>
+            Add this phone, tablet, or laptop to your account. Next time you
+            visit the login page, use your fingerprint, Face ID, or screen lock
+            instead of entering your password.
+        </p>
+    </div>
+
+    <div class="passkey-settings-action">
+        <button type="button" class="ui-control" data-passkey-enroll>
+            Enable fingerprint on this device
+        </button>
+        <p class="hint" data-passkey-status role="status" aria-live="polite"></p>
+    </div>
+</section>
+{{end}}{{end}}

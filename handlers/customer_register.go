@@ -172,6 +172,8 @@ func CustomerRegisterHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
+		rememberDeviceBestEffort(w, r, session.RoleCustomer, customer.ID)
+
 		destination := form.Next
 		if destination == "" {
 			destination = "/customer/dashboard"

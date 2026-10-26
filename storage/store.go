@@ -34,6 +34,9 @@ var (
 	products   []models.Product
 	bookings   []models.Booking
 	messages   []models.Message
+
+	passkeys          = map[string]models.Passkey{}
+	rememberedDevices = map[string]models.RememberedDevice{}
 )
 
 var (
@@ -112,6 +115,8 @@ func Reset() {
 	displayPreferences = make(map[string]models.DisplayPreferences)
 	ClearPreferencesCache()
 	mediaObjects = make(map[string]mediaObject)
+	passkeys = make(map[string]models.Passkey)
+	rememberedDevices = make(map[string]models.RememberedDevice)
 	productOrders = nil
 	productOrderItems = nil
 	lastProductOrderID = 0

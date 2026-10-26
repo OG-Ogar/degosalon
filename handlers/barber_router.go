@@ -46,6 +46,21 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Passkey sign-in starts before the visitor has a session; the
+	// remembered-device cookie selects the account to challenge.
+	if len(parts) == 4 && parts[1] == "passkey" && parts[2] == "login" {
+		switch parts[3] {
+		case "begin":
+			BarberPasskeyLoginBegin(w, r)
+		case "finish":
+			BarberPasskeyLoginFinish(w, r)
+		default:
+			journeyError(w, "Page not found.", http.StatusNotFound)
+		}
+
+		return
+	}
+
 	barber, s, ok := requireBarber(w, r)
 	if !ok {
 		return
@@ -119,6 +134,12 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 
 	case len(parts) == 3 && parts[1] == "settings" && parts[2] == "preferences":
 		BarberPreferencesHandler(w, r, barber, s)
+
+	case len(parts) == 4 && parts[1] == "passkey" && parts[2] == "register" && parts[3] == "begin":
+		BarberPasskeyRegisterBegin(w, r, barber, s)
+
+	case len(parts) == 4 && parts[1] == "passkey" && parts[2] == "register" && parts[3] == "finish":
+		BarberPasskeyRegisterFinish(w, r, barber, s)
 
 	default:
 		journeyError(w, "Page not found.", http.StatusNotFound)

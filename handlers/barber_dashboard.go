@@ -14,6 +14,7 @@ type barberDashboardView struct {
 	models.Barber
 
 	CSRF            string
+	PasskeyRole     string
 	OrderPagination listPagination
 	OrderStatus     string
 
@@ -74,6 +75,7 @@ func BarberDashboardHandler(
 	render(w, "barber/dashboard.html", barberDashboardView{
 		Barber:           barber,
 		CSRF:             s.CSRFToken,
+		PasskeyRole:      "barber",
 		Hairstyles:       counts.Hairstyles,
 		PendingBookings:  counts.Pending,
 		UpcomingBookings: counts.AcceptedUpcoming,

@@ -24,6 +24,7 @@ type customerDashboardView struct {
 	models.Customer
 
 	CSRF            string
+	PasskeyRole     string
 	OrderPagination listPagination
 	UpcomingCount   int
 	SelectedState   string
@@ -120,6 +121,7 @@ func CustomerDashboardHandler(
 		Upcoming:        preview.Items,
 		Pending:         counts.Pending,
 		CSRF:            s.CSRFToken,
+		PasskeyRole:     "customer",
 		Barbers:         counts.Barbers,
 		Conversations:   conversations,
 		CartCount:       cartCount,

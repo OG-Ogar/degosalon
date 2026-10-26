@@ -18,6 +18,16 @@ type formView struct {
 	Error  string
 	Notice string
 	Values map[string]string
+
+	// RememberedEmail is set on a login page when this browser has signed
+	// in before. The email field is hidden and only the password is asked
+	// for; the value still travels in a hidden input.
+	RememberedEmail string
+
+	// PasskeyAvailable means the remembered account has at least one
+	// registered fingerprint credential. The page then offers passkey
+	// sign-in to browsers that support it.
+	PasskeyAvailable bool
 }
 
 // newFormView starts an empty form.

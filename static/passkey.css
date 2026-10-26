@@ -1,0 +1,195 @@
+/* Remembered account and fingerprint sign-in. */
+
+.auth-remembered {
+    display: grid;
+    gap: 4px;
+    padding: 14px 16px;
+    border: 1px solid rgba(var(--border-hi-rgb), .55);
+    border-radius: 12px;
+    background: rgba(var(--base-rgb), .55);
+}
+
+.auth-remembered-label {
+    color: var(--ink-muted, #c2d4c7);
+    font-size: .68rem;
+    font-weight: 850;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+}
+
+.auth-remembered-email {
+    color: var(--ink, #f8f5e9);
+    font-size: .95rem;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+
+.auth-remembered-switch {
+    width: fit-content;
+    margin-top: 4px;
+    color: var(--signal, #f4cb78);
+    font-size: .78rem;
+    font-weight: 750;
+}
+
+.auth-passkey[hidden],
+.passkey-settings[hidden] {
+    display: none;
+}
+
+.auth-passkey {
+    margin-top: 18px;
+}
+
+.auth-passkey-button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 58px;
+    padding: 12px 16px;
+    border: 1px solid var(--border, #355348);
+    border-radius: 12px;
+    background: rgba(var(--surface-rgb), .72);
+    color: var(--ink, #f8f5e9);
+    cursor: pointer;
+    font: inherit;
+    text-align: left;
+    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+
+.auth-passkey-button:hover {
+    border-color: rgba(244, 203, 120, .55);
+    background: var(--surface-hi, #254137);
+    transform: translateY(-1px);
+}
+
+.auth-passkey-button:focus-visible {
+    outline: 2px solid var(--signal, #f4cb78);
+    outline-offset: 2px;
+}
+
+.auth-passkey-button:disabled {
+    cursor: wait;
+    opacity: .65;
+    transform: none;
+}
+
+.auth-passkey-icon {
+    display: grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgba(244, 203, 120, .12);
+    color: var(--signal, #f4cb78);
+}
+
+.auth-passkey-icon svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+}
+
+.auth-passkey-button strong {
+    display: block;
+    font-size: .9rem;
+    font-weight: 850;
+}
+
+.auth-passkey-button small {
+    display: block;
+    margin-top: 2px;
+    color: var(--ink-muted, #c2d4c7);
+    font-size: .72rem;
+    line-height: 1.4;
+}
+
+.auth-passkey .hint:empty {
+    display: none;
+}
+
+.auth-passkey .hint[data-state="error"] {
+    color: #fecaca;
+}
+
+.auth-passkey .hint[data-state="ok"] {
+    color: #bbf7d0;
+}
+
+/* Dashboard enrolment card */
+.passkey-settings {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin: 0 0 24px;
+    padding: 22px;
+    border: 1px solid rgba(var(--border-hi-rgb), .5);
+    border-radius: 16px;
+    background: linear-gradient(145deg, rgba(var(--surface-hi-rgb), .72), rgba(var(--surface-rgb), .62));
+}
+
+.passkey-settings-copy {
+    flex: 1 1 320px;
+}
+
+.passkey-settings-copy .eyebrow {
+    margin: 0 0 4px;
+}
+
+.passkey-settings-copy h2 {
+    margin: 0 0 6px;
+    color: var(--ink, #f8f5e9);
+    font-size: 1.2rem;
+    letter-spacing: -.02em;
+}
+
+.passkey-settings-copy p {
+    margin: 0;
+    max-width: 62ch;
+    color: var(--ink-muted, #c2d4c7);
+    font-size: .84rem;
+    line-height: 1.55;
+}
+
+.passkey-settings-action {
+    flex: 0 1 280px;
+}
+
+.passkey-settings-action .ui-control {
+    width: 100%;
+    min-height: 46px;
+}
+
+.passkey-settings-action .hint {
+    margin-top: 8px;
+}
+
+.passkey-settings-action .hint:empty {
+    display: none;
+}
+
+.passkey-settings-action .hint[data-state="error"] {
+    color: #fecaca;
+}
+
+.passkey-settings-action .hint[data-state="ok"] {
+    color: #bbf7d0;
+}
+
+@media (max-width: 600px) {
+    .passkey-settings {
+        padding: 18px;
+    }
+
+    .passkey-settings-action {
+        flex-basis: 100%;
+    }
+}

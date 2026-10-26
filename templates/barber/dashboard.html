@@ -9,12 +9,14 @@
     <script src="/static/theme-switch.js"></script>
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
+    <link rel="stylesheet" href="/static/passkey.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
     <link rel="stylesheet" href="/static/ui.css">
     <link rel="stylesheet" href="/static/theme.css">
 
     <script src="/static/app.js" defer></script>
     <script src="/static/image-viewer.js" defer></script>
+    <script src="/static/passkey.js" defer></script>
 </head>
 
 <body class="barber-page modern-role-page modern-barber-page">
@@ -117,6 +119,9 @@
         </article>
 
     </section>
+
+
+    {{template "passkey-settings" .}}
 
 
     <!-- PRODUCT ORDERS -->

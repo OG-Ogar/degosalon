@@ -31,6 +31,20 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Passkey sign-in starts before the visitor has a session; the
+	// remembered-device cookie selects the account to challenge.
+	if len(parts) == 4 && parts[1] == "passkey" && parts[2] == "login" {
+		switch parts[3] {
+		case "begin":
+			CustomerPasskeyLoginBegin(w, r)
+		case "finish":
+			CustomerPasskeyLoginFinish(w, r)
+		default:
+			journeyError(w, "Page not found.", http.StatusNotFound)
+		}
+		return
+	}
+
 	customer, s, ok := requireCustomer(w, r)
 
 	if !ok {
@@ -92,6 +106,12 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 
 	case len(parts) == 3 && parts[1] == "settings" && parts[2] == "preferences":
 		CustomerPreferencesHandler(w, r, customer, s)
+
+	case len(parts) == 4 && parts[1] == "passkey" && parts[2] == "register" && parts[3] == "begin":
+		CustomerPasskeyRegisterBegin(w, r, customer, s)
+
+	case len(parts) == 4 && parts[1] == "passkey" && parts[2] == "register" && parts[3] == "finish":
+		CustomerPasskeyRegisterFinish(w, r, customer, s)
 
 	case len(parts) == 2 && parts[1] == "cart":
 		CustomerCartHandler(w, r, customer, s)

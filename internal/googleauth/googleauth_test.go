@@ -101,7 +101,7 @@ func TestGoogleAuthAuthCodeURLUsesPKCE(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	raw := provider.AuthCodeURL(state.Nonce, state.Verifier)
+	raw := provider.AuthCodeURL(state.Nonce, state.Verifier, "")
 	address, err := url.Parse(raw)
 	if err != nil {
 		t.Fatal(err)
@@ -121,6 +121,25 @@ func TestGoogleAuthAuthCodeURLUsesPKCE(t *testing.T) {
 	}
 	if query.Get("redirect_uri") != "https://salon.example.com/auth/google/callback" {
 		t.Fatalf("redirect URI: %s", query.Get("redirect_uri"))
+	}
+}
+
+func TestGoogleAuthAuthCodeURLCarriesLoginHint(t *testing.T) {
+	provider, _ := testProvider(t, nil)
+	state, err := provider.NewState("customer", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw := provider.AuthCodeURL(state.Nonce, state.Verifier, "ada@example.com")
+	address, err := url.Parse(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hint := address.Query().Get("login_hint"); hint != "ada@example.com" {
+		t.Fatalf("login_hint = %q", hint)
+	}
+	if prompt := address.Query().Get("prompt"); prompt != "select_account" {
+		t.Fatalf("prompt = %q, want select_account", prompt)
 	}
 }
 

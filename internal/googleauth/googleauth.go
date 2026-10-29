@@ -271,8 +271,10 @@ func (p *Provider) mac(body string) []byte {
 	return mac.Sum(nil)
 }
 
-// AuthCodeURL builds the URL that sends the visitor to Google.
-func (p *Provider) AuthCodeURL(state, verifier string) string {
+// AuthCodeURL builds the URL that sends the visitor to Google. A non-empty
+// loginHint is passed through so Google opens the account chooser with the
+// address the visitor already entered on the sign-in form preselected.
+func (p *Provider) AuthCodeURL(state, verifier, loginHint string) string {
 	query := url.Values{}
 	query.Set("client_id", p.config.ClientID)
 	query.Set("redirect_uri", p.config.RedirectURL)
@@ -283,6 +285,9 @@ func (p *Provider) AuthCodeURL(state, verifier string) string {
 	query.Set("code_challenge_method", "S256")
 	query.Set("access_type", "online")
 	query.Set("prompt", "select_account")
+	if loginHint != "" {
+		query.Set("login_hint", loginHint)
+	}
 	return p.config.Endpoints.AuthURL + "?" + query.Encode()
 }
 

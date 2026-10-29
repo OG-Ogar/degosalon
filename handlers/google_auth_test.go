@@ -155,6 +155,38 @@ func TestGoogleAuthStartRejectsUnknownRole(t *testing.T) {
 	}
 }
 
+func TestGoogleAuthStartPassesLoginHint(t *testing.T) {
+	installGoogleProvider(t, googleUserFixture{Email: "ada@example.com", EmailVerified: true})
+	response := httptest.NewRecorder()
+	GoogleAuthStartHandler(response, httptest.NewRequest(http.MethodGet, "/auth/google/login?role=customer&login_hint=Ada%40Example.com", nil))
+	if response.Code != http.StatusSeeOther {
+		t.Fatalf("status %d: %s", response.Code, response.Body.String())
+	}
+	location, err := url.Parse(response.Header().Get("Location"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hint := location.Query().Get("login_hint"); hint != "ada@example.com" {
+		t.Fatalf("login_hint = %q, want ada@example.com", hint)
+	}
+}
+
+func TestGoogleAuthStartDropsInvalidLoginHint(t *testing.T) {
+	installGoogleProvider(t, googleUserFixture{Email: "ada@example.com", EmailVerified: true})
+	response := httptest.NewRecorder()
+	GoogleAuthStartHandler(response, httptest.NewRequest(http.MethodGet, "/auth/google/login?role=customer&login_hint=not-an-email", nil))
+	if response.Code != http.StatusSeeOther {
+		t.Fatalf("status %d: %s", response.Code, response.Body.String())
+	}
+	location, err := url.Parse(response.Header().Get("Location"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if hint := location.Query().Get("login_hint"); hint != "" {
+		t.Fatalf("invalid login_hint reached Google: %q", hint)
+	}
+}
+
 func TestGoogleAuthUnavailableWithoutConfiguration(t *testing.T) {
 	previous := googleSignIn
 	googleSignIn = nil

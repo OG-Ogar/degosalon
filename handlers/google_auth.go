@@ -79,6 +79,7 @@ func GoogleAuthStartHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	next := safeGoogleNext(role, r.URL.Query().Get("next"))
+	loginHint := googleLoginHint(r.URL.Query().Get("login_hint"))
 
 	state, err := provider.NewState(string(role), next)
 	if err != nil {
@@ -95,7 +96,7 @@ func GoogleAuthStartHandler(w http.ResponseWriter, r *http.Request) {
 		Secure:   googleCookieSecure(),
 		SameSite: http.SameSiteLaxMode,
 	})
-	http.Redirect(w, r, provider.AuthCodeURL(state.Nonce, state.Verifier), http.StatusSeeOther)
+	http.Redirect(w, r, provider.AuthCodeURL(state.Nonce, state.Verifier, loginHint), http.StatusSeeOther)
 }
 
 // GoogleAuthCallbackHandler completes the flow: it verifies the signed state,
@@ -217,6 +218,18 @@ func googleRole(value string) (session.Role, bool) {
 	default:
 		return "", false
 	}
+}
+
+// googleLoginHint keeps only a usable email address from the sign-in form. It
+// is a convenience for Google's account chooser, never an authorization: the
+// account that actually signs in is still whichever verified address Google
+// returns to the callback.
+func googleLoginHint(value string) string {
+	email := normalisedEmail(value)
+	if !validGoogleEmail(email) {
+		return ""
+	}
+	return email
 }
 
 // safeGoogleNext limits the post-login destination to pages the role owns. The

@@ -46,3 +46,10 @@ services:
 
       - key: BOOKING_TIMEZONE
         value: "Africa/Lagos"
+
+      # Continue with Google. Fill both values in the Render dashboard.
+      # The callback defaults to RENDER_EXTERNAL_URL/auth/google/callback.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false

@@ -45,7 +45,7 @@ func checkOrderConfirmationSnapshots(t *testing.T, conn *sql.DB) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	product, err := storage.CreateProduct(models.Product{BarberID: seller.ID, Name: "Original product", Description: "Original description", Category: "Original category", Price: 1250.50, Quantity: 3, IsAvailable: true})
+	product, err := storage.CreateProduct(models.Product{BarberID: seller.ID, Name: "Original product", Description: "Original description", Category: "Original category", Price: 1250.50, Quantity: 3, IsAvailable: true, Image: "/uploads/products/original.png"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -71,6 +71,7 @@ func checkOrderConfirmationSnapshots(t *testing.T, conn *sql.DB) {
 	product.Description = "Edited description"
 	product.Category = "Edited category"
 	product.Price = 9999
+	product.Image = "/uploads/products/edited.png"
 	if err := storage.UpdateProduct(product); err != nil {
 		t.Fatal(err)
 	}
@@ -96,10 +97,10 @@ func checkOrderConfirmationSnapshots(t *testing.T, conn *sql.DB) {
 		t.Fatalf("confirmation status %d: %s", w.Code, w.Body.String())
 	}
 	body := w.Body.String()
-	for _, want := range []string{"Original seller", "Original shop", "Original address", "08012345678", "Original product", "Original description", "Original category", "₦1,250.50", "Pending"} {
+	for _, want := range []string{"Original seller", "Original shop", "Original address", "08012345678", "Original product", "Original description", "Original category", "/uploads/products/original.png", "₦1,250.50", "Pending"} {
 		mustContain(t, "order snapshot", body, want)
 	}
-	for _, unwanted := range []string{"Edited seller", "Edited shop", "Edited address", "08087654321", "Edited product", "Edited description", "Edited category", "₦9,999.00"} {
+	for _, unwanted := range []string{"Edited seller", "Edited shop", "Edited address", "08087654321", "Edited product", "Edited description", "Edited category", "/uploads/products/edited.png", "₦9,999.00"} {
 		if strings.Contains(body, unwanted) {
 			t.Fatalf("confirmation displayed live metadata: %s", unwanted)
 		}

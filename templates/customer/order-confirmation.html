@@ -89,6 +89,25 @@
 
                 <article class="cart-item order-item">
 
+                    {{if .ProductImage}}
+
+                        <img
+                            class="cart-item-image fullscreen-image"
+                            src="{{.ProductImage}}"
+                            alt="Photo of {{.ProductName}}"
+                            data-fullscreen-image
+                            srcset="{{imageSrcset .ProductImage}}"
+                            sizes="(max-width: 800px) 150px, 190px"
+                            width="640" height="480" loading="lazy" decoding="async">
+
+                    {{else}}
+
+                        <div class="cart-item-image cart-item-image-placeholder">
+                            No photo
+                        </div>
+
+                    {{end}}
+
                     <div class="cart-item-details">
 
                         <h2>

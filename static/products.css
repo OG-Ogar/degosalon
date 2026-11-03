@@ -405,7 +405,7 @@ CART ITEM
 
 
 .cart-item.order-item {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 190px minmax(0, 1fr) auto;
 }
 
 .order-item .cart-item-details {

@@ -38,6 +38,9 @@ func TestPostgresOrderSnapshots(t *testing.T) {
 	if _, err := db.Exec("update public.product_order_items set quantity=quantity+1 where order_id=$1", orderID); err == nil {
 		t.Fatal("SQL rewrote original quantities")
 	}
+	if _, err := db.Exec("update public.product_order_items set product_image='/uploads/products/rewritten.png' where order_id=$1", orderID); err == nil {
+		t.Fatal("SQL rewrote product photos")
+	}
 	if err := FulfillOrderItem(context.Background(), items[0].ID, items[0].BarberID, models.FulfillmentReady); err != nil {
 		t.Fatal("immutable details prevented fulfillment", err)
 	}
@@ -59,6 +62,7 @@ func checkOrderSnapshots(t *testing.T) int {
 	product.Description = "Original description"
 	product.Category = "Original category"
 	product.Price = 1234.50
+	product.Image = "/uploads/products/original.png"
 	if err := UpdateProduct(product); err != nil {
 		t.Fatal(err)
 	}
@@ -75,7 +79,7 @@ func checkOrderSnapshots(t *testing.T) int {
 		t.Fatalf("items %+v %v", original, err)
 	}
 	want := original[0]
-	if want.SellerName != seller.FullName || want.SellerShopName != seller.ShopName || want.SellerShopAddress != seller.ShopAddress || want.SellerPhone != seller.PhoneNumber || want.ProductName != product.Name || want.ProductCategory != product.Category || want.ProductDescription != product.Description || want.Price != product.Price || want.Subtotal != product.Price || want.Quantity != 1 {
+	if want.SellerName != seller.FullName || want.SellerShopName != seller.ShopName || want.SellerShopAddress != seller.ShopAddress || want.SellerPhone != seller.PhoneNumber || want.ProductName != product.Name || want.ProductCategory != product.Category || want.ProductDescription != product.Description || want.ProductImage != product.Image || want.Price != product.Price || want.Subtotal != product.Price || want.Quantity != 1 {
 		t.Fatalf("missing snapshots: %+v", want)
 	}
 	seller.FullName = "Edited seller"
@@ -93,6 +97,7 @@ func checkOrderSnapshots(t *testing.T) int {
 	product.Description = "Edited description"
 	product.Category = "Edited category"
 	product.Price = 2000
+	product.Image = "/uploads/products/edited.png"
 	if err := UpdateProduct(product); err != nil {
 		t.Fatal(err)
 	}
@@ -112,7 +117,7 @@ func checkOrderSnapshots(t *testing.T) int {
 		t.Fatal(err)
 	}
 	changed, err := ListProductOrderItems(ctx, next.ID)
-	if err != nil || len(changed) != 1 || changed[0].SellerName != seller.FullName || changed[0].SellerShopAddress != seller.ShopAddress || changed[0].ProductDescription != product.Description || changed[0].Price != product.Price {
+	if err != nil || len(changed) != 1 || changed[0].SellerName != seller.FullName || changed[0].SellerShopAddress != seller.ShopAddress || changed[0].ProductDescription != product.Description || changed[0].ProductImage != product.Image || changed[0].Price != product.Price {
 		t.Fatalf("new order did not adopt current metadata: %+v %v", changed, err)
 	}
 	sales, err := ListProductOrderItemsByBarber(ctx, seller.ID)

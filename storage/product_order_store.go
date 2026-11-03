@@ -165,7 +165,7 @@ func checkoutCart(ctx context.Context, customer models.Customer, key string) (mo
 		return models.ProductOrder{}, err
 	}
 	for _, item := range lines {
-		_, err = tx.ExecContext(ctx, "insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)", order.ID, item.product.ID, item.product.BarberID, item.product.Name, item.product.Price, item.quantity, item.subtotal.Float(), item.seller.FullName, item.seller.ShopName, item.seller.ShopAddress, item.seller.PhoneNumber, item.product.Category, item.product.Description)
+		_, err = tx.ExecContext(ctx, "insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description,product_image) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)", order.ID, item.product.ID, item.product.BarberID, item.product.Name, item.product.Price, item.quantity, item.subtotal.Float(), item.seller.FullName, item.seller.ShopName, item.seller.ShopAddress, item.seller.PhoneNumber, item.product.Category, item.product.Description, item.product.Image)
 		if err != nil {
 			return models.ProductOrder{}, err
 		}
@@ -250,7 +250,7 @@ func checkoutCartMemory(customer models.Customer, key string) (models.ProductOrd
 		p := products[ln.index]
 		products[ln.index].Quantity -= ln.quantity
 		lastProductOrderItemID++
-		productOrderItems = append(productOrderItems, models.ProductOrderItem{ID: lastProductOrderItemID, OrderID: order.ID, ProductID: p.ID, BarberID: p.BarberID, FulfillmentStatus: models.FulfillmentPending, ProductName: p.Name, Price: p.Price, Quantity: ln.quantity, Subtotal: ln.subtotal.Float(), SellerName: ln.seller.FullName, SellerShopName: ln.seller.ShopName, SellerShopAddress: ln.seller.ShopAddress, SellerPhone: ln.seller.PhoneNumber, ProductCategory: p.Category, ProductDescription: p.Description})
+		productOrderItems = append(productOrderItems, models.ProductOrderItem{ID: lastProductOrderItemID, OrderID: order.ID, ProductID: p.ID, BarberID: p.BarberID, FulfillmentStatus: models.FulfillmentPending, ProductName: p.Name, Price: p.Price, Quantity: ln.quantity, Subtotal: ln.subtotal.Float(), SellerName: ln.seller.FullName, SellerShopName: ln.seller.ShopName, SellerShopAddress: ln.seller.ShopAddress, SellerPhone: ln.seller.PhoneNumber, ProductCategory: p.Category, ProductDescription: p.Description, ProductImage: p.Image})
 	}
 	delete(carts, customer.ID)
 	return order, nil
@@ -308,10 +308,10 @@ func CreateProductOrderItemContext(ctx context.Context, item models.ProductOrder
 
 	item.FulfillmentStatus = models.FulfillmentPending
 	if databaseEnabled() {
-		err := db.QueryRowContext(ctx, `insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description)
- select $1,p.id,p.barber_id,$4,$5,$6,$7,b.full_name,b.shop_name,b.shop_address,b.phone_number,p.category,p.description
+		err := db.QueryRowContext(ctx, `insert into public.product_order_items(order_id,product_id,barber_id,product_name,price,quantity,subtotal,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description,product_image)
+ select $1,p.id,p.barber_id,$4,$5,$6,$7,b.full_name,b.shop_name,b.shop_address,b.phone_number,p.category,p.description,coalesce(p.image,'')
  from public.products p join public.barbers b on b.id=p.barber_id where p.id=$2 and p.barber_id=$3 and not p.is_archived
- returning id,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description`, item.OrderID, item.ProductID, item.BarberID, item.ProductName, item.Price, item.Quantity, item.Subtotal).Scan(&item.ID, &item.SellerName, &item.SellerShopName, &item.SellerShopAddress, &item.SellerPhone, &item.ProductCategory, &item.ProductDescription)
+ returning id,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description,product_image`, item.OrderID, item.ProductID, item.BarberID, item.ProductName, item.Price, item.Quantity, item.Subtotal).Scan(&item.ID, &item.SellerName, &item.SellerShopName, &item.SellerShopAddress, &item.SellerPhone, &item.ProductCategory, &item.ProductDescription, &item.ProductImage)
 		return item, recordError(err)
 	}
 	mu.Lock()
@@ -331,6 +331,7 @@ func CreateProductOrderItemContext(ctx context.Context, item models.ProductOrder
 	item.SellerName, item.SellerShopName = seller.FullName, seller.ShopName
 	item.SellerShopAddress, item.SellerPhone = seller.ShopAddress, seller.PhoneNumber
 	item.ProductCategory, item.ProductDescription = product.Category, product.Description
+	item.ProductImage = product.Image
 	item.ID = nextID(&lastProductOrderItemID)
 
 	productOrderItems = append(productOrderItems, item)
@@ -369,9 +370,9 @@ func ListProductOrderItems(ctx context.Context, orderID int) ([]models.ProductOr
 		return nil, err
 	}
 	if databaseEnabled() {
-		return queryRecords(ctx, "select id,order_id,product_id,barber_id,product_name,price,quantity,subtotal,fulfillment_status,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description from public.product_order_items where order_id=$1 order by id", func(rows *sql.Rows) (models.ProductOrderItem, error) {
+		return queryRecords(ctx, "select id,order_id,product_id,barber_id,product_name,price,quantity,subtotal,fulfillment_status,seller_name,seller_shop_name,seller_shop_address,seller_phone,product_category,product_description,product_image from public.product_order_items where order_id=$1 order by id", func(rows *sql.Rows) (models.ProductOrderItem, error) {
 			var v models.ProductOrderItem
-			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.FulfillmentStatus, &v.SellerName, &v.SellerShopName, &v.SellerShopAddress, &v.SellerPhone, &v.ProductCategory, &v.ProductDescription)
+			err := rows.Scan(&v.ID, &v.OrderID, &v.ProductID, &v.BarberID, &v.ProductName, &v.Price, &v.Quantity, &v.Subtotal, &v.FulfillmentStatus, &v.SellerName, &v.SellerShopName, &v.SellerShopAddress, &v.SellerPhone, &v.ProductCategory, &v.ProductDescription, &v.ProductImage)
 			return v, err
 		}, orderID)
 	}

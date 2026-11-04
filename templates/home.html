@@ -3,87 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>De Go Salon — Your complete barber ecosystem</title>
+    <title>De Go Salon — Find and book a barber</title>
     <script src="/static/theme-switch.js"></script>
     <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/ui.css">
 <link rel="stylesheet" href="/static/theme.css">
     <script src="/static/app.js" defer></script>
-{{template "public-metadata" (publicMetadata "/" "De Go Salon — Your complete barber ecosystem" "Discover barbers, explore styles, book appointments and shop barber products." .LandingImage "De Go Salon — Your complete barber ecosystem" "website" "summary_large_image" (websiteSchema "/"))}}
+{{template "public-metadata" (publicMetadata "/" "De Go Salon — Find and book a barber" "Find nearby barbers, compare services and book an appointment." .LandingImage "De Go Salon barber booking" "website" "summary_large_image" (websiteSchema "/"))}}
 </head>
 <body class="landing-page">
 <main class="landing">
-{{if .LandingImage}}<img class="landing-media" src="{{.LandingImage}}" srcset="{{imageSrcset .LandingImage}}" sizes="100vw" width="1600" height="1200" alt="" loading="eager" fetchpriority="high" decoding="async">{{end}}
     <header class="landing-header">
         <a class="landing-brand" href="/" aria-label="De Go Salon home">
             <span class="landing-brand-mark" aria-hidden="true">DG</span>
             <span class="landing-brand-copy">
                 <span class="landing-brand-name">De Go Salon</span>
-                <span class="landing-brand-tagline">Your complete barber ecosystem</span>
+                <span class="landing-brand-tagline">Barber booking made simple</span>
             </span>
         </a>
         <nav class="landing-nav" aria-label="Main navigation">
             <a class="landing-nav-link" href="/explore">Find a Barber</a>
             {{if .CustomerSignedIn}}<a class="landing-nav-link" href="/customer/dashboard">Customer dashboard</a>{{end}}
 {{if .AdminSignedIn}}<a class="landing-nav-link" href="/admin/dashboard">Admin dashboard</a>{{end}}
-{{if .BarberSignedIn}}<a class="landing-nav-cta" href="/barber/dashboard">Barber dashboard</a>{{else}}<a class="landing-nav-cta" href="/barber/login">For Barbers <span aria-hidden="true">→</span></a>{{end}}
+{{if .BarberSignedIn}}<a class="landing-nav-cta" href="/barber/dashboard">Barber dashboard</a>{{else}}<a class="landing-nav-cta" href="/barber/login">Barber login</a>{{end}}
         </nav>
     </header>
 
     <section class="landing-hero" aria-labelledby="landing-title">
         <div class="landing-hero-copy">
-            <p class="landing-eyebrow"><span aria-hidden="true"></span> Welcome to the De Go Salon</p>
-            <h1 id="landing-title">Your next great cut <em>starts here.</em></h1>
-            <p class="landing-lead">Discover barbers around you, explore their work and prices, and book the style you want with confidence.</p>
+            <p class="landing-eyebrow">Simple barber booking</p>
+            <h1 id="landing-title">Find your barber. <em>Book your next cut.</em></h1>
+            <p class="landing-lead">Browse nearby barbers, compare services and book an appointment.</p>
             <div class="landing-actions">
-                <a class="landing-button" href="/explore">Explore Barbers <span aria-hidden="true">→</span></a>
-                {{if .CustomerSignedIn}}<a class="landing-secondary-button" href="/customer/dashboard">My dashboard</a>{{else}}<a class="landing-secondary-button" href="/customer/register">Create an Account</a>{{end}}
-            </div>
-            <div class="landing-quick-locations" aria-label="Quick state discovery">
-                <span class="landing-quick-label">Browse state:</span>
-                <a href="/explore?state=Lagos" class="landing-loc-chip">Lagos</a>
-                <a href="/explore?state=FCT" class="landing-loc-chip">Abuja (FCT)</a>
-                <a href="/explore?state=Rivers" class="landing-loc-chip">Port Harcourt</a>
-                <a href="/explore?state=Oyo" class="landing-loc-chip">Ibadan</a>
-                <a href="/explore?state=Kano" class="landing-loc-chip">Kano</a>
-                <a href="/explore?state=Enugu" class="landing-loc-chip">Enugu</a>
-            </div>
-            <div class="landing-steps" aria-label="How De Go Salon works">
-                <div><strong>01</strong><span>Discover</span><small>Find barbers by location.</small></div>
-                <div><strong>02</strong><span>Choose</span><small>See their work and prices.</small></div>
-                <div><strong>03</strong><span>Book</span><small>Reserve the style you want.</small></div>
+                <a class="landing-button" href="/explore">Find a Barber</a>
+                {{if .CustomerSignedIn}}<a class="landing-secondary-button" href="/customer/dashboard">My dashboard</a>{{else}}<a class="landing-secondary-button" href="/customer/register">Create account</a>{{end}}
             </div>
         </div>
-
-        <aside class="landing-feature-card" aria-label="De Go Salon discovery">
-            <p class="landing-card-kicker">THE BARBER MULTIVERSE</p>
-            <h2>Good grooming starts with the right barber.</h2>
-            <p>De Go Salon brings discovery, barber portfolios, services, products and appointments into one place.</p>
-            <a href="/explore">Start exploring <span aria-hidden="true">↗</span></a>
-        </aside>
-    </section>
-
-    <section class="landing-trust-banner" aria-label="Platform reach">
-        <div class="trust-stat">
-            <strong>36 States + FCT</strong>
-            <span>Nationwide discovery</span>
+        <div class="landing-visual" aria-hidden="true">
+            {{if .LandingImage}}<img class="landing-media" src="{{.LandingImage}}" srcset="{{imageSrcset .LandingImage}}" sizes="(max-width: 850px) 100vw, 45vw" width="1600" height="1200" alt="" loading="eager" fetchpriority="high" decoding="async">{{else}}<div class="landing-visual-placeholder">DG</div>{{end}}
         </div>
-        <div class="trust-divider" aria-hidden="true"></div>
-        <div class="trust-stat">
-            <strong>Verified Cuts</strong>
-            <span>Real photos & completed reviews</span>
-        </div>
-        <div class="trust-divider" aria-hidden="true"></div>
-        <div class="trust-stat">
-            <strong>Direct Booking</strong>
-            <span>Direct contact with your barber</span>
-        </div>
-    </section>
-
-    <section class="landing-value" aria-label="What you can do with De Go Salon">
-        <article><span aria-hidden="true">⌖</span><div><h2>Find nearby talent</h2><p>Start with your location and discover registered barbers serving your area.</p></div></article>
-        <article><span aria-hidden="true">✦</span><div><h2>See the work first</h2><p>Explore barber profiles, styles, services and prices before you decide.</p></div></article>
-        <article><span aria-hidden="true">✓</span><div><h2>Book with clarity</h2><p>Choose the barber and service that fit you, then manage your appointment in one place.</p></div></article>
     </section>
 </main>
 {{template "public-footer" .}}

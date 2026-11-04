@@ -1,11 +1,11 @@
 /* =========================================================
    DE GO SALON — MULTI-THEME TOKEN LAYER (FE-27)
    =========================================================
-   `static/app.css` defines the Dawn Canopy **Forest** palette in
-   `:root`, and every page already loads it. This file re-colours the
+   `static/app.css` defines the classic white palette in `:root`, and
+   every page already loads it. This file re-colours the
    same semantic tokens to add five more themes:
 
-       forest (default, from :root) · navy · midnight · daylight · ocean · stone
+       white/forest (default, from :root) · navy · midnight · daylight · ocean · stone
 
    Contract (frontreadme.md §2.2):
    - A theme re-assigns *existing* tokens only. It never invents a new
@@ -22,17 +22,16 @@
      so a translucent surface laid over a photograph follows the palette
      as well.
 
-   No attribute is required for Forest: with `data-theme` absent the
-   `:root` values apply, so existing pages are pixel-identical.
+   No attribute is required for the white default: with `data-theme`
+   absent the `:root` values apply.
    ========================================================= */
 
 html[data-theme="forest"] {
-  color-scheme: dark;
+  color-scheme: light;
 }
 
-/* ---- Navy: the Forest palette in navy blue ----
-   The brand green of the Forest theme becomes a navy blue, and nothing
-   else moves: the same token names, the same warm gold action colour,
+/* ---- Navy: the existing navy-blue alternative ----
+   The white default becomes navy blue, while the same warm gold action colour,
    the same spacing, the same type. Only the hue of the surfaces, the
    borders and the ink changes, so a page reads as the same design in a
    different colour rather than as a new design.
@@ -52,6 +51,13 @@ html[data-theme="navy"] {
   --ink-faint: #91a4c0;
   --signal: #f4cb78;
   --signal-ink: #0c1524;
+  --signal-rgb: 244, 203, 120;
+  --danger-soft: #4a2227;
+  --danger-ink: #fecaca;
+  --danger-border: #a6606a;
+  --success-soft: #123c2a;
+  --success-ink: #bbf7d0;
+  --success-border: #528369;
   --void-rgb: 7, 13, 26;
   --base-rgb: 12, 21, 36;
   --surface-rgb: 20, 32, 52;
@@ -73,6 +79,13 @@ html[data-theme="midnight"] {
   --ink-faint: #888888;
   --signal: #f4cb78;
   --signal-ink: #121212;
+  --signal-rgb: 244, 203, 120;
+  --danger-soft: #4a2227;
+  --danger-ink: #fecaca;
+  --danger-border: #a6606a;
+  --success-soft: #123c2a;
+  --success-ink: #bbf7d0;
+  --success-border: #528369;
   --void-rgb: 0, 0, 0;
   --base-rgb: 10, 10, 10;
   --surface-rgb: 20, 20, 20;
@@ -94,6 +107,13 @@ html[data-theme="daylight"] {
   --ink-faint: #707070;
   --signal: #b8851a;
   --signal-ink: #ffffff;
+  --signal-rgb: 184, 133, 26;
+  --danger-soft: #fff1f0;
+  --danger-ink: #b42318;
+  --danger-border: #e5a19b;
+  --success-soft: #ecfdf3;
+  --success-ink: #166534;
+  --success-border: #86c79f;
   --void-rgb: 216, 216, 210;
   --base-rgb: 247, 247, 245;
   --surface-rgb: 255, 255, 255;
@@ -115,6 +135,13 @@ html[data-theme="ocean"] {
   --ink-faint: #7f9dbf;
   --signal: #8bd3f7;
   --signal-ink: #082238;
+  --signal-rgb: 139, 211, 247;
+  --danger-soft: #4a2227;
+  --danger-ink: #fecaca;
+  --danger-border: #a6606a;
+  --success-soft: #123c2a;
+  --success-ink: #bbf7d0;
+  --success-border: #528369;
   --void-rgb: 5, 16, 37;
   --base-rgb: 10, 26, 48;
   --surface-rgb: 16, 38, 63;
@@ -136,6 +163,13 @@ html[data-theme="stone"] {
   --ink-faint: #9a8e7a;
   --signal: #e8b478;
   --signal-ink: #231a0c;
+  --signal-rgb: 232, 180, 120;
+  --danger-soft: #4a2227;
+  --danger-ink: #fecaca;
+  --danger-border: #a6606a;
+  --success-soft: #123c2a;
+  --success-ink: #bbf7d0;
+  --success-border: #528369;
   --void-rgb: 26, 23, 20;
   --base-rgb: 35, 32, 25;
   --surface-rgb: 47, 42, 34;

@@ -10,7 +10,7 @@
 }
 
 .auth-remembered-label {
-    color: var(--ink-muted, #c2d4c7);
+    color: var(--ink-muted, #40516a);
     font-size: .68rem;
     font-weight: 850;
     letter-spacing: .1em;
@@ -18,7 +18,7 @@
 }
 
 .auth-remembered-email {
-    color: var(--ink, #f8f5e9);
+    color: var(--ink, #0c1524);
     font-size: .95rem;
     font-weight: 800;
     overflow-wrap: anywhere;
@@ -27,7 +27,7 @@
 .auth-remembered-switch {
     width: fit-content;
     margin-top: 4px;
-    color: var(--signal, #f4cb78);
+    color: var(--signal, #142034);
     font-size: .78rem;
     font-weight: 750;
 }
@@ -48,10 +48,10 @@
     width: 100%;
     min-height: 58px;
     padding: 12px 16px;
-    border: 1px solid var(--border, #355348);
+    border: 1px solid var(--border, #d8e0ea);
     border-radius: 12px;
     background: rgba(var(--surface-rgb), .72);
-    color: var(--ink, #f8f5e9);
+    color: var(--ink, #0c1524);
     cursor: pointer;
     font: inherit;
     text-align: left;
@@ -59,13 +59,13 @@
 }
 
 .auth-passkey-button:hover {
-    border-color: rgba(244, 203, 120, .55);
-    background: var(--surface-hi, #254137);
+    border-color: rgba(var(--signal-rgb), .55);
+    background: var(--surface-hi, #f4f7fb);
     transform: translateY(-1px);
 }
 
 .auth-passkey-button:focus-visible {
-    outline: 2px solid var(--signal, #f4cb78);
+    outline: 2px solid var(--signal, #142034);
     outline-offset: 2px;
 }
 
@@ -82,8 +82,8 @@
     width: 38px;
     height: 38px;
     border-radius: 10px;
-    background: rgba(244, 203, 120, .12);
-    color: var(--signal, #f4cb78);
+    background: rgba(var(--signal-rgb), .12);
+    color: var(--signal, #142034);
 }
 
 .auth-passkey-icon svg {
@@ -105,7 +105,7 @@
 .auth-passkey-button small {
     display: block;
     margin-top: 2px;
-    color: var(--ink-muted, #c2d4c7);
+    color: var(--ink-muted, #40516a);
     font-size: .72rem;
     line-height: 1.4;
 }
@@ -115,11 +115,11 @@
 }
 
 .auth-passkey .hint[data-state="error"] {
-    color: #fecaca;
+    color: var(--danger-ink);
 }
 
 .auth-passkey .hint[data-state="ok"] {
-    color: #bbf7d0;
+    color: var(--success-ink);
 }
 
 /* Dashboard enrolment card */
@@ -146,7 +146,7 @@
 
 .passkey-settings-copy h2 {
     margin: 0 0 6px;
-    color: var(--ink, #f8f5e9);
+    color: var(--ink, #0c1524);
     font-size: 1.2rem;
     letter-spacing: -.02em;
 }
@@ -154,7 +154,7 @@
 .passkey-settings-copy p {
     margin: 0;
     max-width: 62ch;
-    color: var(--ink-muted, #c2d4c7);
+    color: var(--ink-muted, #40516a);
     font-size: .84rem;
     line-height: 1.55;
 }
@@ -177,11 +177,11 @@
 }
 
 .passkey-settings-action .hint[data-state="error"] {
-    color: #fecaca;
+    color: var(--danger-ink);
 }
 
 .passkey-settings-action .hint[data-state="ok"] {
-    color: #bbf7d0;
+    color: var(--success-ink);
 }
 
 @media (max-width: 600px) {

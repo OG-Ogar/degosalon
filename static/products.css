@@ -753,10 +753,10 @@ RESPONSIVE
 
 .cart-quantity-form{display:grid;gap:.65rem;margin:1rem 0;min-width:0}
 .cart-quantity-form label{font-weight:600;overflow-wrap:anywhere}
-.cart-quantity-form input{width:100%;box-sizing:border-box;min-height:44px;padding:.6rem;background:var(--forest-950,#071f19);color:var(--cream,#f4f0df);border:1px solid var(--gold,#d6b777);border-radius:8px}
-.cart-quantity-form button{min-height:44px;padding:.6rem .85rem;border:1px solid var(--gold,#d6b777);border-radius:8px;background:var(--forest-900,#10382d);color:var(--cream,#f4f0df);cursor:pointer}
-.cart-quantity-form :focus-visible{outline:3px solid var(--gold,#d6b777);outline-offset:3px}
-.cart-problem{padding:1rem;border:1px solid var(--gold,#d6b777);border-radius:12px;color:var(--cream,#f4f0df);background:var(--forest-900,#10382d)}
+.cart-quantity-form input{width:100%;box-sizing:border-box;min-height:44px;padding:.6rem;background:var(--base);color:var(--ink);border:1px solid var(--border-hi);border-radius:8px}
+.cart-quantity-form button{min-height:44px;padding:.6rem .85rem;border:1px solid var(--signal);border-radius:8px;background:var(--signal);color:var(--signal-ink);cursor:pointer}
+.cart-quantity-form :focus-visible{outline:3px solid var(--signal);outline-offset:3px}
+.cart-problem{padding:1rem;border:1px solid #d9b65d;border-radius:12px;color:#7a4e00;background:#fff8e6}
 
 .cart-count-badge {
     display: inline-flex;
@@ -767,7 +767,7 @@ RESPONSIVE
     padding: 0 0.35rem;
     margin-left: 0.4rem;
     border-radius: 999px;
-    background: var(--signal, #f4cb78);
+    background: var(--signal, #142034);
     color: var(--base);
     font-size: 0.75rem;
     font-weight: 800;
@@ -782,8 +782,8 @@ RESPONSIVE
     z-index: 50;
     padding: 0.6rem 1rem;
     border-radius: 10px;
-    background: var(--surface, #193129);
-    border: 1px solid var(--border, #355348);
-    color: var(--ink, #f8f5e9);
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #d8e0ea);
+    color: var(--ink, #0c1524);
     font-size: 0.9rem;
 }

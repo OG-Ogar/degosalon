@@ -364,8 +364,8 @@ img.dashboard-background{width:100%;height:100%;object-fit:cover}
     margin: 1.5rem 0;
     padding: 1.25rem;
     border-radius: 16px;
-    background: var(--surface, #193129);
-    border: 1px solid var(--border, #355348);
+    background: var(--surface, #ffffff);
+    border: 1px solid var(--border, #d8e0ea);
 }
 .barber-search-form {
     display: grid;

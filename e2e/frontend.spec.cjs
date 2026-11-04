@@ -54,6 +54,24 @@ async function checkPage(page,testInfo,name){
  expect(result.violations.map(v=>({id:v.id,nodes:v.nodes.map(n=>({target:n.target,summary:n.failureSummary}))}))).toEqual([]);
  await page.screenshot({path:testInfo.outputPath(name+'.png'),fullPage:true});
 }
+test('classic white is the default and the existing navy theme remains available',async({page})=>{
+ await page.goto('/');
+ const defaultPalette=await page.evaluate(()=>({
+  theme:document.documentElement.getAttribute('data-theme'),
+  surface:getComputedStyle(document.documentElement).getPropertyValue('--void').trim(),
+  page:getComputedStyle(document.querySelector('.landing')).backgroundColor
+ }));
+ expect(defaultPalette.theme).toBeNull();
+ expect(defaultPalette.surface).toBe('#ffffff');
+ expect(defaultPalette.page).toBe('rgb(255, 255, 255)');
+ await page.evaluate(()=>localStorage.setItem('dgs-display-v1',JSON.stringify({theme:'navy'})));
+ await page.reload();
+ const navyPalette=await page.evaluate(()=>({
+  theme:document.documentElement.getAttribute('data-theme'),
+  surface:getComputedStyle(document.documentElement).getPropertyValue('--void').trim()
+ }));
+ expect(navyPalette).toEqual({theme:'navy',surface:'#070d1a'});
+});
 test('customer journeys, public sessions and narrow navigation',async({page},testInfo)=>{
  const email='browser-customer-'+Date.now()+'@example.test';
  const response=await page.request.post('/customer/register',{multipart:{fullname:'A customer with a deliberately long display name',phone:'08012345678',email,password:'browser-pass-123',confirm_password:'browser-pass-123'}});
@@ -360,8 +378,8 @@ test('responsive hero selects a bounded candidate and reserves its layout',async
  expect(measurements.cls).toBeLessThanOrEqual(.1);expect(measurements.lcp).toBeLessThanOrEqual(5000);
  expect(measurements.images).toHaveLength(1);expect(measurements.images[0].bytes).toBeLessThanOrEqual(30*1024);
  await testInfo.attach('media-performance.json',{body:JSON.stringify(measurements,null,2),contentType:'application/json'});
- await page.setViewportSize({width:1280,height:900});await page.reload();
- await expect.poll(()=>hero.evaluate(img=>img.complete && img.naturalWidth > 0 && img.currentSrc.includes("width=1600"))).toBe(true);
+  await page.setViewportSize({width:1280,height:900});await page.reload();
+  await expect.poll(()=>hero.evaluate(img=>img.complete && img.naturalWidth > 0 && img.currentSrc.includes("width=640"))).toBe(true);
 });
 
 test('public and customer discovery page through stable shop results',async({page},testInfo)=>{

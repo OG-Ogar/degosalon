@@ -1,8 +1,8 @@
 "use strict";
 /* The colour switch.
 
-   One click moves the app between the navy green of the Forest palette
-   and its navy blue twin. The choice is kept in `localStorage` so it
+   One click moves the app between the classic white palette and the
+   existing navy blue palette. The choice is kept in `localStorage` so it
    survives a reload, and it is written to the server record so it
    follows the user to another device.
 
@@ -25,7 +25,7 @@
     /* The two palettes the switch moves between. */
     var PAIRS = { forest: "navy", navy: "forest" };
     var NAMES = {
-        forest: "navy green",
+        forest: "white",
         navy: "navy blue",
         midnight: "midnight",
         daylight: "daylight",

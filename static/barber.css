@@ -865,9 +865,9 @@
 .stat-card-header{display:flex;align-items:center;justify-content:space-between;width:100%}
 
 /* Hairstyle card media & badges */
-.barber-hairstyle-media-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:16px 16px 0 0;background:var(--surface-hi,#254137)}
+.barber-hairstyle-media-wrap{position:relative;width:100%;aspect-ratio:4/3;overflow:hidden;border-radius:16px 16px 0 0;background:var(--surface-hi,#f4f7fb)}
 .barber-hairstyle-media-wrap img{width:100%;height:100%;object-fit:cover;display:block}
-.barber-duration-badge{position:absolute;bottom:8px;right:8px;padding:3px 8px;border-radius:6px;background:rgba(var(--void-rgb),.88);color:var(--signal,#f4cb78);font-size:.72rem;font-weight:750;backdrop-filter:blur(8px);border:1px solid rgba(244,203,120,.25)}
+.barber-duration-badge{position:absolute;bottom:8px;right:8px;padding:3px 8px;border-radius:6px;background:rgba(var(--void-rgb),.88);color:var(--signal,#142034);font-size:.72rem;font-weight:750;backdrop-filter:blur(8px);border:1px solid rgba(var(--signal-rgb),.25)}
 .barber-card-pricing{margin:6px 0}
 .barber-showcase-media{width:100%;max-width:540px;aspect-ratio:16/9;overflow:hidden;border-radius:14px;margin-bottom:20px}
 .barber-showcase-media img{width:100%;height:100%;object-fit:cover}
@@ -877,20 +877,20 @@
 .schedule-rules-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:14px}
 .calendar-days-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:14px}
 .calendar-day-card{margin:0;padding:18px;border:1px solid rgba(var(--border-hi-rgb),.42);border-radius:14px;background:linear-gradient(145deg,rgba(var(--surface-hi-rgb),.5),rgba(var(--surface-rgb),.38))}
-.calendar-day-legend{padding:0 8px;font-size:1.05rem;font-weight:800;color:var(--signal,#f4cb78);letter-spacing:-.02em}
+.calendar-day-legend{padding:0 8px;font-size:1.05rem;font-weight:800;color:var(--signal,#142034);letter-spacing:-.02em}
 .calendar-day-card.day-closed{opacity:.72;border-style:dashed}
 .day-toggle-row{margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid rgba(var(--ink-muted-rgb),.1)}
-.day-closed-label{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;color:var(--ink,#f8f5e9);cursor:pointer}
+.day-closed-label{display:inline-flex;align-items:center;gap:8px;font-size:.85rem;font-weight:700;color:var(--ink,#0c1524);cursor:pointer}
 .day-times-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.day-times-grid label{font-size:.76rem;color:var(--ink-muted,#c2d4c7);font-weight:700}
-.day-times-grid input{width:100%;min-height:40px;padding:6px 10px;border:1px solid var(--border,#355348);border-radius:8px;background:var(--base,#10221d);color:var(--ink,#f8f5e9);font:inherit}
-.time-off-section textarea{width:100%;padding:12px;border:1px solid var(--border,#355348);border-radius:10px;background:var(--base,#10221d);color:var(--ink,#f8f5e9);font:inherit;margin-top:8px}
+.day-times-grid label{font-size:.76rem;color:var(--ink-muted,#40516a);font-weight:700}
+.day-times-grid input{width:100%;min-height:40px;padding:6px 10px;border:1px solid var(--border,#d8e0ea);border-radius:8px;background:var(--base,#ffffff);color:var(--ink,#0c1524);font:inherit}
+.time-off-section textarea{width:100%;padding:12px;border:1px solid var(--border,#d8e0ea);border-radius:10px;background:var(--base,#ffffff);color:var(--ink,#0c1524);font:inherit;margin-top:8px}
 
 /* Product stock warning badges */
 .product-meta-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:8px 0;gap:8px}
 .stock-badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:.72rem;font-weight:750;letter-spacing:.02em}
-.stock-badge.in-stock{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.35)}
-.stock-badge.low-stock{background:rgba(244,203,120,.15);color:var(--signal,#f4cb78);border:1px solid rgba(244,203,120,.4)}
+.stock-badge.in-stock{background:rgba(34,197,94,.12);color:var(--success-ink);border:1px solid rgba(34,197,94,.35)}
+.stock-badge.low-stock{background:rgba(var(--signal-rgb),.15);color:var(--signal,#142034);border:1px solid rgba(var(--signal-rgb),.4)}
 .stock-badge.out-of-stock{background:rgba(239,68,68,.15);color:#fca5a5;border:1px solid rgba(239,68,68,.4)}
 
 @media(max-width:768px){
@@ -968,9 +968,9 @@
     .barber-table tr {
         margin-bottom: 1rem;
         padding: 0.75rem 1rem;
-        border: 1px solid var(--border, #355348);
+        border: 1px solid var(--border, #d8e0ea);
         border-radius: 14px;
-        background: var(--surface, #193129);
+        background: var(--surface, #ffffff);
     }
 
     .barber-table td {
@@ -999,7 +999,7 @@
         font-weight: 700;
         letter-spacing: 0.06em;
         text-transform: uppercase;
-        color: var(--ink-muted, #c2d4c7);
+        color: var(--ink-muted, #40516a);
     }
 
     .barber-table td .barber-actions {
@@ -1032,12 +1032,12 @@
     aspect-ratio: 1 / 1;
     overflow: hidden;
     border-radius: 12px;
-    background: var(--surface-hi, #254137);
+    background: var(--surface-hi, #f4f7fb);
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 800;
-    color: var(--signal, #f4cb78);
+    color: var(--signal, #142034);
 }
 
 .order-product-image img {

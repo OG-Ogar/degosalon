@@ -1,6 +1,6 @@
 {{define "theme-switch"}}
-<!-- The colour switch: one click between the navy green of the brand
-     palette and its navy blue twin. It carries the address of the
+<!-- The colour switch: one click between the white brand palette and
+     its navy blue alternative. It carries the address of the
      preference record and the token that authorises the write, so the
      script can keep the server copy of the choice in step. -->
 <button class="site-nav-theme-switch" type="button" data-theme-switch="navy" data-theme-endpoint="/{{.Role}}/settings/preferences" data-csrf-token="{{.CSRF}}" title="Switch colour to navy blue">

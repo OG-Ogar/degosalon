@@ -242,11 +242,11 @@ func (p *Provider) ReadState(cookieValue string) (StatePayload, error) {
 		return StatePayload{}, ErrInvalidState
 	}
 	got, err := base64.RawURLEncoding.DecodeString(signature)
-	if err != nil || subtle.ConstantTimeCompare(got, p.mac(body)) != 1 {
+	if err != nil || base64.RawURLEncoding.EncodeToString(got) != signature || subtle.ConstantTimeCompare(got, p.mac(body)) != 1 {
 		return StatePayload{}, ErrInvalidState
 	}
 	data, err := base64.RawURLEncoding.DecodeString(body)
-	if err != nil {
+	if err != nil || base64.RawURLEncoding.EncodeToString(data) != body {
 		return StatePayload{}, ErrInvalidState
 	}
 	var payload StatePayload

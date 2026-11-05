@@ -12,13 +12,13 @@ import (
 	"strings"
 )
 
-// Chat attachments have their own caps: a phone photo is often well over the
-// 5 MiB catalogue limit, and a short clip is far larger still. The body limit
-// covers the biggest single attachment the composer can produce.
+// Chat photos and videos share the media bucket's per-object ceiling. Photos
+// are normalized before cloud storage, so large camera originals can still
+// fit under a provider's lower post-normalization limit.
 const (
-	maxChatPhotoBytes      = 50 << 20
-	maxChatVideoBytes      = 500 << 20
-	maxChatAttachmentBytes = maxChatVideoBytes
+	maxChatPhotoBytes      = mediastore.MaxFileBytes
+	maxChatVideoBytes      = mediastore.MaxFileBytes
+	maxChatAttachmentBytes = mediastore.MaxFileBytes
 	maxVoiceBytes          = 8 << 20
 )
 

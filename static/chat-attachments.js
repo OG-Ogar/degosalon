@@ -18,10 +18,9 @@
   var form = document.querySelector('[data-chat-composer]');
   if (!form) return;
 
-  // The composer accepts one photo or clip, and voice notes on their own.
-  // The server accepts the same caps; these only catch a mistake early.
-  var MAX_IMAGE = 50 * 1024 * 1024;
-  var MAX_VIDEO = 500 * 1024 * 1024;
+  // Photos and videos share the media storage ceiling. The server remains
+  // authoritative, and the storage provider may enforce a lower plan limit.
+  var MAX_ATTACHMENT = 500 * 1024 * 1024;
   var MAX_VOICE = 8 * 1024 * 1024;
   var MAX_SECONDS = 120;
   var SLIDE_CANCEL = 140;
@@ -105,15 +104,9 @@
     }
 
     var video = isVideoFile(file);
-    var limit = video ? MAX_VIDEO : MAX_IMAGE;
-    if (file.size > limit) {
+    if (file.size > MAX_ATTACHMENT) {
       clearAttachment();
-      status(
-        video
-          ? 'That video is larger than 500 MB. Choose a shorter clip.'
-          : 'That photo is larger than 50 MB. Choose a smaller one.',
-        true
-      );
+      status('This file is larger than the 500 MB app limit. Your storage provider may allow less.', true);
       return;
     }
 

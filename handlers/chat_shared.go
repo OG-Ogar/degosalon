@@ -50,7 +50,7 @@ func readChatMessage(r *http.Request) (text, image, audio, video, problem string
 				return text, "", "", "", "That photo or video is larger than the storage bucket allows. Use a smaller file, or ask the site owner to raise the Supabase file size limit."
 			}
 
-			return text, "", "", "", "That photo or video could not be sent. Use a JPEG, PNG, GIF or WebP image under 50 MB, or an MP4, WebM or MOV video under 500 MB."
+			return text, "", "", "", "That photo or video could not be sent. Use a supported image or video format and keep it under the 500 MB app limit. Your storage provider may allow less."
 		}
 
 		image, video = "", ""

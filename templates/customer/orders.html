@@ -18,7 +18,7 @@
         {{range .ProductOrders}}
           <article class="appointment-card">
             <div class="appointment-date"><span>Order #{{.ID}}</span><strong>{{.CreatedAt.Format "02 Jan 2006"}}</strong></div>
-            <div class="appointment-details"><h2>{{naira .TotalAmount}}</h2>{{template "domain-status" (domainStatus "order" .Status)}}</div>
+            <div class="appointment-details"><h2>{{naira .TotalAmount}}</h2><p>{{.CustomerName}}</p>{{template "domain-status" (domainStatus "order" .Status)}}</div>
             <div class="appointment-status"><a class="section-link" href="/customer/order-confirmation/{{.ID}}">View order</a></div>
           </article>
         {{end}}

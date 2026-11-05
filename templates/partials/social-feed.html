@@ -1,9 +1,9 @@
 {{define "social-feed"}}
 <section class="social-home" aria-label="Community home feed">
   <div class="social-home-heading">
-    <div class="social-own-avatar">
+    <a class="social-own-avatar" href="{{.ProfilePath}}" aria-label="Open your profile">
       {{if .ActorPhoto}}<img src="{{.ActorPhoto}}" alt="" width="46" height="46" loading="lazy">{{else}}<span>{{printf "%.1s" .ActorName}}</span>{{end}}
-    </div>
+    </a>
     <div><p class="social-kicker">De Go Salon community</p><h1>Home</h1></div>
   </div>
 
@@ -26,34 +26,11 @@
       </section>
       {{end}}
 
-      <section class="social-composer" aria-label="Create a post">
-        <form method="post" action="{{.PostAction}}" enctype="multipart/form-data" data-social-composer>
-          <input type="hidden" name="csrf_token" value="{{.CSRF}}">
-          <div class="social-composer-top">
-            <div class="social-own-avatar social-own-avatar-small">
-              {{if .ActorPhoto}}<img src="{{.ActorPhoto}}" alt="" width="40" height="40" loading="lazy">{{else}}<span>{{printf "%.1s" .ActorName}}</span>{{end}}
-            </div>
-            <label class="visually-hidden" for="social-post-text">What's on your mind?</label>
-            <textarea id="social-post-text" name="text" maxlength="2000" rows="2" placeholder="What's on your mind, {{.ActorName}}?" data-social-text></textarea>
-          </div>
-          <div class="social-post-preview" data-social-preview hidden>
-            <img data-social-preview-image alt="Selected photo" hidden>
-            <video data-social-preview-video controls playsinline preload="metadata" hidden></video>
-            <button type="button" data-social-remove aria-label="Remove attachment">Remove</button>
-          </div>
-          <div class="social-composer-tools">
-            <label class="social-tool social-media-picker">Add photo or video<input type="file" name="attachment" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime,video/x-m4v,video/3gpp" data-social-file></label>
-            <label class="social-tool">Text color
-              <select name="text_color" data-social-color>
-                <option value="#0c1524">Dark</option><option value="#142034">Navy</option><option value="#7a4a1e">Brown</option><option value="#9b2c2c">Red</option><option value="#166534">Green</option><option value="#4c1d95">Purple</option>
-              </select>
-            </label>
-            <label class="social-tool">Text style
-              <select name="text_style" data-social-style><option value="normal">Normal</option><option value="bold">Bold</option><option value="italic">Italic</option></select>
-            </label>
-          </div>
-          <div class="social-composer-bottom"><span data-social-status role="status" hidden></span><button type="submit" class="social-post-button">Post</button></div>
-        </form>
+      <section class="social-composer social-composer-launch" aria-label="Create a post">
+        <a class="social-composer-avatar" href="{{.ProfilePath}}" aria-label="Open your profile">
+          {{if .ActorPhoto}}<img src="{{.ActorPhoto}}" alt="" width="40" height="40" loading="lazy">{{else}}<span>{{printf "%.1s" .ActorName}}</span>{{end}}
+        </a>
+        <a class="social-composer-prompt" href="/{{.Role}}/posts/new">What's on your mind, {{.ActorName}}?</a>
       </section>
 
       <div class="social-post-list" aria-label="Community posts">
@@ -64,7 +41,7 @@
               <div class="social-author-avatar">{{if .AuthorImage}}<img src="{{.AuthorImage}}" alt="" loading="lazy">{{else}}<span>{{printf "%.1s" .AuthorName}}</span>{{end}}</div>
               <div><strong>{{.AuthorName}}</strong><span>{{if eq .AuthorRole "barber"}}Barber{{else}}Customer{{end}} &middot; <time>{{.CreatedAt.Format "Jan 2, 2006 · 3:04 PM"}}</time></span></div>
             </header>
-            {{if .Text}}<p class="social-post-text {{if eq .TextStyle "bold"}}is-bold{{else if eq .TextStyle "italic"}}is-italic{{end}}" style="color:{{.TextColor}}">{{.Text}}</p>{{end}}
+            {{if .Text}}<p class="social-post-text {{if eq .TextStyle "bold"}}is-bold{{else if eq .TextStyle "italic"}}is-italic{{end}}" style="background-color:{{.BackgroundColor}}">{{.Text}}</p>{{end}}
             {{if .Image}}<img class="social-post-media" src="{{.Image}}" alt="Photo posted by {{.AuthorName}}" loading="lazy">{{end}}
             {{if .Video}}<video class="social-post-media" src="{{.Video}}" controls playsinline preload="metadata">Your browser cannot play this video.</video>{{end}}
             <div class="social-post-actions">

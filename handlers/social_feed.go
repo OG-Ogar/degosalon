@@ -16,14 +16,15 @@ import (
 const socialAttachmentLimit = mediastore.MaxFileBytes
 
 type socialFeedView struct {
-	Role       string
-	ActorName  string
-	ActorPhoto string
-	CSRF       string
-	PostAction string
-	Posts      []models.SocialPost
-	Statuses   []models.HairstyleStatus
-	Error      string
+	Role        string
+	ActorName   string
+	ActorPhoto  string
+	ProfilePath string
+	CSRF        string
+	PostAction  string
+	Posts       []models.SocialPost
+	Statuses    []models.HairstyleStatus
+	Error       string
 }
 
 func loadSocialFeed(r *http.Request, role string, actorID int, actorName, actorPhoto, csrf string) (socialFeedView, error) {
@@ -35,7 +36,16 @@ func loadSocialFeed(r *http.Request, role string, actorID int, actorName, actorP
 	if err != nil {
 		return socialFeedView{}, err
 	}
-	return socialFeedView{Role: role, ActorName: actorName, ActorPhoto: actorPhoto, CSRF: csrf, PostAction: "/" + role + "/dashboard", Posts: posts, Statuses: statuses}, nil
+	return socialFeedView{Role: role, ActorName: actorName, ActorPhoto: actorPhoto, ProfilePath: "/" + role + "/profile", CSRF: csrf, PostAction: "/" + role + "/posts", Posts: posts, Statuses: statuses}, nil
+}
+
+func SocialPostComposerHandler(w http.ResponseWriter, r *http.Request, role, actorName, actorPhoto string, s sessionData) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+		return
+	}
+	view := socialFeedView{Role: role, ActorName: actorName, ActorPhoto: actorPhoto, ProfilePath: "/" + role + "/profile", CSRF: s.CSRFToken, PostAction: "/" + role + "/posts"}
+	render(w, "social-post-compose.html", view)
 }
 
 func createSocialPost(w http.ResponseWriter, r *http.Request, role string, actorID int, actorName, actorPhoto string, s sessionData) {
@@ -62,9 +72,9 @@ func createSocialPost(w http.ResponseWriter, r *http.Request, role string, actor
 		imageURL, videoURL = "", ""
 	}
 	post := models.SocialPost{AuthorRole: role, AuthorID: actorID, AuthorName: actorName, AuthorImage: actorPhoto, Text: text,
-		TextColor: strings.ToLower(strings.TrimSpace(r.PostFormValue("text_color"))), TextStyle: strings.TrimSpace(r.PostFormValue("text_style")), Image: imageURL, Video: videoURL}
-	if post.TextColor == "" {
-		post.TextColor = "#0c1524"
+		BackgroundColor: strings.ToLower(strings.TrimSpace(r.PostFormValue("background_color"))), TextStyle: strings.TrimSpace(r.PostFormValue("text_style")), Image: imageURL, Video: videoURL}
+	if post.BackgroundColor == "" {
+		post.BackgroundColor = "#fff0c2"
 	}
 	if post.TextStyle == "" {
 		post.TextStyle = "normal"

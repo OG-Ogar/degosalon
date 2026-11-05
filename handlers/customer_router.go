@@ -63,6 +63,12 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 2 && parts[1] == "dashboard":
 		CustomerDashboardHandler(w, r, customer, s)
 
+	case len(parts) == 2 && parts[1] == "posts":
+		createSocialPost(w, r, models.SenderCustomer, customer.ID, customer.FullName, customer.ProfileImage, s)
+
+	case len(parts) == 3 && parts[1] == "posts" && parts[2] == "new":
+		SocialPostComposerHandler(w, r, models.SenderCustomer, customer.FullName, customer.ProfileImage, s)
+
 	case len(parts) == 4 && parts[1] == "posts" && (parts[3] == "like" || parts[3] == "comments"):
 		SocialPostActionHandler(w, r, models.SenderCustomer, customer.ID, customer.FullName, customer.ProfileImage, s, parts[2], parts[3])
 

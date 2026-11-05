@@ -34,9 +34,9 @@ func CreateSocialPost(ctx context.Context, post models.SocialPost) (models.Socia
 	ctx, cancel := databaseContext(ctx)
 	defer cancel()
 	post.Text = strings.TrimSpace(post.Text)
-	post.TextColor = strings.ToLower(strings.TrimSpace(post.TextColor))
+	post.BackgroundColor = strings.ToLower(strings.TrimSpace(post.BackgroundColor))
 	post.TextStyle = strings.TrimSpace(post.TextStyle)
-	if !validSocialActor(post.AuthorRole, post.AuthorID) || utf8.RuneCountInString(post.Text) > socialPostMaxRunes || !validSocialAppearance(post.TextColor, post.TextStyle) || (post.Image != "" && post.Video != "") || (post.Text == "" && post.Image == "" && post.Video == "") {
+	if !validSocialActor(post.AuthorRole, post.AuthorID) || utf8.RuneCountInString(post.Text) > socialPostMaxRunes || !validSocialAppearance(post.BackgroundColor, post.TextStyle) || (post.Image != "" && post.Video != "") || (post.Text == "" && post.Image == "" && post.Video == "") {
 		return models.SocialPost{}, ErrInvalidSocialPost
 	}
 	if err := ctx.Err(); err != nil {
@@ -46,13 +46,13 @@ func CreateSocialPost(ctx context.Context, post models.SocialPost) (models.Socia
 		var query string
 		switch post.AuthorRole {
 		case models.SenderCustomer:
-			query = `insert into public.social_posts(author_role,customer_id,body,text_color,text_style,image,video)
+			query = `insert into public.social_posts(author_role,customer_id,body,background_color,text_style,image,video)
 select 'customer',id,$2,$3,$4,$5,$6 from public.customers where id=$1 returning id,created_at`
 		case models.SenderBarber:
-			query = `insert into public.social_posts(author_role,barber_id,body,text_color,text_style,image,video)
+			query = `insert into public.social_posts(author_role,barber_id,body,background_color,text_style,image,video)
 select 'barber',id,$2,$3,$4,$5,$6 from public.barbers where id=$1 and status='Active' returning id,created_at`
 		}
-		err := db.QueryRowContext(ctx, query, post.AuthorID, post.Text, post.TextColor, post.TextStyle, post.Image, post.Video).Scan(&post.ID, &post.CreatedAt)
+		err := db.QueryRowContext(ctx, query, post.AuthorID, post.Text, post.BackgroundColor, post.TextStyle, post.Image, post.Video).Scan(&post.ID, &post.CreatedAt)
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.SocialPost{}, ErrNotFound
 		}
@@ -91,7 +91,7 @@ func HomeFeed(ctx context.Context, role string, actorID int) ([]models.SocialPos
 	if databaseEnabled() {
 		query := `select p.id,p.author_role,p.customer_id,p.barber_id,
  coalesce(c.full_name,b.full_name,''),coalesce(nullif(c.profile_image,''),nullif(b.personal_image,''),b.profile_image,''),
- p.body,p.text_color,p.text_style,p.image,p.video,p.created_at,
+ p.body,p.background_color,p.text_style,p.image,p.video,p.created_at,
  (select count(*) from public.social_post_likes l where l.post_id=p.id),
  exists(select 1 from public.social_post_likes l where l.post_id=p.id and (($1='customer' and l.customer_id=$2) or ($1='barber' and l.barber_id=$2))),
  coalesce((select json_agg(q) from (
@@ -114,7 +114,7 @@ func HomeFeed(ctx context.Context, role string, actorID int) ([]models.SocialPos
 			var customerID, barberID sql.NullInt64
 			var comments []byte
 			err := rows.Scan(&post.ID, &post.AuthorRole, &customerID, &barberID, &post.AuthorName, &post.AuthorImage,
-				&post.Text, &post.TextColor, &post.TextStyle, &post.Image, &post.Video, &post.CreatedAt,
+				&post.Text, &post.BackgroundColor, &post.TextStyle, &post.Image, &post.Video, &post.CreatedAt,
 				&post.LikeCount, &post.LikedByMe, &comments)
 			if err != nil {
 				return post, err
@@ -324,7 +324,7 @@ func validSocialActor(role string, id int) bool {
 	return id > 0 && (role == models.SenderCustomer || role == models.SenderBarber)
 }
 func validSocialAppearance(color, style string) bool {
-	colors := map[string]bool{"#0c1524": true, "#142034": true, "#7a4a1e": true, "#9b2c2c": true, "#166534": true, "#4c1d95": true}
+	colors := map[string]bool{"#fff0c2": true, "#e8f1ff": true, "#e8f7ec": true, "#fae8ef": true, "#eee9ff": true, "#ffffff": true}
 	return colors[color] && (style == "normal" || style == "bold" || style == "italic")
 }
 func socialActorExistsLocked(role string, id int) bool {

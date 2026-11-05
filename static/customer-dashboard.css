@@ -16,7 +16,7 @@ body {
     position: relative;
     min-height: 100vh;
     overflow: hidden;
-    color: #ffffff;
+    color: var(--page-ink, #0c1524);
 }
 
 .dashboard-background {
@@ -183,7 +183,7 @@ body {
 
     margin-top: 7px;
 
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--page-muted, #40516a);
 
     font-size: 0.9rem;
 }
@@ -251,7 +251,7 @@ body {
 }
 
 .appointment-date span {
-    color: rgba(255, 255, 255, 0.65);
+    color: var(--page-faint, #68778d);
     font-size: 0.85rem;
 }
 
@@ -271,7 +271,7 @@ body {
 }
 
 .appointment-details > span {
-    color: rgba(255, 255, 255, 0.62);
+    color: var(--page-faint, #68778d);
     font-size: 0.9rem;
 }
 
@@ -300,7 +300,7 @@ body {
 .empty-appointments p {
     margin: 0 0 20px;
 
-    color: rgba(255, 255, 255, 0.7);
+    color: var(--page-muted, #40516a);
 }
 
 @media (max-width: 850px) {

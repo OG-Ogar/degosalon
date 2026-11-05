@@ -97,6 +97,11 @@ func mediaReferencedLocked(uri string) bool {
 			return true
 		}
 	}
+	for _, post := range socialPosts {
+		if post.Image == uri || post.Video == uri {
+			return true
+		}
+	}
 	return false
 }
 
@@ -106,6 +111,7 @@ const mediaReferenceSQL = `select exists(
  select 1 from public.hairstyles where image=$1 or video=$1 union all
  select 1 from public.products where image=$1 or video=$1 union all
  select 1 from public.messages where image=$1 or audio=$1 or video=$1 union all
+ select 1 from public.social_posts where image=$1 or video=$1 union all
  select 1 from degosalon_internal.site_media where image_url=$1
 )`
 

@@ -75,7 +75,7 @@ func validPath(path string) bool {
 		return false
 	}
 	switch parts[0] {
-	case "hairstyles", "hairstyle-videos", "products", "product-videos", "barbers", "customers", "site",
+	case "hairstyles", "hairstyle-videos", "products", "product-videos", "barbers", "customers", "site", "posts", "post-videos",
 		"chat", "chat-voice", "chat-video":
 	default:
 		return false
@@ -172,7 +172,7 @@ func (s *Store) Owns(uri string) bool {
 	}
 	extension := parts[1][strings.LastIndex(parts[1], ".")+1:]
 	switch parts[0] {
-	case "hairstyle-videos", "product-videos", "chat-video":
+	case "hairstyle-videos", "product-videos", "post-videos", "chat-video":
 		return mediaKind(extension) == "video"
 	case "chat-voice":
 		return mediaKind(extension) == "audio"
@@ -234,10 +234,10 @@ func LegacyObjectPath(uri string) (string, bool) {
 		return "", false
 	}
 	extension := parts[1][at+1:]
-	video := extension == "mp4" || extension == "webm" || extension == "mov"
+	video := extension == "mp4" || extension == "webm" || extension == "mov" || extension == "m4v" || extension == "3gp"
 	image := extension == "jpg" || extension == "jpeg" || extension == "png" || extension == "gif" || extension == "webp"
 	switch parts[0] {
-	case "hairstyle-videos", "product-videos":
+	case "hairstyle-videos", "product-videos", "post-videos":
 		return path, video
 	case "chat-voice", "chat-video":
 		// Chat attachments are not part of the legacy catalogue migration;

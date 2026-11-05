@@ -278,6 +278,8 @@ func removeChatMedia(url string) {
 		{chatImages.urlPath, chatImages.dir},
 		{chatVideos.urlPath, chatVideos.dir},
 		{chatVoice.urlPath, chatVoice.dir},
+		{socialPostImages.urlPath, socialPostImages.dir},
+		{socialPostVideos.urlPath, socialPostVideos.dir},
 	} {
 		if !strings.HasPrefix(url, prefix.urlPath) {
 			continue

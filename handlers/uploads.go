@@ -79,6 +79,9 @@ var (
 		dir:     "uploads/site",
 		urlPath: "/uploads/site/",
 	}
+
+	socialPostImages = imageStore{dir: "uploads/posts", urlPath: "/uploads/posts/"}
+	socialPostVideos = videoStore{dir: "uploads/post-videos", urlPath: "/uploads/post-videos/"}
 )
 
 var imageStores = []imageStore{

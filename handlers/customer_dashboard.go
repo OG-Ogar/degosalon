@@ -22,6 +22,7 @@ type customerEditView struct {
 // they have booked, and how many barbers they can browse.
 type customerDashboardView struct {
 	models.Customer
+	Feed socialFeedView
 
 	CSRF            string
 	OrderPagination listPagination
@@ -47,6 +48,10 @@ func CustomerDashboardHandler(
 	customer models.Customer,
 	s sessionData,
 ) {
+	if r.Method == http.MethodPost {
+		createSocialPost(w, r, models.SenderCustomer, customer.ID, customer.FullName, customer.ProfileImage, s)
+		return
+	}
 	if r.Method != http.MethodGet {
 		methodNotAllowed(w, http.MethodGet)
 
@@ -96,6 +101,11 @@ func CustomerDashboardHandler(
 		serverError(w, "load dashboard image setting", err)
 		return
 	}
+	feed, err := loadSocialFeed(r, models.SenderCustomer, customer.ID, customer.FullName, customer.ProfileImage, s.CSRFToken)
+	if err != nil {
+		serverError(w, "load social home feed", err)
+		return
+	}
 	activeBarbers, err := storage.ListActiveBarbersResult(r.Context())
 	if err != nil {
 		serverError(w, "load dashboard states", err)
@@ -124,6 +134,7 @@ func CustomerDashboardHandler(
 		Conversations:   conversations,
 		CartCount:       cartCount,
 		BackgroundImage: backgroundImage,
+		Feed:            feed,
 	}
 
 	view.Customer.PasswordHash = ""

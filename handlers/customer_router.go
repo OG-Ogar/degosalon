@@ -1,6 +1,10 @@
 package handlers
 
-import "net/http"
+import (
+	"net/http"
+
+	"barber-booking/models"
+)
 
 func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	defer cleanupMultipart(r)
@@ -58,6 +62,9 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 
 	case len(parts) == 2 && parts[1] == "dashboard":
 		CustomerDashboardHandler(w, r, customer, s)
+
+	case len(parts) == 4 && parts[1] == "posts" && (parts[3] == "like" || parts[3] == "comments"):
+		SocialPostActionHandler(w, r, models.SenderCustomer, customer.ID, customer.FullName, customer.ProfileImage, s, parts[2], parts[3])
 
 	case len(parts) == 2 && parts[1] == "profile":
 		CustomerProfileHandler(w, r, customer, s)

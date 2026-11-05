@@ -28,24 +28,29 @@ var (
 	mu sync.RWMutex
 	db *sql.DB
 
-	barbers    []models.Barber
-	customers  []models.Customer
-	hairstyles []models.Hairstyle
-	products   []models.Product
-	bookings   []models.Booking
-	messages   []models.Message
+	barbers        []models.Barber
+	customers      []models.Customer
+	hairstyles     []models.Hairstyle
+	products       []models.Product
+	bookings       []models.Booking
+	messages       []models.Message
+	socialPosts    []models.SocialPost
+	socialComments []models.SocialComment
+	socialLikes    map[socialLikeKey]bool
 
 	passkeys          = map[string]models.Passkey{}
 	rememberedDevices = map[string]models.RememberedDevice{}
 )
 
 var (
-	lastBarberID    int
-	lastCustomerID  int
-	lastHairstyleID int
-	lastProductID   int
-	lastBookingID   int
-	lastMessageID   int
+	lastBarberID        int
+	lastCustomerID      int
+	lastHairstyleID     int
+	lastProductID       int
+	lastBookingID       int
+	lastMessageID       int
+	lastSocialPostID    int
+	lastSocialCommentID int
 )
 
 // InitDatabase enables Supabase/Postgres persistence when DATABASE_URL is set.
@@ -107,6 +112,9 @@ func Reset() {
 	hairstyles = nil
 	bookings = nil
 	messages = nil
+	socialPosts = nil
+	socialComments = nil
+	socialLikes = make(map[socialLikeKey]bool)
 	products = nil
 	carts = make(map[int]map[int]int)
 	calendars = make(map[int]models.Calendar)
@@ -126,6 +134,8 @@ func Reset() {
 	lastHairstyleID = 0
 	lastBookingID = 0
 	lastMessageID = 0
+	lastSocialPostID = 0
+	lastSocialCommentID = 0
 	lastProductID = 0
 	auditEvents = nil
 	lastAuditID = 0

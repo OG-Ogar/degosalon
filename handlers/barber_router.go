@@ -74,6 +74,13 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 2 && parts[1] == "dashboard":
 		BarberDashboardHandler(w, r, barber, s)
 
+	case len(parts) == 4 && parts[1] == "posts" && (parts[3] == "like" || parts[3] == "comments"):
+		photo := barber.PersonalImage
+		if photo == "" {
+			photo = barber.ProfileImage
+		}
+		SocialPostActionHandler(w, r, models.SenderBarber, barber.ID, barber.FullName, photo, s, parts[2], parts[3])
+
 	case len(parts) == 2 && parts[1] == "profile":
 		MyProfileHandler(w, r, barber, s)
 

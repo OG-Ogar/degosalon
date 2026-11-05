@@ -12,6 +12,7 @@ import (
 // counts that tell them whether anything needs attention.
 type barberDashboardView struct {
 	models.Barber
+	Feed socialFeedView
 
 	CSRF            string
 	PasskeyRole     string
@@ -33,6 +34,14 @@ func BarberDashboardHandler(
 	barber models.Barber,
 	s sessionData,
 ) {
+	actorPhoto := barber.PersonalImage
+	if actorPhoto == "" {
+		actorPhoto = barber.ProfileImage
+	}
+	if r.Method == http.MethodPost {
+		createSocialPost(w, r, models.SenderBarber, barber.ID, barber.FullName, actorPhoto, s)
+		return
+	}
 	if r.Method != http.MethodGet {
 		methodNotAllowed(w, http.MethodGet)
 
@@ -72,6 +81,11 @@ func BarberDashboardHandler(
 		serverError(w, "load dashboard conversations", err)
 		return
 	}
+	feed, err := loadSocialFeed(r, models.SenderBarber, barber.ID, barber.FullName, actorPhoto, s.CSRFToken)
+	if err != nil {
+		serverError(w, "load social home feed", err)
+		return
+	}
 	render(w, "barber/dashboard.html", barberDashboardView{
 		Barber:           barber,
 		CSRF:             s.CSRFToken,
@@ -83,6 +97,7 @@ func BarberDashboardHandler(
 		ProductOrders:    orderItems.Items,
 		OrderPagination:  orderLinks,
 		OrderStatus:      status,
+		Feed:             feed,
 	})
 }
 

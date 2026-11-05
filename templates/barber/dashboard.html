@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Barber Dashboard - De Go Salon</title>
+    <title>Barber Home - De Go Salon</title>
 
     <script src="/static/theme-switch.js"></script>
     <link rel="stylesheet" href="/static/app.css">
     <link rel="stylesheet" href="/static/barber.css">
+    <link rel="stylesheet" href="/static/social-feed.css">
     <link rel="stylesheet" href="/static/passkey.css">
     <link rel="stylesheet" href="/static/image-viewer.css">
     <link rel="stylesheet" href="/static/ui.css">
@@ -17,11 +18,17 @@
     <script src="/static/app.js" defer></script>
     <script src="/static/image-viewer.js" defer></script>
     <script src="/static/passkey.js" defer></script>
+    <script src="/static/social-feed.js" defer></script>
 </head>
 
 <body class="barber-page modern-role-page modern-barber-page">
 
 {{template "role-header" (navigation "barber" "dashboard" .)}}
+
+{{template "social-feed" .Feed}}
+
+<details class="legacy-dashboard">
+  <summary>Bookings, orders and account overview</summary>
 
 <main class="barber-main ui-page">
 
@@ -247,6 +254,7 @@
     </section>
 
 </main>
+</details>
 
 {{template "public-footer" .}}
 </body>

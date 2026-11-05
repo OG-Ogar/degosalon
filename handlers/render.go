@@ -413,7 +413,11 @@ func viewString(data any, name string) string {
 }
 func navigation(role, active string, data any) navigationView {
     view := navigationView{Role: role, CSRF: viewString(data, "CSRF")}
-    destinations := [][2]string{{"dashboard", "Dashboard"}}
+    homeLabel := "Dashboard"
+    if role == "customer" || role == "barber" {
+        homeLabel = "Home"
+    }
+    destinations := [][2]string{{"dashboard", homeLabel}}
     switch role {
     case "customer":
         destinations = append(destinations, [2]string{"barbers", "Find a Barber"}, [2]string{"products", "Products"}, [2]string{"cart", "Cart"}, [2]string{"bookings", "My Bookings"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})

@@ -18,6 +18,7 @@ const allMediaReferencesSQL = `select profile_image as uri from public.barbers u
  select personal_image from public.barbers union all select profile_image from public.customers union all
  select image from public.hairstyles union all select video from public.hairstyles union all
  select image from public.products union all select video from public.products union all
+ select image from public.social_posts union all select video from public.social_posts union all
  select image_url from degosalon_internal.site_media`
 
 // LegacyMediaReferencesContext pages distinct local references with a stable
@@ -77,6 +78,10 @@ func LegacyMediaReferencesContext(ctx context.Context, after string, limit int) 
 		add(p.Image)
 		add(p.Video)
 	}
+	for _, post := range socialPosts {
+		add(post.Image)
+		add(post.Video)
+	}
 	for _, image := range siteImages {
 		add(image)
 	}
@@ -120,6 +125,7 @@ func ReplaceMediaReferencesContext(ctx context.Context, old, next string) (int, 
 			`update public.customers set profile_image=$2 where profile_image=$1`,
 			`update public.hairstyles set image=case when image=$1 then $2 else image end,video=case when video=$1 then $2 else video end where image=$1 or video=$1`,
 			`update public.products set image=case when image=$1 then $2 else image end,video=case when video=$1 then $2 else video end where image=$1 or video=$1`,
+			`update public.social_posts set image=case when image=$1 then $2 else image end,video=case when video=$1 then $2 else video end where image=$1 or video=$1`,
 			`update degosalon_internal.site_media set image_url=$2 where image_url=$1`,
 		} {
 			result, err := tx.ExecContext(ctx, query, old, next)
@@ -193,6 +199,20 @@ func ReplaceMediaReferencesContext(ctx context.Context, old, next string) (int, 
 		}
 		if p.Video == old {
 			products[i].Video = next
+			changed = true
+		}
+		if changed {
+			total++
+		}
+	}
+	for i, post := range socialPosts {
+		changed := false
+		if post.Image == old {
+			socialPosts[i].Image = next
+			changed = true
+		}
+		if post.Video == old {
+			socialPosts[i].Video = next
 			changed = true
 		}
 		if changed {

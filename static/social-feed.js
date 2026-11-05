@@ -9,6 +9,7 @@
   var video = form.querySelector('[data-social-preview-video]');
   var remove = form.querySelector('[data-social-remove]');
   var color = form.querySelector('[data-social-color]');
+  var swatch = form.querySelector('[data-social-swatch]');
   var style = form.querySelector('[data-social-style]');
   var status = form.querySelector('[data-social-status]');
   var objectURL = '';
@@ -26,7 +27,9 @@
   }
 
   function updateTextStyle() {
-    text.style.color = color.value;
+    text.style.color = '#172033';
+    text.style.backgroundColor = color.value;
+    if (swatch) swatch.style.backgroundColor = color.value;
     text.style.fontWeight = style.value === 'bold' ? '800' : '';
     text.style.fontStyle = style.value === 'italic' ? 'italic' : '';
   }

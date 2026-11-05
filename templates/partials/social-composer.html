@@ -1,0 +1,30 @@
+{{define "social-post-composer"}}
+<form class="social-composer social-compose-form" method="post" action="{{.PostAction}}" enctype="multipart/form-data" data-social-composer>
+  <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+  <div class="social-composer-top">
+    <a class="social-own-avatar social-own-avatar-small" href="{{.ProfilePath}}" aria-label="Open your profile">
+      {{if .ActorPhoto}}<img src="{{.ActorPhoto}}" alt="" width="40" height="40">{{else}}<span>{{printf "%.1s" .ActorName}}</span>{{end}}
+    </a>
+    <label class="visually-hidden" for="social-post-text">What's on your mind?</label>
+    <textarea id="social-post-text" name="text" maxlength="2000" rows="5" placeholder="What's on your mind, {{.ActorName}}?" data-social-text></textarea>
+  </div>
+  <div class="social-compose-tools">
+    <label class="social-tool social-media-picker">Add photo or video<input type="file" name="attachment" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime,video/x-m4v,video/3gpp" data-social-file></label>
+    <label class="social-tool">Background
+      <span class="social-color-swatch" data-social-swatch aria-hidden="true"></span>
+      <select name="background_color" data-social-color aria-label="Post text background color">
+        <option value="#fff0c2">Warm yellow</option><option value="#e8f1ff">Light blue</option><option value="#e8f7ec">Light green</option><option value="#fae8ef">Light pink</option><option value="#eee9ff">Lavender</option><option value="#ffffff">White</option>
+      </select>
+    </label>
+    <label class="social-tool">Text style
+      <select name="text_style" data-social-style><option value="normal">Normal</option><option value="bold">Bold</option><option value="italic">Italic</option></select>
+    </label>
+  </div>
+  <div class="social-post-preview" data-social-preview hidden>
+    <img data-social-preview-image alt="Selected photo" hidden>
+    <video data-social-preview-video controls playsinline preload="metadata" hidden></video>
+    <button type="button" data-social-remove aria-label="Remove attachment">Remove</button>
+  </div>
+  <div class="social-composer-bottom"><span data-social-status role="status" hidden></span><button type="submit" class="social-post-button">Post</button></div>
+</form>
+{{end}}

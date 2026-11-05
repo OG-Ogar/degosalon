@@ -42,7 +42,7 @@
               <div><strong>{{.AuthorName}}</strong><span>{{if eq .AuthorRole "barber"}}Barber{{else}}Customer{{end}} &middot; <time>{{.CreatedAt.Format "Jan 2, 2006 · 3:04 PM"}}</time></span></div>
             </header>
             {{if .Text}}<p class="social-post-text {{if eq .TextStyle "bold"}}is-bold{{else if eq .TextStyle "italic"}}is-italic{{end}}" style="background-color:{{.BackgroundColor}}">{{.Text}}</p>{{end}}
-            {{if .Image}}<img class="social-post-media" src="{{.Image}}" alt="Photo posted by {{.AuthorName}}" loading="lazy">{{end}}
+            {{if .Image}}<div class="social-post-image-frame"><img class="social-post-media" src="{{.Image}}" alt="Photo posted by {{.AuthorName}}" loading="lazy"></div>{{end}}
             {{if .Video}}<video class="social-post-media" src="{{.Video}}" controls playsinline preload="metadata">Your browser cannot play this video.</video>{{end}}
             <div class="social-post-actions">
               <form method="post" action="/{{$.Role}}/posts/{{.ID}}/like"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><input type="hidden" name="liked" value="{{if .LikedByMe}}false{{else}}true{{end}}"><button type="submit" class="social-like-button {{if .LikedByMe}}is-liked{{end}}" aria-label="{{if .LikedByMe}}Unlike{{else}}Like{{end}} post">{{if .LikedByMe}}♥ Liked{{else}}♡ Like{{end}} <span>{{.LikeCount}}</span></button></form>

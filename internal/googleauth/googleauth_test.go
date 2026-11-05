@@ -37,7 +37,15 @@ func testProvider(t *testing.T, handler http.Handler) (*Provider, *httptest.Serv
 }
 
 func TestGoogleAuthStateRoundTripIsSignedAndBounded(t *testing.T) {
-	provider, _ := testProvider(t, nil)
+	provider, err := NewProvider(Config{
+		ClientID:     "client-id",
+		ClientSecret: "client-secret",
+		RedirectURL:  "https://salon.example.com/auth/google/callback",
+		Endpoints:    DefaultEndpoints(),
+	}, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 	state, err := provider.NewState("customer", "/customer/bookings")
 	if err != nil {
 		t.Fatal(err)

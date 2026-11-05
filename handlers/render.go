@@ -422,9 +422,9 @@ func navigation(role, active string, data any) navigationView {
 	destinations := [][2]string{{"dashboard", homeLabel}}
 	switch role {
 	case "customer":
-		destinations = append(destinations, [2]string{"barbers", "Find a Barber"}, [2]string{"products", "Products"}, [2]string{"cart", "Cart"}, [2]string{"bookings", "My Bookings"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})
+		destinations = append(destinations, [2]string{"barbers", "Find a Barber"}, [2]string{"products", "Products"}, [2]string{"cart", "Cart"}, [2]string{"bookings", "My Bookings"}, [2]string{"orders", "My Orders"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})
 	case "barber":
-		destinations = append(destinations, [2]string{"hairstyles", "Hairstyles"}, [2]string{"products", "Products"}, [2]string{"schedule", "Schedule"}, [2]string{"bookings", "Bookings"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})
+		destinations = append(destinations, [2]string{"hairstyles", "Hairstyles"}, [2]string{"products", "Products"}, [2]string{"schedule", "Schedule"}, [2]string{"bookings", "Bookings"}, [2]string{"orders", "Product Orders"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})
 	case "admin":
 		destinations = append(destinations, [2]string{"barbers", "Barbers"}, [2]string{"customers", "Customers"}, [2]string{"bookings", "Bookings"})
 	}

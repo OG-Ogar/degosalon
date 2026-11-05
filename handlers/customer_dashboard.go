@@ -3,9 +3,6 @@ package handlers
 import (
 	"errors"
 	"net/http"
-	"sort"
-	"strings"
-	"time"
 
 	"barber-booking/models"
 	"barber-booking/storage"
@@ -23,22 +20,7 @@ type customerEditView struct {
 type customerDashboardView struct {
 	models.Customer
 	Feed socialFeedView
-
-	CSRF            string
-	OrderPagination listPagination
-	UpcomingCount   int
-	SelectedState   string
-	SelectedArea    string
-	Barbers         int
-	States          []string
-	Upcoming        []bookingRow
-	Pending         int
-	Conversations   int
-	CartCount       int
-
-	ProductOrders []models.ProductOrder
-
-	BackgroundImage string
+	CSRF string
 }
 
 // CustomerDashboardHandler is the page a customer lands on after login.
@@ -58,86 +40,13 @@ func CustomerDashboardHandler(
 		return
 	}
 
-	cursor, ok := readNamedPageCursor(w, r, "orders")
-	if !ok {
-		return
-	}
-	orders, err := storage.CustomerOrderPage(r.Context(), customer.ID, cursor)
-	if err != nil {
-		serverError(w, "load customer order page", err)
-		return
-	}
-	orderLinks := orderPagination(r, "orders", cursor, orders.Items, orders.HasPrevious, orders.HasNext)
-	if len(orders.Items) == 0 && (cursor.Before > 0 || cursor.After > 0) {
-		http.Redirect(w, r, orderLinks.FirstLink, 303)
-		return
-	}
-	now := time.Now()
-	filter := storage.BookingFilter{CustomerID: customer.ID, Now: now, LegacyTimezone: BookingTimezone()}
-	counts, err := storage.DashboardTotals(r.Context(), filter)
-	if err != nil {
-		serverError(w, "load customer dashboard totals", err)
-		return
-	}
-	filter.Group = "upcoming"
-	preview, err := storage.BookingPage(r.Context(), filter, storage.PageCursor{Limit: 6})
-	if err != nil {
-		serverError(w, "load upcoming preview", err)
-		return
-	}
-
-	cartCount, err := storage.CartItemCount(r.Context(), customer.ID)
-	if err != nil {
-		serverError(w, "load dashboard cart count", err)
-		return
-	}
-	conversations, err := storage.ConversationCountForCustomer(r.Context(), customer.ID)
-	if err != nil {
-		serverError(w, "load dashboard conversations", err)
-		return
-	}
-	backgroundImage, err := currentCustomerLandingImage(r.Context())
-	if err != nil {
-		serverError(w, "load dashboard image setting", err)
-		return
-	}
 	feed, err := loadSocialFeed(r, models.SenderCustomer, customer.ID, customer.FullName, customer.ProfileImage, s.CSRFToken)
 	if err != nil {
 		serverError(w, "load social home feed", err)
 		return
 	}
-	activeBarbers, err := storage.ListActiveBarbersResult(r.Context())
-	if err != nil {
-		serverError(w, "load dashboard states", err)
-		return
-	}
-	var states []string
-	seenStates := map[string]bool{}
-	for _, b := range activeBarbers {
-		key := strings.ToLower(b.State)
-		if b.State != "" && !seenStates[key] {
-			states = append(states, b.State)
-			seenStates[key] = true
-		}
-	}
-	sort.Strings(states)
-	view := customerDashboardView{
-		Customer:        customer,
-		States:          states,
-		ProductOrders:   orders.Items,
-		OrderPagination: orderLinks,
-		UpcomingCount:   counts.Upcoming,
-		Upcoming:        preview.Items,
-		Pending:         counts.Pending,
-		CSRF:            s.CSRFToken,
-		Barbers:         counts.Barbers,
-		Conversations:   conversations,
-		CartCount:       cartCount,
-		BackgroundImage: backgroundImage,
-		Feed:            feed,
-	}
-
-	view.Customer.PasswordHash = ""
+	customer.PasswordHash = ""
+	view := customerDashboardView{Customer: customer, Feed: feed, CSRF: s.CSRFToken}
 
 	render(w, "customer/dashboard.html", view)
 }

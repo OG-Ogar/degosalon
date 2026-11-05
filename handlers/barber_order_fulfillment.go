@@ -38,5 +38,5 @@ func BarberOrderItemActionHandler(w http.ResponseWriter, r *http.Request, barber
 		serverError(w, "fulfill seller order item", err)
 		return
 	}
-	http.Redirect(w, r, "/barber/dashboard", http.StatusSeeOther)
+	http.Redirect(w, r, "/barber/orders", http.StatusSeeOther)
 }

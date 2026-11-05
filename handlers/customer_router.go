@@ -102,6 +102,9 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 2 && parts[1] == "bookings":
 		CustomerBookingsHandler(w, r, customer, s)
 
+	case len(parts) == 2 && parts[1] == "orders":
+		CustomerOrdersHandler(w, r, customer, s)
+
 	case len(parts) == 4 && parts[1] == "bookings" && parts[3] == "cancel":
 		CancelBookingHandler(w, r, customer, s, parts[2])
 

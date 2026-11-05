@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Orders - De Go Salon</title>
+  <script src="/static/theme-switch.js"></script>
+  <link rel="stylesheet" href="/static/app.css"><link rel="stylesheet" href="/static/barber.css"><link rel="stylesheet" href="/static/ui.css"><link rel="stylesheet" href="/static/theme.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body class="barber-page modern-role-page modern-barber-page">
+  {{template "role-header" (navigation "barber" "orders" .)}}
+  <main class="barber-main ui-page">
+    <p class="eyebrow">Shop management</p><h1 id="orders">Product Orders</h1>
+    <form method="get" class="toolbar ui-form">
+      <label for="fulfillment">Fulfillment state</label>
+      <select name="fulfillment" id="fulfillment">
+        <option value="all" {{if or (eq .OrderStatus "") (eq .OrderStatus "all")}}selected{{end}}>All items</option>
+        <option value="Pending" {{if eq .OrderStatus "Pending"}}selected{{end}}>Pending</option>
+        <option value="Ready" {{if eq .OrderStatus "Ready"}}selected{{end}}>Ready</option>
+        <option value="Collected" {{if eq .OrderStatus "Collected"}}selected{{end}}>Collected</option>
+        <option value="Cancelled" {{if eq .OrderStatus "Cancelled"}}selected{{end}}>Cancelled</option>
+      </select><button type="submit" class="ui-control">Filter orders</button>
+    </form>
+    {{template "list-pagination" .Pagination}}
+    {{if .ProductOrders}}
+      <div class="barber-card ui-panel"><table class="barber-profile-table">
+        <thead><tr><th>Order</th><th>Customer</th><th>Product</th><th>Qty</th><th>Subtotal</th><th>Status and actions</th></tr></thead>
+        <tbody>{{range .ProductOrders}}
+          <tr><td>#{{.OrderID}}</td><td><strong>{{.CustomerName}}</strong><br>{{.CustomerPhone}}<br>{{.CustomerEmail}}</td>
+            <td>{{if .ProductImage}}<img src="{{.ProductImage}}" alt="{{.ProductName}}" width="80" loading="lazy">{{end}}<strong>{{.ProductName}}</strong></td>
+            <td>{{.Quantity}}</td><td>{{naira .Subtotal}}</td>
+            <td>{{template "domain-status" (domainStatus "fulfillment" .FulfillmentStatus)}}
+              {{if eq .FulfillmentStatus "Pending"}}<form method="post" action="/barber/order-items/{{.ID}}/ready"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button class="ui-control" type="submit">Mark ready</button></form>{{end}}
+              {{if eq .FulfillmentStatus "Ready"}}<form method="post" action="/barber/order-items/{{.ID}}/collect"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button class="ui-control" type="submit">Mark collected</button></form>{{end}}
+              {{if or (eq .FulfillmentStatus "Pending") (eq .FulfillmentStatus "Ready")}}<form method="post" action="/barber/order-items/{{.ID}}/cancel"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><button class="ui-control" type="submit">Cancel item</button></form>{{end}}
+            </td>
+          </tr>
+        {{end}}</tbody>
+      </table></div>
+    {{else}}
+      <section class="ui-panel"><p>No customers have ordered your products yet.</p></section>
+    {{end}}
+  </main>
+  {{template "public-footer" .}}
+</body>
+</html>

@@ -1,17 +1,17 @@
 package handlers
 
 import (
-	"bytes"
 	"barber-booking/internal/geography"
+	"bytes"
 	"fmt"
 	"html/template"
 	"io/fs"
- "log/slog"
+	"log/slog"
 	"math"
-	"net/url"
-	"reflect"
 	"net/http"
+	"net/url"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"sync"
 )
@@ -130,15 +130,17 @@ func methodNotAllowed(w http.ResponseWriter, allowed ...string) {
 }
 
 type navigationLink struct {
-    Path string
-    Label string
-    Active bool
+	Path      string
+	Label     string
+	AriaLabel string
+	Active    bool
 }
 type navigationView struct {
-    Role string
-    CSRF string
-    Links []navigationLink
+	Role  string
+	CSRF  string
+	Links []navigationLink
 }
+
 var structFieldCache sync.Map // map[structFieldKey]int
 
 type structFieldKey struct {
@@ -412,44 +414,56 @@ func viewString(data any, name string) string {
 	return ""
 }
 func navigation(role, active string, data any) navigationView {
-    view := navigationView{Role: role, CSRF: viewString(data, "CSRF")}
-    homeLabel := "Dashboard"
-    if role == "customer" || role == "barber" {
-        homeLabel = "Home"
-    }
-    destinations := [][2]string{{"dashboard", homeLabel}}
-    switch role {
-    case "customer":
-        destinations = append(destinations, [2]string{"barbers", "Find a Barber"}, [2]string{"products", "Products"}, [2]string{"cart", "Cart"}, [2]string{"bookings", "My Bookings"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})
-    case "barber":
-        destinations = append(destinations, [2]string{"hairstyles", "Hairstyles"}, [2]string{"products", "Products"}, [2]string{"schedule", "Schedule"}, [2]string{"bookings", "Bookings"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})
-    case "admin":
-        destinations = append(destinations, [2]string{"barbers", "Barbers"}, [2]string{"customers", "Customers"}, [2]string{"bookings", "Bookings"})
-    }
-    for _, item := range destinations {
-        path := "/" + role + "/" + item[0]
-        if role == "customer" && item[0] == "barbers" {
-            if results := viewString(data, "ResultsLink"); strings.HasPrefix(results, "/customer/barbers") {
-                path = results
-            } else if state := viewString(data, "SelectedState"); state != "" {
-                query := url.Values{"state": {state}, "area": {viewString(data, "SelectedArea")}}
-                path += "?" + query.Encode()
-            }
-        }
-        view.Links = append(view.Links, navigationLink{Path: path, Label: item[1], Active: item[0] == active})
-    }
-    return view
+	view := navigationView{Role: role, CSRF: viewString(data, "CSRF")}
+	homeLabel := "Dashboard"
+	if role == "customer" || role == "barber" {
+		homeLabel = "Home"
+	}
+	destinations := [][2]string{{"dashboard", homeLabel}}
+	switch role {
+	case "customer":
+		destinations = append(destinations, [2]string{"barbers", "Find a Barber"}, [2]string{"products", "Products"}, [2]string{"cart", "Cart"}, [2]string{"bookings", "My Bookings"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})
+	case "barber":
+		destinations = append(destinations, [2]string{"hairstyles", "Hairstyles"}, [2]string{"products", "Products"}, [2]string{"schedule", "Schedule"}, [2]string{"bookings", "Bookings"}, [2]string{"chats", "Messages"}, [2]string{"profile", "My Profile"})
+	case "admin":
+		destinations = append(destinations, [2]string{"barbers", "Barbers"}, [2]string{"customers", "Customers"}, [2]string{"bookings", "Bookings"})
+	}
+	for _, item := range destinations {
+		path := "/" + role + "/" + item[0]
+		if role == "customer" && item[0] == "barbers" {
+			if results := viewString(data, "ResultsLink"); strings.HasPrefix(results, "/customer/barbers") {
+				path = results
+			} else if state := viewString(data, "SelectedState"); state != "" {
+				query := url.Values{"state": {state}, "area": {viewString(data, "SelectedArea")}}
+				path += "?" + query.Encode()
+			}
+		}
+		link := navigationLink{Path: path, Label: item[1], Active: item[0] == active}
+		if item[0] == "dashboard" && homeLabel == "Home" {
+			link.AriaLabel = "Dashboard home"
+		}
+		view.Links = append(view.Links, link)
+	}
+	return view
 }
+
 // Presentation only: storage and checkout continue to own money validation.
 func naira(amount float64) string {
-    if math.IsNaN(amount) || math.IsInf(amount, 0) { return "Price unavailable" }
-    text := fmt.Sprintf("%.2f", amount)
-    parts := strings.SplitN(text, ".", 2)
-    digits := parts[0]
-    sign := ""
-    if strings.HasPrefix(digits, "-") { sign = "-"; digits = strings.TrimPrefix(digits, "-") }
-    for i := len(digits)-3; i > 0; i -= 3 { digits = digits[:i] + "," + digits[i:] }
-    return "₦" + sign + digits + "." + parts[1]
+	if math.IsNaN(amount) || math.IsInf(amount, 0) {
+		return "Price unavailable"
+	}
+	text := fmt.Sprintf("%.2f", amount)
+	parts := strings.SplitN(text, ".", 2)
+	digits := parts[0]
+	sign := ""
+	if strings.HasPrefix(digits, "-") {
+		sign = "-"
+		digits = strings.TrimPrefix(digits, "-")
+	}
+	for i := len(digits) - 3; i > 0; i -= 3 {
+		digits = digits[:i] + "," + digits[i:]
+	}
+	return "₦" + sign + digits + "." + parts[1]
 }
 
 var journeyErrorTemplate = template.Must(template.New("journey-error").Parse(`<!DOCTYPE html>
@@ -462,20 +476,23 @@ var journeyErrorTemplate = template.Must(template.New("journey-error").Parse(`<!
 </main></body></html>`))
 
 func journeyError(w http.ResponseWriter, message string, status int) {
-    buf := renderBufferPool.Get().(*bytes.Buffer)
-    buf.Reset()
-    defer renderBufferPool.Put(buf)
+	buf := renderBufferPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	defer renderBufferPool.Put(buf)
 
-    data := struct { Status int; Title, Message string }{status, http.StatusText(status), message}
-    if err := journeyErrorTemplate.Execute(buf, data); err != nil {
-        http.Error(w, "Something went wrong. Please try again.", http.StatusInternalServerError)
-        return
-    }
-    w.Header().Set("Content-Type", "text/html; charset=utf-8")
-    w.Header().Set("X-Content-Type-Options", "nosniff")
-    w.Header().Set("Cache-Control", "no-store")
-    w.WriteHeader(status)
-    _, _ = buf.WriteTo(w)
+	data := struct {
+		Status         int
+		Title, Message string
+	}{status, http.StatusText(status), message}
+	if err := journeyErrorTemplate.Execute(buf, data); err != nil {
+		http.Error(w, "Something went wrong. Please try again.", http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	w.Header().Set("X-Content-Type-Options", "nosniff")
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(status)
+	_, _ = buf.WriteTo(w)
 }
 
 // confirmation supplies presentation text while callers retain their owned routes.

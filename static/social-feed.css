@@ -15,3 +15,15 @@
 @media(max-width:520px){.social-home{width:calc(100% - 20px)}.social-composer,.social-post-card{padding:12px}.social-tool{padding:0 7px;font-size:.68rem}.social-tool select{max-width:78px}.social-status-card{flex-basis:98px}.social-status-media{height:126px}.social-post-media{max-height:480px}.social-post-author span{font-size:.65rem}.social-comment-form input{font-size:.73rem}}
 @media(max-width:520px){.social-home{width:calc(100% - 20px);margin-inline:auto}.social-feed-layout{display:block;width:100%}.social-feed-main,.social-post-list{display:grid;width:100%;min-width:0}.social-post-card{width:100%;min-width:0}.social-post-image-frame{display:flex;width:100%;margin-inline:auto}.social-post-image-frame .social-post-media{width:auto;height:auto;max-width:100%;max-height:none;object-fit:contain;object-position:center center}}
 @media(prefers-reduced-motion:reduce){.social-post-button,.social-comment-form button{transition:none}}
+.social-post-card { overflow: hidden; max-width: 100%; min-width: 0; }
+.social-post-image-frame { max-width: 100%; min-width: 0; overflow: hidden; }
+.social-post-image-frame img,
+.social-post-card img.social-post-media {
+    display: block;
+    width: auto !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 520px;
+    margin: 0 auto;
+    object-fit: contain;
+}

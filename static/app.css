@@ -52,13 +52,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .landing-button:hover{background:#1d2c46}
 .landing-secondary-button{border:1px solid var(--border-hi);background:var(--surface);color:var(--ink)}
 .landing-secondary-button:hover{background:var(--surface-hi);border-color:var(--signal)}
-.landing-visual{overflow:hidden;aspect-ratio:16/9;border:1px solid var(--border);border-radius:18px;background:var(--surface-hi);box-shadow:0 24px 60px rgba(12,21,36,.12)}
+.landing-visual{overflow:hidden;aspect-ratio:16/9;border:1px solid var(--border);border-radius:18px;background:var(--surface-hi);box-shadow:0 24px 60px rgba(12,21,36,.12);max-width:420px;justify-self:start}
 .landing-media{display:block;width:100%;height:100%;object-fit:contain}
 .landing-visual-placeholder{display:grid;place-items:center;width:100%;height:100%;background:var(--signal);color:#fff;font-size:clamp(3rem,8vw,6rem);font-weight:900;letter-spacing:-.06em}
 
 @media(max-width:850px){
   .landing-hero{grid-template-columns:1fr;min-height:auto;padding:56px 0}
-  .landing-visual{max-width:560px;aspect-ratio:16/10}
+  .landing-visual{max-width:340px;aspect-ratio:16/10}
 }
 @media(max-width:680px){
   .landing-header{width:calc(100% - 32px);padding:15px 0}

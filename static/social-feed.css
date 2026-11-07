@@ -61,3 +61,36 @@
     object-fit: contain;
     object-position: center;
 }
+
+/* A feed photo keeps its three-dot actions at the top right of the frame. */
+.social-post-media-wrap {
+    position: relative;
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+.social-post-media-wrap .card-menu {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 6;
+}
+
+.social-post-media-wrap .card-menu-toggle {
+    background: rgba(255, 255, 255, .94);
+    color: #142034;
+    box-shadow: 0 4px 14px rgba(12, 21, 36, .22);
+}
+
+.social-post-media-wrap .card-menu[open] .card-menu-toggle {
+    background: var(--signal, #142034);
+    color: var(--signal-ink, #fff);
+}
+
+@media (max-width: 520px) {
+    .social-post-media-wrap .card-menu {
+        top: 6px;
+        right: 6px;
+    }
+}

@@ -42,7 +42,27 @@
               <div><strong>{{.AuthorName}}</strong><span>{{if eq .AuthorRole "barber"}}Barber{{else}}Customer{{end}} &middot; <time>{{.CreatedAt.Format "Jan 2, 2006 · 3:04 PM"}}</time></span></div>
             </header>
             {{if .Text}}<p class="social-post-text {{if eq .TextStyle "bold"}}is-bold{{else if eq .TextStyle "italic"}}is-italic{{end}}" style="background-color:{{.BackgroundColor}}">{{.Text}}</p>{{end}}
-            {{if .Image}}<div class="social-post-image-frame"><img class="social-post-media" src="{{.Image}}" alt="Photo posted by {{.AuthorName}}" loading="lazy"></div>{{end}}
+            {{if .Image}}
+            <div class="social-post-media-wrap">
+              <div class="social-post-image-frame"><img class="social-post-media" src="{{.Image}}" alt="Photo posted by {{.AuthorName}}" loading="lazy"></div>
+              <!-- The photo actions wait behind the three dots at the top right. -->
+              <details class="card-menu">
+                <summary class="card-menu-toggle">
+                  <span class="visually-hidden">Photo actions for the post by {{.AuthorName}}</span>
+                  <span aria-hidden="true">&#8942;</span>
+                </summary>
+                <div class="card-menu-panel">
+                  <a class="card-menu-item" href="{{.Image}}" download target="_blank" rel="noopener">Save photo</a>
+                  {{if and (eq .AuthorRole $.Role) (eq .AuthorID $.ActorID)}}
+                  <form method="post" action="/{{$.Role}}/posts/{{.ID}}/delete" class="card-menu-form ui-form" data-confirm="Delete this photo and its post?">
+                    <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+                    <button class="card-menu-item card-menu-item-danger" type="submit">Delete photo</button>
+                  </form>
+                  {{end}}
+                </div>
+              </details>
+            </div>
+            {{end}}
             {{if .Video}}<video class="social-post-media" src="{{.Video}}" controls playsinline preload="metadata">Your browser cannot play this video.</video>{{end}}
             <div class="social-post-actions">
               <form method="post" action="/{{$.Role}}/posts/{{.ID}}/like"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><input type="hidden" name="liked" value="{{if .LikedByMe}}false{{else}}true{{end}}"><button type="submit" class="social-like-button {{if .LikedByMe}}is-liked{{end}}" aria-label="{{if .LikedByMe}}Unlike{{else}}Like{{end}} post">{{if .LikedByMe}}♥ Liked{{else}}♡ Like{{end}} <span>{{.LikeCount}}</span></button></form>

@@ -78,7 +78,7 @@ test('customer journeys, public sessions and narrow navigation',async({page},tes
  expect(response.ok(),await response.text()).toBeTruthy();
  for(const width of [1280,320]){
   await page.setViewportSize({width,height:900});
-  for(const route of ['/customer/dashboard','/customer/bookings','/customer/profile','/customer/chats','/customer/barbers']){
+  for(const route of ['/customer/dashboard','/customer/bookings','/customer/orders','/customer/account','/customer/profile','/customer/chats','/customer/barbers']){
    await page.goto(route);
    await expect(page.getByRole('navigation',{name:'customer navigation'})).toBeVisible();
    // The header links wait behind the "=" button and open in a column.
@@ -112,7 +112,7 @@ test('barber and admin navigation and mobile field labels',async({page},testInfo
  const login=await page.request.post('/barber/login',{form:{email,password:'browser-pass-123'}});
  expect(login.ok(),await login.text()).toBeTruthy();
  await page.setViewportSize({width:320,height:900});
- for(const route of ['/barber/dashboard','/barber/profile','/barber/bookings','/barber/chats']){
+ for(const route of ['/barber/dashboard','/barber/profile','/barber/bookings','/barber/orders','/barber/account','/barber/chats']){
   await page.goto(route);await checkPage(page,testInfo,route.split('/').join('-'));
   const menu=page.getByRole('button',{name:'Open the barber menu'});
   await expect(menu).toBeVisible();
@@ -547,8 +547,9 @@ test('booking and order histories remain bounded with complete dashboard totals'
  }
  await customer.goto('/customer/bookings');await expect(customer.locator('.booking-card')).toHaveCount(24);await customer.getByRole('link',{name:'Next page',exact:true}).click();await expect(customer.locator('.booking-card')).toHaveCount(1);
  await customer.getByRole('combobox',{name:'Appointment group'}).selectOption('finished');await customer.getByRole('button',{name:'Show appointments',exact:true}).click();await expect(customer.locator('.booking-card')).toHaveCount(0);
- await customer.goto('/customer/dashboard');await expect(customer.locator('.appointment-list').first().locator('.appointment-card')).toHaveCount(6);await expect(customer.getByRole('link',{name:'Next orders',exact:true})).toBeVisible();await customer.getByRole('link',{name:'Next orders',exact:true}).click();await expect(customer.getByRole('link',{name:/View order/i})).toHaveCount(1);
- await page.goto('/barber/dashboard');await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(24);await page.getByRole('link',{name:'Next orders',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(1);
+ await customer.goto('/customer/account');await expect(customer.locator('.appointment-list').first().locator('.appointment-card')).toHaveCount(6);
+ await customer.goto('/customer/orders');await expect(customer.getByRole('link',{name:'Next orders',exact:true})).toBeVisible();await customer.getByRole('link',{name:'Next orders',exact:true}).click();await expect(customer.getByRole('link',{name:/View order/i})).toHaveCount(1);
+ await page.goto('/barber/orders');await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(24);await page.getByRole('link',{name:'Next orders',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(1);
  await page.getByRole('combobox',{name:'Fulfillment state',exact:true}).selectOption('Collected');await page.getByRole('button',{name:'Show order items',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(0);
  await page.getByRole('combobox',{name:'Fulfillment state',exact:true}).selectOption('Pending');await page.getByRole('button',{name:'Show order items',exact:true}).click();await expect(page.locator('.barber-section:has(#orders) tbody tr')).toHaveCount(24);
  const orderPhoto=page.locator('.barber-section:has(#orders) .order-product-image img.image-zoomable').first();

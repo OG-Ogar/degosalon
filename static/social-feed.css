@@ -27,3 +27,37 @@
     margin: 0 auto;
     object-fit: contain;
 }
+/* Let the feed columns shrink to the screen instead of growing to the photo */
+.social-home,
+.social-feed-layout,
+.social-feed-main,
+.social-post-list {
+    grid-template-columns: minmax(0, 1fr);
+    min-width: 0;
+    max-width: 100%;
+}
+
+.social-post-card,
+.social-post-image-frame {
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+}
+
+.social-post-image-frame {
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.social-post-image-frame img,
+.social-post-card img.social-post-media {
+    display: block;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 520px;
+    margin: 0;
+    object-fit: contain;
+    object-position: center;
+}

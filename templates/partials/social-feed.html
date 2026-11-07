@@ -37,9 +37,13 @@
         {{if .Posts}}
           {{range .Posts}}
           <article class="social-post-card" id="post-{{.ID}}">
+            {{$authorProfile := ""}}
+            {{if and (eq .AuthorRole $.Role) (eq .AuthorID $.ActorID)}}{{$authorProfile = printf "/%s/profile" $.Role}}
+            {{else if eq .AuthorRole "barber"}}{{$authorProfile = printf "/explore/%d" .AuthorID}}
+            {{else if eq .AuthorRole "customer"}}{{$authorProfile = printf "/people/%d" .AuthorID}}{{end}}
             <header class="social-post-author">
-              <div class="social-author-avatar">{{if .AuthorImage}}<img src="{{.AuthorImage}}" alt="" loading="lazy">{{else}}<span>{{printf "%.1s" .AuthorName}}</span>{{end}}</div>
-              <div><strong>{{.AuthorName}}</strong><span>{{if eq .AuthorRole "barber"}}Barber{{else}}Customer{{end}} &middot; <time>{{.CreatedAt.Format "Jan 2, 2006 · 3:04 PM"}}</time></span></div>
+              {{if $authorProfile}}<a class="social-author-avatar" href="{{$authorProfile}}" aria-label="Open {{.AuthorName}}'s profile">{{if .AuthorImage}}<img src="{{.AuthorImage}}" alt="" loading="lazy">{{else}}<span>{{printf "%.1s" .AuthorName}}</span>{{end}}</a>{{else}}<div class="social-author-avatar">{{if .AuthorImage}}<img src="{{.AuthorImage}}" alt="" loading="lazy">{{else}}<span>{{printf "%.1s" .AuthorName}}</span>{{end}}</div>{{end}}
+              <div><strong>{{if $authorProfile}}<a class="social-author-name" href="{{$authorProfile}}">{{.AuthorName}}</a>{{else}}{{.AuthorName}}{{end}}</strong><span>{{if eq .AuthorRole "barber"}}Barber{{else}}Customer{{end}} &middot; <time>{{.CreatedAt.Format "Jan 2, 2006 · 3:04 PM"}}</time></span></div>
             </header>
             {{if .Text}}<p class="social-post-text {{if eq .TextStyle "bold"}}is-bold{{else if eq .TextStyle "italic"}}is-italic{{end}}" style="background-color:{{.BackgroundColor}}">{{.Text}}</p>{{end}}
             {{if .Image}}

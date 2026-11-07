@@ -174,6 +174,7 @@ func run() error {
 
 	mux.HandleFunc("/explore", handlers.ExploreRouter)
 	mux.HandleFunc("/explore/", handlers.ExploreRouter)
+	mux.HandleFunc("/people/", handlers.PublicCustomerProfileHandler)
 	for _, path := range []string{"/help", "/support", "/privacy", "/terms"} {
 		mux.HandleFunc(path, handlers.PublicContentHandler)
 	}

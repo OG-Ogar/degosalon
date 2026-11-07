@@ -205,6 +205,65 @@ order by h.id desc limit $1`, func(rows *sql.Rows) (models.HairstyleStatus, erro
 	return statuses, nil
 }
 
+// DeleteSocialPost removes one post only when the signed-in account wrote it.
+// The returned post carries the media URLs so the caller can remove the files.
+func DeleteSocialPost(ctx context.Context, postID int, role string, actorID int) (models.SocialPost, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+	if postID <= 0 || !validSocialActor(role, actorID) {
+		return models.SocialPost{}, ErrNotFound
+	}
+	if err := ctx.Err(); err != nil {
+		return models.SocialPost{}, err
+	}
+	if databaseEnabled() {
+		var query string
+		if role == models.SenderCustomer {
+			query = `delete from public.social_posts where id=$1 and author_role='customer' and customer_id=$2 returning id,coalesce(image,''),coalesce(video,'')`
+		} else {
+			query = `delete from public.social_posts where id=$1 and author_role='barber' and barber_id=$2 returning id,coalesce(image,''),coalesce(video,'')`
+		}
+		var post models.SocialPost
+		if err := db.QueryRowContext(ctx, query, postID, actorID).Scan(&post.ID, &post.Image, &post.Video); err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				return models.SocialPost{}, ErrNotFound
+			}
+			return models.SocialPost{}, err
+		}
+		post.AuthorRole = role
+		post.AuthorID = actorID
+		return post, nil
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return models.SocialPost{}, err
+	}
+	for i, post := range socialPosts {
+		if post.ID != postID {
+			continue
+		}
+		if post.AuthorRole != role || post.AuthorID != actorID {
+			return models.SocialPost{}, ErrNotFound
+		}
+		socialPosts = append(socialPosts[:i], socialPosts[i+1:]...)
+		for key := range socialLikes {
+			if key.postID == postID {
+				delete(socialLikes, key)
+			}
+		}
+		comments := socialComments[:0]
+		for _, comment := range socialComments {
+			if comment.PostID != postID {
+				comments = append(comments, comment)
+			}
+		}
+		socialComments = comments
+		return post, nil
+	}
+	return models.SocialPost{}, ErrNotFound
+}
+
 // SetSocialPostLiked sets the like state idempotently for one authenticated account.
 func SetSocialPostLiked(ctx context.Context, postID int, role string, actorID int, liked bool) error {
 	ctx, cancel := databaseContext(ctx)

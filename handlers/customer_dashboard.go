@@ -18,27 +18,30 @@ type customerEditView struct {
 	ProfileImage string
 }
 
-// customerDashboardView is the customer's own page: who they are, what
-// they have booked, and how many barbers they can browse.
+// customerDashboardView is the customer's social home.
 type customerDashboardView struct {
 	models.Customer
 	Feed socialFeedView
 
 	CSRF            string
-	OrderPagination listPagination
-	UpcomingCount   int
-	SelectedState   string
-	SelectedArea    string
-	Barbers         int
-	States          []string
-	Upcoming        []bookingRow
-	Pending         int
-	Conversations   int
-	CartCount       int
-
-	ProductOrders []models.ProductOrder
-
 	BackgroundImage string
+}
+
+// customerAccountView carries the summary that used to be folded in at the
+// bottom of the customer home. It now has its own page behind the menu.
+type customerAccountView struct {
+	models.Customer
+
+	CSRF          string
+	UpcomingCount int
+	SelectedState string
+	SelectedArea  string
+	Barbers       int
+	States        []string
+	Upcoming      []bookingRow
+	Pending       int
+	Conversations int
+	CartCount     int
 }
 
 // CustomerDashboardHandler is the page a customer lands on after login.
@@ -58,44 +61,6 @@ func CustomerDashboardHandler(
 		return
 	}
 
-	cursor, ok := readNamedPageCursor(w, r, "orders")
-	if !ok {
-		return
-	}
-	orders, err := storage.CustomerOrderPage(r.Context(), customer.ID, cursor)
-	if err != nil {
-		serverError(w, "load customer order page", err)
-		return
-	}
-	orderLinks := orderPagination(r, "orders", cursor, orders.Items, orders.HasPrevious, orders.HasNext)
-	if len(orders.Items) == 0 && (cursor.Before > 0 || cursor.After > 0) {
-		http.Redirect(w, r, orderLinks.FirstLink, 303)
-		return
-	}
-	now := time.Now()
-	filter := storage.BookingFilter{CustomerID: customer.ID, Now: now, LegacyTimezone: BookingTimezone()}
-	counts, err := storage.DashboardTotals(r.Context(), filter)
-	if err != nil {
-		serverError(w, "load customer dashboard totals", err)
-		return
-	}
-	filter.Group = "upcoming"
-	preview, err := storage.BookingPage(r.Context(), filter, storage.PageCursor{Limit: 6})
-	if err != nil {
-		serverError(w, "load upcoming preview", err)
-		return
-	}
-
-	cartCount, err := storage.CartItemCount(r.Context(), customer.ID)
-	if err != nil {
-		serverError(w, "load dashboard cart count", err)
-		return
-	}
-	conversations, err := storage.ConversationCountForCustomer(r.Context(), customer.ID)
-	if err != nil {
-		serverError(w, "load dashboard conversations", err)
-		return
-	}
 	backgroundImage, err := currentCustomerLandingImage(r.Context())
 	if err != nil {
 		serverError(w, "load dashboard image setting", err)
@@ -106,9 +71,56 @@ func CustomerDashboardHandler(
 		serverError(w, "load social home feed", err)
 		return
 	}
+	customer.PasswordHash = ""
+	render(w, "customer/dashboard.html", customerDashboardView{
+		Customer:        customer,
+		CSRF:            s.CSRFToken,
+		BackgroundImage: backgroundImage,
+		Feed:            feed,
+	})
+}
+
+// CustomerAccountHandler is the account summary page that the home menu
+// opens. It holds the welcome, search and tallies that used to sit below
+// the feed on the home page.
+func CustomerAccountHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	customer models.Customer,
+	s sessionData,
+) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+
+		return
+	}
+
+	now := time.Now()
+	filter := storage.BookingFilter{CustomerID: customer.ID, Now: now, LegacyTimezone: BookingTimezone()}
+	counts, err := storage.DashboardTotals(r.Context(), filter)
+	if err != nil {
+		serverError(w, "load customer account totals", err)
+		return
+	}
+	filter.Group = "upcoming"
+	preview, err := storage.BookingPage(r.Context(), filter, storage.PageCursor{Limit: 6})
+	if err != nil {
+		serverError(w, "load upcoming preview", err)
+		return
+	}
+	cartCount, err := storage.CartItemCount(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load account cart count", err)
+		return
+	}
+	conversations, err := storage.ConversationCountForCustomer(r.Context(), customer.ID)
+	if err != nil {
+		serverError(w, "load account conversations", err)
+		return
+	}
 	activeBarbers, err := storage.ListActiveBarbersResult(r.Context())
 	if err != nil {
-		serverError(w, "load dashboard states", err)
+		serverError(w, "load account states", err)
 		return
 	}
 	var states []string
@@ -121,25 +133,18 @@ func CustomerDashboardHandler(
 		}
 	}
 	sort.Strings(states)
-	view := customerDashboardView{
-		Customer:        customer,
-		States:          states,
-		ProductOrders:   orders.Items,
-		OrderPagination: orderLinks,
-		UpcomingCount:   counts.Upcoming,
-		Upcoming:        preview.Items,
-		Pending:         counts.Pending,
-		CSRF:            s.CSRFToken,
-		Barbers:         counts.Barbers,
-		Conversations:   conversations,
-		CartCount:       cartCount,
-		BackgroundImage: backgroundImage,
-		Feed:            feed,
-	}
-
-	view.Customer.PasswordHash = ""
-
-	render(w, "customer/dashboard.html", view)
+	customer.PasswordHash = ""
+	render(w, "customer/account.html", customerAccountView{
+		Customer:      customer,
+		CSRF:          s.CSRFToken,
+		UpcomingCount: counts.Upcoming,
+		Upcoming:      preview.Items,
+		Pending:       counts.Pending,
+		Barbers:       counts.Barbers,
+		States:        states,
+		Conversations: conversations,
+		CartCount:     cartCount,
+	})
 }
 
 // CustomerProfileHandler shows the customer their own details.

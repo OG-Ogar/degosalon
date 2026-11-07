@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Orders - De Go Salon</title>
+    <script src="/static/theme-switch.js"></script>
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/barber.css">
+    <link rel="stylesheet" href="/static/image-viewer.css">
+    <link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/app.js" defer></script>
+    <script src="/static/image-viewer.js" defer></script>
+</head>
+<body class="barber-page modern-role-page modern-barber-page">
+{{template "role-header" (navigation "barber" "orders" .)}}
+
+<main class="barber-main ui-page">
+    <section class="barber-section barber-dashboard-section">
+        <h1 class="barber-section-title">Product Orders</h1>
+
+        <form method="get" class="toolbar ui-form" id="orders">
+            <div class="field ui-field">
+                <label for="fulfillment">Fulfillment state</label>
+                <select name="fulfillment" id="fulfillment">
+                    <option value="all" {{if or (eq .OrderStatus "") (eq .OrderStatus "all")}}selected{{end}}>All items</option>
+                    <option value="Pending" {{if eq .OrderStatus "Pending"}}selected{{end}}>Pending</option>
+                    <option value="Ready" {{if eq .OrderStatus "Ready"}}selected{{end}}>Ready</option>
+                    <option value="Collected" {{if eq .OrderStatus "Collected"}}selected{{end}}>Collected</option>
+                    <option value="Cancelled" {{if eq .OrderStatus "Cancelled"}}selected{{end}}>Cancelled</option>
+                </select>
+            </div>
+            <button type="submit" class="ui-control">Show order items</button>
+        </form>
+
+        <p>Up to 24 items per page, newest first. Filter by state to find outstanding work.</p>
+
+        {{template "list-pagination" .Pagination}}
+
+        {{if .ProductOrders}}
+            <div class="barber-card ui-panel">
+                <table class="barber-profile-table">
+                    <thead>
+                        <tr>
+                            <th>Order</th>
+                            <th>Customer</th>
+                            <th>Product</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .ProductOrders}}
+                            <tr>
+                                <td>#{{.OrderID}}</td>
+                                <td>
+                                    <strong>{{.CustomerName}}</strong><br>
+                                    <span class="muted">{{.CustomerPhone}}</span><br>
+                                    <span class="muted">{{.CustomerEmail}}</span>
+                                </td>
+                                <td>
+                                    <div class="order-product">
+                                        <div class="order-product-image">
+                                            {{if .ProductImage}}
+                                                <img src="{{.ProductImage}}"
+                                                     alt="Photo of {{.ProductName}}"
+                                                     data-fullscreen-image
+                                                     srcset="{{imageSrcset .ProductImage}}"
+                                                     sizes="(max-width: 600px) 200px, 240px"
+                                                     width="640" height="480" loading="lazy" decoding="async">
+                                            {{else}}
+                                                <span>DG</span>
+                                            {{end}}
+                                        </div>
+                                        <span>{{.ProductName}}</span>
+                                    </div>
+                                </td>
+                                <td>{{.Quantity}}</td>
+                                <td>{{naira .Subtotal}}</td>
+                                <td>
+                                    {{template "domain-status" (domainStatus "fulfillment" .FulfillmentStatus)}}
+
+                                    {{if eq .FulfillmentStatus "Pending"}}
+                                        <form method="post" action="/barber/order-items/{{.ID}}/ready" class="ui-form">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+                                            <button type="submit" class="ui-control">Mark ready</button>
+                                        </form>
+                                    {{end}}
+
+                                    {{if eq .FulfillmentStatus "Ready"}}
+                                        <form method="post" action="/barber/order-items/{{.ID}}/collect" class="ui-form">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+                                            <button type="submit" class="ui-control">Mark collected</button>
+                                        </form>
+                                    {{end}}
+
+                                    {{if or (eq .FulfillmentStatus "Pending") (eq .FulfillmentStatus "Ready")}}
+                                        <form method="post" action="/barber/order-items/{{.ID}}/cancel" class="ui-form">
+                                            <input type="hidden" name="csrf_token" value="{{$.CSRF}}">
+                                            <button type="submit" class="ui-control">Cancel item and restore stock</button>
+                                        </form>
+                                    {{end}}
+                                </td>
+                            </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+        {{else}}
+            <div class="barber-card ui-panel">
+                <p>No customers have ordered your products yet.</p>
+            </div>
+        {{end}}
+    </section>
+</main>
+
+{{template "public-footer" .}}
+</body>
+</html>

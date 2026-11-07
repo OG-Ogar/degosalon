@@ -17,6 +17,7 @@ const socialAttachmentLimit = mediastore.MaxFileBytes
 
 type socialFeedView struct {
 	Role        string
+	ActorID     int
 	ActorName   string
 	ActorPhoto  string
 	ProfilePath string
@@ -36,7 +37,7 @@ func loadSocialFeed(r *http.Request, role string, actorID int, actorName, actorP
 	if err != nil {
 		return socialFeedView{}, err
 	}
-	return socialFeedView{Role: role, ActorName: actorName, ActorPhoto: actorPhoto, ProfilePath: "/" + role + "/profile", CSRF: csrf, PostAction: "/" + role + "/posts", Posts: posts, Statuses: statuses}, nil
+	return socialFeedView{Role: role, ActorID: actorID, ActorName: actorName, ActorPhoto: actorPhoto, ProfilePath: "/" + role + "/profile", CSRF: csrf, PostAction: "/" + role + "/posts", Posts: posts, Statuses: statuses}, nil
 }
 
 func SocialPostComposerHandler(w http.ResponseWriter, r *http.Request, role, actorName, actorPhoto string, s sessionData) {
@@ -111,10 +112,17 @@ func SocialPostActionHandler(w http.ResponseWriter, r *http.Request, role string
 		return
 	}
 	var err error
+	var removed models.SocialPost
 	switch action {
 	case "like":
 		liked := r.PostFormValue("liked") == "true"
 		err = storage.SetSocialPostLiked(r.Context(), postID, role, actorID, liked)
+	case "delete":
+		removed, err = storage.DeleteSocialPost(r.Context(), postID, role, actorID)
+		if err == nil {
+			removeChatMedia(removed.Image)
+			removeChatMedia(removed.Video)
+		}
 	case "comments":
 		text := strings.TrimSpace(r.PostFormValue("comment"))
 		if utf8.RuneCountInString(text) > 500 {
@@ -138,6 +146,10 @@ func SocialPostActionHandler(w http.ResponseWriter, r *http.Request, role string
 		} else {
 			serverError(w, "update social post", err)
 		}
+		return
+	}
+	if action == "delete" {
+		http.Redirect(w, r, "/"+role+"/dashboard", http.StatusSeeOther)
 		return
 	}
 	http.Redirect(w, r, fmt.Sprintf("/%s/dashboard#post-%d", role, postID), http.StatusSeeOther)

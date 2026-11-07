@@ -88,7 +88,7 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 		}
 		SocialPostComposerHandler(w, r, models.SenderBarber, barber.FullName, photo, s)
 
-	case len(parts) == 4 && parts[1] == "posts" && (parts[3] == "like" || parts[3] == "comments"):
+	case len(parts) == 4 && parts[1] == "posts" && (parts[3] == "like" || parts[3] == "comments" || parts[3] == "delete"):
 		photo := barber.PersonalImage
 		if photo == "" {
 			photo = barber.ProfileImage
@@ -143,6 +143,12 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 
 	case len(parts) == 2 && parts[1] == "bookings":
 		BarberBookingsHandler(w, r, barber, s)
+
+	case len(parts) == 2 && parts[1] == "orders":
+		BarberOrdersHandler(w, r, barber, s)
+
+	case len(parts) == 2 && parts[1] == "account":
+		BarberAccountHandler(w, r, barber, s)
 
 	case len(parts) == 4 && parts[1] == "bookings":
 		BarberBookingActionHandler(w, r, barber, s, parts[2], parts[3])

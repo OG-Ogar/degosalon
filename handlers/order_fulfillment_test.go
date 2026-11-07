@@ -72,10 +72,10 @@ func TestSellerFulfillmentAndCollectionWording(t *testing.T) {
 	if page.Code != 200 || !strings.Contains(page.Body.String(), "Ready") || !strings.Contains(page.Body.String(), "No online payment") {
 		t.Fatalf("confirmation: %d", page.Code)
 	}
-	dashboard := httptest.NewRecorder()
-	BarberDashboardHandler(dashboard, httptest.NewRequest(http.MethodGet, "/barber/dashboard", nil), seller, session)
-	if dashboard.Code != 200 || !strings.Contains(dashboard.Body.String(), "Mark collected") {
-		t.Fatalf("seller actions: %d", dashboard.Code)
+	ordersPage := httptest.NewRecorder()
+	BarberOrdersHandler(ordersPage, httptest.NewRequest(http.MethodGet, "/barber/orders", nil), seller, session)
+	if ordersPage.Code != 200 || !strings.Contains(ordersPage.Body.String(), "Mark collected") {
+		t.Fatalf("seller order actions: %d", ordersPage.Code)
 	}
 	if w := action(http.MethodPost, "test", "collect", seller); w.Code != 303 {
 		t.Fatalf("collect: %d", w.Code)

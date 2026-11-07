@@ -27,7 +27,7 @@ type barberDashboardView struct {
 	ProductOrders []models.ProductOrderItem
 }
 
-// BarberDashboardHandler shows the barber's own overview.
+// BarberDashboardHandler shows the barber's social home.
 func BarberDashboardHandler(
 	w http.ResponseWriter,
 	r *http.Request,
@@ -48,45 +48,50 @@ func BarberDashboardHandler(
 		return
 	}
 
-	counts, err := storage.DashboardTotals(r.Context(), storage.BookingFilter{BarberID: barber.ID, Now: time.Now(), LegacyTimezone: BookingTimezone()})
+	feed, err := loadSocialFeed(r, models.SenderBarber, barber.ID, barber.FullName, actorPhoto, s.CSRFToken)
 	if err != nil {
-		serverError(w, "load barber dashboard totals", err)
+		serverError(w, "load social home feed", err)
 		return
 	}
 
 	// The password hash must never reach the template.
 	barber.PasswordHash = ""
 
-	cursor, ok := readNamedPageCursor(w, r, "orders")
-	if !ok {
-		return
-	}
-	status, ok := readFulfillmentFilter(w, r)
-	if !ok {
-		return
-	}
-	orderItems, err := storage.SellerOrderItemPage(r.Context(), barber.ID, status, cursor)
-	if err != nil {
-		serverError(w, "load seller order page", err)
-		return
-	}
-	orderLinks := orderItemPagination(r, cursor, orderItems.Items, orderItems.HasPrevious, orderItems.HasNext)
-	if len(orderItems.Items) == 0 && (cursor.After > 0 || cursor.Before > 0) {
-		http.Redirect(w, r, orderLinks.FirstLink, 303)
+	render(w, "barber/dashboard.html", barberDashboardView{
+		Barber: barber,
+		CSRF:   s.CSRFToken,
+		Feed:   feed,
+	})
+}
+
+// BarberAccountHandler is the account summary page that the home menu opens.
+func BarberAccountHandler(
+	w http.ResponseWriter,
+	r *http.Request,
+	barber models.Barber,
+	s sessionData,
+) {
+	if r.Method != http.MethodGet {
+		methodNotAllowed(w, http.MethodGet)
+
 		return
 	}
 
+	counts, err := storage.DashboardTotals(r.Context(), storage.BookingFilter{BarberID: barber.ID, Now: time.Now(), LegacyTimezone: BookingTimezone()})
+	if err != nil {
+		serverError(w, "load barber account totals", err)
+		return
+	}
 	conversations, err := storage.ConversationCountForBarber(r.Context(), barber.ID)
 	if err != nil {
-		serverError(w, "load dashboard conversations", err)
+		serverError(w, "load account conversations", err)
 		return
 	}
-	feed, err := loadSocialFeed(r, models.SenderBarber, barber.ID, barber.FullName, actorPhoto, s.CSRFToken)
-	if err != nil {
-		serverError(w, "load social home feed", err)
-		return
-	}
-	render(w, "barber/dashboard.html", barberDashboardView{
+
+	// The password hash must never reach the template.
+	barber.PasswordHash = ""
+
+	render(w, "barber/account.html", barberDashboardView{
 		Barber:           barber,
 		CSRF:             s.CSRFToken,
 		PasskeyRole:      "barber",
@@ -94,10 +99,6 @@ func BarberDashboardHandler(
 		PendingBookings:  counts.Pending,
 		UpcomingBookings: counts.AcceptedUpcoming,
 		Conversations:    conversations,
-		ProductOrders:    orderItems.Items,
-		OrderPagination:  orderLinks,
-		OrderStatus:      status,
-		Feed:             feed,
 	})
 }
 

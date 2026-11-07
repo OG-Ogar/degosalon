@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - De Go Salon</title>
+    <script src="/static/theme-switch.js"></script>
+    <link rel="stylesheet" href="/static/app.css">
+    <link rel="stylesheet" href="/static/customer-dashboard.css">
+    <link rel="stylesheet" href="/static/products.css">
+    <link rel="stylesheet" href="/static/ui.css">
+    <link rel="stylesheet" href="/static/theme.css">
+    <script src="/static/app.js" defer></script>
+</head>
+<body class="customer-page modern-customer-page">
+{{template "role-header" (navigation "customer" "orders" .)}}
+
+<main class="products-page ui-page">
+    <p class="eyebrow">Your purchases</p>
+    <h1 id="orders">My Orders</h1>
+    <p>Review your product purchases and order status.</p>
+    {{template "list-pagination" .Pagination}}
+    {{if .ProductOrders}}
+        <div class="appointment-list">
+            {{range .ProductOrders}}
+                <article class="appointment-card">
+                    <div class="appointment-date">
+                        <span>Order #{{.ID}}</span>
+                        <strong>{{.CreatedAt.Format "02 Jan 2006"}}</strong>
+                    </div>
+                    <div class="appointment-details">
+                        <h2>{{naira .TotalAmount}}</h2>
+                        <p>{{.CustomerName}}</p>
+                        {{template "domain-status" (domainStatus "order" .Status)}}
+                    </div>
+                    <div class="appointment-status">
+                        <a class="section-link" href="/customer/order-confirmation/{{.ID}}">View order</a>
+                    </div>
+                </article>
+            {{end}}
+        </div>
+    {{else}}
+        <section class="ui-panel">
+            <h2>No product orders yet</h2>
+            <p>Browse products from barbers to make your first purchase.</p>
+            <a class="ui-control" href="/customer/products">Browse products</a>
+        </section>
+    {{end}}
+</main>
+
+{{template "public-footer" .}}
+</body>
+</html>

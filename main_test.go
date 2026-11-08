@@ -55,11 +55,11 @@ func TestRevalidateReturnsNotModifiedOnMatchingETag(t *testing.T) {
 }
 
 func TestProductionStartupRejectsMemoryBeforeServing(t *testing.T) {
-	if os.Getenv("DEGOSALON_STARTUP_TEST") == "1" {
+	if os.Getenv("OGSALON_STARTUP_TEST") == "1" {
 		main()
 		return
 	}
-	t.Setenv("DEGOSALON_STARTUP_TEST", "1")
+	t.Setenv("OGSALON_STARTUP_TEST", "1")
 	t.Setenv("APP_ENV", "production")
 	t.Setenv("RENDER", "")
 	t.Setenv("DATABASE_URL", "")

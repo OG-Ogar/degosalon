@@ -1,15 +1,15 @@
-# De Go Salon
+# OG Salon
 
 **A simple platform for finding barbers and booking appointments.**
 
-De Go Salon connects customers and barbers through service discovery,
+OG Salon connects customers and barbers through service discovery,
 appointments, messaging and product orders.
 
 ## Current Status
 
 **Feature-rich MVP deployed and in active validation.**
 
-De Go Salon implements public discovery plus authenticated customer, barber, and administrator journeys. It uses Go server-rendered templates with progressive TypeScript enhancement, PostgreSQL persistence, and configurable cloud media and password-recovery delivery.
+OG Salon implements public discovery plus authenticated customer, barber, and administrator journeys. It uses Go server-rendered templates with progressive TypeScript enhancement, PostgreSQL persistence, and configurable cloud media and password-recovery delivery.
 
 The application is deployed on Render and uses Supabase PostgreSQL for persistent application data, so core records survive application restarts.
 
@@ -145,7 +145,7 @@ The following were added after the original MVP documentation and are present in
 ## MVP Architecture
 
 ```text
-degosalon/
+og-salon/
 ├── main.go
 ├── go.mod
 ├── cmd/          # migrate, media and audit command-line tools
@@ -186,7 +186,7 @@ The server uses environment configuration where applicable.
 
 ## Known MVP Gaps / Production Readiness
 
-De Go Salon is now deployed with persistent PostgreSQL storage, but production hardening and feature verification are still ongoing.
+OG Salon is now deployed with persistent PostgreSQL storage, but production hardening and feature verification are still ongoing.
 
 Priority work includes:
 
@@ -270,7 +270,7 @@ See [remaining gap.md](remaining%20gap.md) for the reconciled scope and [browser
 
 ## TypeScript frontend strategy
 
-De Go Salon uses a progressive-enhancement architecture rather than a separate single-page frontend. Go continues to own routing, authentication, authorization, server-rendered HTML, forms, and Supabase access. TypeScript source lives under `frontend/` and compiles to browser JavaScript under `static/`, which the existing Go server serves.
+OG Salon uses a progressive-enhancement architecture rather than a separate single-page frontend. Go continues to own routing, authentication, authorization, server-rendered HTML, forms, and Supabase access. TypeScript source lives under `frontend/` and compiles to browser JavaScript under `static/`, which the existing Go server serves.
 
 This keeps the current Render deployment as one web service while giving interactive surfaces typed client-side code. High-interaction areas such as location discovery, booking selection, chat, cart behavior, uploads, and role navigation can migrate incrementally without rewriting stable server-rendered pages.
 
@@ -298,7 +298,7 @@ To run it locally, set `TEST_DATABASE_URL` to a disposable PostgreSQL server URL
 go test -race -v ./storage ./handlers ./internal/dbmigrate -run TestPostgres -count=1 -timeout=5m
 ```
 
-Each test package creates a randomly named `degosalon_test_*` database and applies the baseline and versioned migrations there. Existing tables in the configured database are not modified. Tests close their connections and drop only the database they created. Without `TEST_DATABASE_URL`, the integration tests skip while ordinary tests continue using memory.
+Each test package creates a randomly named `ogsalon_test_*` database and applies the baseline and versioned migrations there. Existing tables in the configured database are not modified. Tests close their connections and drop only the database they created. Without `TEST_DATABASE_URL`, the integration tests skip while ordinary tests continue using memory.
 
 The CI service configuration follows [GitHub's PostgreSQL service-container guide](https://docs.github.com/en/actions/tutorials/use-containerized-services/create-postgresql-service-containers). This suite verifies the server-owned PostgreSQL access used by Go; it does not certify production Supabase Data API grants, Storage policies, or deployment settings.
 
@@ -418,7 +418,7 @@ Operators can run `go run ./cmd/audit -limit 100` with `DATABASE_URL` configured
 
 ### Brevo production setup
 
-In the existing Render service's Environment settings, configure `BREVO_API_KEY`, `BREVO_FROM`, and a persistent `RESET_MAIL_KEY` of at least 32 random characters. Keep an existing `RESET_MAIL_KEY` unchanged; it encrypts queued recovery mail. `SITE_URL=https://degosalon.onrender.com` is optional when Render's `RENDER_EXTERNAL_URL` already matches the canonical site. Save and redeploy after changing configuration. Blueprint `sync: false` entries do not update an existing manually configured service. Keep keys out of Git and chat.
+In the existing Render service's Environment settings, configure `BREVO_API_KEY`, `BREVO_FROM`, and a persistent `RESET_MAIL_KEY` of at least 32 random characters. Keep an existing `RESET_MAIL_KEY` unchanged; it encrypts queued recovery mail. `SITE_URL=https://og-salon.onrender.com` is optional when Render's `RENDER_EXTERNAL_URL` already matches the canonical site. Save and redeploy after changing configuration. Blueprint `sync: false` entries do not update an existing manually configured service. Keep keys out of Git and chat.
 
 After deployment, use Forgot password for an account and inbox you control. Check Brevo transactional logs and the inbox/spam folder, then verify the link resets the password and cannot be reused. A live Render deployment or an accepted provider receipt alone does not prove inbox delivery. The Brevo transport tests use fake HTTP responses and do not send real messages.
 

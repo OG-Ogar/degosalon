@@ -136,7 +136,7 @@ func TestPostgresMediaMigration(t *testing.T) {
 	if _, err := connection.Exec(`drop trigger reject_migrated_site on degosalon_internal.site_media`); err != nil {
 		t.Fatal(err)
 	}
-	ackLoss, err := sql.Open("degosalon-site-commit-ack-loss", address)
+	ackLoss, err := sql.Open("ogsalon-site-commit-ack-loss", address)
 	if err != nil {
 		t.Fatal(err)
 	}

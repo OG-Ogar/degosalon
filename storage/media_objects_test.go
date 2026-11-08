@@ -312,7 +312,7 @@ func TestPostgresMediaCleanupTransactionSafety(t *testing.T) {
 		t.Fatal(err)
 	}
 	dueMedia(t, next)
-	ackLoss, err := sql.Open("degosalon-site-commit-ack-loss", address)
+	ackLoss, err := sql.Open("ogsalon-site-commit-ack-loss", address)
 	if err != nil {
 		t.Fatal(err)
 	}

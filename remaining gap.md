@@ -17,7 +17,7 @@ Updated: 8 October 2026. Baseline: main at `dfd5bfb3a6cdc6ae2a02897b7c74ca4b8c72
 
 ## Deployment checkpoint
 
-PR #115's merge `dfd5bfb3a6cdc6ae2a02897b7c74ca4b8c725e83` deployed successfully as `dep-db3uo68jo6nc73bhlhq0` at 19:19 UTC on 8 October 2026. Render reports **live**, and the new instance's logs record HTTP 200 responses for `/` after startup. Public URL: https://degosalon.onrender.com.
+PR #115's merge `dfd5bfb3a6cdc6ae2a02897b7c74ca4b8c725e83` deployed successfully as `dep-db3uo68jo6nc73bhlhq0` at 19:19 UTC on 8 October 2026. Render reports **live**, and the new instance's logs record HTTP 200 responses for `/` after startup. Public URL: https://og-salon.onrender.com.
 
 Production acceptance is partially verified through the connected Render and Supabase tools. Render service `srv-db0v17vavr4c739fir6g` in **My Workspace** (`tea-dav5lgvpn0mc73a8ki50`) deploys `main`. Supabase project `myllzicsekynuvopurly` is reachable and reported ACTIVE_HEALTHY. The media bucket is public with a 50 MiB limit and the expected JPEG/PNG/GIF/WebP/MP4/WebM/QuickTime allowlist. This does not certify backup restoration, real-inbox delivery or provider outage recovery.
 
@@ -49,7 +49,7 @@ PR #85's image navigation and native dialog implementation is superseded by merg
 
 ## Reconciled messaging and browser implementation
 
-[PR #91](https://github.com/OG-Ogar/degosalon/pull/91), `feat/frontend-messaging-browser-verification`, merged on 7 October 2026. Final checked head: `8e53fb81095ca6e81ab66301bc900242311b3851`. The [final PR CI run](https://github.com/OG-Ogar/degosalon/actions/runs/37597022175) passed `verify`, `postgres` and `browser`; CodeRabbit also reported success. Earlier failed runs are superseded by this final head.
+[PR #91](https://github.com/OG-Ogar/og-salon/pull/91), `feat/frontend-messaging-browser-verification`, merged on 7 October 2026. Final checked head: `8e53fb81095ca6e81ab66301bc900242311b3851`. The [final PR CI run](https://github.com/OG-Ogar/og-salon/actions/runs/37597022175) passed `verify`, `postgres` and `browser`; CodeRabbit also reported success. Earlier failed runs are superseded by this final head.
 
 FE-13's shared messaging stylesheet and FE-23's explicit manual-refresh contract are implemented on main. Both roles load `/static/messages.css`; conversation pages explain that incoming messages appear after refresh/send and expose named refresh links. Polling, streaming and unread state remain optional product work. FE-21's remaining-form/server-error audit is merged in PR #104; browser acceptance is covered under FE-26. Browser CI, broader BE-23 journeys and the FE-26 page matrix are implemented; dedicated security coverage is merged. The merged acceptance matrix covers all 46 full-page templates; it does not certify production, every possible application state or physical-device accessibility.
 

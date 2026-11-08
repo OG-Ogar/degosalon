@@ -1,5 +1,5 @@
 "use strict";
-/* Typed interactive layer for De Go Salon.
+/* Typed interactive layer for OG Salon.
 
    Every page still works with this file blocked or broken: the server
    validates and renders everything on its own, and nothing below adds a
@@ -970,7 +970,7 @@
         const card = document.querySelector(".calendar-export-card");
         if (!card)
             return;
-        const title = card.getAttribute("data-calendar-title") || "Appointment on De Go Salon";
+        const title = card.getAttribute("data-calendar-title") || "Appointment on OG Salon";
         const description = card.getAttribute("data-calendar-description") || "";
         const location = card.getAttribute("data-calendar-location") || "";
         const date = card.getAttribute("data-calendar-date") || "";
@@ -1013,10 +1013,10 @@
             const icsContent = [
                 "BEGIN:VCALENDAR",
                 "VERSION:2.0",
-                "PRODID:-//De Go Salon//Appointment Booking//EN",
+                "PRODID:-//OG Salon//Appointment Booking//EN",
                 "CALSCALE:GREGORIAN",
                 "BEGIN:VEVENT",
-                "UID:degosalon-" + Date.now() + "@degosalon.com",
+                "UID:ogsalon-" + Date.now() + "@ogsalon.com",
                 "DTSTAMP:" + formatIsoUtc(new Date()),
                 "DTSTART:" + startIso,
                 "DTEND:" + endIso,

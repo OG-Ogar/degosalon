@@ -42,7 +42,7 @@ func New(t testing.TB, schemaPath string) string {
 	if _, err := rand.Read(random); err != nil {
 		t.Fatal(err)
 	}
-	name := "degosalon_test_" + hex.EncodeToString(random)
+	name := "ogsalon_test_" + hex.EncodeToString(random)
 	identifier := pgx.Identifier{name}.Sanitize()
 	if _, err := admin.ExecContext(ctx, "create database "+identifier); err != nil {
 		t.Fatalf("create disposable test database: %v", err)

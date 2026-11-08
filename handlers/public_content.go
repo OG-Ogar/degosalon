@@ -19,9 +19,9 @@ type publicContentView struct {
 
 var publicContentPages = map[string]publicContentView{
 	"/help":    {Title: "Help", Description: "Help with finding a barber, booking, messages and product collection.", Kind: "help", Path: "/help", Placeholder: true},
-	"/support": {Title: "Support", Description: "Contact De Go Salon support by telephone.", Kind: "support", Path: "/support"},
-	"/privacy": {Title: "Privacy", Description: "Privacy information for De Go Salon.", Kind: "privacy", Path: "/privacy", Placeholder: true},
-	"/terms":   {Title: "Terms", Description: "Terms information for De Go Salon.", Kind: "terms", Path: "/terms", Placeholder: true},
+	"/support": {Title: "Support", Description: "Contact OG Salon support by telephone.", Kind: "support", Path: "/support"},
+	"/privacy": {Title: "Privacy", Description: "Privacy information for OG Salon.", Kind: "privacy", Path: "/privacy", Placeholder: true},
+	"/terms":   {Title: "Terms", Description: "Terms information for OG Salon.", Kind: "terms", Path: "/terms", Placeholder: true},
 }
 
 func PublicContentHandler(w http.ResponseWriter, r *http.Request) {
@@ -158,7 +158,7 @@ func websiteSchema(path string) template.HTML {
 	data := webSiteJSONLD{
 		Context: "https://schema.org",
 		Type:    "WebSite",
-		Name:    "De Go Salon",
+		Name:    "OG Salon",
 		URL:     baseURL,
 		PotentialAction: map[string]any{
 			"@type":       "SearchAction",

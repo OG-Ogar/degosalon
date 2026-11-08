@@ -43,10 +43,10 @@ jobs:
 
       - name: Build deployment binaries
         run: |
-          go build -tags netgo -ldflags '-s -w' -o /tmp/degosalon-app
-          go build -tags netgo -ldflags '-s -w' -o /tmp/degosalon-migrate ./cmd/migrate
-          go build -tags netgo -ldflags '-s -w' -o /tmp/degosalon-media ./cmd/media
-          go build -tags netgo -ldflags '-s -w' -o /tmp/degosalon-audit ./cmd/audit
+          go build -tags netgo -ldflags '-s -w' -o /tmp/og-salon-app
+          go build -tags netgo -ldflags '-s -w' -o /tmp/og-salon-migrate ./cmd/migrate
+          go build -tags netgo -ldflags '-s -w' -o /tmp/og-salon-media ./cmd/media
+          go build -tags netgo -ldflags '-s -w' -o /tmp/og-salon-audit ./cmd/audit
 
       - name: Validate Render Blueprint
         run: |

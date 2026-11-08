@@ -133,12 +133,12 @@ func (tx siteAckLossTx) Commit() error {
 	return errors.New("commit acknowledgment lost")
 }
 func init() {
-	sql.Register("degosalon-site-commit-ack-loss", siteAckLossDriver{stdlib.GetDefaultDriver()})
+	sql.Register("ogsalon-site-commit-ack-loss", siteAckLossDriver{stdlib.GetDefaultDriver()})
 }
 
 func TestPostgresSiteMediaUnknownCommitPreservesReference(t *testing.T) {
 	databaseURL := testdb.New(t, "../supabase/schema.sql")
-	conn, err := sql.Open("degosalon-site-commit-ack-loss", databaseURL)
+	conn, err := sql.Open("ogsalon-site-commit-ack-loss", databaseURL)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -264,8 +264,8 @@ flowchart TD
    - Always derived from the validated HTTPS `SITE_URL` or `RENDER_EXTERNAL_URL`. Never derived from arbitrary client request headers.
    - Tracking parameters (`?fbclid=`, `?ref=`, `?utm_*`) and session IDs must never appear in canonical URLs.
 4. **Platform Verification & Handles:**
-   - `<meta name="twitter:site" content="@ogsalon">`
-   - `<meta name="twitter:creator" content="@ogsalon">`
+   - `<meta name="twitter:site" content="@og's salon">`
+   - `<meta name="twitter:creator" content="@og's salon">`
    - `<meta property="og:site_name" content="OG Salon">`
    - `<meta property="og:locale" content="en_NG">`
    - `<meta property="fb:app_id" content="966242223397117">` (or configurable platform ID).
@@ -299,8 +299,8 @@ flowchart TD
 
 <!-- X.com (Twitter) Standard -->
 <meta name="twitter:card" content="{{if .TwitterCard}}{{.TwitterCard}}{{else}}summary_large_image{{end}}">
-<meta name="twitter:site" content="@ogsalon">
-<meta name="twitter:creator" content="@ogsalon">
+<meta name="twitter:site" content="@og's salon">
+<meta name="twitter:creator" content="@og's salon">
 <meta name="twitter:title" content="{{.Title}}">
 <meta name="twitter:description" content="{{.Description}}">
 {{if .Image}}

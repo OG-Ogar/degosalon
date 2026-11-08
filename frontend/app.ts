@@ -1123,7 +1123,7 @@
                 "PRODID:-//OG Salon//Appointment Booking//EN",
                 "CALSCALE:GREGORIAN",
                 "BEGIN:VEVENT",
-                "UID:ogsalon-" + Date.now() + "@ogsalon.com",
+                "UID:og's salon-" + Date.now() + "@og's salon.com",
                 "DTSTAMP:" + formatIsoUtc(new Date()),
                 "DTSTART:" + startIso,
                 "DTEND:" + endIso,

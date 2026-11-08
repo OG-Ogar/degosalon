@@ -1,4 +1,4 @@
-# OG Salon — frontend and backend gap diagnosis
+# OG's Salon — frontend and backend gap diagnosis
 
 > **Current status — 6 October 2026:** Read [gap-review.md](gap-review.md) for the reconciled status of all 50 findings at PR #81, remaining priorities and verification limits. Earlier findings and implementation entries below remain historical evidence, not the current backlog.
 
@@ -87,7 +87,7 @@ Use one focused branch and PR per bounded item. Wait for that PR's CI on its cur
 
 ## Executive assessment
 
-OG Salon has a credible public design direction and a useful Go server-rendered foundation. The landing page and public Find a Barber experience establish forest surfaces, cream text, gold actions, human photography and a discovery → compare → book journey. Most authenticated pages now use this palette, but changing colors has not completed the design-system migration. Navigation, layout primitives, recovery forms, messages, data tables and interaction behavior remain fragmented.
+OG's Salon has a credible public design direction and a useful Go server-rendered foundation. The landing page and public Find a Barber experience establish forest surfaces, cream text, gold actions, human photography and a discovery → compare → book journey. Most authenticated pages now use this palette, but changing colors has not completed the design-system migration. Navigation, layout primitives, recovery forms, messages, data tables and interaction behavior remain fragmented.
 
 The highest risks are functional: booking submissions bypassed existing date/hour validators; checkout writes orders in separate steps; carts consume stock indefinitely; order history is not connected to the customer dashboard; database failures can masquerade as missing records or empty lists. These problems directly undermine frontend promises and should precede a broad cosmetic redesign.
 
@@ -107,7 +107,7 @@ Priorities: **P0** data integrity/security or invalid core behavior; **P1** brok
 
 Use `templates/home.html`, `templates/explore.html`, `static/app.css` token definitions and `static/customer-barbers.css` as the visual reference. Operational dashboards need denser layouts than marketing pages, but should preserve:
 
-1. OG Salon brand; Barber Multiverse as ecosystem language; OG fallback mark.
+1. OG's Salon brand; Barber Multiverse as ecosystem language; OG fallback mark.
 2. Forest/cream/gold tokens, semantic destructive/status treatments, consistent focus states.
 3. One role-aware navigation model with stable destinations and active state.
 4. Shared button, field, card, avatar, empty/error/success and price conventions.

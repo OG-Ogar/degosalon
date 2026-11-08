@@ -1,5 +1,5 @@
 "use strict";
-/* Typed interactive layer for OG Salon.
+/* Typed interactive layer for OG's Salon.
 
    Every page still works with this file blocked or broken: the server
    validates and renders everything on its own, and nothing below adds a
@@ -970,7 +970,7 @@
         const card = document.querySelector(".calendar-export-card");
         if (!card)
             return;
-        const title = card.getAttribute("data-calendar-title") || "Appointment on OG Salon";
+        const title = card.getAttribute("data-calendar-title") || "Appointment on OG's Salon";
         const description = card.getAttribute("data-calendar-description") || "";
         const location = card.getAttribute("data-calendar-location") || "";
         const date = card.getAttribute("data-calendar-date") || "";
@@ -1013,7 +1013,7 @@
             const icsContent = [
                 "BEGIN:VCALENDAR",
                 "VERSION:2.0",
-                "PRODID:-//OG Salon//Appointment Booking//EN",
+                "PRODID:-//OG's Salon//Appointment Booking//EN",
                 "CALSCALE:GREGORIAN",
                 "BEGIN:VEVENT",
                 "UID:og's salon-" + Date.now() + "@og's salon.com",

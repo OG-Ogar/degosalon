@@ -1,5 +1,5 @@
 ================================================================================
-OG SALON - BOOKING DISCOVERIES AND PROBLEM STATEMENT ANALYSIS
+OG's Salon - BOOKING DISCOVERIES AND PROBLEM STATEMENT ANALYSIS
 ================================================================================
 Generated Date: 2026-10-12
 Repository: og-salon

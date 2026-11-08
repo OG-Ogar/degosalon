@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Explore Barbers - OG Salon</title>
+<title>Explore Barbers - OG's Salon</title>
 <script src="/static/theme-switch.js"></script>
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/customer-barbers.css">
 <link rel="stylesheet" href="/static/ui.css">
 <link rel="stylesheet" href="/static/theme.css">
 <script src="/static/app.js" defer></script>
-{{template "public-metadata" (publicMetadata "/explore" "Explore Barbers - OG Salon" "Find barbers by Nigeria state/FCT and LGA or area council. Compare services, prices and handwork." "" "" "website" "summary_large_image" (websiteSchema "/explore"))}}
+{{template "public-metadata" (publicMetadata "/explore" "Explore Barbers - OG's Salon" "Find barbers by Nigeria state/FCT and LGA or area council. Compare services, prices and handwork." "" "" "website" "summary_large_image" (websiteSchema "/explore"))}}
 </head>
 <body class="explore-page">
 <div class="barber-page find-page">
 <header class="barber-header">
-<a class="brand-box" href="/" aria-label="OG Salon home"><span class="brand-mark" aria-hidden="true">OG</span><span><span class="brand-title">OG Salon</span><span class="brand-subtitle">OG Salon</span></span></a>
+<a class="brand-box" href="/" aria-label="OG's Salon home"><span class="brand-mark" aria-hidden="true">OG's</span><span><span class="brand-title">OG's Salon</span><span class="brand-subtitle">OG's Salon</span></span></a>
 <nav class="customer-navigation" aria-label="Account navigation">
 {{if .CustomerSignedIn}}<a class="nav-box" href="/customer/dashboard">Dashboard</a>{{else}}<a class="nav-box" href="{{.LoginLink}}">Customer Login</a>{{end}}
 <a class="nav-box nav-primary" href="/barber/login">For Barbers <span aria-hidden="true">→</span></a>
@@ -25,7 +25,7 @@
 <section class="page-intro find-hero">
 <p class="eyebrow"><span></span> Explore barbers</p>
 <h1>Find the right barber <em>around you.</em></h1>
-<p class="intro-text">Choose your location to discover active OG Salon barbers, compare their handwork and prices, and find the right fit before you book.</p>
+<p class="intro-text">Choose your location to discover active OG's Salon barbers, compare their handwork and prices, and find the right fit before you book.</p>
 </section>
 
 <section class="search-section location-panel" aria-labelledby="location-title">
@@ -55,7 +55,7 @@
 <div class="barber-grid">
 {{range .Items}}
 <article class="barber-card">
-<a class="barber-image" href="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">{{if .ProfileImage}}<img src="{{.ProfileImage}}" alt="{{.ShopName}}" loading="lazy" srcset="{{imageSrcset .ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" decoding="async">{{else if .PersonalImage}}<img src="{{.PersonalImage}}" alt="{{.FullName}}" loading="lazy" srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" decoding="async">{{else}}<span class="image-placeholder">OG</span>{{end}}<span class="view-cue">View profile ↗</span></a>
+<a class="barber-image" href="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">{{if .ProfileImage}}<img src="{{.ProfileImage}}" alt="{{.ShopName}}" loading="lazy" srcset="{{imageSrcset .ProfileImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" decoding="async">{{else if .PersonalImage}}<img src="{{.PersonalImage}}" alt="{{.FullName}}" loading="lazy" srcset="{{imageSrcset .PersonalImage}}" sizes="(max-width: 520px) calc(100vw - 48px), (max-width: 900px) 50vw, 360px" width="640" height="480" decoding="async">{{else}}<span class="image-placeholder">OG's</span>{{end}}<span class="view-cue">View profile ↗</span></a>
 <div class="barber-information">
 <div class="card-topline"><p class="card-label">BARBER SHOP</p>{{if .ReviewCount}}<span class="rating-badge">★ {{printf "%.1f" .Rating}}</span>{{else}}<span class="new-badge">New</span>{{end}}</div>
 <h3><a href="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">{{.ShopName}}</a></h3>
@@ -64,14 +64,14 @@
 <div class="barber-details"><div class="detail-item"><strong>{{.Hairstyles}}</strong><span>Services</span></div><div class="detail-divider"></div><div class="detail-item">{{if .Hairstyles}}<strong>{{naira .FromPrice}}</strong><span>Starting price</span>{{else}}<strong>—</strong><span>Prices coming soon</span>{{end}}</div>{{if .ReviewCount}}<div class="detail-divider"></div><div class="detail-item"><strong>{{.ReviewCount}}</strong><span>Reviews</span></div>{{end}}</div>
 <div class="barber-actions ui-actions">
 <a class="book-button" href="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">See handwork & prices <span aria-hidden="true">→</span></a>
-<button type="button" class="barber-share-btn ui-control" data-share data-share-title="{{.ShopName}} on OG Salon" data-share-text="Discover {{.ShopName}} in {{.LocalArea}}, {{.State}} on OG Salon" data-share-url="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}" aria-label="Share {{.ShopName}}"><span aria-hidden="true">↗</span> Share</button>
+<button type="button" class="barber-share-btn ui-control" data-share data-share-title="{{.ShopName}} on OG's Salon" data-share-text="Discover {{.ShopName}} in {{.LocalArea}}, {{.State}} on OG's Salon" data-share-url="{{discoveryCardPath "/explore" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}" aria-label="Share {{.ShopName}}"><span aria-hidden="true">↗</span> Share</button>
 </div>
 </div>
 </article>
 {{end}}
 </div>
 {{else}}
-<div class="empty-state"><div class="empty-icon">OG</div><p class="eyebrow">No match yet</p><h2>No registered barber matched that location.</h2><p>Try searching the whole state, or choose another LGA/area council.</p><a class="back-button" href="/explore?state={{urlquery .SelectedState}}">Search whole state</a></div>
+<div class="empty-state"><div class="empty-icon">OG's</div><p class="eyebrow">No match yet</p><h2>No registered barber matched that location.</h2><p>Try searching the whole state, or choose another LGA/area council.</p><a class="back-button" href="/explore?state={{urlquery .SelectedState}}">Search whole state</a></div>
 {{end}}
 </section>
 {{else}}

@@ -1,4 +1,4 @@
-# OG Salon — Frontend Modernization & Social Optimization Specification
+# OG's Salon — Frontend Modernization & Social Optimization Specification
 **Standards Target: Meta (Facebook) & X.com (formerly Twitter) Consumer Grade**  
 **Design System: Dawn Canopy Forest & Warm Gold System Tokens — Multi-Theme & Sharp Operational Modes**  
 **Architectural Foundation: Go Server-Side Rendered (html/template) + Progressive TypeScript Enhancement**  
@@ -9,7 +9,7 @@
 ## 1. Executive Vision & Standard Definition
 
 ### 1.1 The Objective
-OG Salon is a multi-sided marketplace connecting customers, professional barbers, and shop administrators across Nigeria's 36 states and FCT. While the backend architecture features hardened PostgreSQL transaction boundaries, canonical geographical normalization, scoped SQL pagination, and secure authentication, the frontend interface must now be elevated to match the world-class consumer standards established by **Facebook (Meta)** and **X.com (formerly Twitter)**.
+OG's Salon is a multi-sided marketplace connecting customers, professional barbers, and shop administrators across Nigeria's 36 states and FCT. While the backend architecture features hardened PostgreSQL transaction boundaries, canonical geographical normalization, scoped SQL pagination, and secure authentication, the frontend interface must now be elevated to match the world-class consumer standards established by **Facebook (Meta)** and **X.com (formerly Twitter)**.
 
 Meeting this benchmark requires two tightly coupled engineering dimensions:
 1. **The Social Graph & Discovery Dimension (Facebook OpenGraph & X Cards Standard):** Every public and shareable view must present high-fidelity, 1200×630px rich media previews (`summary_large_image`), canonical URLs, localized meta attributes, verified domain attribution (`fb:app_id`, `twitter:site`), Schema.org JSON-LD microdata (`BeautySalon`, `Product`, `BreadcrumbList`), and native 1-click sharing interfaces.
@@ -266,7 +266,7 @@ flowchart TD
 4. **Platform Verification & Handles:**
    - `<meta name="twitter:site" content="@og's salon">`
    - `<meta name="twitter:creator" content="@og's salon">`
-   - `<meta property="og:site_name" content="OG Salon">`
+   - `<meta property="og:site_name" content="OG's Salon">`
    - `<meta property="og:locale" content="en_NG">`
    - `<meta property="fb:app_id" content="966242223397117">` (or configurable platform ID).
 5. **Schema.org JSON-LD Structured Data:**
@@ -281,7 +281,7 @@ flowchart TD
 <meta name="theme-color" content="#10221d" media="(prefers-color-scheme: light)">
 
 <!-- Open Graph / Facebook Standard -->
-<meta property="og:site_name" content="OG Salon">
+<meta property="og:site_name" content="OG's Salon">
 <meta property="og:type" content="{{if .Type}}{{.Type}}{{else}}website{{end}}">
 <meta property="og:title" content="{{.Title}}">
 <meta property="og:description" content="{{.Description}}">
@@ -435,7 +435,7 @@ graph LR
 | Template | Current Status | Facebook / X Benchmark Gaps | Required Implementation |
 | :--- | :--- | :--- | :--- |
 | `templates/home.html`<br>*(Landing)* | Implements basic Dawn Canopy tokens, hero copy, and steps. | • Uses `summary` card instead of `summary_large_image`<br>• Lacks dynamic 1200x630 OG banner (`og:image:width`, `og:image:height`)<br>• Missing `WebSite` & `Organization` Schema.org JSON-LD<br>• Lacks live social proof ticker (verified barbers, active bookings count)<br>• Hero CTA lacks mobile touch feedback. | • Inject full OpenGraph & Twitter Card tags with 1200x630 hero image<br>• Add Schema.org JSON-LD structured data with platform metadata<br>• Add interactive style preview carousel & verified barber avatar reel<br>• Implement quick location pill bar linking directly into `/explore`. |
-| `templates/explore.html`<br>*(Barber Discovery)* | Has state/LGA dropdowns, 24-shop pagination, and barber cards. | • Generic metadata without location context<br>• Missing `ItemList` Schema.org microdata<br>• No quick filter chips ("★ 4.5+", "Open Today", "Starting < ₦3,000")<br>• No sticky filter header on mobile<br>• Card lacks 1-click share trigger. | • Dynamic meta generation ("Find 45 Barbers in Ikeja, Lagos - OG Salon")<br>• Horizontal scrolling filter chip bar (Facebook Marketplace standard)<br>• Sticky search bar with debounced input and clear button<br>• Add native share trigger on barber cards and results. |
+| `templates/explore.html`<br>*(Barber Discovery)* | Has state/LGA dropdowns, 24-shop pagination, and barber cards. | • Generic metadata without location context<br>• Missing `ItemList` Schema.org microdata<br>• No quick filter chips ("★ 4.5+", "Open Today", "Starting < ₦3,000")<br>• No sticky filter header on mobile<br>• Card lacks 1-click share trigger. | • Dynamic meta generation ("Find 45 Barbers in Ikeja, Lagos - OG's Salon")<br>• Horizontal scrolling filter chip bar (Facebook Marketplace standard)<br>• Sticky search bar with debounced input and clear button<br>• Add native share trigger on barber cards and results. |
 | `templates/explore-barber.html`<br>*(Public Barber Profile)* | Shop hero, jumpbar, hairstyle cards, reviews, products. | • Metadata does not pass shop photo to `og:image`<br>• Missing `BeautySalon` Schema.org JSON-LD (address, priceRange, rating)<br>• Lacks mobile sticky bottom booking bar<br>• Media viewer cannot cycle across hairstyles<br>• Lacks social share sheet (X, FB, WhatsApp). | • Dynamic `og:image` populated with barber's high-res shop banner<br>• Comprehensive `HairSalon` JSON-LD schema with `aggregateRating` and `offers`<br>• Sticky mobile bottom CTA bar with starting price & book action<br>• High-performance lightbox with arrow navigation and "Book This Style" CTA<br>• Web Share API modal with 1-click X, Facebook, and WhatsApp sharing. |
 | `templates/public-content.html`<br>*(Help, Support, Privacy, Terms)* | Single card layout with placeholder support text. | • Missing `BreadcrumbList` schema<br>• Help page lacks structured `FAQPage` accordion microdata<br>• Inconsistent shell navigation compared to public header. | • Add `FAQPage` JSON-LD schema on `/help`<br>• Implement accessible collapsible accordion items<br>• Unify with global desktop left rail and mobile header navigation. |
 
@@ -458,7 +458,7 @@ graph LR
 | `templates/customer/dashboard.html` | Welcome hero, 4 stat cards, upcoming appointments, orders. | • Uses legacy topbar instead of modern 3-column / bottom-nav shell<br>• Lacks right-hand context rail ("Recommended Barbers", "Trending Cuts")<br>• Stat cards lack visual micro-charts or comparative indicators<br>• Missing mobile bottom tab navigation. | • Integrate into X-standard 3-column desktop shell & 5-tab mobile nav<br>• Add right-rail widget with recommended barbers and quick re-book cards<br>• Add shimmer skeleton states for appointment loading<br>• Add quick action FAB on mobile for instant barber search. |
 | `templates/customer/barber-list.html` | Location form, text filter, 24-shop cards. | • Filter input lacks clear button and search history chips<br>• Lacks quick "Bookmark / Save Barber" toggle (X bookmark style)<br>• Card grid transitions abruptly on filter input. | • Add search filter bar with instant clear icon and recent searches<br>• Implement bookmark button with optimistic heart animation<br>• Smooth card reflow transitions with CSS Grid. |
 | `templates/customer/barber-detail.html` | Barber hero, hairstyle card grid, date/time form. | • Date and time pickers use raw browser inputs instead of time slot chips<br>• Lacks mobile sticky bottom booking summary bar<br>• Review section lacks photo reviews or star distribution breakdown. | • Implement interactive time-slot chip selector (available vs booked slots)<br>• Add sticky mobile booking summary bar with selected total and submit CTA<br>• Add star rating distribution graph (5★, 4★, 3★ bars). |
-| `templates/customer/booking-confirmation.html`<br>`templates/customer/bookings.html` | Appointment list with status chips, cancel confirmation. | • Lacks "Add to Google Calendar / Apple Calendar" (.ics export)<br>• Status filter tabs lack count badges<br>• Lacks "Share your booking" social prompt. | • Add 1-click "Add to Calendar" dropdown (.ics / Google Calendar link)<br>• Segmented filter tabs with badge counts (Upcoming, Completed, Cancelled)<br>• Add social share prompt ("Just booked with [Barber] on OG Salon!"). |
+| `templates/customer/booking-confirmation.html`<br>`templates/customer/bookings.html` | Appointment list with status chips, cancel confirmation. | • Lacks "Add to Google Calendar / Apple Calendar" (.ics export)<br>• Status filter tabs lack count badges<br>• Lacks "Share your booking" social prompt. | • Add 1-click "Add to Calendar" dropdown (.ics / Google Calendar link)<br>• Segmented filter tabs with badge counts (Upcoming, Completed, Cancelled)<br>• Add social share prompt ("Just booked with [Barber] on OG's Salon!"). |
 | `templates/customer/products.html`<br>`templates/customer/cart.html`<br>`templates/customer/order-confirmation.html` | Product catalog, cart lines, order receipt. | • Cart lacks floating sticky cart pill on mobile with badge bounce animation<br>• Quantity updating requires page reload<br>• Order receipt lacks 1-click WhatsApp/SMS order sharing. | • Add floating mobile cart badge with item bounce animation on add-to-cart<br>• Add progressive quantity stepper (+ / -) with instant subtotal calculation<br>• Add "Share Receipt via WhatsApp" button on order confirmation. |
 | `templates/customer/profile.html`<br>`templates/customer/edit-profile.html` | Personal info display and form editor. | • Profile header is flat; lacks X-style banner + overlapping circular avatar<br>• Photo upload lacks aspect-ratio guidelines. | • Redesign profile header with brand backdrop and circular avatar overlay<br>• Add drag-and-drop image upload zone with zoom preview. |
 | `templates/customer/chats.html`<br>`templates/customer/chat.html` | Conversation cards; vertical message thread with textarea. | • Desktop opens chat in separate page instead of split-pane Messenger view<br>• Textarea composer does not auto-resize vertically<br>• Lacks floating "Scroll to bottom" button when reading older messages<br>• Message bubbles lack tails, delivery status checkmarks, and hover times. | • Implement desktop split-view layout (conversations left, thread right)<br>• Auto-expanding textarea composer (44px to 140px max-height)<br>• Floating unread pill / scroll-to-bottom button<br>• Modern bubble styling with subtle tails, sent ticks, and timestamp tooltips. |
@@ -558,7 +558,7 @@ Generate strongly typed structured data for key views:
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "OG Salon",
+    "name": "OG's Salon",
     "url": "https://og-salon.onrender.com",
     "potentialAction": {
       "@type": "SearchAction",
@@ -604,7 +604,7 @@ Implement the dual-layout desktop rail and mobile bottom bar:
   <div class="app-shell-topbar-inner">
     <a class="app-brand" href="/{{.Role}}/dashboard">
       <span class="app-brand-mark">DG</span>
-      <span class="app-brand-name">OG Salon</span>
+      <span class="app-brand-name">OG's Salon</span>
     </a>
     <div class="app-topbar-actions">
       {{if eq .Role "customer"}}
@@ -628,7 +628,7 @@ Implement the dual-layout desktop rail and mobile bottom bar:
     <a class="rail-brand" href="/{{.Role}}/dashboard">
       <span class="app-brand-mark">DG</span>
       <span class="rail-brand-copy">
-        <strong>OG Salon</strong>
+        <strong>OG's Salon</strong>
         <small>{{.Role}} workspace</small>
       </span>
     </a>
@@ -861,7 +861,7 @@ function wireStickyMobileBookingBar() {
 ### 5.5 Phase 4 — Page-by-Page Implementation Recipes
 
 1. **`templates/home.html` (Landing Page):**
-   - Populate `publicMetadata` with `/static/images/og-hero-1200x630.jpg` and title `"OG Salon — Your Complete Barber Ecosystem"`.
+   - Populate `publicMetadata` with `/static/images/og-hero-1200x630.jpg` and title `"OG's Salon — Your Complete Barber Ecosystem"`.
    - Add Schema.org `WebSite` JSON-LD schema with `SearchAction`.
    - Inject social proof counter banner below hero.
 2. **`templates/explore.html` (Discovery):**

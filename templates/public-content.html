@@ -1,14 +1,14 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{.Title}} - OG Salon</title>{{if .Placeholder}}<meta name="robots" content="noindex, follow">{{end}}
-{{template "public-metadata" (publicMetadata .Path (printf "%s - OG Salon" .Title) .Description)}}
+<title>{{.Title}} - OG's Salon</title>{{if .Placeholder}}<meta name="robots" content="noindex, follow">{{end}}
+{{template "public-metadata" (publicMetadata .Path (printf "%s - OG's Salon" .Title) .Description)}}
 <script src="/static/theme-switch.js"></script>
 <link rel="stylesheet" href="/static/app.css">
 <link rel="stylesheet" href="/static/ui.css">
 <link rel="stylesheet" href="/static/theme.css">
 <script src="/static/app.js" defer></script></head>
 <body class="modern-role-page">
-<header class="site-header"><a class="site-brand" href="/" aria-label="OG Salon home"><span class="site-brand-mark" aria-hidden="true">OG</span><span class="site-brand-copy"><span class="site-brand-name">OG Salon</span><span class="site-brand-tag">Barber booking made simple</span></span></a><nav class="site-navigation" aria-label="Public navigation"><a href="/explore">Find a Barber</a><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a></nav></header>
+<header class="site-header"><a class="site-brand" href="/" aria-label="OG's Salon home"><span class="site-brand-mark" aria-hidden="true">OG's</span><span class="site-brand-copy"><span class="site-brand-name">OG's Salon</span><span class="site-brand-tag">Barber booking made simple</span></span></a><nav class="site-navigation" aria-label="Public navigation"><a href="/explore">Find a Barber</a><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a></nav></header>
 <main class="public-content-card ui-page"><h1>{{.Title}}</h1>
 {{if .Placeholder}}<p class="content-placeholder"><strong>Placeholder — awaiting approved content.</strong></p>{{end}}
 {{if eq .Kind "help"}}
@@ -20,7 +20,7 @@
 <details class="faq-item"><summary class="faq-summary">Account recovery</summary><div class="faq-content"><p>Use Forgot password on your role’s sign-in page. If recovery is unavailable or your email does not arrive, <a href="/support">contact support</a>.</p></div></details>
 </div>
 {{else if eq .Kind "support"}}
-<p>Call OG Salon support using either number below.</p><ul class="support-contacts"><li><a href="tel:+2348128162561">08128162561</a></li><li><a href="tel:+2349164226427">09164226427</a></li></ul><p>For a question about an appointment or shop, signed-in customers can use Messages to contact their barber. This is a shop conversation, not a support desk.</p><p><a href="/help">Read the app’s quick help</a></p>
+<p>Call OG's Salon support using either number below.</p><ul class="support-contacts"><li><a href="tel:+2348128162561">08128162561</a></li><li><a href="tel:+2349164226427">09164226427</a></li></ul><p>For a question about an appointment or shop, signed-in customers can use Messages to contact their barber. This is a shop conversation, not a support desk.</p><p><a href="/help">Read the app’s quick help</a></p>
 {{else if eq .Kind "privacy"}}
 <p>The approved privacy notice will appear here. This placeholder does not describe or establish the site’s privacy policy.</p>
 {{else if eq .Kind "terms"}}

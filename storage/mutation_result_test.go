@@ -22,7 +22,7 @@ type rowCountRows struct {
 	read   bool
 }
 
-func init()                                             { sql.Register("degosalon-row-count-failure", rowCountDriver{}) }
+func init()                                             { sql.Register("ogsalon-row-count-failure", rowCountDriver{}) }
 func (rowCountDriver) Open(string) (driver.Conn, error) { return rowCountConn{}, nil }
 func (rowCountConn) Prepare(string) (driver.Stmt, error) {
 	return nil, errors.New("unexpected prepare")
@@ -66,7 +66,7 @@ func (rows *rowCountRows) Next(values []driver.Value) error {
 // Exercise the public mutations through database/sql: an unavailable row count
 // must remain an operational error, never not-found, lifecycle conflict or success.
 func TestMutationAffectedRowFailures(t *testing.T) {
-	connection, err := sql.Open("degosalon-row-count-failure", "")
+	connection, err := sql.Open("ogsalon-row-count-failure", "")
 	if err != nil {
 		t.Fatal(err)
 	}

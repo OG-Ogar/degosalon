@@ -1,8 +1,8 @@
 ================================================================================
-DE GO SALON - BOOKING DISCOVERIES AND PROBLEM STATEMENT ANALYSIS
+OG SALON - BOOKING DISCOVERIES AND PROBLEM STATEMENT ANALYSIS
 ================================================================================
 Generated Date: 2026-10-12
-Repository: degosalon
+Repository: og-salon
 File: booking.txt
 
 --------------------------------------------------------------------------------

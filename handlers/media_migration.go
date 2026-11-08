@@ -136,7 +136,7 @@ func migrateLegacyFile(ctx context.Context, root, uri string, store legacyMediaB
 		return 0, ErrLegacyMediaMigration
 	}
 	// Copy and normalize a private staging file, never the legacy original.
-	stageDir, err := os.MkdirTemp("", "degosalon-legacy-media-")
+	stageDir, err := os.MkdirTemp("", "og-salon-legacy-media-")
 	if err != nil {
 		return 0, ErrLegacyMediaMigration
 	}

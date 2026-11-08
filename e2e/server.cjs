@@ -5,7 +5,7 @@ const os=require('node:os');
 const path=require('node:path');
 const {spawn,spawnSync}=require('node:child_process');
 const root=path.resolve(__dirname,'..');
-const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'degosalon-browser-'));
+const sandbox=fs.mkdtempSync(path.join(os.tmpdir(),'og-salon-browser-'));
 process.on('exit',()=>fs.rmSync(sandbox,{recursive:true,force:true}));
 fs.cpSync(path.join(root,'templates'),path.join(sandbox,'templates'),{recursive:true});
 fs.symlinkSync(path.join(root,'static'),path.join(sandbox,'static'),'dir');

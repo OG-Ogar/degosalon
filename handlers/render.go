@@ -468,9 +468,9 @@ func naira(amount float64) string {
 
 var journeyErrorTemplate = template.Must(template.New("journey-error").Parse(`<!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{{.Title}} - De Go Salon</title><link rel="stylesheet" href="/static/app.css"></head>
+<title>{{.Title}} - OG Salon</title><link rel="stylesheet" href="/static/app.css"></head>
 <body class="modern-role-page"><main class="journey-error-card">
-<a href="/">De Go Salon</a><p>{{.Status}}</p><h1>{{.Title}}</h1><p role="alert">{{.Message}}</p>
+<a href="/">OG Salon</a><p>{{.Status}}</p><h1>{{.Title}}</h1><p role="alert">{{.Message}}</p>
 <p>You can return to your workspace or sign in again to continue.</p>
 <nav aria-label="Recovery options"><a href="/customer/dashboard">Customer dashboard</a><a href="/barber/dashboard">Barber dashboard</a><a href="/explore">Find a Barber</a><a href="/">Home</a></nav>
 </main></body></html>`))

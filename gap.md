@@ -1,4 +1,4 @@
-# De Go Salon — frontend and backend gap diagnosis
+# OG Salon — frontend and backend gap diagnosis
 
 > **Current status — 6 October 2026:** Read [gap-review.md](gap-review.md) for the reconciled status of all 50 findings at PR #81, remaining priorities and verification limits. Earlier findings and implementation entries below remain historical evidence, not the current backlog.
 
@@ -87,7 +87,7 @@ Use one focused branch and PR per bounded item. Wait for that PR's CI on its cur
 
 ## Executive assessment
 
-De Go Salon has a credible public design direction and a useful Go server-rendered foundation. The landing page and public Find a Barber experience establish forest surfaces, cream text, gold actions, human photography and a discovery → compare → book journey. Most authenticated pages now use this palette, but changing colors has not completed the design-system migration. Navigation, layout primitives, recovery forms, messages, data tables and interaction behavior remain fragmented.
+OG Salon has a credible public design direction and a useful Go server-rendered foundation. The landing page and public Find a Barber experience establish forest surfaces, cream text, gold actions, human photography and a discovery → compare → book journey. Most authenticated pages now use this palette, but changing colors has not completed the design-system migration. Navigation, layout primitives, recovery forms, messages, data tables and interaction behavior remain fragmented.
 
 The highest risks are functional: booking submissions bypassed existing date/hour validators; checkout writes orders in separate steps; carts consume stock indefinitely; order history is not connected to the customer dashboard; database failures can masquerade as missing records or empty lists. These problems directly undermine frontend promises and should precede a broad cosmetic redesign.
 
@@ -107,7 +107,7 @@ Priorities: **P0** data integrity/security or invalid core behavior; **P1** brok
 
 Use `templates/home.html`, `templates/explore.html`, `static/app.css` token definitions and `static/customer-barbers.css` as the visual reference. Operational dashboards need denser layouts than marketing pages, but should preserve:
 
-1. De Go Salon brand; Barber Multiverse as ecosystem language; DG fallback mark.
+1. OG Salon brand; Barber Multiverse as ecosystem language; OG fallback mark.
 2. Forest/cream/gold tokens, semantic destructive/status treatments, consistent focus states.
 3. One role-aware navigation model with stable destinations and active state.
 4. Shared button, field, card, avatar, empty/error/success and price conventions.
@@ -128,7 +128,7 @@ Use `templates/home.html`, `templates/explore.html`, `static/app.css` token defi
 | FE-08 | P1 · Confirmed | Public discovery requires location before results; authenticated discovery lists every active barber until filtered (`handlers/public_explore.go`, `customer_barbers.go`). | The journey changes after login. Choose one documented initial-results policy and preserve selected state/area through profile, sign-in and back navigation. |
 | FE-09 | P1 · Confirmed | Public profile's “Back to barber results” points to bare `/explore`; its login/registration/header paths do not preserve the selected location. Login failure drops `next` through generic `loginError`; registration always ends at dashboard. | Users must rediscover the shop/location after back navigation, a mistyped password or signup. Preserve validated return context throughout those paths and errors. |
 | FE-10 | P2 · Confirmed | Location selection is a state dropdown built from existing barbers plus free-text area; registration/admin/editor state and locality are free text. Matching is exact except case. | Typos, inconsistent state names and area spelling create false no-results. Use canonical region identifiers/dependent area choices, normalize existing data, sort choices and provide a clear broader-search action. |
-| FE-11 | P2 · Confirmed | Brand fallbacks vary between DG and BB in customer barber list/detail; barber dashboard title uses “Barber Multiverse” as product title. Labels vary between Find Barbers/Find a Barber/Explore Barbers and Services/Hairstyles/Handwork. | Weakens product identity and predictability. Define a naming glossary and shared brand/avatar component; preserve stylistic marketing copy without changing navigation names. |
+| FE-11 | P2 · Confirmed | Brand fallbacks vary between OG and BB in customer barber list/detail; barber dashboard title uses “Barber Multiverse” as product title. Labels vary between Find Barbers/Find a Barber/Explore Barbers and Services/Hairstyles/Handwork. | Weakens product identity and predictability. Define a naming glossary and shared brand/avatar component; preserve stylistic marketing copy without changing navigation names. |
 | FE-12 | P2 · Confirmed | Public and authenticated discovery/service prices use bare decimal numbers; commerce uses ₦. | A customer cannot consistently identify currency or compare amounts. Use one server-side currency formatter with grouping and a defined currency policy throughout cards, summaries, bookings and orders. |
 | FE-13 | P2 · Confirmed | Large inline stylesheet blocks remain in barber chat/list (711/684 total template lines); `app.css` uses many `!important` overrides over page CSS and retains a light legacy baseline. | Visual changes depend on selector order; the two messaging roles drift. Extract shared messaging styles and explicit layout variants, remove overrides incrementally and verify rather than deleting page CSS wholesale. |
 | FE-14 | P2 · Confirmed | Numbered navigation differs with the number of links; mobile menus often scroll horizontally with hidden scrollbars (`app.css`). | Hidden destinations and unstable numbers impair navigation. Implement the agreed mobile drawer/overflow pattern with focus management, visible active state and safe-area support. Browser testing is still required. |

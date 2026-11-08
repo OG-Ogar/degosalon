@@ -11,7 +11,7 @@ import (
 )
 
 func TestCompressGzipSupported(t *testing.T) {
-	largeText := strings.Repeat("De Go Salon - Quality Grooming Ecosystem. ", 100)
+	largeText := strings.Repeat("OG Salon - Quality Grooming Ecosystem. ", 100)
 
 	handler := Compress(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
@@ -134,7 +134,7 @@ func TestCompressFlusher(t *testing.T) {
 }
 
 func BenchmarkCompressGzip(b *testing.B) {
-	payload := []byte(strings.Repeat("De Go Salon Ecosystem HTML Content with Styles and Scripts. ", 50))
+	payload := []byte(strings.Repeat("OG Salon Ecosystem HTML Content with Styles and Scripts. ", 50))
 	handler := Compress(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html; charset=utf-8")
 		_, _ = w.Write(payload)

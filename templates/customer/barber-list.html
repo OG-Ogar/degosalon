@@ -6,7 +6,7 @@
 
     <script src="/static/theme-switch.js"></script>
     <link rel="stylesheet" href="/static/app.css">
-    <title>Find a Barber - De Go Salon</title>
+    <title>Find a Barber - OG Salon</title>
 
     <link rel="stylesheet" href="/static/customer-barbers.css">
     <script src="/static/app.js" defer></script>
@@ -53,7 +53,7 @@
             <div class="location-copy"><span class="step-number">01</span><div><p class="eyebrow">Location first</p><h2>Where do you need a barber?</h2><p>Choose your state and optionally narrow the results to your LGA or area council.</p></div></div>
             <form class="location-form ui-form" method="get" action="/customer/barbers">
                 <div class="location-field ui-field"><label for="q">Barber or shop name <span>Optional</span></label>
-                <input id="q" name="q" type="search" value="{{.Query}}" placeholder="e.g. Dego Cuts" maxlength="80"></div>
+                <input id="q" name="q" type="search" value="{{.Query}}" placeholder="e.g. og's salon Cuts" maxlength="80"></div>
                 <div class="location-field ui-field"><label for="state">State</label>
                 {{template "geography-state" .SelectedState}}</div>
                 <div class="location-field ui-field"><label for="area">LGA / area council <span>Optional</span></label>
@@ -146,7 +146,7 @@
 
                                 {{else}}
 
-                                    <span class="image-placeholder">DG</span>
+                                    <span class="image-placeholder">OG</span>
 
                                 {{end}}
 
@@ -253,7 +253,7 @@
                                         Message
                                     </a>
 
-                                    <button type="button" class="action-btn share-trigger ui-control" style="padding:0.45rem 0.85rem;font-size:0.8rem;display:inline-flex;align-items:center;gap:6px;border-radius:8px;border:1px solid var(--border);background:var(--surface-hi);color:var(--ink);cursor:pointer;" data-share-title="{{.ShopName}} on De Go Salon" data-share-text="Check out {{.ShopName}} in {{.LocalArea}}, {{.State}} on De Go Salon" data-share-url="{{discoveryCardPath "/customer/barbers" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">
+                                    <button type="button" class="action-btn share-trigger ui-control" style="padding:0.45rem 0.85rem;font-size:0.8rem;display:inline-flex;align-items:center;gap:6px;border-radius:8px;border:1px solid var(--border);background:var(--surface-hi);color:var(--ink);cursor:pointer;" data-share-title="{{.ShopName}} on OG Salon" data-share-text="Check out {{.ShopName}} in {{.LocalArea}}, {{.State}} on OG Salon" data-share-url="{{discoveryCardPath "/customer/barbers" .ID $.SelectedState $.SelectedArea $.Pagination.After $.Pagination.Before}}">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
                                         Share
                                     </button>

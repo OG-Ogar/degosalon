@@ -601,11 +601,11 @@
         padding: 20px 18px;
     }
 }
-/* De Go Salon barber profile refinement */
+/* OG Salon barber profile refinement */
 .barber-simple-header{background:#171311}.barber-brand,.barber-header-actions a,.barber-header-actions button{color:#fff}.barber-edit-section,.barber-profile-card{border-radius:16px;box-shadow:0 10px 30px rgba(31,24,20,.06)}@media(max-width:480px){.barber-simple-header{min-height:64px}}
 
 
-/* De Go Salon — modern barber profile editor */
+/* OG Salon — modern barber profile editor */
 .modern-role-page.barber-page{background:var(--void);color:var(--ink)}
 .modern-role-page .barber-simple-header{position:sticky;top:0;z-index:20;min-height:72px;padding:0 max(20px,calc((100% - 1160px)/2));border-bottom:1px solid rgba(var(--ink-muted-rgb),.14);background:rgba(var(--void-rgb),.92);backdrop-filter:blur(16px)}
 .modern-role-page .barber-simple-header .barber-brand{color:var(--ink)}.modern-role-page .barber-header-actions a,.modern-role-page .barber-header-actions button{color:var(--ink-muted)}.modern-role-page .barber-header-actions a:hover,.modern-role-page .barber-header-actions button:hover{color:var(--signal)}

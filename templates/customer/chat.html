@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="/static/chat-attachments.css">
     <script src="/static/image-viewer.js" defer></script>
     <script src="/static/chat-attachments.js" defer></script>
+    <script src="/static/chat-message-actions.js" defer></script>
 </head>
 
 <body class="modern-customer-page messaging-page">
@@ -87,7 +88,7 @@
 
                         {{range .Messages}}
 
-                            <div class="bubble {{if not .FromBarber}}mine{{end}}">
+                            <div class="bubble {{if not .FromBarber}}mine message-own{{end}}"{{if not .FromBarber}} data-message-own data-message-id="{{.ID}}" data-message-edit-url="{{$.Action}}/messages/{{.ID}}/edit" data-message-delete-url="{{$.Action}}/messages/{{.ID}}/delete" data-message-has-media="{{if or .Image .Audio .Video}}true{{else}}false{{end}}" data-message-text="{{.Text}}"{{end}}>
 
                                 <span class="who">
                                     {{.SenderName}}
@@ -133,6 +134,13 @@
                                         {{.SentAt.Format "2 Jan 2006, 15:04"}}
                                     </span>
                                     {{if not .FromBarber}}
+                                        <button
+                                            type="button"
+                                            class="bubble-menu-trigger"
+                                            data-message-menu-trigger
+                                            aria-label="Message options"
+                                            aria-haspopup="dialog"
+                                            title="Message options (or long press this message)">⋯</button>
                                         <span class="bubble-status" title="Delivered">✓✓</span>
                                     {{end}}
                                 </div>
@@ -235,6 +243,8 @@
     </div>
 
 </main>
+
+{{template "message-actions" .}}
 
 {{template "public-footer" .}}
 </body>

@@ -1,5 +1,5 @@
 "use strict";
-/* Fingerprint / passkey sign-in for OG Salon.
+/* Fingerprint / passkey sign-in for OG's Salon.
 
    The browser talks to the server twice for every ceremony: once for the
    challenge, and once with the signed answer. The password form remains the

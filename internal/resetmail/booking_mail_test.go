@@ -110,7 +110,7 @@ func TestBookingEmailContentDefaults(t *testing.T) {
 		"Duration: 0 minutes",
 		"Appointment Date: Unspecified",
 		"Appointment Time: Unspecified",
-		"Shop: OG Salon",
+		"Shop: OG's Salon",
 		"Customer Notes: None",
 		"https://salon.example.com/barber/bookings",
 	} {

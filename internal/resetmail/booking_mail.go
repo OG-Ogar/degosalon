@@ -106,7 +106,7 @@ func BookingEmailContent(origin string, n BookingNotification) (string, string) 
 		}
 	}
 	if shopInfo == "" {
-		shopInfo = "OG Salon"
+		shopInfo = "OG's Salon"
 	}
 
 	dateStr := strings.TrimSpace(n.Date)
@@ -122,7 +122,7 @@ func BookingEmailContent(origin string, n BookingNotification) (string, string) 
 
 	body := fmt.Sprintf(`%s
 
-You have received a new haircut booking request on OG Salon!
+You have received a new haircut booking request on OG's Salon!
 
 Booking Details:
 - Customer Name: %s

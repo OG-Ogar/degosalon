@@ -86,7 +86,7 @@ func webAuthnForRequest(r *http.Request) (*webauthn.WebAuthn, error) {
 
 	return webauthn.New(&webauthn.Config{
 		RPID:                  address.Hostname(),
-		RPDisplayName:         "OG Salon",
+		RPDisplayName:         "OG's Salon",
 		RPOrigins:             []string{address.Scheme + "://" + address.Host},
 		AttestationPreference: protocol.PreferNoAttestation,
 		AuthenticatorSelection: protocol.AuthenticatorSelection{

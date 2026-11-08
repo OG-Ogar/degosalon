@@ -14,7 +14,7 @@
 <header class="site-header">
 <div class="site-header-inner">
 {{if ne .Role "admin"}}<button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation-panel" data-nav-role="{{.Role}}" aria-label="Open the {{.Role}} menu"><span class="site-nav-toggle-glyph" aria-hidden="true"></span></button>{{end}}
-<a class="site-brand" href="/{{.Role}}/dashboard" aria-label="OG Salon {{.Role}} workspace"><span class="site-brand-mark" aria-hidden="true">OG</span><span class="site-brand-copy"><span class="site-brand-name">OG Salon</span><span class="site-brand-role">{{.Role}}</span></span></a>
+<a class="site-brand" href="/{{.Role}}/dashboard" aria-label="OG's Salon {{.Role}} workspace"><span class="site-brand-mark" aria-hidden="true">OG's</span><span class="site-brand-copy"><span class="site-brand-name">OG's Salon</span><span class="site-brand-role">{{.Role}}</span></span></a>
 {{if eq .Role "admin"}}<nav class="site-navigation" aria-label="{{.Role}} navigation">
 {{range .Links}}<a class="site-nav-link{{if .Active}} active{{end}}" href="{{.Path}}"{{if .AriaLabel}} aria-label="{{.AriaLabel}}"{{end}}{{if .Active}} aria-current="page"{{end}}><span class="site-nav-label">{{.Label}}</span></a>{{end}}
 {{template "theme-switch" .}}

@@ -1,15 +1,15 @@
-# OG Salon
+# OG's Salon
 
 **A simple platform for finding barbers and booking appointments.**
 
-OG Salon connects customers and barbers through service discovery,
+OG's Salon connects customers and barbers through service discovery,
 appointments, messaging and product orders.
 
 ## Current Status
 
 **Feature-rich MVP deployed and in active validation.**
 
-OG Salon implements public discovery plus authenticated customer, barber, and administrator journeys. It uses Go server-rendered templates with progressive TypeScript enhancement, PostgreSQL persistence, and configurable cloud media and password-recovery delivery.
+OG's Salon implements public discovery plus authenticated customer, barber, and administrator journeys. It uses Go server-rendered templates with progressive TypeScript enhancement, PostgreSQL persistence, and configurable cloud media and password-recovery delivery.
 
 The application is deployed on Render and uses Supabase PostgreSQL for persistent application data, so core records survive application restarts.
 
@@ -186,7 +186,7 @@ The server uses environment configuration where applicable.
 
 ## Known MVP Gaps / Production Readiness
 
-OG Salon is now deployed with persistent PostgreSQL storage, but production hardening and feature verification are still ongoing.
+OG's Salon is now deployed with persistent PostgreSQL storage, but production hardening and feature verification are still ongoing.
 
 Priority work includes:
 
@@ -270,7 +270,7 @@ See [remaining gap.md](remaining%20gap.md) for the reconciled scope and [browser
 
 ## TypeScript frontend strategy
 
-OG Salon uses a progressive-enhancement architecture rather than a separate single-page frontend. Go continues to own routing, authentication, authorization, server-rendered HTML, forms, and Supabase access. TypeScript source lives under `frontend/` and compiles to browser JavaScript under `static/`, which the existing Go server serves.
+OG's Salon uses a progressive-enhancement architecture rather than a separate single-page frontend. Go continues to own routing, authentication, authorization, server-rendered HTML, forms, and Supabase access. TypeScript source lives under `frontend/` and compiles to browser JavaScript under `static/`, which the existing Go server serves.
 
 This keeps the current Render deployment as one web service while giving interactive surfaces typed client-side code. High-interaction areas such as location discovery, booking selection, chat, cart behavior, uploads, and role navigation can migrate incrementally without rewriting stable server-rendered pages.
 

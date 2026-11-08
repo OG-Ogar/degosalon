@@ -117,6 +117,9 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 3 && parts[1] == "chats":
 		CustomerChatHandler(w, r, customer, s, parts[2])
 
+	case len(parts) == 6 && parts[1] == "chats" && parts[3] == "messages":
+		CustomerMessageActionHandler(w, r, customer, s, parts[2], parts[4], parts[5])
+
 	case len(parts) == 2 && parts[1] == "products":
 		CustomerProductsHandler(w, r, customer, s)
 

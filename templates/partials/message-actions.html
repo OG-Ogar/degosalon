@@ -1,0 +1,50 @@
+{{define "message-actions"}}
+<dialog class="message-actions-dialog" data-message-dialog aria-labelledby="message-actions-heading">
+    <div class="message-actions-panel">
+
+        <header class="message-actions-head">
+            <h2 id="message-actions-heading">Message options</h2>
+            <button
+                type="button"
+                class="message-actions-close"
+                data-message-dialog-close
+                aria-label="Close message options">×</button>
+        </header>
+
+        <div class="message-actions-menu" data-message-menu>
+            <button type="button" class="message-action-button" data-message-edit-open>
+                Edit message
+            </button>
+            <button type="button" class="message-action-button danger" data-message-delete-open>
+                Delete message
+            </button>
+        </div>
+
+        <form class="message-actions-form" method="post" action="" data-message-edit-form hidden>
+            <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+            <label class="message-actions-label" for="message-edit-text">Edit message</label>
+            <textarea
+                id="message-edit-text"
+                name="text"
+                rows="3"
+                maxlength="1000"
+                data-message-edit-text></textarea>
+            <p class="message-actions-hint" data-message-edit-hint hidden></p>
+            <div class="message-actions-buttons">
+                <button type="button" class="message-action-button" data-message-edit-back>Back</button>
+                <button type="submit" class="message-action-button primary">Save changes</button>
+            </div>
+        </form>
+
+        <form class="message-actions-form" method="post" action="" data-message-delete-form hidden>
+            <input type="hidden" name="csrf_token" value="{{.CSRF}}">
+            <p class="message-actions-copy">Delete this message? This cannot be undone.</p>
+            <div class="message-actions-buttons">
+                <button type="button" class="message-action-button" data-message-delete-back>Cancel</button>
+                <button type="submit" class="message-action-button danger">Delete</button>
+            </div>
+        </form>
+
+    </div>
+</dialog>
+{{end}}

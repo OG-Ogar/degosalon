@@ -102,6 +102,74 @@ func FindMessage(ctx context.Context, id int) (models.Message, error) {
 	return models.Message{}, ErrNotFound
 }
 
+// UpdateMessageText rewrites the text of one message. The sender role and
+// conversation pair are part of the condition, so a signed-in account can
+// only edit a message it actually sent inside its own thread.
+func UpdateMessageText(ctx context.Context, id, barberID, customerID int, senderRole, text string) error {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if databaseEnabled() {
+		result, err := db.ExecContext(ctx, "update public.messages set text=$1 where id=$2 and barber_id=$3 and customer_id=$4 and sender_role=$5", text, id, barberID, customerID, senderRole)
+		if err != nil {
+			return err
+		}
+		affected, err := result.RowsAffected()
+		if err != nil {
+			return err
+		}
+		if affected == 0 {
+			return ErrNotFound
+		}
+		return nil
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	for i := range messages {
+		v := &messages[i]
+		if v.ID != id || v.BarberID != barberID || v.CustomerID != customerID || v.SenderRole != senderRole {
+			continue
+		}
+		v.Text = text
+		return nil
+	}
+	return ErrNotFound
+}
+
+// DeleteMessage removes one message and returns the row that was removed so
+// the caller can clean up any attached photo, clip or voice note. Ownership
+// is part of the lookup for the same reason as UpdateMessageText.
+func DeleteMessage(ctx context.Context, id, barberID, customerID int, senderRole string) (models.Message, error) {
+	ctx, cancel := databaseContext(ctx)
+	defer cancel()
+
+	if err := ctx.Err(); err != nil {
+		return models.Message{}, err
+	}
+	if databaseEnabled() {
+		var v models.Message
+		err := db.QueryRowContext(ctx, "delete from public.messages where id=$1 and barber_id=$2 and customer_id=$3 and sender_role=$4 returning id,barber_id,customer_id,sender_role,sender_name,text,image,audio,video,sent_at", id, barberID, customerID, senderRole).Scan(&v.ID, &v.BarberID, &v.CustomerID, &v.SenderRole, &v.SenderName, &v.Text, &v.Image, &v.Audio, &v.Video, &v.SentAt)
+		if errors.Is(err, sql.ErrNoRows) {
+			return models.Message{}, ErrNotFound
+		}
+		return v, err
+	}
+	mu.Lock()
+	defer mu.Unlock()
+	for i := range messages {
+		v := messages[i]
+		if v.ID != id || v.BarberID != barberID || v.CustomerID != customerID || v.SenderRole != senderRole {
+			continue
+		}
+		messages = append(messages[:i], messages[i+1:]...)
+		return v, nil
+	}
+	return models.Message{}, ErrNotFound
+}
+
 // ListConversation returns the messages between one barber and one
 // customer, oldest first.
 func ListConversation(ctx context.Context, barberID, customerID int) ([]models.Message, error) {

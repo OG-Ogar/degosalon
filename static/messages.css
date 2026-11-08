@@ -75,3 +75,40 @@
     .messaging-page .barber-chat,.messaging-page .customer-chat{width:100%}
 }
 
+
+/* Own-message options: trigger, long-press dialog and edit/delete forms. */
+.messaging-page .bubble[data-message-own]{-webkit-touch-callout:none}
+@media(hover:none){.messaging-page .bubble[data-message-own]{-webkit-user-select:none;user-select:none}}
+.messaging-page .bubble-menu-trigger{border:0;background:none;color:var(--ink-muted);font:inherit;font-size:.95rem;line-height:1;padding:0 2px;cursor:pointer;opacity:.55;transition:opacity .15s ease,color .15s ease}
+.messaging-page .bubble-menu-trigger:hover,.messaging-page .bubble-menu-trigger:focus-visible{opacity:1;color:var(--signal)}
+.messaging-page .bubble-menu-trigger:focus-visible{outline:2px solid var(--signal);outline-offset:2px;border-radius:4px}
+body.message-actions-open{overflow:hidden}
+
+.message-actions-dialog{width:min(100% - 32px,440px);max-width:none;margin:auto;padding:0;border:0;background:transparent;color:var(--ink)}
+.message-actions-dialog::backdrop{background:rgba(4,7,12,.64);backdrop-filter:blur(3px)}
+.message-actions-panel{display:grid;gap:14px;padding:18px;border:1px solid var(--border-hi);border-radius:18px;background:var(--surface);box-shadow:0 24px 60px rgba(0,0,0,.5)}
+.message-actions-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.message-actions-head h2{margin:0;font-size:1rem;letter-spacing:.01em}
+.message-actions-close{display:grid;place-items:center;width:34px;height:34px;border-radius:9999px;border:1px solid var(--border);background:var(--surface-hi);color:var(--ink);font:inherit;font-size:1.2rem;line-height:1;cursor:pointer}
+.message-actions-close:hover{border-color:var(--signal);color:var(--signal)}
+.message-actions-menu{display:grid;gap:8px}
+.message-action-button{width:100%;min-height:46px;padding:10px 14px;border-radius:12px;border:1px solid var(--border-hi);background:var(--surface-hi);color:var(--ink);font:inherit;font-weight:700;cursor:pointer;text-align:center;transition:border-color .15s ease,transform .15s ease,background .15s ease}
+.message-action-button:hover{border-color:rgba(var(--signal-rgb),.5);transform:translateY(-1px)}
+.message-action-button:active{transform:scale(.99)}
+.message-action-button:focus-visible{outline:2px solid var(--signal);outline-offset:2px}
+.message-action-button.primary{background:var(--signal);border-color:var(--signal);color:var(--signal-ink)}
+.message-action-button.danger{color:#fca5a5;border-color:rgba(239,68,68,.42)}
+.message-action-button.danger:hover{background:rgba(239,68,68,.12);border-color:#ef4444}
+.message-actions-form{display:grid;gap:10px}
+.message-actions-form[hidden],.message-actions-menu[hidden],.message-actions-hint[hidden]{display:none}
+.message-actions-label{font-size:.82rem;font-weight:700;color:var(--ink-muted)}
+.message-actions-form textarea{width:100%;box-sizing:border-box;min-height:96px;padding:12px;border-radius:12px;border:1px solid var(--border-hi);background:var(--base);color:var(--ink);font:inherit;line-height:1.45;resize:vertical}
+.message-actions-form textarea:focus-visible{outline:2px solid var(--signal);outline-offset:1px}
+.message-actions-hint,.message-actions-copy{margin:0;font-size:.8rem;line-height:1.5;color:var(--ink-muted)}
+.message-actions-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.message-action-button[disabled]{opacity:.6;cursor:wait;transform:none}
+
+@media(max-width:600px){
+    .message-actions-dialog{width:100%;margin:auto auto 0}
+    .message-actions-panel{border-radius:18px 18px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
+}

@@ -36,7 +36,7 @@ func TestCreateSocialPostValidatesSoundtrack(t *testing.T) {
 
 	t.Run("requires media for music", func(t *testing.T) {
 		post := base
-		post.Music = "sunrise-glow"
+		post.Music = "bounce-pop"
 		if _, err := CreateSocialPost(context.Background(), post); !errors.Is(err, ErrInvalidSocialPost) {
 			t.Fatalf("want ErrInvalidSocialPost, got %v", err)
 		}
@@ -45,13 +45,13 @@ func TestCreateSocialPostValidatesSoundtrack(t *testing.T) {
 	t.Run("stores a bundled track", func(t *testing.T) {
 		post := base
 		post.Image = "/uploads/posts/photo.jpg"
-		post.Music = "sunrise-glow"
+		post.Music = "bounce-pop"
 		created, err := CreateSocialPost(context.Background(), post)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if created.Music != "sunrise-glow" {
-			t.Fatalf("music = %q, want sunrise-glow", created.Music)
+		if created.Music != "bounce-pop" {
+			t.Fatalf("music = %q, want bounce-pop", created.Music)
 		}
 	})
 }

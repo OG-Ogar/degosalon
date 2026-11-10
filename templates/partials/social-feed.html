@@ -36,7 +36,7 @@
       <div class="social-post-list" aria-label="Community posts">
         {{if .Posts}}
           {{range .Posts}}
-          <article class="social-post-card" id="post-{{.ID}}">
+          <article class="social-post-card" id="post-{{.ID}}"{{if .Music}} data-post-music{{end}}>
             {{$authorProfile := ""}}
             {{if and (eq .AuthorRole $.Role) (eq .AuthorID $.ActorID)}}{{$authorProfile = printf "/%s/profile" $.Role}}
             {{else if eq .AuthorRole "barber"}}{{$authorProfile = printf "/explore/%d" .AuthorID}}
@@ -68,6 +68,15 @@
             </div>
             {{end}}
             {{if .Video}}<video class="social-post-media" src="{{.Video}}" controls playsinline preload="metadata">Your browser cannot play this video.</video>{{end}}
+            {{if .Music}}{{$track := socialMusic .Music}}
+            <div class="social-post-sound" data-post-sound>
+              <audio data-post-audio src="{{$track.URL}}" loop preload="none" playsinline></audio>
+              <button type="button" class="social-post-sound-toggle" data-post-sound-toggle aria-pressed="true" aria-label="Soundtrack {{$track.Name}}. Tap to turn sound off.">
+                <span class="social-post-sound-icon" data-post-sound-icon aria-hidden="true">♪</span>
+                <span data-post-sound-label>{{$track.Name}}</span>
+              </button>
+            </div>
+            {{end}}
             <div class="social-post-actions">
               <form method="post" action="/{{$.Role}}/posts/{{.ID}}/like"><input type="hidden" name="csrf_token" value="{{$.CSRF}}"><input type="hidden" name="liked" value="{{if .LikedByMe}}false{{else}}true{{end}}"><button type="submit" class="social-like-button {{if .LikedByMe}}is-liked{{end}}" aria-label="{{if .LikedByMe}}Unlike{{else}}Like{{end}} post">{{if .LikedByMe}}♥ Liked{{else}}♡ Like{{end}} <span>{{.LikeCount}}</span></button></form>
               <a href="#comment-{{.ID}}">Comment</a>

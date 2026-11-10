@@ -14,6 +14,7 @@ type SocialPost struct {
 	TextStyle       string          `json:"text_style"`
 	Image           string          `json:"image"`
 	Video           string          `json:"video"`
+	Music           string          `json:"music"`
 	CreatedAt       time.Time       `json:"created_at"`
 	LikeCount       int             `json:"like_count"`
 	LikedByMe       bool            `json:"liked_by_me"`

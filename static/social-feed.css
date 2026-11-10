@@ -94,3 +94,45 @@
         right: 6px;
     }
 }
+
+/* Optional soundtrack picker in the composer */
+.social-tool[hidden]{display:none}
+.social-sound-toggle{cursor:pointer;color:var(--signal,#142034);background:var(--surface,#fff);font:inherit;font-size:.73rem;font-weight:750}
+.social-sound-toggle[aria-expanded="true"]{border-color:var(--signal,#142034);background:var(--surface-hi,#f4f7fb)}
+.social-sound-picker{margin-top:12px;padding:14px;border:1px solid var(--border,#d8e0ea);border-radius:13px;background:var(--surface-hi,#f4f7fb)}
+.social-sound-picker[hidden]{display:none}
+.social-sound-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:10px}
+.social-sound-head strong{display:block;color:var(--ink,#0c1524);font-size:.86rem}
+.social-sound-head p{margin:2px 0 0;color:var(--ink-faint,#68778d);font-size:.74rem;line-height:1.45}
+.social-sound-close{padding:5px 9px;border:1px solid var(--border,#d8e0ea);border-radius:7px;background:var(--surface,#fff);color:var(--ink-muted,#40516a);font:inherit;font-size:.7rem;font-weight:750;cursor:pointer}
+.social-sound-list{display:grid;gap:7px;max-height:262px;overflow-y:auto;padding-right:2px}
+.social-sound-option{display:flex;align-items:center;gap:10px;padding:9px 11px;border:1px solid var(--border,#d8e0ea);border-radius:10px;background:var(--surface,#fff);cursor:pointer}
+.social-sound-option:hover{border-color:var(--signal,#142034)}
+.social-sound-option:has(input:checked){border-color:var(--signal,#142034);background:#eef3f9;box-shadow:inset 0 0 0 1px var(--signal,#142034)}
+.social-sound-option input{flex:0 0 auto;width:16px;height:16px;accent-color:var(--signal,#142034)}
+.social-sound-option-text{display:grid;gap:2px;min-width:0;flex:1}
+.social-sound-option-text strong{color:var(--ink,#0c1524);font-size:.8rem}
+.social-sound-option-text span{overflow:hidden;color:var(--ink-faint,#68778d);font-size:.7rem;text-overflow:ellipsis;white-space:nowrap}
+.social-sound-preview{display:grid;place-items:center;flex:0 0 auto;width:33px;height:33px;border:1px solid var(--border,#d8e0ea);border-radius:50%;background:var(--surface-hi,#f4f7fb);color:var(--signal,#142034);font-size:.68rem;cursor:pointer}
+.social-sound-preview:hover{background:var(--signal,#142034);color:#fff}
+.social-sound-empty{margin:9px 0 0;color:var(--ink-faint,#68778d);font-size:.72rem}
+.social-sound-chip{display:flex;align-items:center;gap:8px;width:fit-content;max-width:100%;margin-top:10px;padding:7px 10px;border:1px solid var(--border,#d8e0ea);border-radius:999px;background:#eef3f9;color:var(--ink,#0c1524);font-size:.76rem;font-weight:750}
+.social-sound-chip[hidden]{display:none}
+.social-sound-chip>span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.social-sound-chip button{padding:2px 0 2px 7px;border:0;border-left:1px solid var(--border,#d8e0ea);background:transparent;color:var(--ink-muted,#40516a);font:inherit;font-size:.7rem;font-weight:750;cursor:pointer}
+.social-sound-chip button:hover{color:#b4233a}
+
+/* Soundtrack control shown under a feed photo or video */
+.social-post-sound{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:9px}
+.social-post-sound audio{display:none}
+.social-post-sound-toggle{display:inline-flex;align-items:center;gap:7px;max-width:100%;min-height:32px;padding:5px 11px;border:1px solid var(--border,#d8e0ea);border-radius:999px;background:var(--surface-hi,#f4f7fb);color:var(--ink-muted,#40516a);font:inherit;font-size:.72rem;font-weight:750;cursor:pointer}
+.social-post-sound-toggle:hover{border-color:var(--signal,#142034);color:var(--ink,#0c1524)}
+.social-post-sound-toggle[aria-pressed="true"]{border-color:var(--signal,#142034);background:#eef3f9;color:var(--ink,#0c1524)}
+.social-post-sound-toggle [data-post-sound-label]{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.social-post-sound-icon{display:grid;place-items:center;flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--signal,#142034);color:var(--signal-ink,#fff);font-size:.65rem}
+.social-post-sound-toggle[aria-pressed="false"] .social-post-sound-icon{background:var(--ink-faint,#68778d)}
+@media (max-width: 520px){
+  .social-sound-head p{font-size:.7rem}
+  .social-sound-option{padding:8px 9px}
+  .social-post-sound-toggle{font-size:.68rem}
+}

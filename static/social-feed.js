@@ -46,6 +46,17 @@
     var previewTrack = null;
     var objectURL = '';
 
+    /* Chrome re-checks a selected file's on-disk metadata when the form is
+       submitted and aborts with ERR_UPLOAD_FILE_CHANGED if the original file
+       moved, synced or was touched. Copying the bytes into memory as soon as
+       the file is chosen means the upload no longer depends on that file
+       reference. Large files stay on the normal path to avoid a memory spike. */
+    var SNAPSHOT_LIMIT = 128 * 1024 * 1024;
+    var snapshotReady = true;
+    var snapshotPromise = null;
+    var snapshotToken = 0;
+    var preparingSubmit = false;
+
     soundPreview.addEventListener('error', function () {
       stopSoundPreview();
       status.textContent = "Preview unavailable - this track's MP3 has not been added to static/music yet.";
@@ -102,8 +113,39 @@
       if (first) first.focus();
     }
 
+    function snapshotFile(selected) {
+      var token = ++snapshotToken;
+      snapshotReady = true;
+      snapshotPromise = null;
+      if (!selected || !window.DataTransfer || typeof selected.arrayBuffer !== 'function' || selected.size > SNAPSHOT_LIMIT) {
+        return;
+      }
+      snapshotReady = false;
+      snapshotPromise = selected.arrayBuffer().then(function (buffer) {
+        /* A newer selection (or Remove) won the race. */
+        if (token !== snapshotToken || !file.files || file.files[0] !== selected) return selected;
+        var stable = new File([buffer], selected.name, {
+          type: selected.type || 'application/octet-stream',
+          lastModified: selected.lastModified
+        });
+        var transfer = new DataTransfer();
+        transfer.items.add(stable);
+        file.files = transfer.files;
+        snapshotReady = true;
+        return stable;
+      }).catch(function () {
+        /* Fall back to the original file if the browser cannot read it. */
+        if (token === snapshotToken && file.files && file.files[0] === selected) snapshotReady = true;
+        return selected;
+      });
+    }
+
     function clearPreview(clearSelection, clearTrack) {
       if (clearSelection && file) file.value = '';
+      snapshotToken++;
+      snapshotReady = true;
+      snapshotPromise = null;
+      preparingSubmit = false;
       preview.hidden = true;
       image.hidden = true;
       image.removeAttribute('src');
@@ -157,6 +199,7 @@
         image.src = objectURL;
         image.hidden = false;
       }
+      snapshotFile(selected);
     });
 
     remove.addEventListener('click', function () { clearPreview(true, true); });
@@ -172,7 +215,12 @@
 
     soundOptions.forEach(function (option) {
       option.addEventListener('change', function () {
-        stopSoundPreview();
+        var optionLabel = option.closest('.social-sound-option');
+        /* Clicking the preview also selects its radio (it sits inside the
+           label). Do not stop the preview that click just started. */
+        if (!(previewTrack && optionLabel && optionLabel.contains(previewTrack))) {
+          stopSoundPreview();
+        }
         updateSoundLabel();
       });
     });
@@ -187,6 +235,14 @@
           return;
         }
         stopSoundPreview();
+        /* Previewing before choosing should also choose the track, so the
+           post keeps the sound the visitor just listened to. */
+        var option = button.closest('.social-sound-option');
+        var radio = option ? option.querySelector('[data-sound-option]') : null;
+        if (radio && !radio.checked) {
+          radio.checked = true;
+          updateSoundLabel();
+        }
         previewTrack = button;
         soundPreview.src = src;
         soundPreview.loop = true;
@@ -226,6 +282,22 @@
         event.preventDefault();
         status.textContent = 'Add a photo or video before choosing a soundtrack.';
         status.hidden = false;
+        return;
+      }
+      if (!snapshotReady && snapshotPromise) {
+        event.preventDefault();
+        if (preparingSubmit) return;
+        preparingSubmit = true;
+        var token = snapshotToken;
+        status.textContent = 'Preparing your photo or video…';
+        status.hidden = false;
+        snapshotPromise.then(function () {
+          preparingSubmit = false;
+          if (token !== snapshotToken || !snapshotReady) return;
+          status.hidden = true;
+          if (typeof form.requestSubmit === 'function') form.requestSubmit();
+          else form.submit();
+        });
         return;
       }
       stopSoundPreview();

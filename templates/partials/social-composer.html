@@ -10,7 +10,6 @@
   </div>
   <div class="social-compose-tools">
     <label class="social-tool social-media-picker">Add photo or video<input type="file" name="attachment" accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime,video/x-m4v,video/3gpp" data-social-file></label>
-    <button type="button" class="social-tool social-sound-toggle" data-sound-toggle aria-expanded="false" aria-controls="social-sound-picker" hidden><span aria-hidden="true">♪</span> Add sound</button>
     <label class="social-tool">Background
       <span class="social-color-swatch" data-social-swatch aria-hidden="true"></span>
       <select name="background_color" data-social-color aria-label="Post text background color">
@@ -20,27 +19,6 @@
     <label class="social-tool">Text style
       <select name="text_style" data-social-style><option value="normal">Normal</option><option value="bold">Bold</option><option value="italic">Italic</option></select>
     </label>
-  </div>
-  <div class="social-sound-picker" id="social-sound-picker" data-sound-picker hidden>
-    <div class="social-sound-head">
-      <div><strong>Add a sound</strong><p>Optional. Pick a short trending-style track to play with your photo or video.</p></div>
-      <button type="button" class="social-sound-close" data-sound-close aria-label="Close sound list">Close</button>
-    </div>
-    <div class="social-sound-list" role="radiogroup" aria-label="Soundtrack choices">
-      {{range .MusicTracks}}
-      <label class="social-sound-option">
-        <input type="radio" name="music" value="{{.ID}}" data-sound-option>
-        <span class="social-sound-option-text"><strong>{{.Name}}</strong><span>{{.Mood}}{{if .Duration}} &middot; {{.Duration}}{{end}}</span></span>
-        <span class="social-sound-preview" data-sound-preview data-src="{{.URL}}" role="button" tabindex="0" aria-label="Preview {{.Name}}">▶</span>
-      </label>
-      {{end}}
-    </div>
-    <p class="social-sound-empty" data-sound-empty>No track selected. Your post will be silent.</p>
-  </div>
-  <div class="social-sound-chip" data-sound-chip hidden>
-    <span aria-hidden="true">♪</span>
-    <span data-sound-chip-name></span>
-    <button type="button" data-sound-remove aria-label="Remove soundtrack">Remove</button>
   </div>
   <div class="social-post-preview" data-social-preview hidden>
     <img data-social-preview-image alt="Selected photo" hidden>

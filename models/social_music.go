@@ -1,13 +1,11 @@
 package models
 
-// SocialMusicTrack is one soundtrack a member can attach to a photo or video
-// post. The catalogue follows sounds trending on Nigerian TikTok and the wider
-// short-video feed. IDs are stored with the post; URLs point at audio files in
-// static/music/.
+// SocialMusicTrack describes a soundtrack record. The post composer no longer
+// offers soundtracks, but the catalogue and its validation stay in place for
+// older stored posts and for a future re-enable once licensed audio exists.
 //
-// Copyrighted recordings are not bundled with the app. Drop a licensed MP3 for
-// each track into static/music/ using the filename in URL before enabling it in
-// production. See static/music/README.md for the full file list.
+// Copyrighted recordings are not bundled with the app. See
+// static/music/README.md for the expected filenames.
 type SocialMusicTrack struct {
 	ID       string
 	Name     string

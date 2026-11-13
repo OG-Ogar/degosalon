@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"barber-booking/models"
@@ -42,7 +43,7 @@ func TestHomeFeedAuthorPhotoLinksToProfile(t *testing.T) {
 	mustContain(t, "author photo link", body, "A post from the feed author")
 }
 
-func TestSocialComposerOffersSoundtrackChoices(t *testing.T) {
+func TestSocialComposerOmitsSoundtrackPicker(t *testing.T) {
 	storage.Reset()
 	t.Cleanup(storage.Reset)
 
@@ -58,13 +59,15 @@ func TestSocialComposerOffersSoundtrackChoices(t *testing.T) {
 	}
 
 	body := response.Body.String()
-	mustContain(t, "sound picker", body, `data-sound-picker`)
-	mustContain(t, "sound field", body, `name="music"`)
-	mustContain(t, "bundled track", body, `value="aura-farming"`)
-	mustContain(t, "preview audio", body, `/static/music/aura-farming.mp3`)
+	mustContain(t, "composer", body, `data-social-composer`)
+	for _, unwanted := range []string{`data-sound-picker`, `name="music"`, `/static/music/`} {
+		if strings.Contains(body, unwanted) {
+			t.Fatalf("composer still exposes soundtrack UI %q", unwanted)
+		}
+	}
 }
 
-func TestHomeFeedPlaysPostSoundtrack(t *testing.T) {
+func TestHomeFeedOmitsSoundtrackPlayer(t *testing.T) {
 	storage.Reset()
 	t.Cleanup(storage.Reset)
 
@@ -72,6 +75,8 @@ func TestHomeFeedPlaysPostSoundtrack(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// An old post may still carry a music ID in storage. The feed must not
+	// render a broken player for it now that soundtracks are removed.
 	if _, err := storage.CreateSocialPost(context.Background(), models.SocialPost{
 		AuthorRole:      models.SenderCustomer,
 		AuthorID:        customer.ID,
@@ -91,7 +96,10 @@ func TestHomeFeedPlaysPostSoundtrack(t *testing.T) {
 	}
 
 	body := response.Body.String()
-	mustContain(t, "music post card", body, `data-post-music`)
-	mustContain(t, "music audio", body, `data-post-audio src="/static/music/smooth-criminal.mp3"`)
-	mustContain(t, "music control", body, `data-post-sound-toggle`)
+	mustContain(t, "feed post", body, `id="post-`)
+	for _, unwanted := range []string{`data-post-music`, `data-post-audio`, `/static/music/`} {
+		if strings.Contains(body, unwanted) {
+			t.Fatalf("feed still exposes soundtrack UI %q", unwanted)
+		}
+	}
 }

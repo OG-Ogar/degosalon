@@ -68,6 +68,10 @@ func BarberRouter(w http.ResponseWriter, r *http.Request) {
 
 	switch {
 
+	// The live booking alert polls this; it must stay cheap and side-effect free.
+	case len(parts) == 2 && parts[1] == "notifications":
+		BarberNotificationsHandler(w, r, barber)
+
 	case len(parts) == 2 && parts[1] == "logout":
 		BarberLogoutHandler(w, r, s)
 

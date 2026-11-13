@@ -11,6 +11,7 @@
 
 {{define "role-header"}}
 {{if ne .Role "admin"}}<script src="/static/nav-drawer.js"></script>{{end}}
+{{if eq .Role "barber"}}<script src="/static/barber-notifications.js?v=1" defer></script>{{end}}
 <header class="site-header">
 <div class="site-header-inner">
 {{if ne .Role "admin"}}<button class="site-nav-toggle" type="button" aria-expanded="false" aria-controls="site-navigation-panel" data-nav-role="{{.Role}}" aria-label="Open the {{.Role}} menu"><span class="site-nav-toggle-glyph" aria-hidden="true"></span></button>{{end}}

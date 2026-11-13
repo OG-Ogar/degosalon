@@ -46,6 +46,12 @@
     var previewTrack = null;
     var objectURL = '';
 
+    soundPreview.addEventListener('error', function () {
+      stopSoundPreview();
+      status.textContent = "Preview unavailable - this track's MP3 has not been added to static/music yet.";
+      status.hidden = false;
+    });
+
     function selectedSound() {
       for (var i = 0; i < soundOptions.length; i++) {
         if (soundOptions[i].checked) return soundOptions[i];
@@ -191,7 +197,7 @@
         if (playing && playing.catch) {
           playing.catch(function () {
             stopSoundPreview();
-            status.textContent = 'Tap the track again to hear a preview.';
+            status.textContent = "Preview unavailable - add this track's MP3 to static/music to enable playback.";
             status.hidden = false;
           });
         }
@@ -252,8 +258,18 @@
         label: card.querySelector('[data-post-sound-label]'),
         video: card.querySelector('video.social-post-media'),
         name: card.querySelector('[data-post-sound-label]') ? card.querySelector('[data-post-sound-label]').textContent : 'Soundtrack',
-        blocked: false
+        blocked: false,
+        missing: false
       };
+    });
+
+    posts.forEach(function (post) {
+      if (!post.audio) return;
+      post.audio.addEventListener('error', function () {
+        post.missing = true;
+        pausePost(post, true);
+        refreshButton(post);
+      });
     });
 
     function postFor(card) {
@@ -265,6 +281,13 @@
 
     function refreshButton(post) {
       if (!post || !post.button) return;
+      if (post.missing) {
+        post.icon.textContent = '🔈';
+        post.label.textContent = post.name + ' · audio not added';
+        post.button.setAttribute('aria-pressed', 'false');
+        post.button.setAttribute('aria-label', 'Soundtrack ' + post.name + '. Audio file has not been added yet.');
+        return;
+      }
       if (!soundOn) {
         post.icon.textContent = '♪';
         post.label.textContent = post.name + ' · sound off';
@@ -298,7 +321,7 @@
     }
 
     function playPost(post) {
-      if (!post || !soundOn) return;
+      if (!post || !soundOn || post.missing) return;
       post.audio.volume = 0.65;
       var playing = post.audio.play();
       post.blocked = false;

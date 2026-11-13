@@ -30,7 +30,7 @@
       {{range .MusicTracks}}
       <label class="social-sound-option">
         <input type="radio" name="music" value="{{.ID}}" data-sound-option>
-        <span class="social-sound-option-text"><strong>{{.Name}}</strong><span>{{.Mood}} &middot; {{.Duration}}</span></span>
+        <span class="social-sound-option-text"><strong>{{.Name}}</strong><span>{{.Mood}}{{if .Duration}} &middot; {{.Duration}}{{end}}</span></span>
         <span class="social-sound-preview" data-sound-preview data-src="{{.URL}}" role="button" tabindex="0" aria-label="Preview {{.Name}}">▶</span>
       </label>
       {{end}}

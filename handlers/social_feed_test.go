@@ -60,8 +60,8 @@ func TestSocialComposerOffersSoundtrackChoices(t *testing.T) {
 	body := response.Body.String()
 	mustContain(t, "sound picker", body, `data-sound-picker`)
 	mustContain(t, "sound field", body, `name="music"`)
-	mustContain(t, "bundled track", body, `value="bounce-pop"`)
-	mustContain(t, "preview audio", body, `/static/music/bounce-pop.mp3`)
+	mustContain(t, "bundled track", body, `value="aura-farming"`)
+	mustContain(t, "preview audio", body, `/static/music/aura-farming.mp3`)
 }
 
 func TestHomeFeedPlaysPostSoundtrack(t *testing.T) {
@@ -79,7 +79,7 @@ func TestHomeFeedPlaysPostSoundtrack(t *testing.T) {
 		BackgroundColor: "#fff0c2",
 		TextStyle:       "normal",
 		Image:           "/uploads/posts/photo.jpg",
-		Music:           "phonk-drift",
+		Music:           "smooth-criminal",
 	}); err != nil {
 		t.Fatal(err)
 	}
@@ -92,6 +92,6 @@ func TestHomeFeedPlaysPostSoundtrack(t *testing.T) {
 
 	body := response.Body.String()
 	mustContain(t, "music post card", body, `data-post-music`)
-	mustContain(t, "music audio", body, `data-post-audio src="/static/music/phonk-drift.mp3"`)
+	mustContain(t, "music audio", body, `data-post-audio src="/static/music/smooth-criminal.mp3"`)
 	mustContain(t, "music control", body, `data-post-sound-toggle`)
 }

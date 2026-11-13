@@ -1,11 +1,13 @@
 package models
 
-// SocialMusicTrack is one short, loopable soundtrack a member can attach to a
-// photo or video post. Every track is an original, royalty-free production
-// written in a style popular on short-video feeds (dance-pop, phonk, Afrobeats,
-// amapiano, Jersey club, hyperpop, lo-fi, cinematic pop, R&B, tech house and
-// indie). IDs are stored with the post; URLs point at the bundled audio files,
-// so no upload is needed for a soundtrack.
+// SocialMusicTrack is one soundtrack a member can attach to a photo or video
+// post. The catalogue follows sounds trending on Nigerian TikTok and the wider
+// short-video feed. IDs are stored with the post; URLs point at audio files in
+// static/music/.
+//
+// Copyrighted recordings are not bundled with the app. Drop a licensed MP3 for
+// each track into static/music/ using the filename in URL before enabling it in
+// production. See static/music/README.md for the full file list.
 type SocialMusicTrack struct {
 	ID       string
 	Name     string
@@ -15,18 +17,22 @@ type SocialMusicTrack struct {
 }
 
 var socialMusicTracks = []SocialMusicTrack{
-	{ID: "bounce-pop", Name: "Bounce Pop", Mood: "Upbeat dance-pop", Duration: "0:15", URL: "/static/music/bounce-pop.mp3"},
-	{ID: "phonk-drift", Name: "Phonk Drift", Mood: "Dark drift phonk", Duration: "0:14", URL: "/static/music/phonk-drift.mp3"},
-	{ID: "sped-up-pop", Name: "Sped-Up Sparkle", Mood: "Nightcore pop", Duration: "0:12", URL: "/static/music/sped-up-pop.mp3"},
-	{ID: "afro-bounce", Name: "Afro Bounce", Mood: "Afrobeats groove", Duration: "0:18", URL: "/static/music/afro-bounce.mp3"},
-	{ID: "amapiano-sunset", Name: "Amapiano Sunset", Mood: "Log-drum amapiano", Duration: "0:17", URL: "/static/music/amapiano-sunset.mp3"},
-	{ID: "jersey-club", Name: "Jersey Club", Mood: "Bouncy club energy", Duration: "0:14", URL: "/static/music/jersey-club.mp3"},
-	{ID: "hyperpop-rush", Name: "Hyperpop Rush", Mood: "Glitchy hyperpop", Duration: "0:12", URL: "/static/music/hyperpop-rush.mp3"},
-	{ID: "lofi-aesthetic", Name: "Lo-Fi Aesthetic", Mood: "Chill study beats", Duration: "0:12", URL: "/static/music/lofi-aesthetic.mp3"},
-	{ID: "main-character", Name: "Main Character", Mood: "Cinematic pop", Duration: "0:21", URL: "/static/music/main-character.mp3"},
-	{ID: "smooth-rnb", Name: "Smooth R&B", Mood: "Late-night R&B", Duration: "0:22", URL: "/static/music/smooth-rnb.mp3"},
-	{ID: "tech-house", Name: "Tech House", Mood: "Deep club groove", Duration: "0:15", URL: "/static/music/tech-house.mp3"},
-	{ID: "indie-summer", Name: "Indie Summer", Mood: "Jangly indie pop", Duration: "0:16", URL: "/static/music/indie-summer.mp3"},
+	{ID: "mafia-soothewave", Name: "Mafia Soothewave", Mood: "Soothewave Naija TikTok trend", URL: "/static/music/mafia-soothewave.mp3"},
+	{ID: "team-trump", Name: "Team Trump", Mood: "Viral meme sound", URL: "/static/music/team-trump.mp3"},
+	{ID: "when-my-god-say-yes", Name: "When My God Say Yes", Mood: "Gospel TikTok trend", URL: "/static/music/when-my-god-say-yes.mp3"},
+	{ID: "aura-farming", Name: "Aura Farming", Mood: "Viral aura trend", URL: "/static/music/aura-farming.mp3"},
+	{ID: "forever-young", Name: "Forever Young", Mood: "Nostalgic pop trend", URL: "/static/music/forever-young.mp3"},
+	{ID: "smooth-criminal", Name: "Smooth Criminal", Mood: "Michael Jackson dance trend", URL: "/static/music/smooth-criminal.mp3"},
+	{ID: "plutomania", Name: "PLUTOMANIA", Mood: "Hyperpop TikTok trend", URL: "/static/music/plutomania.mp3"},
+	{ID: "i-gat-black-i-gat-white", Name: "I Gat Black, I Gat White", Mood: "Viral Naija comedy sound", URL: "/static/music/i-gat-black-i-gat-white.mp3"},
+	{ID: "junior", Name: "Junior", Mood: "Naija street anthem", URL: "/static/music/junior.mp3"},
+	{ID: "let-me-be", Name: "LET ME BE", Mood: "Afrobeats TikTok trend", URL: "/static/music/let-me-be.mp3"},
+	{ID: "akons-beautiful-day", Name: "Akon's Beautiful Day", Mood: "Akon feel-good trend", URL: "/static/music/akons-beautiful-day.mp3"},
+	{ID: "never-give-up", Name: "Never Give Up", Mood: "Motivational TikTok trend", URL: "/static/music/never-give-up.mp3"},
+	{ID: "last-last", Name: "Last Last", Mood: "Burna Boy Afrobeats", URL: "/static/music/last-last.mp3"},
+	{ID: "rush", Name: "Rush", Mood: "Ayra Starr Afrobeats", URL: "/static/music/rush.mp3"},
+	{ID: "sungba", Name: "Sungba", Mood: "Asake amapiano", URL: "/static/music/sungba.mp3"},
+	{ID: "essence", Name: "Essence", Mood: "Wizkid Afrobeats", URL: "/static/music/essence.mp3"},
 }
 
 // SocialMusicTracks returns the soundtrack menu shown in the post composer.

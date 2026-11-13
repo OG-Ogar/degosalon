@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"barber-booking/internal/geography"
-	"barber-booking/models"
 	"bytes"
 	"fmt"
 	"html/template"
@@ -55,7 +54,7 @@ func LoadTemplates(dir string) error {
 			return err
 		}
 
-		tmpl, err := template.New(entry.Name()).Funcs(template.FuncMap{"imageSrcset": imageSrcset, "confirmation": confirmation, "discoveryCardPath": discoveryCardPath, "navigation": navigation, "naira": naira, "domainStatus": domainStatus, "availabilityStatus": availabilityStatus, "publicMetadata": publicMetadata, "websiteSchema": websiteSchema, "salonSchema": salonSchema, "geographyStates": geography.States, "geographyStateID": geography.StateID, "geographyAreaID": geography.AreaID, "socialMusic": socialMusicTrack}).ParseFiles(append([]string{path}, partials...)...)
+		tmpl, err := template.New(entry.Name()).Funcs(template.FuncMap{"imageSrcset": imageSrcset, "confirmation": confirmation, "discoveryCardPath": discoveryCardPath, "navigation": navigation, "naira": naira, "domainStatus": domainStatus, "availabilityStatus": availabilityStatus, "publicMetadata": publicMetadata, "websiteSchema": websiteSchema, "salonSchema": salonSchema, "geographyStates": geography.States, "geographyStateID": geography.StateID, "geographyAreaID": geography.AreaID}).ParseFiles(append([]string{path}, partials...)...)
 		if err != nil {
 			return fmt.Errorf("parse %s: %w", name, err)
 		}
@@ -494,12 +493,6 @@ func journeyError(w http.ResponseWriter, message string, status int) {
 	w.Header().Set("Cache-Control", "no-store")
 	w.WriteHeader(status)
 	_, _ = buf.WriteTo(w)
-}
-
-// socialMusicTrack resolves a stored soundtrack ID for the feed template.
-func socialMusicTrack(id string) models.SocialMusicTrack {
-	track, _ := models.SocialMusicTrackByID(id)
-	return track
 }
 
 // confirmation supplies presentation text while callers retain their owned routes.

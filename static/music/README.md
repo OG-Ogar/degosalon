@@ -1,12 +1,12 @@
 # Soundtrack audio files
 
-The "Add sound" picker in the post composer is driven by
-[`models/social_music.go`](../../models/social_music.go). The catalogue now lists
-trending Nigerian TikTok songs, but **no copyrighted recordings are bundled with
-this repository**.
+The "Add sound" picker has been removed from the post composer because the
+repository does not bundle the licensed recordings the catalogue points at.
+The catalogue in [`models/social_music.go`](../../models/social_music.go) is
+kept inactive for a future re-enable.
 
-To enable playback, add a licensed MP3 for each track using the exact filenames
-below, then commit the files:
+If you later restore the feature, add a licensed MP3 for each track using the
+exact filenames below:
 
 | Track | Filename |
 | --- | --- |
@@ -32,13 +32,3 @@ below, then commit the files:
 Only add audio you have the right to distribute — for example, a signed licence
 from the rights holder, a royalty-free cover/version, or a track you produced.
 Do not rip audio from YouTube, TikTok, Spotify or other streaming services.
-
-Until a file is added, the picker still lists the track, but previewing or
-playing it will show an "audio not added" message instead of breaking the page.
-
-## Adding or removing tracks
-
-1. Add the MP3 here.
-2. Add a `SocialMusicTrack` entry with the same slug in
-   `models/social_music.go`.
-3. `Duration` is optional; leave it empty to hide the duration in the picker.

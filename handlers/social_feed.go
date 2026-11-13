@@ -25,7 +25,6 @@ type socialFeedView struct {
 	PostAction  string
 	Posts       []models.SocialPost
 	Statuses    []models.HairstyleStatus
-	MusicTracks []models.SocialMusicTrack
 	Error       string
 }
 
@@ -38,7 +37,7 @@ func loadSocialFeed(r *http.Request, role string, actorID int, actorName, actorP
 	if err != nil {
 		return socialFeedView{}, err
 	}
-	return socialFeedView{Role: role, ActorID: actorID, ActorName: actorName, ActorPhoto: actorPhoto, ProfilePath: "/" + role + "/profile", CSRF: csrf, PostAction: "/" + role + "/posts", Posts: posts, Statuses: statuses, MusicTracks: models.SocialMusicTracks()}, nil
+	return socialFeedView{Role: role, ActorID: actorID, ActorName: actorName, ActorPhoto: actorPhoto, ProfilePath: "/" + role + "/profile", CSRF: csrf, PostAction: "/" + role + "/posts", Posts: posts, Statuses: statuses}, nil
 }
 
 func SocialPostComposerHandler(w http.ResponseWriter, r *http.Request, role, actorName, actorPhoto string, s sessionData) {
@@ -46,7 +45,7 @@ func SocialPostComposerHandler(w http.ResponseWriter, r *http.Request, role, act
 		methodNotAllowed(w, http.MethodGet)
 		return
 	}
-	view := socialFeedView{Role: role, ActorName: actorName, ActorPhoto: actorPhoto, ProfilePath: "/" + role + "/profile", CSRF: s.CSRFToken, PostAction: "/" + role + "/posts", MusicTracks: models.SocialMusicTracks()}
+	view := socialFeedView{Role: role, ActorName: actorName, ActorPhoto: actorPhoto, ProfilePath: "/" + role + "/profile", CSRF: s.CSRFToken, PostAction: "/" + role + "/posts"}
 	render(w, "social-post-compose.html", view)
 }
 
@@ -73,17 +72,8 @@ func createSocialPost(w http.ResponseWriter, r *http.Request, role string, actor
 	if errors.Is(err, errNoUpload) {
 		imageURL, videoURL = "", ""
 	}
-	music := strings.TrimSpace(r.PostFormValue("music"))
-	if !models.ValidSocialMusicID(music) {
-		journeyError(w, "Choose a soundtrack from the list, then try again.", http.StatusBadRequest)
-		return
-	}
-	if music != "" && imageURL == "" && videoURL == "" {
-		journeyError(w, "Add a photo or video before choosing a soundtrack.", http.StatusBadRequest)
-		return
-	}
 	post := models.SocialPost{AuthorRole: role, AuthorID: actorID, AuthorName: actorName, AuthorImage: actorPhoto, Text: text,
-		BackgroundColor: strings.ToLower(strings.TrimSpace(r.PostFormValue("background_color"))), TextStyle: strings.TrimSpace(r.PostFormValue("text_style")), Image: imageURL, Video: videoURL, Music: music}
+		BackgroundColor: strings.ToLower(strings.TrimSpace(r.PostFormValue("background_color"))), TextStyle: strings.TrimSpace(r.PostFormValue("text_style")), Image: imageURL, Video: videoURL}
 	if post.BackgroundColor == "" {
 		post.BackgroundColor = "#fff0c2"
 	}

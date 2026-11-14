@@ -40,6 +40,9 @@ var (
 
 	passkeys          = map[string]models.Passkey{}
 	rememberedDevices = map[string]models.RememberedDevice{}
+
+	pushMu            sync.RWMutex
+	pushSubscriptions = map[string]PushSubscription{}
 )
 
 var (
@@ -125,6 +128,9 @@ func Reset() {
 	mediaObjects = make(map[string]mediaObject)
 	passkeys = make(map[string]models.Passkey)
 	rememberedDevices = make(map[string]models.RememberedDevice)
+	pushMu.Lock()
+	pushSubscriptions = make(map[string]PushSubscription)
+	pushMu.Unlock()
 	productOrders = nil
 	productOrderItems = nil
 	lastProductOrderID = 0

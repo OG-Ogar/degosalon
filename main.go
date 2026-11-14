@@ -163,6 +163,17 @@ func run() error {
 		log.Print("Google sign-in unavailable: set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET")
 	}
 
+	// Web Push alerts the recipient while the app is closed. The in-page
+	// popup does not depend on this; without VAPID keys only the closed-app
+	// part is unavailable.
+	if enabled, err := handlers.InitPushNotifications(); err != nil {
+		log.Printf("Web Push unavailable: %v", err)
+	} else if enabled {
+		log.Print("Web Push enabled")
+	} else {
+		log.Print("Web Push unavailable: set VAPID_PUBLIC_KEY and VAPID_PRIVATE_KEY")
+	}
+
 	openingDefault, closingDefault := handlers.BookingHours()
 	storage.ConfigureCalendarDefaults(handlers.BookingTimezone(), openingDefault, closingDefault)
 
@@ -268,6 +279,13 @@ func run() error {
 	cancelNotifications()
 	if notificationErr != nil {
 		log.Printf("booking notification workers did not stop: %v", notificationErr)
+	}
+
+	pushContext, cancelPush := context.WithTimeout(context.Background(), 20*time.Second)
+	pushErr := handlers.WaitForPushNotifications(pushContext)
+	cancelPush()
+	if pushErr != nil {
+		log.Printf("push notification workers did not stop: %v", pushErr)
 	}
 
 	return serveErr

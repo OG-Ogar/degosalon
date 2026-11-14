@@ -106,7 +106,7 @@ func BarberChatHandler(
 			return
 		}
 
-		_, err := storage.AddMessage(r.Context(), models.Message{
+		stored, err := storage.AddMessage(r.Context(), models.Message{
 			BarberID:   barber.ID,
 			CustomerID: customer.ID,
 			SenderRole: models.SenderBarber,
@@ -125,6 +125,8 @@ func BarberChatHandler(
 
 			return
 		}
+
+		sendPushAsync("customer", customer.ID, messagePush(barber.FullName, stored.Text, stored.Image, stored.Audio, stored.Video, chatPath("/customer/chats/", barber.ID), stored.ID))
 
 		http.Redirect(
 			w,

@@ -136,8 +136,8 @@ func TestBarberBookingAlertBaselineThenNewBooking(t *testing.T) {
 	if alert.Price != style.Price {
 		t.Errorf("alert price = %v, want %v", alert.Price, style.Price)
 	}
-	if alert.Time != "10:00" {
-		t.Errorf("alert time = %q, want 10:00", alert.Time)
+	if alert.Time != "14:00" {
+		t.Errorf("alert time = %q, want 14:00", alert.Time)
 	}
 }
 

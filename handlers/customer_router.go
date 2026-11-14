@@ -60,6 +60,12 @@ func CustomerRouter(w http.ResponseWriter, r *http.Request) {
 	case len(parts) == 2 && parts[1] == "logout":
 		CustomerLogoutHandler(w, r, s)
 
+	case len(parts) == 2 && parts[1] == "notifications":
+		CustomerNotificationsHandler(w, r, customer)
+
+	case len(parts) == 3 && parts[1] == "notifications" && parts[2] == "subscribe":
+		CustomerPushSubscriptionHandler(w, r, customer, s)
+
 	case len(parts) == 2 && parts[1] == "dashboard":
 		CustomerDashboardHandler(w, r, customer, s)
 

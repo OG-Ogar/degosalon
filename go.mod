@@ -3,6 +3,7 @@ module barber-booking
 go 1.23.0
 
 require (
+	github.com/SherClockHolmes/webpush-go v1.4.0
 	github.com/go-webauthn/webauthn v0.11.2
 	github.com/jackc/pgx/v5 v5.7.6
 	golang.org/x/image v0.30.0

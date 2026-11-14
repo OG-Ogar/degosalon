@@ -172,6 +172,7 @@ func BookHairstyleHandler(
 	slog.InfoContext(r.Context(), "booking_created", "request_id", observability.RequestID(r.Context()), "booking_id", booking.ID)
 
 	sendBookingNotificationAsync(booking, barber)
+	sendPushAsync("barber", barber.ID, bookingPush(booking.ID, booking.CustomerName, booking.ServiceName, booking.Date, booking.Time))
 
 	// The booking was successfully created.
 	// Send the customer to the confirmation page instead of

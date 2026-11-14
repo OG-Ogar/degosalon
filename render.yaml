@@ -53,3 +53,12 @@ services:
         sync: false
       - key: GOOGLE_CLIENT_SECRET
         sync: false
+
+      # Web Push for closed-app booking and chat alerts. Generate the keys
+      # once with `go run ./cmd/vapid` and keep them stable across deploys.
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
